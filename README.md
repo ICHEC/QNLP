@@ -120,8 +120,8 @@ In this work package, ICHEC will deliver the following components to Intel:
 
 ## References
 
-[1]. William Zeng and Bob Coecke, “Quantum Algorithms for Compositional Natural Language Processing”, Proceedings of SLPCS, 2016.
+[1]. William Zeng and Bob Coecke, “[Quantum Algorithms for Compositional Natural Language Processing](Documents/Literature/disco01_paper.pdf)”, Proceedings of SLPCS, 2016.
 
-[2]. Stephen Clark, Bob Coecke and Mehrnoosh Sadrzadeh, “A Compositional Distributional Model of Meaning”, Proceedings of 2nd Quantum Interaction Symposium, 2008.
+[2]. Stephen Clark, Bob Coecke and Mehrnoosh Sadrzadeh, “[A Compositional Distributional Model of Meaning](Documents/Literature/disco02_paper.pdf)”, Proceedings of 2nd Quantum Interaction Symposium, 2008.
 
-[3]. Bob Coecke, Mehrnoosh Sadrzadeh and Stephen Clark, “Mathematical Foundations of a Compositional Distributional Model of Meaning”, Special issue of Linguistic Analysis, 2010.
+[3]. Bob Coecke, Mehrnoosh Sadrzadeh and Stephen Clark, “[Mathematical Foundations of a Compositional Distributional Model of Meaning](Documents/Literature/disco03_paper.pdf)”, Special issue of Linguistic Analysis, 2010.
