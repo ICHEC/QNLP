@@ -2,7 +2,15 @@
 
 #### Start date: 14-Jan-2019, End date: 13-Mar-2020
 
-## Overview
+## Background
+
+### Natural Language Processing
+Natural language processing (NLP) is often used to perform tasks like machine translation, sentiment analysis, relationship extraction, word sense disambiguation and automatic summary generation. Most traditional NLP algorithms for these problems are defined to operate over strings of words, and are commonly referred to as the “bag of words” approach. The challenge, and thus limitation, of this approach is that the algorithms analyse sentences in a corpus based on meanings of the component words and lack information from the grammatical rules and nuances of the language. Consequently, the qualities of results of these traditional algorithms are often unsatisfactory when the complexity of the problem increases. On the other hand, an alternate approach called “compositional semantics” incorporates the grammatical structure of sentences in a language into the analysis algorithms. Compositional semantics algorithms include the information flows between words in a sentence to determine the meaning of the whole sentence. One such model is “distributional compositional semantics” (DisCo), which is based on tensor product composition to give a grammatically informed algorithm that computes the meaning of sentences and phrases. This algorithm has been noted to offer significant improvements to the quality of results, particularly for more complex sentences. However, the main challenge in its implementation is the need for large classical computational resources.
+
+### Quantum Computing
+Quantum computers have the ability to solve complex problems that are beyond the capabilities of classical computers and will enforce the next genuine disruption to technical computing. The impacts of Quantum Computing will be significantly greater than those brought by many-core architectures and accelerators such as GPUs. While many enterprises (including Intel, IBM, Google, etc.) have been developing physical quantum computing devices, another line of developing quantum computing platforms is through the creation of simulators that are deployed on classical HPC (High Performance Computing) systems. It is widely acknowledged that quantum devices and simulators of size ~50 qubits allow for implementation of proof-of-concept algorithms and have computation power that exceeds many of currently available Peta-scale supercomputers. With the availability of such quantum computing platforms, it is essential that we develop the software ecosystem and programming expertise to target the quantum platforms.
+
+## Project Objective
 
 [Intel](www.intel.com) and [ICHEC](www.ichec.ie) identified the opportunity to leverage the [Intel Quantum Simulator](https://github.com/intel/Intel-QS) (that can simulate up to ~42 qubits [[4]](Documents/Literature/qHiPSTER_paper.pdf)) to port and implement a quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a corpus. This project aims to
 1.	Leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model.
@@ -21,7 +29,7 @@ In this project, we will implement the two quantum algorithms (“closest vector
 
 In this project, we estimate to target corpuses with ~2000 most common words using the Intel Quantum Simulator (qHiPSTER) that can simulate ~42 qubits. qHiPSTER will be installed on the Irish national supercomputer (Kay).
 
-## Execution
+## Project Execution
 
 ### Task 1 - Resource Setup and Problem Mapping
 - **Objective**: Install and test the Intel Quantum Simulator (qHiPSTER) on the ICHEC supercomputer (Kay), and define the strategy to map the quantum version of the DisCo model algorithm on the Intel Quantum Simulator.
@@ -74,7 +82,7 @@ In this project, we estimate to target corpuses with ~2000 most common words usi
   - M4.1 (M14): Consolidated reports and final software are prepared.
   - M4.2 (M14): Deliverable D4.1 is published on a GitHub page under the Apache License version 2.0.
 
-## Timeline
+## Project Timeline
 
 | Task / Month | M01 (14-Jan) | M02 (14-Feb) | M03 (14-Mar) | M04 (14-Feb) | M05 (14-Feb) | M06 (14-Feb) | M07 (14-Feb) | M08 (14-Feb) | M09 (14-Feb) | M10 (14-Feb) | M11 (14-Feb) | M12 (14-Feb) | M13 (14-Feb) | M14 (14-Feb) |
 | - | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
