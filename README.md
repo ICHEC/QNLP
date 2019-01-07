@@ -43,7 +43,7 @@ In this project, we estimate to target corpuses with ~2000 most common words usi
   - M1.1 (M01): qHiPSTER is installed and tested on ICHEC’s Kay.
   - M1.2 (M03): Abstraction and mapping of DisCo algorithms on qHiPSTER is complete.
   - M1.3 (M03): Testing and evaluation methodologies are defined.
-  - M1.4 (M04): Representative corpora for testing are ready.
+  - M1.4 (M03): Representative corpora for testing are ready.
   
 ### Task 2 - Solution Development
 - **Objective**: Implement the DisCo module algorithms on qHiPSTER and perform preliminary evaluations.
