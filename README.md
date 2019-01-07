@@ -9,7 +9,7 @@
 2.	Develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP.
 3.	Pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
 
-The distributional compositional semantics (DisCo) model was originally developed by its authors with direct inspiration from quantum theory. Following this, the authors of DisCo have since co-developed a quantum version of the algorithm that can be implemented on quantum computers [[1]](Documents/Literature/disco01_paper.pdf), which is based on the DisCo model that was introduced in [[2]](Documents/Literature/disco02_paper.pdf) and [[3]](Documents/Literature/disco03_paper.pdf).
+The distributional compositional semantics (DisCo) model was originally developed by its authors with direct inspiration from quantum theory. The authors of DisCo have developed a quantum version of the algorithm that can be implemented on quantum computers [[1]](Documents/Literature/disco01_paper.pdf), which is based on the DisCo model that was introduced in [[2]](Documents/Literature/disco02_paper.pdf) and [[3]](Documents/Literature/disco03_paper.pdf).
 
 The quantum version of the DisCo model presents two algorithms:
 1.	A quantum algorithm for the “closest vector problem”
