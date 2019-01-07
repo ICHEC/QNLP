@@ -2,6 +2,11 @@
 
 #### Start date: 14-Jan-2019, End date: 13-Mar-2020
 
+[Intel](www.intel.com) and [ICHEC](www.ichec.ie) identified the opportunity to leverage the [Intel Quantum Simulator](https://github.com/intel/Intel-QS) (that can simulate up to ~42 qubits [[4]](Documents/Literature/qHiPSTER_paper.pdf)) to port and implement a quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a corpus. This project aims to
+1.	Leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model.
+2.	Develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP.
+3.	Pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
+
 ## Background
 
 ### Natural Language Processing
@@ -11,11 +16,6 @@ Natural language processing (NLP) is often used to perform tasks like machine tr
 Quantum computers have the ability to solve complex problems that are beyond the capabilities of classical computers and will enforce the next genuine disruption to technical computing. The impacts of Quantum Computing will be significantly greater than those brought by many-core architectures and accelerators such as GPUs. While many enterprises (including Intel, IBM, Google, etc.) have been developing physical quantum computing devices, another line of developing quantum computing platforms is through the creation of simulators that are deployed on classical HPC (High Performance Computing) systems. It is widely acknowledged that quantum devices and simulators of size ~50 qubits allow for implementation of proof-of-concept algorithms and have computation power that exceeds many of currently available Peta-scale supercomputers. With the availability of such quantum computing platforms, it is essential that we develop the software ecosystem and programming expertise to target the quantum platforms.
 
 ## Project Objective
-
-[Intel](www.intel.com) and [ICHEC](www.ichec.ie) identified the opportunity to leverage the [Intel Quantum Simulator](https://github.com/intel/Intel-QS) (that can simulate up to ~42 qubits [[4]](Documents/Literature/qHiPSTER_paper.pdf)) to port and implement a quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a corpus. This project aims to
-1.	Leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model.
-2.	Develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP.
-3.	Pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
 
 The distributional compositional semantics (DisCo) model was originally developed by its authors with direct inspiration from quantum theory. The authors of DisCo have developed a quantum version of the algorithm that can be implemented on quantum computers [[1]](Documents/Literature/disco01_paper.pdf), which is based on the DisCo model that was introduced in [[2]](Documents/Literature/disco02_paper.pdf) and [[3]](Documents/Literature/disco03_paper.pdf).
 
