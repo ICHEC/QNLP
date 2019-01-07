@@ -1,4 +1,4 @@
-# Intel Quantum Natural Language Processing (Intel QNLP)
+# Quantum Natural Language Processing (Intel QNLP)
 
 #### Start date: 14-Jan-2019, End date: 13-Mar-2020
 
