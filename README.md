@@ -1,4 +1,4 @@
-# Intel-ICHEC Quantum Natural Language Processing
+# Quantum Natural Language Processing
 
 #### Start date: 14-Jan-2019, End date: 13-Mar-2020
 
