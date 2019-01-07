@@ -101,6 +101,23 @@ In this work package, ICHEC will deliver the following components to Intel:
   - M4.1 (M14): Consolidated reports and final software are prepared.
   - M4.2 (M14): Deliverable D4.1 is published on a GitHub page under the Apache License version 2.0.
 
+
+## Timeline
+
+| Task | M01 (14-Jan) | M02 (14-Feb) | M03 (14-Mar) | M04 (14-Feb) | M05 (14-Feb) | M06 (14-Feb) | M07 (14-Feb) | M08 (14-Feb) | M09 (14-Feb) | M10 (14-Feb) | M11 (14-Feb) | M12 (14-Feb) | M13 (14-Feb) | M14 (14-Feb) |
+| - | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| T1.1 | `Y` |  |  |  |  |  |  |  |  |  |  |  |  |  |
+| T1.2 | `Y` | `Y` | `Y` |  |  |  |  |  |  |  |  |  |  |  |
+| T1.3 |  |  | `Y` |  |  |  |  |  |  |  |  |  |  |  |
+| T1.4 |  |  | `Y` |  |  |  |  |  |  |  |  |  |  |  |
+| T2.1 |  |  |  | `Y` | `Y` | `Y` | `Y` |  |  |  |  |  |  |  |
+| T2.2 |  |  |  |  |  | `Y` | `Y` |  |  |  |  |  |  |  |
+| T2.3 |  |  |  |  |  |  |  | `Y` | `Y` | `Y` | `Y` |  |  |  |
+| T2.4 |  |  |  |  |  |  |  |  |  | `Y` | `Y` |  |  |  |
+| T3.1 |  |  |  |  |  |  |  |  |  |  |  | `Y` | `Y` | `Y` |
+| T3.2 |  |  |  |  |  |  |  |  |  |  |  |  |  | `Y` |
+| T4   |  |  |  |  |  |  |  |  |  |  |  |  |  | `Y` |
+
 ## References
 
 [1]. William Zeng and Bob Coecke, “Quantum Algorithms for Compositional Natural Language Processing”, Proceedings of SLPCS, 2016.
