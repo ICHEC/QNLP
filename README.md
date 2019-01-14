@@ -84,7 +84,7 @@ In this project, we estimate to target corpuses with ~2000 most common words usi
 
 ## Project Timeline
 
-| Task / Month | M01 (14-Jan) | M02 (14-Feb) | M03 (14-Mar) | M04 (14-Feb) | M05 (14-Feb) | M06 (14-Feb) | M07 (14-Feb) | M08 (14-Feb) | M09 (14-Feb) | M10 (14-Feb) | M11 (14-Feb) | M12 (14-Feb) | M13 (14-Feb) | M14 (14-Feb) |
+| Task / Month | M01 (14-Jan) | M02 (14-Feb) | M03 (14-Mar) | M04 (14-Apr) | M05 (14-May) | M06 (14-Jun) | M07 (14-Jul) | M08 (14-Aug) | M09 (14-Sep) | M10 (14-Oct) | M11 (14-Nov) | M12 (14-Dec) | M13 (14-Jan) | M14 (14-Feb) |
 | - | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | T1.1 | `Y` |  |  |  |  |  |  |  |  |  |  |  |  |  |
 | T1.2 | `Y` | `Y` | `Y` |  |  |  |  |  |  |  |  |  |  |  |
