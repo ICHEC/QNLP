@@ -36,7 +36,7 @@ Discussion:
 Action points:
  - VK
    - (done) email details on EQTC 2019, All Ireland Conference on Quantum Technologies at Maynooth 2019
-   - suggest date and proposed content to JK for 1st advisory meeting with Anne Matsuura (mid-Feb)
+   - (wip, 25-Feb-2019, 17:00 Irish time, 09:00 Oregon time) suggest date and proposed content to JK for 1st advisory meeting with Anne Matsuura (mid-Feb)
    - (done) restrict access to git project
    - (wip) arrange for Kay and git access to FB; git access to JK and BQ
    - (done) send calendar invites to ICHEC-Intel periodic meetings
