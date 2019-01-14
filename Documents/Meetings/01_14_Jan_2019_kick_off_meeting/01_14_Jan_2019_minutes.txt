@@ -1,4 +1,4 @@
-Minutes (14-Jan-2019)
+Minutes of Meeting (14-Jan-2019)
 
 Attendees:
  - VK: Venkatesh Kannan (ICHEC)
@@ -14,8 +14,43 @@ Slides:
  - https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/Documents/Meetings/01_14_Jan_2019_kick_off_meeting/01_14_Jan_2019_KickOff.pdf
 
 Discussion:
- - 
+ - BQ: the evaluation and benchmarking of the implementation and qHiPSTER should take a global state-of-the-art perspective in quantum software development, and not be limited to the specific algorithm, or Ireland
+ - BQ, JK: dissemination should target quality quantum publication channels
+ - VK: publications should include qualitative evaluation of the programmability on qHiPSTER, and quantitative evaluation of the algorithm implementation and deployment of qHiPSTER on Kay (and potentially other HPC systems that may be used during the project); detailed evaluation methodology will be formulated for milestone M1.1.
+ - VK: LOR and MD will work 100%, VK 20% and PW 10%
+ - BQ: target more face-to-face meetings between Intel and ICHEC once every 3 weeks; ICHEC and FB to mutually host each other for a few days; first visits TBD
+ - VK, LOR: key technical step is to define the mapping strategy of the algorithms on qHiPSTER
+ - VK: Kay would allow a max of 41 qubit simulation; target PRACE for access to larger systems when required for extensive evaluations (FB agrees)
+ - JK: FB to be first contact for ICHEC for technical discussions with Intel; FB can connect to other Intel personnel as required
+ - BQ: Target ISC 2019 for initial dissemination (poster, booth talk); FB suggests working with LRZ for a use-case presentation at their qHiPSTER tutorial session at ISC 2019
+ - All: period ICHEC-Intel meetings on Mondays 10:00 (Irish time) starting 04-Feb-2019
+ - BQ, JK: Invite Anne Matsuura once a quarter for an advisory meeting
+ - JK: Restricted access to git project
+ - BQ: JK and PW to chair ICHEC-Intel period meetings; obtain Intel approval on all dissemination content
+ - JK: allow Intel 1-2 weeks for review of publications, 2-3 days for review of slides
+ - SAA: mid-term and final reviews with EI (M07 and M14)
 
 Action points:
-1. 
-2. 
+ - VK
+   - email details on EQTC 2019, All Ireland Conference on Quantum Technologies at Maynooth 2019
+   - suggest date and proposed content to JK for 1st advisory meeting with Anne Matsuura (mid-Feb)
+   - restrict access to git project
+   - arrange for Kay and git access to FB; git access to JK and BQ
+   - send calendar invites to ICHEC-Intel periodic meetings
+ - PW
+   - include mid-term and final reviews with EI to list of milestones (M07 and M14)
+   - gather more details about BTYSTE winner (Adam Kelly) and invite for a discussion
+ - JK
+   - arrange for quarterly adivisory meeting with Anne Matsuura (first one in mid-Feb)
+ - FB
+   - liaise with LRZ for a use-case presentation at their qHiPSTER tutorial session at ISC 2019
+ - MD (, VK)
+   - Start T1.1.
+ - LOR (, VK)
+   - Start T1.2.
+
+Next meeting:
+ - Date/time: 04-Feb-2019 at 10:00 (Irish time)
+ - Venue: Intel Ireland Campus, Leixlip
+ - VC: https://meet.google.com/zvp-kmhp-pak
+ 
