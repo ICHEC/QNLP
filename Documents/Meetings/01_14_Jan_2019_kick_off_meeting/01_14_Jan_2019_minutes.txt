@@ -1,2 +1,21 @@
-# Minutes
+Minutes (14-Jan-2019)
 
+Attendees:
+ - VK: Venkatesh Kannan (ICHEC)
+ - LOR: Lee James O'Riordan (ICHEC)
+ - MD: Myles Doyle (ICHEC)
+ - PW: Peter Woods (ICHEC)
+ - SAA: Sufian Al Aswad (ICHEC)
+ - BQ: Brian Quinn (Intel Ireland)
+ - JK: Jim Kenneally (Intel Ireland)
+ - FB: Fabio Baruffa (Intel Deutschland)
+
+Slides:
+ - https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/Documents/Meetings/01_14_Jan_2019_kick_off_meeting/01_14_Jan_2019_KickOff.pdf
+
+Discussion:
+ - 
+
+Action points:
+1. 
+2. 
