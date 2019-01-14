@@ -1,14 +1,14 @@
 Minutes of Meeting (14-Jan-2019)
 
 Attendees:
- - VK: Venkatesh Kannan (ICHEC)
- - LOR: Lee James O'Riordan (ICHEC)
- - MD: Myles Doyle (ICHEC)
- - PW: Peter Woods (ICHEC)
- - SAA: Sufian Al Aswad (ICHEC)
- - BQ: Brian Quinn (Intel Ireland)
- - JK: Jim Kenneally (Intel Ireland)
- - FB: Fabio Baruffa (Intel Deutschland)
+ - VK: Venkatesh Kannan, ICHEC
+ - LOR: Lee James O'Riordan, ICHEC
+ - MD: Myles Doyle, ICHEC (VC)
+ - PW: Peter Woods, ICHEC
+ - SAA: Sufian Al Aswad, ICHEC
+ - BQ: Brian Quinn, Intel Ireland
+ - JK: Jim Kenneally, Intel Ireland
+ - FB: Fabio Baruffa, Intel Deutschland (VC)
 
 Venue:
  - ICHEC, Dublin
