@@ -30,7 +30,7 @@ Discussion:
  - BQ, JK: Invite Anne Matsuura once a quarter for an advisory meeting
  - JK: Restricted access to git project
  - BQ: JK and PW to co-chair ICHEC-Intel plenary meetings; obtain Intel approval on all content for dissemination
- - JK: allow Intel 1-2 weeks for review of publications, 2-3 days for review of slides
+ - JK: allow 2 weeks for review of publications (two rounds of review by Intel), 2-3 days for review of slides
  - SAA: mid-term and final reviews with EI (M07 and M14)
 
 Action points:
