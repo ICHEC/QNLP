@@ -10,6 +10,9 @@ Attendees:
  - JK: Jim Kenneally (Intel Ireland)
  - FB: Fabio Baruffa (Intel Deutschland)
 
+Venue:
+ - ICHEC, Dublin
+
 Slides:
  - https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/Documents/Meetings/01_14_Jan_2019_kick_off_meeting/01_14_Jan_2019_KickOff.pdf
 
