@@ -26,10 +26,10 @@ Discussion:
  - VK: Kay would allow a max of 41 qubit simulation; target PRACE for access to larger systems when required for extensive evaluations (FB agrees)
  - JK: FB to be first contact for ICHEC for technical discussions with Intel; FB can connect to other Intel personnel as required
  - BQ: Target ISC 2019 for initial dissemination (poster, booth talk); FB suggests working with LRZ for a use-case presentation at their qHiPSTER tutorial session at ISC 2019
- - All: period ICHEC-Intel meetings on Mondays 10:00 (Irish time) starting 04-Feb-2019
+ - All: ICHEC-Intel plenary meetings once every 3 weeks on Mondays 10:00 (Irish time) starting 04-Feb-2019
  - BQ, JK: Invite Anne Matsuura once a quarter for an advisory meeting
  - JK: Restricted access to git project
- - BQ: JK and PW to chair ICHEC-Intel period meetings; obtain Intel approval on all dissemination content
+ - BQ: JK and PW to co-chair ICHEC-Intel plenary meetings; obtain Intel approval on all content for dissemination
  - JK: allow Intel 1-2 weeks for review of publications, 2-3 days for review of slides
  - SAA: mid-term and final reviews with EI (M07 and M14)
 
@@ -39,7 +39,7 @@ Action points:
    - (wip, 25-Feb-2019, 17:00 Irish time, 09:00 Oregon time) suggest date and proposed content to JK for 1st advisory meeting with Anne Matsuura (mid-Feb)
    - (done) restrict access to git project
    - (wip) arrange for Kay and git access to FB; git access to JK and BQ
-   - (done) send calendar invites to ICHEC-Intel periodic meetings
+   - (done) send calendar invites to ICHEC-Intel plenary meetings
  - PW
    - include mid-term and final reviews with EI to list of milestones (M07 and M14)
    - gather more details about BTYSTE winner (Adam Kelly) and invite for a discussion
