@@ -40,3 +40,13 @@ The probability that qubit 0 is in state |1> is 0
 The probability that qubit 3 is in state |1> is 0.5
 ```
 indicating that our test works as expected.
+
+To build the above module using CMake, first create a `build` directory and `cd build`.
+Next, set ensure that CC and CXX are set to the Intel mpi compiler wrappers as follows:
+
+```bash
+mkdir build && cd build
+module load intel cmake3
+CC=mpiicc CXX=mpiicpc cmake ..
+make
+```
