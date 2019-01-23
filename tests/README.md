@@ -11,9 +11,16 @@ the CSWAP test, running with 6 qubits, and comparing the same (qubits 0,1,2), an
 The test is initially built as follows:
 ```bash
 mpiicpc ./test_control_swap.cpp -L/ichec/work/ichec001/Intel-QS/build/lib/intel64 \
--I/ichec/work/ichec001/Intel-QS/build/include -std=c++11 -g -O3 -DUSE_MM_MALLOC \ 
--L$PWD -lqhipster -L${MKLROOT}/lib/intel64 -lmkl_rt -lpthread -lm -ldl \
--DSTANDALONE -DOPENQU_HAVE_MPI -DMKL_ILP64 -Wall -std=c++11 -qopenmp -o cswap
+    -I/ichec/work/ichec001/Intel-QS/build/include -std=c++11 -g -O3 -DUSE_MM_MALLOC \
+    -l:qHiPSTER.a -L${MKLROOT}/lib/intel64 -lmkl_rt -lpthread -lm -ldl \
+    ${MKLROOT}/lib/intel64/libmkl_scalapack_ilp64.a \
+    -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_cdft_core.a \
+    ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a \
+    ${MKLROOT}/lib/intel64/libmkl_intel_thread.a \
+    ${MKLROOT}/lib/intel64/libmkl_core.a \
+    ${MKLROOT}/lib/intel64/libmkl_blacs_intelmpi_ilp64.a -Wl,--end-group -liomp5 \
+    -lpthread -lm -ldl -DSTANDALONE -DOPENQU_HAVE_MPI -DMKL_ILP64 -Wall \
+    -std=c++11 -qopenmp -o cswap
 ```
  and run as 
  ```bash
