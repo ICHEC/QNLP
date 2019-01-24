@@ -39,7 +39,7 @@ find_package(MPI REQUIRED)
 add_executable(cswap test_control_swap.cpp)
 
 include_directories("${QHIPSTER}/include")
-link_directories("${QHIPSTER}/intel64/lib")
+# link_directories("${QHIPSTER}/lib/intel64")
 
 #find_library(QHIPSTER_LIBRARY
 #    NAMES qHiPSTER
