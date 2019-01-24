@@ -12,3 +12,6 @@ I have created a database of useful theses, and complimentary papers using Zoter
 The best way to access the materials is to download Zotero, download a local copy of this DB, and point Zotero to the directory in `Preferences -> Files and Folders -> Custom`
 
 I expect to add resources to this over time, and if requested I can make the Drive folder writeable so others can do like-wise.
+
+# QML
+Some good papers on quantum machine learning are those from Maria Schuld, who has a huge number of papers in the area (and is currently working for QML startup [Xanadu](https://www.xanadu.ai/)). Her [Google scholar](https://scholar.google.com/citations?hl=en&user=_ih_hwUAAAAJ&view_op=list_works&sortby=pubdate) has open versions of most of these papers.
