@@ -28,7 +28,6 @@ namespace QNLP{
     template <class QubitRegisterType, class QubitType>
     class SimulatorInterface {
     public:
-        virtual int g(); 
         virtual ~SimulatorInterface() {} 
 
         // Defining gate operations
@@ -36,17 +35,41 @@ namespace QNLP{
         virtual void getGate();
 
         //Single qubit gates
-        virtual void applyGateX();
-        virtual void applyGateY();
-        virtual void applyGateZ();
-        virtual void applyGateI();
-        virtual void applyGateH();
+        virtual void applyGateU(); //Arbitrary user-defined unitary gate
+
+        virtual void applyGateX() = 0;
+        virtual void applyGateY() = 0;
+        virtual void applyGateZ() = 0;
+        virtual void applyGateI() = 0;
+        virtual void applyGateH() = 0;
+
+        virtual void applyGateSqrtX() = 0;
+
+        //Arbitrary rotation along axis; given in radians
+        virtual void applyGateRotX() = 0;
+        virtual void applyGateRotY() = 0;
+        virtual void applyGateRotZ() = 0;
 
         virtual void getGateX();
         virtual void getGateY();
         virtual void getGateZ();
         virtual void getGateI();
         virtual void getGateH();
+
+        //2 qubit gates
+        virtual void applyGateCU();
+        virtual void applyGateCX() = 0;
+        virtual void applyGateCY() = 0;
+        virtual void applyGateCZ() = 0;
+        virtual void applyGateCH();
+
+        virtual void applyGateSwap();
+        virtual void applyGateSqrtSwap();
+        virtual void applyGatePhaseShift();
+
+        //3 qubit gates
+        virtual void applyGateToffoli();
+        virtual void applyGateFredkin();
 
         //Defining Qubit operations
         QubitRegisterType getQubitRegister() { return this->qubitRegister; }

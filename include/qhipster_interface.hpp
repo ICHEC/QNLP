@@ -25,7 +25,7 @@ using namespace QNLP;
 
 class IntelSimulator : SimulatorInterface< QbitRegister<ComplexDP>, QbitRegister<ComplexDP>> {
 
-    IntelSimulator() : numQubits(6), qubitRegister(QbitRegister<ComplexDP>) {
+    IntelSimulator(int numQubits) : numQubits(numQubits){
         qubitRegister(numQubits, "base", 0);
     }
 
