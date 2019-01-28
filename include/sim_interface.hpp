@@ -14,8 +14,8 @@
  */
 //##############################################################################
 
-#ifndef QNLP_SIMULATORINTERFACE_H
-#define QNLP_SIMULATORINTERFACE_H
+#ifndef QNLP_SIMULATOR_INTERFACE_H
+#define QNLP_SIMULATOR_INTERFACE_H
 
 #include <iostream>
 
@@ -25,18 +25,41 @@ namespace QNLP{
     * @class	The abstract interface for implementing the QNLP-quantum 
     * simulator connector.
     */
-    template <class QubitRegister>
-    class SimulatorInterface { 
+    template <class QubitRegisterType, class QubitType>
+    class SimulatorInterface {
+    public:
         virtual int g(); 
         virtual ~SimulatorInterface() {} 
 
         // Defining gate operations
         virtual void applyGate();
+        virtual void getGate();
+
+        //Single qubit gates
+        virtual void applyGateX();
+        virtual void applyGateY();
+        virtual void applyGateZ();
+        virtual void applyGateI();
+        virtual void applyGateH();
+
+        virtual void getGateX();
+        virtual void getGateY();
+        virtual void getGateZ();
+        virtual void getGateI();
+        virtual void getGateH();
 
         //Defining Qubit operations
-        virtual QubitRegister getQubitRegister();
-        virtual const QubitRegister& getQubitRegister() const;
+        QubitRegisterType getQubitRegister() { return this->qubitRegister; }
+        const QubitRegisterType& getQubitRegister() const { return this->qubitRegister; };
 
+        virtual QubitType getQubit();
+        virtual const QubitType& getQubit() const;
+
+        std::size_t getNumQubits() { return numQubits; }
+
+    private:
+        std::size_t numQubits = 0;
+        QubitRegisterType qubitRegister;
     };
 
 
@@ -58,9 +81,7 @@ namespace QNLP{
 
 
 
-
-
-    struct A : SimulatorInterface<int> {
+    struct A : SimulatorInterface<std::vector<int>, int> {
         // OK: declares three member virtual functions, two of them pure
         virtual int f() = 0, g() override = 0, h();
         // OK: destructor can be pure too
