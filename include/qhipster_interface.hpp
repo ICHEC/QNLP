@@ -26,7 +26,6 @@ using namespace QNLP;
 class IntelSimulator : SimulatorInterface< QbitRegister<ComplexDP>, QbitRegister<ComplexDP>> {
 
     IntelSimulator(int numQubits) : numQubits(numQubits), qubitRegister(numQubits, "base", 0){
-        ;
     }
 
     void applyGateX(std::size_t qubitIndex){
