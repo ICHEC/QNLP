@@ -58,6 +58,8 @@ When building and installing the qHiPSTER SDK, examining the makefile suggests t
 Next, upon having an installed SDK, we aimed to build a simple application to implement a controlled swap operation. For this, including `qureg.hpp` is necessary. However, doing this reveals that the `${QHIPSTER_ROOT}/build/include` directory is missing some header files, specifically the `NoisyQureg.hpp` file, which `qureg.hpp` depends upon. Consider modifying `makefile` and the `sdk-copy-sources` macro to install all headers from `./qureg/` rather than a select few would correct this.
 
 # Some additional notes
- - The use of our predefined `install` and Intel-QS `build` directories gives us two separate paths to includes and libraries; it may be best to redefine the build system such that `make sdk-release` does not remove any files, and additionally, the use of a `--prefix` flag for controlled installation. This would allow us to essentially enable a single directory for installationg all of the software (`libbigmpi.a, qihspter.a`, etc.). 
+These are some suggestions based on our work so far.
 
- - The renaming of `qhispter.a` to `libqhipster.a` may also ease use with other builds. As it follows the standard Unix library naming conventions, it would allow use of the linker `-l` to search what is on path without being explicit, though this is simply a suggestion.
+ - The use of our predefined `install` and Intel-QS `build` directories gives us two separate paths to includes and libraries; it may be best to redefine the build system such that `make sdk-release` does not remove any files, and additionally, the use of a `--prefix` flag for controlled installation. This would allow us to essentially enable a single directory for installing all of the software (`libbigmpi.a, qhipster.a`, etc.). 
+
+ - The renaming of `qhispter.a` to `libqhipster.a` may also ease use with other builds. As it follows the standard Unix library naming conventions, it would allow use of the linker `-l` to search what is on path without being explicit.
