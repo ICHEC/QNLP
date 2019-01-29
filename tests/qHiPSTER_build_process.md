@@ -50,7 +50,10 @@ cd ${QHIPSTER_ROOT}
 make all BIGMPI_LIB=${QHIPSTER_ROOT}/install/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/install/include
 ```
 
-This will generate all of the required files to perform an install of the SDK. However, this step begins by removing the pre-existing build directory, and as a result all of the existing BigMPI-built entities.
+This will generate all of the required files to perform an install of the SDK. However, this step begins by removing the pre-existing build directory, and as a result all of the existing BigMPI-built entities. However, we can simply generate the required library and headers into `build` with
+```bash
+make sdk-release BIGMPI_LIB=${QHIPSTER_ROOT}/install/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/install/include
+```
 
 # Using the SDK
 When building and installing the qHiPSTER SDK, examining the makefile suggests this is performed using `make sdk-release`. However, due to the lack of a `LICENSE.txt` file, this fails. This would be rectified by adding the appropriate license file to the `${QHIPSTER_ROOT}` directory. For the sake of our tests, we simply `touch LICENSE.txt`.
