@@ -1,4 +1,5 @@
 # Steps to build https://github.com/intel/Intel-QS on Kay
+Upon logging into Kay, it is safe to assume that we can build the following files from our home directory. Additionally, these can be built within the project shared directory at `/ichec/work/ichec001/<BUILD_DIR>.` We begin by cloning the repository, and exporting an environment variable (`${QHIPSTER_ROOT}`) with a path to the repo.
 
 ```bash
 git clone https://github.com/intel/Intel-QS.git
