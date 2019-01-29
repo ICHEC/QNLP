@@ -18,18 +18,18 @@ Using the provided tests, we modified and submitted `sbatchscript.edison.36qubit
 
 We next run the same test, but with fewer qubits (28) and nodes (8), which runs to success. We suspect the issue is the MPI message size, and next attempt to resolve this using a BigMPI-enabled build.
 
-Initially we set the flag in `make.inc` for `bigmpi = 1` to enable a build of the BigMPI software. However, as this only enables support for BigMPI were it already built, running `make all` at this stage returns errors as it looks for `bigmpi.hpp`. Next, the assumption of the BigMPI lib and include directories at `/opt/bigmpi` are manually set within this same file. Ideally, it would be best if BigMPI were built automatically as part of the qHiPSTER build process, and installed into the `build` directory as if running `make sdk-release`. This would remove the need for manually defined paths, and allow us to create a more automated build process.
+Initially we set the flag in `make.inc` for `bigmpi = 1` to enable a build of the BigMPI software. However, as this only enables support for BigMPI were it already built, running `make all` at this stage returns errors as it looks for `bigmpi.hpp`. Next, the assumption of the BigMPI lib and include directories at `/opt/bigmpi` are manually set within this same file. Ideally, it would be best if BigMPI were built automatically as part of the qHiPSTER build process, and installed into an `install` directory (`build` was considered, but if running `make sdk-release` this directory is first purged). This would remove the need for manually defined paths, and allow us to create a more automated build process.
 
 To build BigMPI we next run the following commands from the `${QHIPSTER_ROOT}` directory:
 ```bash
-mkdir ${QHIPSTER_ROOT}/build
+mkdir ${QHIPSTER_ROOT}/install
 cd ${QHIPSTER_ROOT}/util/BigMPI/
 ```
 
 For a static library of `libbigmpi.a` we can use the autotools build steps, which are slightly modified from the ones given by the [BigMPI documentation](https://github.com/intel/Intel-QS/blob/consistent-naming/util/BigMPI/INSTALL.md). We install the BigMPI library into the Intel-QS build directory.
 ```bash
 ./autogen.sh;
-./configure CC=mpiicc --prefix=${QHIPSTER_ROOT}/build;
+./configure CC=mpiicc --prefix=${QHIPSTER_ROOT}/install;
 make && make install;
 ```
 
@@ -47,13 +47,15 @@ make clean
 cd ${QHIPSTER_ROOT}/util/BigMPI
 make install 
 cd ${QHIPSTER_ROOT}
-make all BIGMPI_LIB=${QHIPSTER_ROOT}/build/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/build/include
+make all BIGMPI_LIB=${QHIPSTER_ROOT}/install/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/install/include
 ```
 
-This will generate all of the required files to perform an install of the SDK.
+This will generate all of the required files to perform an install of the SDK. However, this step begins by removing the pre-existing build directory, and as a result all of the existing BigMPI-built entities.
 
 # Using the SDK
 When building and installing the qHiPSTER SDK, examining the makefile suggests this is performed using `make sdk-release`. However, due to the lack of a `LICENSE.txt` file, this fails. This would be rectified by adding the appropriate license file to the `${QHIPSTER_ROOT}` directory. For the sake of our tests, we simply `touch LICENSE.txt`.
 
 Next, upon having an installed SDK, we aimed to build a simple application to implement a controlled swap operation. For this, including `qureg.hpp` is necessary. However, doing this reveals that the `${QHIPSTER_ROOT}/build/include` directory is missing some header files, specifically the `NoisyQureg.hpp` file, which `qureg.hpp` depends upon. Consider modifying `makefile` and the `sdk-copy-sources` macro to install all headers from `./qureg/` rather than a select few would correct this.
 
+# Some additional notes
+Additionally, the use of our predefined `install` and Intel-QS `build` directories gives us two separate paths to includes and libraries; it may be best to redefine the build system such that `make sdk-release` does not remove any files, and additionally, the use of a `--prefix` flag for controlled installation. This would allow us to essentially enable a single directory for installationg all of the software (`libbigmpi.a, qihspter.a`, etc.). One last point, the renaming of qhispter.a to libqhipster.a may also ease installation withother package, as it follows the standard Unix library naming conventions (though this is simply a suggestion). This would allow use of the linker `-l` to search what is on path without being explicit.
