@@ -40,13 +40,10 @@ CC=mpiicc CXX=mpiicpc cmake ..
 However, as this seems to call the autotools pipeline behind the scenes, it can be easier to just use the earlier static build instructions.
 
 
-After building and installing the library, we return to `${QHIPSTER_ROOT}`, clean the previous build, reinstall BigMPI, and make the library again specifying the BigMPI location (which again, would be best if it was automatically entered as part of the previous build process):
+After building and installing the library, we return to `${QHIPSTER_ROOT}`, clean the previous build, and make the library again specifying the BigMPI location (which again, would be best if it was automatically entered as part of the previous build process):
 ```bash
 cd ${QHIPSTER_ROOT}
 make clean
-cd ${QHIPSTER_ROOT}/util/BigMPI
-make install 
-cd ${QHIPSTER_ROOT}
 make all BIGMPI_LIB=${QHIPSTER_ROOT}/install/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/install/include
 ```
 
