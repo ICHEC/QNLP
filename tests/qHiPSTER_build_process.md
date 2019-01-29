@@ -33,3 +33,14 @@ make && make install;
 ```
 
 For a dynamic library of `libbigmpi.so` we can use the CMake build process and perform the installation into the same directory as previously (we can also build a static library using CMake, but the default is shared).
+```bash
+CC=mpiicc CXX=mpiicpc cmake ..
+```
+However, as this seems to call the autotools pipeline behind the scenes, it can be easier to just use the earlier static build instructions.
+
+
+# Using the SDK
+When building and installing the qHiPSTER SDK, examining the makefile suggests this is performed using `make sdk-release`. However, due to the lack of a `LICENSE.txt` file, this fails. This would be rectified by adding the appropriate license file to the `${QHIPSTER_ROOT}` directory. For the sake of our tests, we simply `touch LICENSE.txt`.
+
+Next, upon having an installed SDK, we aimed to build a simple application to implement a controlled swap operation. For this, including `qureg.hpp` is necessary. However, doing this reveals that the `${QHIPSTER_ROOT}/build/include` directory is missing some header files, specifically the `NoisyQureg.hpp` file, which `qureg.hpp` depends upon. Consider modifying `makefile` and the `sdk-copy-sources` macro to install all headers from `./qureg/` rather than a select few would correct this.
+
