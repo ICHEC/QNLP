@@ -80,7 +80,7 @@ namespace QNLP{
 
         std::size_t getNumQubits() { return numQubits; }
 
-    private:
+    protected:
         std::size_t numQubits = 0;
         QubitRegisterType qubitRegister;
     };

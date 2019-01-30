@@ -27,7 +27,7 @@ namespace QNLP{
     */
     class GateInterface {
     public:
-        virtual ~SimulatorInterface() {} 
+        virtual ~GateInterface() {} 
 
         // Defining gate operations
         virtual void applyGate();
@@ -70,46 +70,8 @@ namespace QNLP{
         virtual void applyGateToffoli();
         virtual void applyGateFredkin();
 
-        //Defining Qubit operations
-        QubitRegisterType getQubitRegister() { return this->qubitRegister; }
-        const QubitRegisterType& getQubitRegister() const { return this->qubitRegister; };
-
-        virtual QubitType getQubit();
-        virtual const QubitType& getQubit() const;
-
-        std::size_t getNumQubits() { return numQubits; }
-
     private:
-        std::size_t numQubits = 0;
-        QubitRegisterType qubitRegister;
-    };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    struct A : SimulatorInterface<std::vector<int>, int> {
-        // OK: declares three member virtual functions, two of them pure
-        virtual int f() = 0, g() override = 0, h();
-        // OK: destructor can be pure too
-        ~A() = 0;
-        // Error: pure-specifier on a function definition
-        //virtual int b()=0 {}
+        static std::size_t uid;
     };
 }
 #endif
