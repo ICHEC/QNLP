@@ -25,7 +25,10 @@ set(CMAKE_CXX_FLAGS
      -lm \
      -Wall"
 )
-set(QHIPSTER $ENV{PWD}/../../../Intel-QS/build) 
+
+#Test builds
+add_subdirectory(tests)
+set(QHIPSTER $ENV{PWD}/../Intel-QS/build) 
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
