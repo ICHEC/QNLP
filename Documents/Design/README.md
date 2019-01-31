@@ -14,6 +14,5 @@ In no particular order, we may require the following (albeit somewhat currently 
 Given a top-down approach, each element above can be considered coupled only to its nearest neighbour. As such, we may consider different 
 technologies to implement the layers, provided they are compatible. In essence, we are currently considering Haskell and Julia for the
 category theory layers (2,3,4). Additionally, given the powerful tools already existing for NLP, the string parsing and tokenization work
-(1) may benefit from Python, though mdoules also exist for Haskell and Julia. The quantum layers (5,6) will most certianly be in C++,
-though with appropriate bindings we can call the respective functions/methods from the upper layers (Julia, Haslell, Python are all w
-ell equipped for this).
+(1) may benefit from Python, though moules also exist for Haskell and Julia. The quantum layers (5,6) will most certainly be in C++,
+though with appropriate bindings we can call the respective functions/methods from the upper layers (Julia, Haskell, Python are all well equipped for this).
