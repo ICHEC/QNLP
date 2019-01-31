@@ -63,3 +63,6 @@ These are some suggestions based on our work so far.
  - The use of our predefined `install` and Intel-QS `build` directories gives us two separate paths to includes and libraries; it may be best to redefine the build system such that `make sdk-release` does not remove any files, and additionally, the use of a `--prefix` flag for controlled installation. This would allow us to essentially enable a single directory for installing all of the software (`libbigmpi.a, qhipster.a`, etc.). 
 
  - The renaming of `qhispter.a` to `libqhipster.a` may also ease use with other builds. As it follows the standard Unix library naming conventions, it would allow use of the linker `-l` to search what is on path without being explicit.
+ 
+ - For the 'consistent-naming' branch of Intel-QS, the test examples in the Intel-QS/test directory only work for a single process since they are built without the compiler flag -DNOREPA_HAS_MPI being set, disabling MPI. Unless there is a reason not to, it might be worthwhile setting this flag.
+ 
