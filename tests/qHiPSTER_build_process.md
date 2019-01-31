@@ -64,5 +64,5 @@ These are some suggestions based on our work so far.
 
  - The renaming of `qhispter.a` to `libqhipster.a` may also ease use with other builds. As it follows the standard Unix library naming conventions, it would allow use of the linker `-l` to search what is on path without being explicit.
  
- - For the 'consistent-naming' branch of Intel-QS, the test examples in the Intel-QS/test directory only work for a single process since they are built without the compiler flag -DNOREPA_HAS_MPI being set, disabling MPI. Unless there is a reason not to, it might be worthwhile setting this flag.
+ - For the `consistent-naming` branch of Intel-QS, the test examples in the `Intel-QS/test` directory only work for a single process since they are built without the compiler flag `-DNOREPA_HAS_MPI` being set, disabling MPI. Unless there is a reason not to, it might be worthwhile setting this flag.
  
