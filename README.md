@@ -81,6 +81,8 @@ In this project, we estimate to target corpuses with ~2000 most common words usi
 - **Milestones**
   - M4.1 (M14): Consolidated reports and final software are prepared.
   - M4.2 (M14): Deliverable D4.1 is published on a GitHub page under the Apache License version 2.0.
+  - M4.3 (M06): Mid-term EI review in Jun/Jul 2019.
+  - M4.4 (M14): Final EI review in Mar/Apr 2020.
 
 ## Project Timeline
 
