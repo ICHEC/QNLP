@@ -1,4 +1,3 @@
-
 # qHiPSTER Installation Process Issues
 
 The Intel-QS ‘consistent-naming’ branch of qHiPSTER is currently installed using Intel Parallel Studio XE 2018 update 4 in the shared project directory on Kay (`/ichec/work/ichec001/<BUILD_DIR>`).
@@ -32,7 +31,7 @@ An example build of the `qft_test.cpp` program along with the associated `CMakeL
 
 The `qft_test.cpp` program supplied with the Intel-QS installation was used to test scaling on Kay. The program was copied to a directory that was independent of the installation. A `CMakeLists.txt` file was created to correctly make the `Makefile` and is a good reference if attempting to compile a program using BigMPI and qHiPSTER together.
 
-The `qft_test.cpp` executable was generated successfully. The script `run_script.sh` was then used to launch jobs on Kay using SLURM for different problem sizes (numbers of qubits) and for different node configurations. Note, that for the node configurations, only two processes were allocated per node, each with 20 threads. The number of processes was restricted by the Intel-QS framework to be in powers of two. Therefore, the scaling was performed for $'2,4,8,16,32,64`$ and $`128`$ processes.
+The `qft_test.cpp` executable was generated successfully. The script `run_script.sh` was then used to launch jobs on Kay using SLURM for different problem sizes (numbers of qubits) and for different node configurations. Note, that for the node configurations, only two processes were allocated per node, each with 20 threads. The number of processes was restricted by the Intel-QS framework to be in powers of two. Therefore, the scaling was performed for $`2,4,8,16,32,64`$ and $`128`$ processes.
 
 ## Strong Scaling
 Strong scaling was performed keeping the problem size fixed to $`34`$ qubits and varying the number of processes according to the aforementioned configurations.
@@ -55,7 +54,7 @@ Strong scaling was performed keeping the problem size fixed to $`34`$ qubits and
 From the above plots, it is clear that there is no significant reduction in runtime when the number of ranks exceeds $`36`$ (approximately the number of qubits). It would be beneficial to conduct scaling experiments for larger problem sizes, however this is limited due to the maximum message passing size since BigMPI is not being used by qHiPSTER. The problem scales strongly quite well.
 
 ## Weak Scaling
-Weak scaling was performed keeping the problem size assigned to each task fixed to \\(2^{27}`$ states. The job configurations and how they were calculated can be seen in the table below.
+Weak scaling was performed keeping the problem size assigned to each task fixed to $`2^{27}`$ states. The job configurations and how they were calculated can be seen in the table below.
 
 | Nodes           |  p    | NumProcesses = $`2^p`$    | Local States $`= 2^{n-p} = 2^{27}`$    | Qubits = $`n`$   |
 | :-------------: | :---: | :---------------------: | :----------------------------------: | :------------: |
