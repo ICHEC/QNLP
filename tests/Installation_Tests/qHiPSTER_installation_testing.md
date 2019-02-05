@@ -48,8 +48,8 @@ Strong scaling was performed keeping the problem size fixed to $`34`$ qubits and
 
 
 
-![scaling_strong_.png](attachment:scaling_strong_.png)
-![scaling_speedup_strong.png](attachment:scaling_speedup_strong.png)
+![scaling_strong_.png](tests/Installation_Tests/scaling_strong_.png)
+![scaling_speedup_strong.png](tests/Installation_Tests/scaling_speedup_strong.png)
 
 From the above plots, it is clear that there is no significant reduction in runtime when the number of ranks exceeds $`36`$ (approximately the number of qubits). It would be beneficial to conduct scaling experiments for larger problem sizes, however this is limited due to the maximum message passing size since BigMPI is not being used by qHiPSTER. The problem scales strongly quite well.
 
@@ -68,8 +68,8 @@ Weak scaling was performed keeping the problem size assigned to each task fixed 
 
 
 
-![scaling_weak_.png](attachment:scaling_weak_.png)
-![scaling_speedup_weak.png](attachment:scaling_speedup_weak.png)
+![scaling_weak_.png](tests/Installation_Tests/scaling_weak_.png)
+![scaling_speedup_weak.png](tests/Installation_Tests/scaling_speedup_weak.png)
 
 
 From the above plots for weak scaling, it can be seen that the program scales resonably well. The execution time increases as the number of processes is increased, likely due to MPI communication overhead. It would be worthwhile repeating weak scaling experiments with BiGMPI working so as to compare the two for smaller problem sizes. BiGMPI should also be used for larger numbers of processes in terms of weak scaling.
