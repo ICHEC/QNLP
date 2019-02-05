@@ -3,7 +3,7 @@
 
 The Intel-QS ‘consistent-naming’ branch of qHiPSTER is currently installed using Intel Parallel Studio XE 2018 update 4 in the shared project directory on Kay (`/ichec/work/ichec001/<BUILD_DIR>`).
 
-Note, BigMPI is required to allow for larger MPI message sizes which occurs when the number of states per process becomes relatively large (approximately greater than \\(2^{27}\\) states per process). BigMPI had to be built seperately within the Intel-QS installation. 
+Note, BigMPI is required to allow for larger MPI message sizes which occurs when the number of states per process becomes relatively large (approximately greater than $`2^{27}`$ states per process). BigMPI had to be built seperately within the Intel-QS installation. 
 
 For further details of the installation procedure and open issues with the procedure, see the qHiPSTER_build_process.md document (https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/tests/qHiPSTER_build_process.md). It details the installation procedure on Kay, including workarounds so that the installation will be successful. A sumamary of the critical issues which prevent successful installation of the SDK-release of qHiPSTER are as follows:
 
@@ -32,45 +32,47 @@ An example build of the `qft_test.cpp` program along with the associated `CMakeL
 
 The `qft_test.cpp` program supplied with the Intel-QS installation was used to test scaling on Kay. The program was copied to a directory that was independent of the installation. A `CMakeLists.txt` file was created to correctly make the `Makefile` and is a good reference if attempting to compile a program using BigMPI and qHiPSTER together.
 
-The `qft_test.cpp` executable was generated successfully. The script `run_script.sh` was then used to launch jobs on Kay using SLURM for different problem sizes (numbers of qubits) and for different node configurations. Note, that for the node configurations, only two processes were allocated per node, each with 20 threads. The number of processes was restricted by the Intel-QS framework to be in powers of two. Therefore, the scaling was performed for \\(2,4,8,16,32,64\\) and \\(128\\) processes.
+The `qft_test.cpp` executable was generated successfully. The script `run_script.sh` was then used to launch jobs on Kay using SLURM for different problem sizes (numbers of qubits) and for different node configurations. Note, that for the node configurations, only two processes were allocated per node, each with 20 threads. The number of processes was restricted by the Intel-QS framework to be in powers of two. Therefore, the scaling was performed for $'2,4,8,16,32,64`$ and $`128`$ processes.
 
 ## Strong Scaling
-Strong scaling was performed keeping the problem size fixed to \\(34\\) qubits and varying the number of processes according to the aforementioned configurations.
+Strong scaling was performed keeping the problem size fixed to $`34`$ qubits and varying the number of processes according to the aforementioned configurations.
 
-| Nodes           |  p    | NumProcesses = \\(2^p\\)  | Local States \\(= 2^{n-p} = 2^{27}\\)  | Qubits = \\(n\\) |
+| Nodes           |  p    | NumProcesses = $`2^p`$  | Local States $`= 2^{n-p} = 2^{27}`$  | Qubits = $`n`$ |
 | :-------------: | :---: | :---------------------: | :----------------------------------: | :------------: |
-| 64              |   7   | 128                   | \\(2^{34-7}\\)                         | 34           |
-| 32              |   6   | 64                    | \\(2^{34-6}\\)                         | 34           |
-| 16              |   5   | 32                    | \\(2^{34-5}\\)                         | 34           |
-| 8               |   4   | 16                    | \\(2^{34-4}\\)                         | 34           |
-| 4               |   3   | 8                     | \\(2^{34-3}\\)                         | 34           |
-| 2               |   2   | 4                     | \\(2^{34-2}\\)                         | 34           |
-| 1               |   1   | 2                     | \\(2^{34-1}\\)                         | 34           |
+| 64              |   7   | 128                   | $`2^{34-7}`$                        | 34           |
+| 32              |   6   | 64                    | $`2^{34-6}`$                         | 34           |
+| 16              |   5   | 32                    | $`2^{34-5}`$                         | 34           |
+| 8               |   4   | 16                    | $`2^{34-4}`$                         | 34           |
+| 4               |   3   | 8                     | $`2^{34-3}`$                         | 34           |
+| 2               |   2   | 4                     | $`2^{34-2}`$                         | 34           |
+| 1               |   1   | 2                     | $`2^{34-1}`$                        | 34           |
 
 
 
 ![scaling_strong_.png](attachment:scaling_strong_.png)
 ![scaling_speedup_strong.png](attachment:scaling_speedup_strong.png)
 
-From the above plots, it is clear that there is no significant reduction in runtime when the number of ranks exceeds \\(36\\) (approximately the number of qubits). It would be beneficial to conduct scaling experiments for larger problem sizes, however this is limited due to the maximum message passing size since BigMPI is not being used by qHiPSTER. The problem scales strongly quite well.
+From the above plots, it is clear that there is no significant reduction in runtime when the number of ranks exceeds $`36`$ (approximately the number of qubits). It would be beneficial to conduct scaling experiments for larger problem sizes, however this is limited due to the maximum message passing size since BigMPI is not being used by qHiPSTER. The problem scales strongly quite well.
 
 ## Weak Scaling
-Weak scaling was performed keeping the problem size assigned to each task fixed to \\(2^{27}\\) states. The job configurations and how they were calculated can be seen in the table below.
+Weak scaling was performed keeping the problem size assigned to each task fixed to \\(2^{27}`$ states. The job configurations and how they were calculated can be seen in the table below.
 
-| Nodes           |  p    | NumProcesses = \\(2^p\\)    | Local States \\( 2^{n-p} = 2^{27}\\)    | Qubits = \\(n\\)   |
+| Nodes           |  p    | NumProcesses = $`2^p`$    | Local States $`= 2^{n-p} = 2^{27}`$    | Qubits = $`n`$   |
 | :-------------: | :---: | :---------------------: | :----------------------------------: | :------------: |
-| 64              |   7   | 128                     | \\(2^{34-7}\\)                           | 34             |
-| 32              |   6   | 64                      | \\(2^{33-6}\\)                           | 33             |
-| 16              |   5   | 32                      | \\(2^{32-5}\\)                           | 32             |
-| 8               |   4   | 16                      | \\(2^{31-4}\\)                           | 31             |
-| 4               |   3   | 8                       | \\(2^{30-3}\\)                           | 30             |
-| 2               |   2   | 4                       | \\(2^{29-2}\\)                           | 29             |
-| 1               |   1   | 2                       | \\(2^{28-1}\\)                           | 28             |
+| 64              |   7   | 128                     | $`2^{34-7}`$                           | 34             |
+| 32              |   6   | 64                      | $`2^{33-6}`$                          | 33             |
+| 16              |   5   | 32                      | $`2^{32-5}`$                           | 32             |
+| 8               |   4   | 16                      | $`2^{31-4}`$                           | 31             |
+| 4               |   3   | 8                       | $`2^{30-3}`$                          | 30             |
+| 2               |   2   | 4                       | $`2^{29-2}`$                           | 29             |
+| 1               |   1   | 2                       | $`2^{28-1}`$                           | 28             |
 
 
 
 ![scaling_weak_.png](attachment:scaling_weak_.png)
 ![scaling_speedup_weak.png](attachment:scaling_speedup_weak.png)
+
+
 From the above plots for weak scaling, it can be seen that the program scales resonably well. The execution time increases as the number of processes is increased, likely due to MPI communication overhead. It would be worthwhile repeating weak scaling experiments with BiGMPI working so as to compare the two for smaller problem sizes. BiGMPI should also be used for larger numbers of processes in terms of weak scaling.
 
 
@@ -86,8 +88,8 @@ From the above plots for weak scaling, it can be seen that the program scales re
  - Built BigMPI
  - Built SDK-release of Intel-QS using BigMPI
  - Can successfully build and run programs in HPC environment
- - `qft_test.cpp` works for problem sizes with the number of states per process equal to \\(2^{28}\\) (16GiB)
- - `qft_test.cpp` fails for problem sizes with the number of states per process greater than \\(2^{28}\\) states
+ - `qft_test.cpp` works for problem sizes with the number of states per process equal to $`2^{28}`$ (16GiB)
+ - `qft_test.cpp` fails for problem sizes with the number of states per process greater than $`2^{28}`$ states
      - e.g. 36 qubits - single precision - Node Configuration: 64 nodes, 128 processes, 20 threads per process - fails due to communication error
      - This is a strong indicator that BigMPI is not being used for all of the appropriate MPI routines.
 
