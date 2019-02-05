@@ -1,4 +1,3 @@
-
 # qHiPSTER Installation Process Issues
 
 The Intel-QS ‘consistent-naming’ branch of qHiPSTER is currently installed using Intel Parallel Studio XE 2018 update 4 in the shared project directory on Kay (`/ichec/work/ichec001/<BUILD_DIR>`).
@@ -57,7 +56,7 @@ From the above plots, it is clear that there is no significant reduction in runt
 ## Weak Scaling
 Weak scaling was performed keeping the problem size assigned to each task fixed to $2^{27}$ states. The job configurations and how they were calculated can be seen in the table below.
 
-| Nodes           |  p    | NumProcesses = $2^p$    | Local States $= 2^{n-p} = 2^{27}$    | Qubits = $n$   |
+| Nodes           |  p    | NumProcesses = $2^p$    | Local States $$= 2^{n-p} = 2^{27}$$    | Qubits = $n$   |
 | :-------------: | :---: | :---------------------: | :----------------------------------: | :------------: |
 | 64              |   7   | 128                     | $2^{34-7}$                           | 34             |
 | 32              |   6   | 64                      | $2^{33-6}$                           | 33             |
