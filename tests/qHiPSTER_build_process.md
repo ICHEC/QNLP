@@ -52,7 +52,7 @@ This will generate all of the required files to perform an install of the SDK. H
 make sdk-release BIGMPI_LIB=${QHIPSTER_ROOT}/install/lib/libbigmpi.a BIGMPI_INC=-I${QHIPSTER_ROOT}/install/include
 ```
 
-Note, that in order to enable AVX-512 on the Skylake processors on Kay, the flag `-march=skylake-avx512` must be appended to the `OPT` variable in the `make.inc` file.
+Note, that in order to enable AVX-512 on the Skylake processors on Kay, the flag `-march=skylake-avx512` must be appended to the `OPT` variable in the `make.inc` file before the library is built.
 
 # Using the SDK
 When building and installing the qHiPSTER SDK, examining the makefile suggests this is performed using `make sdk-release`. However, due to the lack of a `LICENSE.txt` file, this fails. This would be rectified by adding the appropriate license file to the `${QHIPSTER_ROOT}` directory. For the sake of our tests, we simply `touch LICENSE.txt`.
