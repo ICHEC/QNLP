@@ -26,16 +26,16 @@ mkdir ${QHIPSTER_ROOT}/install
 cd ${QHIPSTER_ROOT}/util/BigMPI/
 ```
 
-For a static library of `libbigmpi.a` we can use the autotools build steps, which are slightly modified from the ones given by the [BigMPI documentation](https://github.com/intel/Intel-QS/blob/consistent-naming/util/BigMPI/INSTALL.md). We install the BigMPI library into the Intel-QS build directory.
+For a static library of `libbigmpi.a` we can use the autotools build steps, which are slightly modified from the ones given by the [BigMPI documentation](https://github.com/intel/Intel-QS/blob/consistent-naming/util/BigMPI/INSTALL.md). We install the BigMPI library into the Intel-QS build directory. Note, `CFLAGS="-march=skylake-avx512"` was prepended to the configure step to enable AVX512 vectorization.
 ```bash
 ./autogen.sh;
-./configure CC=mpiicc --prefix=${QHIPSTER_ROOT}/install;
+CFLAGS="-march=skylake-avx512" ./configure CC=mpiicc --prefix=${QHIPSTER_ROOT}/install;
 make && make install;
 ```
 
 For a dynamic library of `libbigmpi.so` we can use the CMake build process and perform the installation into the same directory as previously (we can also build a static library using CMake, but the default is shared).
 ```bash
-CC=mpiicc CXX=mpiicpc cmake ..
+CFLAGS="-march=skylake-avx512" CC=mpiicc CXX=mpiicpc cmake ..
 ```
 However, as this seems to call the autotools pipeline behind the scenes, it can be easier to just use the earlier static build instructions.
 
