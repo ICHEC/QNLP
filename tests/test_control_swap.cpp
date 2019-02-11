@@ -5,18 +5,18 @@
  * Controlled swap decomposition taken from arXiV:1301.3727
  */
 template <class Type>
-void applyControlledSwap(QbitRegister<ComplexDP>& qreg, 
+void ApplyControlledSwap(QubitRegister<ComplexDP>& qreg, 
                             unsigned int q0, 
                             unsigned int q1, 
                             unsigned int q2){
 
     //Need at least 3 qubits for this operation
-    std::cout << "NUMQBITS = " << qreg.nqbits << std::endl;
+    std::cout << "NUMQBITS = " << qreg.num_qubits << std::endl;
     std::cout << "q0 = " << q0 << "    q1 = "  << q1 << "   q2 = " << q2 << std::endl; 
 
-    assert( qreg.nqbits > 2 );
+    assert( qreg.num_qubits > 2 );
     //The requested qubit indices must be available to use within the register range
-    assert( (q0 < qreg.nqbits ) && (q1 < qreg.nqbits) && (q2 < qreg.nqbits) );
+    assert( (q0 < qreg.num_qubits ) && (q1 < qreg.num_qubits) && (q2 < qreg.num_qubits) );
     //The qubits must be different from one another
     assert( q0 != q1 && q0 != q2 && q1 != q2);
 
@@ -33,14 +33,14 @@ void applyControlledSwap(QbitRegister<ComplexDP>& qreg,
     V_dag(1,0) = {0.5,  0.5};
     V_dag(1,1) = {0.5, -0.5};
     
-    qreg.applyCPauliX(q2, q1);
-    qreg.applyControlled1QubitGate(q1, q2, V);
-    qreg.applyControlled1QubitGate(q0, q2, V);
+    qreg.ApplyCPauliX(q2, q1);
+    qreg.ApplyControlled1QubitGate(q1, q2, V);
+    qreg.ApplyControlled1QubitGate(q0, q2, V);
     
-    qreg.applyCPauliX(q0, q1);
-    qreg.applyControlled1QubitGate(q1, q2, V_dag);
-    qreg.applyCPauliX(q2, q1);
-    qreg.applyCPauliX(q0, q1);
+    qreg.ApplyCPauliX(q0, q1);
+    qreg.ApplyControlled1QubitGate(q1, q2, V_dag);
+    qreg.ApplyCPauliX(q2, q1);
+    qreg.ApplyCPauliX(q0, q1);
 }
 
 /* The Fredkin gate (controlled swap, CSWAP) performs a measuremen-based test on two gates for equality. 
@@ -94,24 +94,24 @@ int main(int argc, char **argv){
       // The state is initialized as a computational basis state (using the keyword "base")
       // corresponding to the index 0. The index corresponds to a N-bit integer in decimal
       // representation. With N qubits there are 2^N indices, from 0 to 2^{N-1}.
-      QbitRegister<ComplexDP> psi1(N, "base", 0);
+      QubitRegister<ComplexDP> psi1(N, "base", 0);
 
-      psi1.applyHadamard(0);
-      applyControlledSwap<ComplexDP>(psi1, 0, 1, 2);
-      psi1.applyHadamard(0);
+      psi1.ApplyHadamard(0);
+      ApplyControlledSwap<ComplexDP>(psi1, 0, 1, 2);
+      psi1.ApplyHadamard(0);
 
-      psi1.applyHadamard(3);
-      psi1.applyPauliX(5);
-      applyControlledSwap<ComplexDP>(psi1, 3, 4, 5);
-      psi1.applyHadamard(3);
+      psi1.ApplyHadamard(3);
+      psi1.ApplyPauliX(5);
+      ApplyControlledSwap<ComplexDP>(psi1, 3, 4, 5);
+      psi1.ApplyHadamard(3);
       
       //Measured qubits
       unsigned int mq0=0, mq1 = 3;
       //Probabilities after measurement in the respective basis
       double p0=0., p1 = 0.;
 
-      p0 = psi1.getProbability( mq0 );
-      p1 = psi1.getProbability( mq1 );
+      p0 = psi1.GetProbability( mq0 );
+      p1 = psi1.GetProbability( mq1 );
 
       // Print such probability to screen, only if MPI rank=0.
       // This is done to avoid each rank to write the same information to screen.
