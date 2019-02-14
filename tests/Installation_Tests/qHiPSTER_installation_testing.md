@@ -93,7 +93,7 @@ From the above plots for weak scaling, it can be seen that the program scales re
      - This is a strong indicator that BigMPI is not being used for all of the appropriate MPI routines.
 
 # Questions
-- Is MPIX_Sendrecv_x and MPIX_Allreduce_x the only BigMPI routines required by qHiPSTER? (as they appear to be the only BigMPI routines implemented by it (by grep'ing the Intel-QS source code, these were the only `MPIX_` routines)). See `Intel-QS/build/include/util/utils.hpp` to see where the MPI routines are set to use Big MPI by specifying the `-DBIGMPI` precompiler flag.
+- Are `MPIX_Sendrecv_x`and `MPIX_Allreduce_x` the only BigMPI routines required by qHiPSTER? (as they appear to be the only BigMPI routines implemented by it (by grep'ing the Intel-QS source code, these were the only `MPIX_` routines)). See `Intel-QS/build/include/util/utils.hpp` to see where the MPI routines are set to use Big MPI by specifying the `-DBIGMPI` precompiler flag.
 - Do any of the branches on the Intel-QS repository fully implement BigMPI when required?
 - In the `Intel-QS/tests` directory, all of the MPI routines are not implemented due to the dependency that the `DNOREPA_HAS_MPI` precompiler flag has been defined (which was not included in the build process). Is there a reason why MPI was disabled by default for the tests? (this question applies to the `consistent-naming` branch only)
 
