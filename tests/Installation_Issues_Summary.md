@@ -4,19 +4,17 @@ For further details and work-arounds of the issues with installation procedure a
 
 ## Installation Process
 
-
-
 - Fabio recommended using the more up to date `consistent-naming` branch of the repository instead of using the default `master` branch.
-    - Issue: `master` branch appears t be relatively outdated compared to consistent-naming` branch
-    - Consider pushing the `consistent-naming` branch to `master`
-    - Consequences: Naming conventions change between the two branches, therefore it would make sense to have the more updated one being used rather than requiring users to change their source code
+    - Issue: `master` branch appears t be relatively outdated compared to consistent-naming` branch.
+    - Consider pushing the `consistent-naming` branch to `master`.
+    - Consequences: Naming conventions change between the two branches, therefore it would make sense to have the more updated one being used rather than requiring users to change their source code.
 
 - The installation process of the SDK fails if one follows the standard installation step (```make sdk-release```). See the `qHiPSTER_installation_testing.md` and `qHiPSTER_build_process.md` files above for explicit details.
     - Issues:
-        - Does not build
-        - Assumes BigMPI has been pre-installed on machine (BigMPI was provided with installation but not built)
-            - Requires user to manually change paths in `make.inc` once BigMPI has been manually installed
-        - Does not work when built due to missing header file (`NoisyQureg.hpp`)
+        - Does not build.
+        - Assumes BigMPI has been pre-installed on machine (BigMPI was provided with installation but not built).
+            - Requires user to manually change paths in `make.inc` once BigMPI has been manually installed.
+        - Does not work when built due to missing header file (`NoisyQureg.hpp`).
     - Consequences:
         - Installation process is much more involved than it should be and requires a lot of digging around to get working. This makes a process that should be completed by executing one or two commands into more lengthy procedure to find the errors.
     
@@ -25,15 +23,26 @@ For further details and work-arounds of the issues with installation procedure a
 
 - BigMPI does not appear to work for the provided test cases (example `Intel-QS/tests/qft_test.cpp`).
     - Issues:
-        - Does not work (reports MPI communication error for experiments with larger problem sizes)
+        - Does not work (reports MPI communication error for experiments with larger problem sizes).
     - Possible Cause of Issue: 
         - Only `MPIX_Sendrecv_x` and `MPI_Allreduce_x` have been implemented as BigMPI calls for their respective MPI calls. We are not sure if they are the only required MPI routines that should use BigMPI or whether other BigMPI routines are necessary but not yet implemented.
     - Consequences:
-        - This is a significant problem which will result in a roadblock for the project, preventing scaling of our problem to larger sizes
+        - This is a significant problem which will result in a roadblock for the project, preventing scaling of our problem to larger sizes.
     
-- There is no validation of the library using unit tests
+- There is no validation of the library using unit tests.
     - Issues:
-        - Assumes that the routines work without test
+        - Assumes that the routines work without test.
     - It would be nice and good practise to provide unit tests to assure the user that the routines work as expected
 
 - We came across some odd comments in the `master` branch but I think most if not all of them were removed in the `consistent-naming` branch. Might be worth taking another look at, but is a very minor issue.
+
+
+- There is no documentation for using the SDK.
+    - Issues:
+        - As stated.
+    - Consequences:
+        - Development using the SDK can be very touch and go. As in, how does the developer know that the way they have used the routines is the intended use of the routines.
+        - Makes using qHiPSTER more inaccessible for the developer
+        - In terms of getting qHiPSTER working with MPI in general and with BigMPI, a number of precompiler flags are required to be specified. There is no way for the developer to know what these flags are apart from going through the samples and the `Makefile`s. It would be very useful to have this stated in some documentation, as well as the purpose of each flag (examples `DBIGMPI`, )
+        - Examples requiring the `-DNOREPA_HAS_MPI` flag to enable MPI do not provide information about or set  by default this flag. It is ambiguous whether there is a reason why MPI was disabled in the example programs in `Intel-QS/tests/`.
+    - Following from this, for the project it would be useful to know the correct and intended way for the user to define their own gates. We have provided our example of using qHiPSTER to implement a 3 qubit controlled swap (see `ApplyControlledSwap` function in `intel-qnlp/tests/test_control_swap.cpp`). Would this be the intended way qHiPSTER should be used to do this, or is there a better way? Documentation to help the user make these decisions would be useful.
