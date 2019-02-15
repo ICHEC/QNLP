@@ -1,4 +1,4 @@
-# Instllation and Usage Issues of qHiPSTER using BigMPI
+# Installation and Usage Issues of qHiPSTER using BigMPI
 
 For further details and work-arounds of the issues with installation procedure and usage of qHiPSTER see the `qHiPSTER_installation_testing.md` and `qHiPSTER_build_process.md` (https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/tests/Installation_Tests/qHiPSTER_installation_testing.md and https://git.ichec.ie/intel-qnlp/intel-qnlp/blob/master/tests/qHiPSTER_build_process.md respectively)
 
