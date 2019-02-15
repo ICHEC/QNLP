@@ -25,3 +25,4 @@ Upcoming plans as discussed in standup:
    - Tag words with types (LOR)
    - Estimate number of qubits and Q states required for the meaning space for this corpus (LOR, VK)
  - Investigate mapping of sentence similarity algorithm (VK, LOR)
+ - Keep key issues as md instead of XLS; discuss at next all-hands meeting
