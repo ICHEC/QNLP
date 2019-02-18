@@ -43,7 +43,8 @@ For further details and work-arounds of the issues with installation procedure a
 
 - There is no documentation for using the SDK.
     - Issues:
-        - As stated.
+        - No documentation.
+        - Unclear on how to implement qHiPSTER routines correctly in the way the qHiPSTER developers had intended.
     - Consequences:
         - Development using the SDK can be very touch and go. As in, how does the developer know that the way they have used the routines is the intended use of the routines.
         - Makes using qHiPSTER more inaccessible for the developer.
