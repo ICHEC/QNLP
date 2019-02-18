@@ -50,6 +50,8 @@ For further details and work-arounds of the issues with installation procedure a
         - In terms of getting qHiPSTER working with MPI in general and with BigMPI, a number of precompiler flags are required to be specified. There is no way for the developer to know what these flags are apart from going through the samples and the `Makefile`s. It would be very useful to have this stated in some documentation, as well as the purpose of each flag (examples `-DBIGMPI`,`-DOPENQU_HAVE_MPI` and `-DINTELQS_HAS_MPI`).
         - Examples requiring the `-DNOREPA_HAS_MPI` flag to enable MPI do not provide information about or set by default this flag. It is ambiguous whether there is a reason why MPI was disabled in the example programs in `Intel-QS/tests/` for the `consistent-naming` branch of qHiPSTER.
     - Following from this, for the project it would be useful to know the correct and intended way for the user to define their own gates. We have provided our example of using qHiPSTER to implement a 3 qubit controlled swap (see `ApplyControlledSwap` function in `intel-qnlp/tests/test_control_swap.cpp`). Would this be the intended way qHiPSTER should be used to do this, or is there a better way? Documentation to help the user make these decisions would be very useful.
+        - Documentation to support how the library should be used as the qHiPSTER developers intended would be beneficial to us and the general user.
+        - More specifically, documentation on defining gate operations that are not defined as standard (ie gates that operate on many qubits).
 
 
 ## Summary of Main Issues
