@@ -53,4 +53,4 @@ For further details and work-arounds of the issues with installation procedure a
 
 
 ## Summary of Main Issues
-The above information was provided to give feedback for issues we have come across when using qHiPSTER so far from an aspect of usability in general. In terms of our project, the only main issue is that BigMPI is not working with the qHiPSTER library. While documentation on using qHiPSTER as a SDK would be very helpful to have, it is clear that creating useful documentation takes a good bit of time, but it is something that would really help other users in the future.
+The above information was provided to give feedback for issues we have come across when using qHiPSTER so far from an aspect of usability in general. In terms of our project, the main issue is that BigMPI is not working with the qHiPSTER library. While documentation on using qHiPSTER as a SDK would be very helpful to have, it is clear that creating useful documentation takes a good bit of time, but it is something that would really help us and other users make use of the library in the correct amd intended manner.
