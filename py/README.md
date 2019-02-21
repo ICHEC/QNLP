@@ -1,0 +1,1 @@
+`tagging.py` offers a simplified module for checking tagged data types. It condenses many of the types offered by NLTK into a simpler type-set.
