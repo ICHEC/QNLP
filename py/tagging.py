@@ -57,6 +57,3 @@ def matchables(classType, tag):
         return False        
 
 
-if __name__ == "__main__":
-    import sys
-    print (matchables(Noun, sys.argv[1]) )
