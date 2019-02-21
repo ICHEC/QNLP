@@ -49,9 +49,14 @@ class Sentence():
         return 's:' + ','.join([s.label for s in self.structure])
     
 def matchables(classType, tag):
-    if type(classType) is Noun:
+    if isinstance(classType, Noun) or classType is Noun:
         return tag in ["NN","NNS","NNP","NNPS"]
-    elif type(classType) is Verb:
+    elif isinstance(classType, Verb) or classType is Verb:
         return tag in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]
     else:
-        return false        
+        return False        
+
+
+if __name__ == "__main__":
+    import sys
+    print (matchables(Noun, sys.argv[1]) )
