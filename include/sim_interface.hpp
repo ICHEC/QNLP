@@ -80,6 +80,9 @@ namespace QNLP{
 
         std::size_t getNumQubits() { return numQubits; }
 
+        extern enum SimBackend;
+        std::unique_ptr<SimulatorInterface> createSimulator(SimBackend s, std::size_t numQubits);
+
     protected:
         std::size_t numQubits = 0;
         QubitRegisterType qubitRegister;
