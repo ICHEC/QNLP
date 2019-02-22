@@ -2,7 +2,6 @@
 
 For a simple test case, run:
 ```bash
-python ./tag_file.py <corpus.txt>
+python ./tag_file.py <corpus.txt> <s/l>
 ```
-
-which will output a set of all nouns and verbs to stdout.
+where `l` lemmatizes the tokens, and `s` stems the tokens. If no `s/l` option argument given, text is tokenised and tagged without processing. 
