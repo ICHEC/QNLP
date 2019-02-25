@@ -25,4 +25,6 @@ To run the application, use the `run_exp.sh` job script ensuring the variables `
 sbatch run_exp.sh
 ```
 
-Experiments were conducted using 64 nodes and 126 processes for 36 qubits and these resulted in the same error.
+Experiments were also conducted using 64 nodes and 126 processes for 36 qubits as well as various other configurations and problem sizes, and these resulted in the same error.
+
+An example run script that launches a smaller size resulting in success has also been supplied (`run_exp_small.sh`).
