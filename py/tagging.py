@@ -55,5 +55,3 @@ def matchables(classType, tag):
         return tag in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]
     else:
         return False        
-
-
