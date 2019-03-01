@@ -14,12 +14,12 @@ function oracleO(vectorIdx::Int64, valueIdx::Int64)
 end
 ```
 
-The oracle $`F`$ similarly is used to extract the value of the state vector corresponding to two indices: as before, the index of the vector in the training set, $`\textrm{vectorIdx}`$, and now the index of the $`\textrm{nonZeroOffset}`$-th non-zero value in the vector. The second $`\textrm{nonZeroOffset}`$ holding register is overwritten with this value.
+The oracle $`F`$ similarly is used to extract the value of the state vector corresponding to two indices: as before, the index of the vector in the training set, $`\textrm{vectorIdx}`$, and now the index of the $`\textrm{nzo}`$-th non-zero value in the vector, where $`\textrm{nzo}:=`$non zero offset, representing the indexed states with a non zero coefficient.  The second $`\textrm{nzo}`$ holding register is overwritten with this value. 
 
 ```math
 \begin{array}{}
-F\vert \textrm{vectorIdx} \rangle \otimes \vert \textrm{nonZeroOffset} \rangle \rightarrow \\\\ 
-\vert \textrm{vectorIdx} \rangle \otimes \vert f(\textrm{vectorIdx}, \textrm{nonZeroOffset}) \rangle \rightarrow \\\\
+F\vert \textrm{vectorIdx} \rangle \otimes \vert \textrm{nzo} \rangle \rightarrow \\\\ 
+\vert \textrm{vectorIdx} \rangle \otimes \vert f(\textrm{vectorIdx}, \textrm{nzo}) \rangle \rightarrow \\\\
 \vert \textrm{vectorIdx} \rangle \otimes \vert \textrm{nzoIdx} \rangle
 \end{array}
 ```
@@ -27,10 +27,10 @@ F\vert \textrm{vectorIdx} \rangle \otimes \vert \textrm{nonZeroOffset} \rangle \
 ```julia
 # Consider maintaining previous index to continue 
 # searching for next value.
-function oracleF(vectorIdx::Int64, nonZeroOffset::Int64)
+function oracleF(vectorIdx::Int64, nzo::Int64)
     counter=0
     for (idx, val) in enumerate( stateVector[vectorIdx] )
-        if val != 0 && counter < nonZeroOffset
+        if val != 0 && counter < nzo
             counter++
         else
             return idx
@@ -65,18 +65,17 @@ O\vert 1 \rangle \vert 1 \rangle \vert 0 \rangle = b_1\vert 0 \rangle \vert 0 \r
 ## State generation
 For the algorithm as proposed by Wiebe et al, we start with a state $`\vert A \rangle`$ defined as follows:
 ```math
-\vert A \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{i=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nonZeroOffset} \rangle \vert 0 \rangle \vert 0 \rangle
+\vert A \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{\textrm{nzo}=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nzo} \rangle \vert 0 \rangle \vert 0 \rangle
 ```
-
-Next, we must find the indices of the $`\textrm{nonZeroOffset}`$, which are the indexed values with non-zero terms, denoted $`\textrm{nzoIdx}`$ by applying $`F`$ to the above state as:
+Next, we must find the indices of the $`\textrm{nzo}`$, which are the indexed values with non-zero terms, denoted $`\textrm{nzoIdx}`$ by applying $`F`$ to the above state, and where $`\vert \textrm{nzoIdx} \rangle = \vert f(\textrm{vectorIdx},\textrm{nzo}) \rangle`$.
 
 ```math
-\vert B \rangle = F \vert A \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{i=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nzoIdx} \rangle \vert 0 \rangle \vert 0 \rangle.
+\vert B \rangle = F \vert A \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{\textrm{nzo}=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nzoIdx} \rangle \vert 0 \rangle \vert 0 \rangle.
 ```
 
 With this state, we can now extract the value of the vector, indexed by both $`\textrm{vectorIdx}`$ and $`\textrm{nzoIdx}`$ by applying oracle $`O`$ as:
 ```math
-\vert C \rangle = O\vert B \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{i=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nzoIdx} \rangle \vert v_{\textrm{vectorIdx}, \textrm{nzoIdx}} \rangle \vert 0 \rangle.
+\vert C \rangle = O\vert B \rangle = \frac{1}{\sqrt{d}}\displaystyle\sum\limits_{\textrm{nzo}=1}^{d} \vert \textrm{vectorIdx}\rangle \vert \textrm{nzoIdx} \rangle \vert v_{\textrm{vectorIdx}, \textrm{nzoIdx}} \rangle \vert 0 \rangle.
 ```
 
 ### Aside: qRAM data access
