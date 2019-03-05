@@ -1,7 +1,7 @@
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
 
-#define FUNC
+#include "QubitCircuit.hpp"
 
 // Set vectors containing appropriate indices of each qubit in each register in the overall circuit
 void set_circ_register_indexing(vector<int>& x,vector<int>& g,vector<int>& c, vector<int>& input, int m, int n){
@@ -25,7 +25,7 @@ void set_circ_register_indexing(vector<int>& x,vector<int>& g,vector<int>& c, ve
 //              - Let there exist m vectors of binary number, each of length n.
 //              - Require 2n+1 qubits
 template <class Type>
-void encode_binarystrings(vector<vector<int>> pattern, QubitRegister<Type>& circ, int m, int n){
+void encode_binarystrings(vector<vector<int>> pattern, QubitCircuit<Type>& circ, int m, int n){
 
         // We wil then prepare three matrices S^1, S^2 and S^3 that are required for the implemented
         // algorithm to encode these binary strings into a superposition state.
@@ -143,7 +143,7 @@ void encode_binarystrings(vector<vector<int>> pattern, QubitRegister<Type>& circ
             // Need to reset c and x registers for the newly generated term in superposition
             //
             // Flip all qubits in state |1> in the register g 
-            circ.ApplyCPauliX(c[1],g[0]);
+            circ.ApplyCPauliX(c[1],g[0]);       // ?? c[1] or c[0]
             // Set c to |01>
             circ.ApplyPauliX(c[0]);
 
@@ -152,16 +152,14 @@ void encode_binarystrings(vector<vector<int>> pattern, QubitRegister<Type>& circ
 
 
 template <class Type>
-void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> input_pattern, QubitRegister<Type>& circ, int m, int n){
+void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> input_pattern, QubitCircuit<Type>& circ, int m, int n){
     // Use vectors to store indices of appropriate registers in circuit
     vector<int> x(n);
     vector<int> g(1);
     vector<int> c(2);
-    vector<int> input(2);
+    vector<int> input(n);
 
     set_circ_register_indexing( x, g, c, input,  m,  n);
-
-
 
 
     // Step 2       - Hamming distance calculation
@@ -169,7 +167,7 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
     // Step 2.1      - Encode test pattern into quantum register input
     for(int j = 0; j < n; j++){
         if(input_pattern[0][j] == 1){
-            circ.ApplyCPauliX(c[1],x[j]);
+            circ.ApplyCPauliX(c[1],input[j]);
         }
     }
     // Apply Hadamard to the Ancilla bit g
@@ -183,7 +181,7 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
         circ.ApplyPauliX(input[j]);
     }
 
-    // Step 2.3     - Compute Hamming distance with the distances recorded in the input registe
+    // Step 2.3     - Compute Hamming distance with the distances recorded in the input register
     // Define unitary matrices U[i] for each term in superposition
     vector<openqu::TinyMatrix<Type, 2, 2, 32>> U(3);
     {
@@ -246,8 +244,8 @@ int main(int argc, char **argv){
     int m, n;
     int num_exps;
     m = 3;
-    n = 2;
-    num_exps = 100;
+    n = 4;
+    num_exps = 1000;
 
     int N = 2*n + 1;
 
@@ -260,11 +258,12 @@ int main(int argc, char **argv){
     vector<int> count(m);
 
     // Initialise binary patterns
-    pattern[0] = {0,1};
-    pattern[1] = {1,0};
-    pattern[2] = {1,1};
+    pattern[0] = {0,0,0,1};
+    pattern[1] = {0,1,1,1};
+    pattern[2] = {1,1,1,1};
+//    pattern[3] = {1,1,0,1};
 
-    input_pattern[0] = {1,1};
+    input_pattern[0] = {0,0,0,1};
 
     // Use vectors to store indices of appropriate registers in circuit
     //      - x holds superposition of training data
@@ -279,19 +278,14 @@ int main(int argc, char **argv){
     set_circ_register_indexing( x, g, c,  input,  m,  n);
 
 
-    QubitRegister<ComplexDP> circ(2*n+2+1, "base", 0);
+    //QubitCircuit<ComplexDP> circ(2*n+2+1, "base", 0);
+    QubitCircuit<ComplexDP> circ((std::size_t)2*n+2+1);
 
     // Repeated shots of experiment
     for(int exp = 0; exp < num_exps; exp++){
 
         circ.Initialize("base",0);
          
-
-//        circ.TurnOnSpecialize();
-//        circ.EnableStatistics();
-  
-
-
         // Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
         //              - Let there exist m vectors of binary number, each of length n.
         //
@@ -302,120 +296,50 @@ int main(int argc, char **argv){
 
 
         // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
-        //             - Results are stored in the coefficient of each state. 
-        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
+        //             - Results are stored in the coefficient of each state of the input pattern
+//        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
 
-
-        // Collapse states so the outcome can be measured
-        for(int j = 0; j < n; j++){
-            circ.CollapseQubit(x[j],1);
+        // Apply measurement
+        for(std::size_t j = 0; j < n; j++){
+            circ.ApplyMeasurement(input[j]);
         }
 
-        // Re-normalize the state's coefficients
-        circ.Normalize();
-    
-        vector<bool> output(n);
+ //       circ.ApplyMeasurement(g[0]);
+
+        // Obtain the probability of state being |1>
+        vector<double> output(n);
         // Obtain the measured qubit 
-        for(int j = 0; j < n; j++){
-            //output[j] = circ.GetClassicalValue(input[j]);
+        for(std::size_t j = 0; j < n; j++){
             output[j] = circ.GetProbability(input[j]);
         }
 
         // Increase the count of the pattern being measured
         int tmp_count;
         for(int i = 0; i < m; i++){
-            tmp_count = 0;
-            for(int j = 0; j < n; j++){
-                if(pattern[i][j] != output[j]){
-                    break;
+            // Measure amplitude of the states with a cosine term /9ie with register g in |0>)
+ //           if(circ.GetProbability(g[0]) == 0){
+                tmp_count = 0;
+                for(int j = 0; j < n; j++){
+                    if(pattern[i][j] != output[j]){
+                        break;
+                    }
+                    tmp_count++;
                 }
-                tmp_count++;
-            }
-            if(tmp_count == n){
-                count[i]++;
-            }
+                if(tmp_count == n){
+                    count[i]++;
+                }
+   //         }
         }
+
     }
-            
+
+
+
     cout << "Measure:" << endl;
+    double perc;
     for(int i = 0; i < m; i++){
-        cout << i << '\t' << count[i] << '\t' << (double)count[i]/(double) num_exps <<  endl;
+        perc = (double)count[i]/(double) num_exps;
+        cout << i << '\t' << count[i] << '\t' << perc << "%\t" << ((double)2*n)*acos(perc)/M_PI <<  endl;
     }
-
-
-        std::vector<unsigned>qubits_to_be_measured={0,1};
-        //AndbythecorrespondingPaulimatrices(X=1,Y=2,Z=3)
-        std::vector<unsigned>observables1={1,3};
-        std::vector<unsigned>observables2={3,3};
-        std::vector<unsigned>observables3={1,2};
-
-        //Theexpectationvalue<psi2|X_0.id_1.Z_2.Y_3|psi2>isobtainedvia:
-        double average1=0.;
-        double average2=0.;
-        double average3=0.;
-    //    circ.ExpectationValue(qubits_to_be_measured,observables1,average1);
-      //  circ.ExpectationValue(qubits_to_be_measured,observables2,average2);
-        //circ.ExpectationValue(qubits_to_be_measured,observables3,average3);
-        circ.ExpectationValueZ(0,average1);
-        circ.ExpectationValueZ(1,average2);
-        circ.ExpectationValue(qubits_to_be_measured,observables2,average3);
-
-        cout << "Expectation1\t" << average1 << endl;
-        cout << "Expectation2\t" << average2 << endl;
-        cout << "Expectation3\t" << average3 << endl;
-
-
-/*
-        for(int j = 0; j < n; j++){
-            circ.CollapseQubit(x[j],1);
-        }
-
-
-
-
-        QubitRegister<ComplexDP> psi1(2, "base", 0);
-        QubitRegister<ComplexDP> psi2(2, "base", 0);
-        QubitRegister<ComplexDP> psi3(2, "base", 0);
-        QubitRegister<ComplexDP> psi4(2, "base", 0);
-
-        psi2.ApplyHadamard(0);
-        psi2.ApplyHadamard(1);
-//        psi2.ApplyPauliX(0);
-        psi3.ApplyPauliX(1);
-        psi4.ApplyPauliX(0);
-        psi4.ApplyPauliX(1);
-
-        ComplexDP overlap1, overlap2,overlap3,overlap4;
-
-//        ComplexDP overlap1 = circ.ComputeOverlap(psi1);
-  //      ComplexDP overlap2 = circ.ComputeOverlap(psi2);
-    //    ComplexDP overlap3 = circ.ComputeOverlap(psi3);
-        overlap4 = psi2.ComputeOverlap(psi4);
-
-        cout << "1\t" << overlap1 << endl;
-        cout << "2\t" << overlap2 << endl;
-        cout << "3\t" << overlap3 << endl;
-        cout << "4\t" << overlap4 << endl;
-
-*/
-
-        cout << "qubit\t0\t1" << endl;
-        for(int j = 0; j < n; j++){
-
- //           circ.ComputeOverlap(circ.x[1]);
-            cout << j << "\t" <<  1.0 - circ.GetProbability(x[j]) << "\t" <<  circ.GetProbability(x[j])  << endl;
-        }
-
-        cout << "qubit\t0\t1" << endl;
-        for(int j = 0; j < n; j++){
-
- //           circ.ComputeOverlap(circ.x[1]);
-            cout << j << "\t" <<  1.0 - circ.GetProbability(input[j]) << "\t" <<  circ.GetProbability(input[j])  << endl;
-        }
-
-
-
- //       circ.GetStatistics();
-
 
 }
