@@ -12,8 +12,8 @@ class QubitCircuit: public QubitRegister<Type>{
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
 
         void ApplyMeasurement(std::size_t qubit);
-        void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);
-        void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U);
+        //void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);             // Won't work ing general since measurement will destroy states in a superposition
+        //void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U);      // Won't work ing general since measurement will destroy states in a superposition
 };
 
 // Constructor initialising RNG
@@ -39,7 +39,9 @@ void QubitCircuit<Type>::ApplyMeasurement(std::size_t qubit){
         this->Normalize();
 }
 
-
+/*
+ *      // Won't work ing general since measurement will destroy states in a superposition
+ *
 // Applies N qubit controlled PauliX where N is the length of the input.
 //      It is assumed that the ancilla registers are in the state |00>.
 //
@@ -130,4 +132,4 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
         this->ApplyPauliX(ancilla[a_control]);
     }        
 }
-
+*/
