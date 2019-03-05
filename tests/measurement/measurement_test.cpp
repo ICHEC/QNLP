@@ -11,7 +11,6 @@
 #endif
 
 
-//using ComplexDP=std::complex<double>;
 
 int main(int argc, char **argv){
 
