@@ -141,7 +141,6 @@ int main(int argc, char **argv){
         cout << "qubit\t\t0\t1" << endl;
         for(std::size_t j = 0; j < n; j++){
 
- //           circ.ComputeOverlap(circ.x[1]);
             cout << "register" << j << "\t" <<  1.0 - circ.GetProbability(j) << "\t" <<  circ.GetProbability(j)  << endl;
         }
 
