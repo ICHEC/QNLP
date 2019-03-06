@@ -1,5 +1,5 @@
 
-#define QUBITCIRCUITCLASS
+//#define CHEAT
 #include "util/tinymatrix.hpp"
 
 #include "QubitCircuit.hpp"
@@ -14,7 +14,7 @@ int main(int argc, char **argv){
 #ifdef CHEAT
     int num_exps, m;
     std::size_t n;
-    n = 9;                     // Number of qubit registers
+    n = 8;                     // Number of qubit registers
     num_exps = 10;
     m = pow(2,n);       // Number of possible states
 
