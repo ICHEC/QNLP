@@ -12,8 +12,8 @@ class QubitCircuit: public QubitRegister<Type>{
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
 
         void ApplyMeasurement(std::size_t qubit);
-        //void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);             // Won't work ing general since measurement will destroy states in a superposition
-        //void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U);      // Won't work ing general since measurement will destroy states in a superposition
+        void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);             // Won't work ing general since measurement will destroy states in a superposition
+        void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U);      // Won't work ing general since measurement will destroy states in a superposition
         void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, int n);             
         void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U, int n);      
 };
@@ -102,6 +102,7 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
 /*
  *      // Won't work ing general since measurement will destroy states in a superposition
  *
+ */
 // Applies N qubit controlled PauliX where N is the length of the input.
 //      It is assumed that the ancilla registers are in the state |00>.
 //
@@ -127,8 +128,9 @@ void QubitCircuit<Type>::ApplyNCPauliX(vector<std::size_t> input, vector<std::si
         //          conducting a measurement here. Due to the memory
         //          boundedness of the problem, a measurement was deemed 
         //          a better alternative. This is subject to change.
-        this->ApplyMeasurement(ancilla[a_control]);
-        if(this->GetProbability(ancilla[a_control]) == 1){
+        //this->ApplyMeasurement(ancilla[a_control]);
+        //if(this->GetProbability(ancilla[a_control]) == 1){
+        if(this->GetClassicalValue(ancilla[a_control]) == 1){
             this->ApplyPauliX(ancilla[a_control]);
         }   
         
@@ -141,13 +143,17 @@ void QubitCircuit<Type>::ApplyNCPauliX(vector<std::size_t> input, vector<std::si
 
     this->ApplyCPauliX(ancilla[a_control],target[0]);
 
-    this->ApplyMeasurement(ancilla[a_control]);
-    if(this->GetProbability(ancilla[a_control]) == 1){
+    //this->ApplyMeasurement(ancilla[a_control]);
+    //if(this->GetProbability(ancilla[a_control]) == 1){
+    if(this->GetClassicalValue(ancilla[a_control]) == 1){
         this->ApplyPauliX(ancilla[a_control]);
     }        
 }
 
-
+/*
+ *      // Won't work ing general since measurement will destroy states in a superposition
+ *
+ */
 // Applies N qubit controlled PauliX where N is the length of the input.
 //      It is assumed that the ancilla registers are in the state |00>.
 //
@@ -173,8 +179,8 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
         //          conducting a measurement here. Due to the memory
         //          boundedness of the problem, a measurement was deemed 
         //          a better alternative. This is subject to change.
-        this->ApplyMeasurement(ancilla[a_control]);
-        if(this->GetProbability(ancilla[a_control]) == 1){
+       // this->ApplyMeasurement(ancilla[a_control]);
+        if(this->GetClassicalValue(ancilla[a_control]) == 1){
             this->ApplyPauliX(ancilla[a_control]);
         }   
         
@@ -187,9 +193,9 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
 
     this->ApplyControlled1QubitGate(ancilla[a_control],target[0], U);
 
-    this->ApplyMeasurement(ancilla[a_control]);
-    if(this->GetProbability(ancilla[a_control]) == 1){
+    //this->ApplyMeasurement(ancilla[a_control]);
+    if(this->GetClassicalValue(ancilla[a_control]) == 1){
         this->ApplyPauliX(ancilla[a_control]);
     }        
 }
-*/
+
