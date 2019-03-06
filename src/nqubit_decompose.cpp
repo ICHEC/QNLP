@@ -7,6 +7,10 @@
  */
 
 //#define __VERBOSE__ 1
+#ifdef __VERBOSE__
+#include <string>
+static unsigned int op_counter = 0;
+#endif
 
 #include "nqubit_decompose.hpp"
 using namespace QNLP;
@@ -47,7 +51,8 @@ void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U)
     px(1, 0) = Type(1., 0.);
     px(1, 1) = Type(0., 0.);
     sqrtMatricesX[0] = px;
-    sqrtMatricesU[0] = U;
+    sqrtMatricesX[1] = matrixSqrt(px);
+    sqrtMatricesX[-1] = adjointMatrix(sqrtMatricesX[1]);
 }
 
 /**
@@ -93,7 +98,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
     if (cOps >= 2){
 
         //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
-        if ( ! isPauliX){
+        if ( ! isPauliX ){
             auto search = sqrtMatricesU.find( local_depth );
             if ( search == sqrtMatricesU.end() ) {
             //if( ! sqrtMatricesU.contains(depth) ){
@@ -119,26 +124,26 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
         op.print("OP");
-        std::cout << "1. Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+        std::cout << op_counter <<". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
         std::cout << "################################################" << std::endl;
+        op_counter++;
 #endif
 
         applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, 
-                            sqrtMatricesX[0], local_depth, true );
+                            sqrtMatricesX[0], 0, true );
 
         qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, opAdj);
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
         opAdj.print("OPADJ");
-        std::cout << "2. Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+        std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
         std::cout << "################################################" << std::endl;
+        op_counter++;
 #endif
 
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, 
-                            sqrtMatricesX[0], local_depth, true );
+        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget, 
-                            sqrtMatricesX[0], local_depth, false );
+        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget,  matrixSqrt(U), local_depth, false );
     }
 
     //If the number of control qubits is less than 2, assume we have decomposed sufficiently
@@ -154,10 +159,24 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
         op.print("U");
-        std::cout << "3. Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+        std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
         std::cout << "################################################" << std::endl;
+        op_counter++;
 #endif
     }
+#ifdef __VERBOSE__
+    std::cout << "################################################" << std::endl;
+    std::cout << "KEYS U" << std::endl;
+    for (auto &a : sqrtMatricesU){
+        a.second.print(std::to_string(a.first));
+    }
+    std::cout << "################################################" << std::endl;
+    std::cout << "KEYS X" << std::endl;
+    for (auto &a : sqrtMatricesX){
+        a.second.print(std::to_string(a.first));
+    }
+    std::cout << "################################################" << std::endl;
+#endif
 }
 
 /**

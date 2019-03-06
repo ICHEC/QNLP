@@ -56,28 +56,17 @@ int main(int argc, char **argv){
         X(0,1) = {1., 0.};
         X(1,0) = {1., 0.};
         X(1,1) = {0.,  0.};
-
+        unsigned int num_tests=1;
+        int i = 1;
+//        std::cin >> num_tests;
         if (myid == 0){
-            //Start with simple CCNot test case; 2 control lines, 1 target
-            std::cout << "################################################" << std::endl;
-            std::cout << "Testing 2 control lines" << std::endl;
-            test_decompose(3, X, true);
-            std::cout << "################################################" << std::endl;
+//            for (unsigned int i=0; i < num_tests; i++){
+                std::cout << "################################################" << std::endl;
+                std::cout << "Testing "<< i+2 <<" control lines" << std::endl;
+                test_decompose(i+3, X, true);
+                std::cout << "################################################" << std::endl;
 
-            std::cout << "################################################" << std::endl;
-            std::cout << "Testing 3 control lines" << std::endl;
-            test_decompose(4, X, true);
-            std::cout << "################################################" << std::endl;
-
-            std::cout << "################################################" << std::endl;
-            std::cout << "Testing 4 control lines" << std::endl;
-            test_decompose(5, X, true);
-            std::cout << "################################################" << std::endl;
-
-            std::cout << "################################################" << std::endl;
-            std::cout << "Testing 5 control lines" << std::endl;
-            test_decompose(6, X, true);
-            std::cout << "################################################" << std::endl;
+//            }
         }
     }
 
