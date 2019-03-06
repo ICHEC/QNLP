@@ -84,6 +84,7 @@ int main(int argc, char **argv){
     QubitRegister<ComplexDP> psi2(2, "base", 0);
     QubitRegister<ComplexDP> psi3(2, "base", 0);
     QubitRegister<ComplexDP> psi4(2, "base", 0);
+
     psi2.ApplyPauliX(0);
     psi3.ApplyPauliX(1);
     psi4.ApplyPauliX(0);
@@ -101,6 +102,8 @@ int main(int argc, char **argv){
     cout << "<10|psi> = " << overlap2 << "\t";
     cout << "<01|psi> = " << overlap3 << "\t";
     cout << "<11|psi> = " << overlap4 << endl;
+
+
 
 
     cout << "qubit\t\t0\t1" << endl;
