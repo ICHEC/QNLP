@@ -18,7 +18,6 @@ void set_circ_register_indexing(vector<int>& x, vector<int>& input, vector<int>&
         c[i] = i + 2*n;
     }
     g[0] = m + 2*n + 1;
-    g[1] = m + 2*n + 2;
 }
 
 // Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
@@ -34,7 +33,7 @@ void encode_binarystrings(vector<vector<int>> pattern, QubitCircuit<Type>& circ,
      vector<int> x(n);
      vector<int> dummy(n);
      vector<int> c(m+1);
-     vector<int> g(2);
+     vector<int> g(1);
 
     set_circ_register_indexing(x,dummy,c,g,m,n);
 
@@ -127,24 +126,30 @@ int main(int argc, char **argv){
 
     unsigned m, n, total_qubits, num_exps;
     
-    m = 3;
-    n = 4;
-    num_exps = 1000;
+    m = 4;
+    n = 2;
+    num_exps = 10000;
 
-    total_qubits = m + 2*n + 1 + 1 + 1;
+    total_qubits = m + 2*n + 1 + 1;
 
     // To store initial patterns 
     vector<vector<int>> pattern(m, vector<int> (n,0));
-    //vector<vector<int>> input_pattern(1, vector<int> (n,0));
+    vector<vector<int>> input_pattern(1, vector<int> (n,0));
 
-//    pattern[0] = {0,1};
- //   pattern[1] = {1,0};
-   // pattern[2] = {0,0};
+      pattern[0] = {0,1};
+      pattern[1] = {1,0};
+      pattern[2] = {0,0};
+      pattern[3] = {1,1};
+      input_pattern[0] = {1,1};
 
 
-    pattern[0] = {0,1,0,0};
-    pattern[1] = {1,0,1,1};
-    pattern[2] = {0,0,1,1};
+//    pattern[0] = {1,1,0,0};
+//    pattern[1] = {0,0,1,1};
+//    pattern[2] = {0,0,0,0};
+//    pattern[3] = {1,1,1,1};
+
+
+    //input_pattern[0] = {0,0,1,1};
 
      // Use vectors to store indices of appropriate registers in circuit 
      //      - x holds superposition of training data
@@ -153,7 +158,7 @@ int main(int argc, char **argv){
      vector<int> x(n);
      vector<int> input(n);
      vector<int> c(m+1);
-     vector<int> g(2);
+     vector<int> g(1);
 
     set_circ_register_indexing(x,input,c,g,m,n);
 
@@ -176,10 +181,18 @@ int main(int argc, char **argv){
         // Encode input binary patterns into superposition in registers for x.
         encode_binarystrings<ComplexDP>(pattern, circ, m, n);
 
+        // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
+        //             - Results are stored in the coefficient of each state of the input pattern
+        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
+
+
 
         for(int j = 0; j < n; j++){
             circ.ApplyMeasurement(x[j]);
         }
+
+        circ.CollapseQubit(g[0],0);
+        circ.Normalize();
 
         for(int j = 0; j < n; j++){
             output[j] = circ.GetProbability(x[j]);
@@ -212,6 +225,23 @@ int main(int argc, char **argv){
         }
         cout << ">\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%" << endl;
     }
+
+
+    cout << "TestPattern = " << "|";
+    for(int i = 0; i < n; i++){
+        cout << input_pattern[0][i];
+    }
+    cout << ">" << endl;;
+
+
+    cout << "Measure:" << endl;
+    double perc;
+    for(int i = 0; i < m; i++){
+        perc = (double)count[i]/(double) num_exps;
+        cout << i << '\t' << count[i] << '\t' << perc << "%\t" <<((double)2*n)*acos(perc*sqrt(m))/M_PI  << "\t"<< ((double)2*n)*acos(perc*sqrt(m))/(M_PI*(double)m) <<  endl;
+    }
+
+
 }
 
         
@@ -220,17 +250,17 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
     // Use vectors to store indices of appropriate registers in circuit
     vector<int> x(n);
     vector<int> input(n);
-    vector<int> g(m+1);
-    vector<int> c(2);
+    vector<int> c(m+1);
+    vector<int> g(1);
 
-    set_circ_register_indexing( x, input, g, c  m,  n);
+    set_circ_register_indexing( x, input, g, c, m,  n);
 
     // Step 2       - Hamming distance calculation
     //
     // Step 2.1      - Encode test pattern into quantum register input
     for(int j = 0; j < n; j++){
         if(input_pattern[0][j] == 1){
-            circ.ApplyCPauliX(c[1],input[j]);
+            circ.ApplyPauliX(input[j]);
         }
     }
     // Apply Hadamard to the Ancilla bit g
@@ -260,8 +290,6 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
         U[0](1,1) = {cos_term,     -sin_term};
 
         // U for H=PauliZ
-        cos_term = cos(pi_term);
-        sin_term = sin(pi_term);
         U[1](0,0) = {cos_term,     -sin_term};
         U[1](0,1) = {0.0,          0.0};
         U[1](1,0) = {0.0,          0.0};
@@ -271,7 +299,7 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
         pi_term *= 0.5;
         cos_term = cos(pi_term);
         sin_term = sin(pi_term);
-        U[2](0,0) = {cos_term*cos_term - sin_term*sin_term,     -2.0*cos_term*sin_term};
+        U[2](0,0) = {2.0*cos_term*cos_term - 1.0,     -2.0*cos_term*sin_term};
         U[2](0,1) = {0.0,          0.0};
         U[2](1,0) = {0.0,          0.0};
         U[2](1,1) = {1.0,          0.0};
@@ -290,61 +318,16 @@ void compute_HammingDistance(vector<vector<int>> pattern, vector<vector<int>> in
         circ.Apply1QubitGate(input[j],U[2]);
     }
 
+//  ???
+    // Apply unitary with H=Identiy to the training data registers
+//    for(int j = 0; j < m+1; j++){
+  //      circ.Apply1QubitGate(c[j],U[0]);
+    //}
+
+
+
 
     // Step 2.4     - Apply Hadamard to ancilla bit again
     circ.ApplyHadamard(g[0]);
 
-
 }
-
-/*
-
-        // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
-        //             - Results are stored in the coefficient of each state of the input pattern
-//        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
-
-        // Apply measurement
-        for(std::size_t j = 0; j < n; j++){
-            circ.ApplyMeasurement(input[j]);
-        }
-
- //       circ.ApplyMeasurement(g[0]);
-
-        // Obtain the probability of state being |1>
-        vector<double> output(n);
-        // Obtain the measured qubit 
-        for(std::size_t j = 0; j < n; j++){
-            output[j] = circ.GetProbability(input[j]);
-        }
-
-        // Increase the count of the pattern being measured
-        int tmp_count;
-        for(int i = 0; i < m; i++){
-            // Measure amplitude of the states with a cosine term /9ie with register g in |0>)
- //           if(circ.GetProbability(g[0]) == 0){
-                tmp_count = 0;
-                for(int j = 0; j < n; j++){
-                    if(pattern[i][j] != output[j]){
-                        break;
-                    }
-                    tmp_count++;
-                }
-                if(tmp_count == n){
-                    count[i]++;
-                }
-   //         }
-        }
-
-    }
-
-
-
-    cout << "Measure:" << endl;
-    double perc;
-    for(int i = 0; i < m; i++){
-        perc = (double)count[i]/(double) num_exps;
-        cout << i << '\t' << count[i] << '\t' << perc << "%\t" << ((double)2*n)*acos(perc)/M_PI <<  endl;
-    }
-
-}
-*/
