@@ -13,22 +13,23 @@ void test_decompose(std::size_t num_qubits, openqu::TinyMatrix<Type, 2, 2, 32> U
     unsigned int target = num_qubits-1;
 
     QubitRegister<ComplexDP> psi1(num_qubits, "base", 0);
-    unsigned int shifts;
+    
     double p = -1.;
     for( unsigned int cc = 0; cc < 1<<(num_qubits-1); cc++ ){
-        shifts = 0;
         psi1.Initialize("base",0);
             
-        for( unsigned int q = 1; q <= cc; q = q << 1){
-            if(cc & q > 0){
-                psi1.ApplyPauliX(shifts);
+        for (int ctrl_qubit = 0; ctrl_qubit < num_qubits-1; ctrl_qubit ++){
+            unsigned int window_select = (cc>>ctrl_qubit) & 0b1;
+            if(window_select == 1){
+                psi1.ApplyPauliX(ctrl_qubit);
             }
-            shifts++;
-        } 
-        NQubitDecompose<ComplexDP> nqd(U);
+        }
+        NQubitDecompose<ComplexDP> nqd(U, num_qubits-1);
         nqd.applyNQubitControl(psi1, c_start, c_end, target, U, 0, isX);
-        std::cout << "Test " << cc << " Pattern=" << std::bitset<8>(cc);
-        std::cout << " P(1)=" << psi1.GetProbability( target ) << std::endl;
+        std::cout << "Test " << cc << "\t\tPattern=" << std::bitset<8>(cc);
+        std::cout << "\t\tP(0)=" << 1. - psi1.GetProbability( target );
+        std::cout << "\t\tP(1)=" << psi1.GetProbability( target );
+        std::cout<< std::endl;
     }
 }
 
@@ -37,10 +38,10 @@ int main(int argc, char **argv){
     openqu::mpi::Environment env(argc, argv);
     if (env.is_usefull_rank() == false) return 0;
 
-    int myid = env.rank();
+    int rank = env.rank();
 
     {
-        if (myid == 0) {
+        if (rank == 0) {
             printf("\n --- n-Qubit Controlled U Test --- \n");
             std::cout << "The 3-qubit register (gates 0 to 2) is initialized in state |000>. \n"
                 << "The controlled U test uses U=X, and as such implements a Toffoli decomposition. \n"
@@ -56,17 +57,16 @@ int main(int argc, char **argv){
         X(0,1) = {1., 0.};
         X(1,0) = {1., 0.};
         X(1,1) = {0.,  0.};
-        unsigned int num_tests=1;
-        int i = 1;
+        unsigned int num_tests=7;
 //        std::cin >> num_tests;
-        if (myid == 0){
-//            for (unsigned int i=0; i < num_tests; i++){
+        if (rank == 0){
+            for (unsigned int i=0; i < num_tests; i++){
                 std::cout << "################################################" << std::endl;
                 std::cout << "Testing "<< i+2 <<" control lines" << std::endl;
                 test_decompose(i+3, X, true);
                 std::cout << "################################################" << std::endl;
 
-//            }
+            }
         }
     }
 

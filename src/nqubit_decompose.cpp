@@ -7,6 +7,7 @@
  */
 
 //#define __VERBOSE__ 1
+//#define __VERBOSE_KEYS__ 1
 #ifdef __VERBOSE__
 #include <string>
 static unsigned int op_counter = 0;
@@ -19,8 +20,8 @@ template <class Type>
 NQubitDecompose<Type>::NQubitDecompose(){ }
 
 template <class Type>
-NQubitDecompose<Type>::NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U){
-    NQubitDecompose<Type>::initialiseMaps(U);
+NQubitDecompose<Type>::NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates){
+    NQubitDecompose<Type>::initialiseMaps(U, num_ctrl_gates);
 }
 
 template <class Type>
@@ -44,7 +45,7 @@ void NQubitDecompose<Type>::clearMaps(){
  * @param U Unitary matrix
  */
 template <class Type>
-void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U){
+void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines){
     openqu::TinyMatrix<Type, 2, 2, 32> px;
     px(0, 0) = Type(0., 0.);
     px(0, 1) = Type(1., 0.);
@@ -53,6 +54,16 @@ void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U)
     sqrtMatricesX[0] = px;
     sqrtMatricesX[1] = matrixSqrt(px);
     sqrtMatricesX[-1] = adjointMatrix(sqrtMatricesX[1]);
+    sqrtMatricesU[0] = U;
+
+    for(std::size_t ncl = 1; ncl < num_ctrl_lines; ncl++){
+        if(ncl+1 < num_ctrl_lines){
+            sqrtMatricesX[ncl] = matrixSqrt(sqrtMatricesX[ncl-1]);
+            sqrtMatricesX[-ncl] = adjointMatrix(sqrtMatricesX[ncl]);
+        }
+        sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1]);
+        sqrtMatricesU[-ncl] = adjointMatrix(sqrtMatricesU[ncl]);
+    }
 }
 
 /**
@@ -83,7 +94,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 
     int local_depth = depth + 1;
     if(sqrtMatricesU.size() == 0){
-        initialiseMaps(U);
+        initialiseMaps(U, qControlEnd - qControlStart +1);
     }
 
     //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
@@ -96,31 +107,19 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
     openqu::TinyMatrix<Type, 2, 2, 32> op, opAdj;
 
     if (cOps >= 2){
-
         //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
         if ( ! isPauliX ){
-            auto search = sqrtMatricesU.find( local_depth );
-            if ( search == sqrtMatricesU.end() ) {
-            //if( ! sqrtMatricesU.contains(depth) ){
-                sqrtMatricesU[local_depth] = matrixSqrt(U);
-                sqrtMatricesU[-local_depth] = adjointMatrix(sqrtMatricesU[local_depth]);
-            }
             op = sqrtMatricesU[local_depth];
             opAdj = sqrtMatricesU[-local_depth];
         }
         else {
-            auto search = sqrtMatricesX.find( local_depth );
-            if ( search == sqrtMatricesX.end() ) {
-            //if( ! sqrtMatricesX.contains(depth) ){
-                sqrtMatricesX[local_depth] = matrixSqrt(U);
-                sqrtMatricesX[-local_depth] = adjointMatrix(sqrtMatricesX[local_depth]);
-            }
             op = sqrtMatricesX[local_depth];
             opAdj = sqrtMatricesX[-local_depth];
         }
 
         //Apply single qubit gate ops, and decompose higher order controls further
         qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, op);
+
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
         op.print("OP");
@@ -129,10 +128,10 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
         op_counter++;
 #endif
 
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, 
-                            sqrtMatricesX[0], 0, true );
+        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
         qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, opAdj);
+
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
         opAdj.print("OPADJ");
@@ -141,9 +140,9 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
         op_counter++;
 #endif
 
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
+        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0],   0,              true );
 
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget,  matrixSqrt(U), local_depth, false );
+        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget,     matrixSqrt(U),      local_depth,    false );
     }
 
     //If the number of control qubits is less than 2, assume we have decomposed sufficiently
@@ -152,7 +151,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
             op = U; 
         }
         else { 
-            op = matrixSqrt(U); 
+            op = U; 
         }
 
         qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, op); //The first decomposed matrix value is used here
@@ -164,7 +163,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
         op_counter++;
 #endif
     }
-#ifdef __VERBOSE__
+#ifdef __VERBOSE_KEYS__
     std::cout << "################################################" << std::endl;
     std::cout << "KEYS U" << std::endl;
     for (auto &a : sqrtMatricesU){

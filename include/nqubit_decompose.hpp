@@ -24,7 +24,7 @@ class NQubitDecompose{
 
     public:
     NQubitDecompose();
-    NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U);
+    NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates);
 
     ~NQubitDecompose();
 
@@ -34,7 +34,7 @@ class NQubitDecompose{
      * @param U 
      */
     //template <class Type>
-    void initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U);
+    void initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines);
 
 
 
