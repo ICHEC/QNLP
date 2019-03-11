@@ -142,14 +142,14 @@ int main(int argc, char **argv){
       pattern[3] = {1,1};
       input_pattern[0] = {1,1};
 
-
-//    pattern[0] = {1,1,0,0};
-//    pattern[1] = {0,0,1,1};
-//    pattern[2] = {0,0,0,0};
-//    pattern[3] = {1,1,1,1};
-
-
-    //input_pattern[0] = {0,0,1,1};
+//
+//      pattern[0] = {1,1,0,0};
+//      pattern[1] = {0,0,1,1};
+//      pattern[2] = {0,0,0,0};
+//      pattern[3] = {1,1,1,1};
+//      pattern[4] = {1,0,1,1};
+//
+//      input_pattern[0] = {0,0,1,1};
 
      // Use vectors to store indices of appropriate registers in circuit 
      //      - x holds superposition of training data
@@ -166,7 +166,7 @@ int main(int argc, char **argv){
     QubitCircuit<ComplexDP> circ(total_qubits);
 
 
-     vector<double> output(n);
+    vector<double> output(n);
     vector<double> count(m);
 
 
@@ -183,7 +183,7 @@ int main(int argc, char **argv){
 
         // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
         //             - Results are stored in the coefficient of each state of the input pattern
-        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
+//        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
 
 
 
@@ -234,13 +234,22 @@ int main(int argc, char **argv){
     cout << ">" << endl;;
 
 
-    cout << "Measure:" << endl;
-    double perc;
+    cout << "state\tfreq\tprob\tdist\tProb(D)" << endl;
+    double costerm, dist;
+    double prob, prob_sum;
+    prob_sum = 0.0;
     for(int i = 0; i < m; i++){
-        perc = (double)count[i]/(double) num_exps;
-        cout << i << '\t' << count[i] << '\t' << perc << "%\t" <<((double)2*n)*acos(perc*sqrt(m))/M_PI  << "\t"<< ((double)2*n)*acos(perc*sqrt(m))/(M_PI*(double)m) <<  endl;
-    }
+        prob = (double)count[i]/(double) num_exps;
 
+        prob_sum += prob;
+
+
+        dist = ((double)2*n)*acos(prob*sqrt((double)m))/M_PI;
+        cout << i << '\t' << count[i] << '\t' << prob*100.0 << "%\t" << dist  << "\t"<< dist/(double)m<<  endl;
+    }
+    cout << "Sum of probs =\t" << prob_sum << endl;
+
+    return 0;
 
 }
 
