@@ -145,7 +145,7 @@ int main(int argc, char **argv){
     unsigned m, n, total_qubits, num_exps;
     
     m = 4;
-    n = 4;
+    n = 6;
     num_exps = 1000;
 
     total_qubits = m + 2*n + 1 + 1;
@@ -176,12 +176,12 @@ int main(int argc, char **argv){
       //input_pattern[0] = {0,1,1,1};
       //
 
-      pattern[0] = 15;
-      pattern[1] = 6;
-      pattern[2] = 3;
+      pattern[0] = 63;
+      pattern[1] = 62;
+      pattern[2] = 4;
       pattern[3] = 1;
 
-      input_pattern[0] = 15;
+      input_pattern[0] = 62;
 
 
     vector<unsigned int> all_pattern(pow(2,n));
@@ -204,9 +204,9 @@ int main(int argc, char **argv){
     QubitCircuit<ComplexDP> circ(total_qubits);
 
 
-    vector<double> output(n);
     vector<double> count(m);
 
+    unsigned int val;
 
     double p1, p2;
     int ancilla, count_ancilla_is_one;
@@ -226,30 +226,29 @@ int main(int argc, char **argv){
         //             - Results are stored in the coefficient of each state of the input pattern
         compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
 
-
-
-        for(int j = 0; j < n; j++){
-            circ.ApplyMeasurement(x[j]);
-        }
-
         // If ancilla collapses to state |1> we discard this experiment
         circ.ApplyMeasurement(g[0]);
         ancilla = circ.GetProbability(g[0]);
+
+        // Reject sample
         if(ancilla){
             count_ancilla_is_one++;
         }
+        // Accept sample
         else{
 
-    /*
-            circ.CollapseQubit(g[0],0);
-            circ.Normalize();
-    */
+            // Collapse qubits in input register
             for(int j = 0; j < n; j++){
-                output[j] = circ.GetProbability(x[j]);
-                //cout << output[j];
+                circ.ApplyMeasurement(x[j]);
             }
 
-    /*
+            // Store current state of training register in it's integer format
+            val = 0;
+            for(int j = n-1; j > -1; j--){
+                val |= ((unsigned int)circ.GetProbability(x[j]) << j);
+            }
+
+     /*
             for(int j = 0; j < n; j++){
                 cout << circ.GetProbability(j);
             }
@@ -266,28 +265,16 @@ int main(int argc, char **argv){
             cout << endl;
     */
 
-            // Increase the count of the pattern being measured
-            int tmp_count;
+            // Increase the count of the training pattern measured
             bool flag = false;
             for(int i = 0; i < m; i++){
-                // Measure amplitude of the states with a cosine term /9ie with register g in |0>)
-                tmp_count = 0;
-                for(int j = 0; j < n; j++){
-                    if(IS_SET(pattern[i],j) != output[j]){
-                        break;
-                    }
-                    tmp_count++;
-                }
-                if(tmp_count == n){
+                if(pattern[i] == val){
                     count[i]++;
                     flag = true;
                 }
             }
             if(!flag){
-
-                for(int j = 0; j < n; j++){
-                    cout << output[j];
-                }
+                print_bits(val,n);
                 cout << endl;
                     
             }
@@ -295,6 +282,8 @@ int main(int argc, char **argv){
             exp++;
         }
     }
+
+
 
 
     cout << "NumTimes ancilla was one: \t" << count_ancilla_is_one << endl;
@@ -305,14 +294,14 @@ int main(int argc, char **argv){
     cout << "state\t\tfreq\tprob\tdist\tProb(D)" << endl;
     for(int i = 0; i < m; i++){
 
-        prob = (double)count[i]/(double) num_exps;
+        prob = count[i]/(double) num_exps;
         prob_sum += prob;
-        dist = ((double)(2*n))*acos(sqrt(prob*(double)m))/M_PI;
-//        dist = ((double)(2*n))*acos(sqrt(prob*(double)m))/M_PI;
+        //dist = ((double)(2*n))*acos(sqrt(prob*(double)m))/M_PI;
+        dist = ((double)(2*n))*acos(sqrt(prob))/M_PI;
 
         cout << i << " |";
         print_bits(pattern[i], n);
-        cout << ">\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%\t" << dist  << "\t"<< dist/(double)m << endl;
+        cout << ">\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%\t" << dist  << "\t"<< dist/(double)n << endl;
     }
     cout << "Sum of probs =\t" << prob_sum << endl;
 
@@ -405,9 +394,9 @@ void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> 
 
 //  ???
     // Apply unitary with H=Identiy to the training data registers
-    for(int j = 0; j < m+1; j++){
-        circ.Apply1QubitGate(c[j],U[0]);
-    }
+//    for(int j = 0; j < m+1; j++){
+  //      circ.Apply1QubitGate(c[j],U[0]);
+    //}
 
 
 /*
