@@ -11,7 +11,7 @@ class QubitCircuit: public QubitRegister<Type>{
     public:
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
 
-        void ApplyMeasurement(std::size_t qubit);
+        void ApplyMeasurement(std::size_t qubit, bool normalize=true);
         void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);             // Won't work ing general since measurement will destroy states in a superposition
         void ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U);      // Won't work ing general since measurement will destroy states in a superposition
         void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, int n);             
@@ -30,15 +30,17 @@ QubitCircuit<Type>::QubitCircuit(std::size_t num_qubits_, std::string style, std
 // Applies a typical quantum circuit measurement to qubit indexed by qubit, renormalising the states' amplitudes after
 // the measured qubit has been collapsed.
 template <class Type>
-void QubitCircuit<Type>::ApplyMeasurement(std::size_t qubit){
-        assert(qubit < this->NumQubits());
+void QubitCircuit<Type>::ApplyMeasurement(std::size_t qubit, bool normalize){
+    assert(qubit < this->NumQubits());
 
-        // Obtain the measured qubit by collapsing the states 
-        // randomly proportional to their amplitudes
-        CollapseQubit(qubit,(dist(mt) < this->GetProbability(qubit)));
+    // Obtain the measured qubit by collapsing the states 
+    // randomly proportional to their amplitudes
+    CollapseQubit(qubit,(dist(mt) < this->GetProbability(qubit)));
 
+    if(normalize){
         // Renormalize state coefficients
         this->Normalize();
+    }
 }
 
 // Applies N qubit controlled PauliX where N is the length of the input.
