@@ -31,8 +31,8 @@ class qnlp_db:
         and mapping_dir (1 indicates string to bin_id, or -1 bin_id to string mapping).
         """
         cr_tbl = """CREATE TABLE qnlp(
-                    id INTEGER PRIMARY KEY, 
-                    type TEXT,     bin_id INTEGER, 
+                    id INTEGER PRIMARY KEY, type TEXT, 
+                    name TEXT,     bin_id INTEGER, 
                     weight REAL,   mapping_dir INTEGER
                     );"""
         try:
@@ -85,37 +85,43 @@ class qnlp_db:
         
 ###############################################################################
 
-    def db_insert(self, values: Dict):
+    def db_insert(self, values: Dict, data_type="noun"):
         """
         Insert the tag to binary encoding mapping into the DB.
 
         values -- Dict mapping string to binary value, and binary value to string.
+        """
+
+        #Proposed modification; weight set to 0 currently
+        '''
         The DB insert operation below assumes the value field of a key in DB is a tuple,
         containing (binary_id, weight of occurrence), where weight of occurrence cant be
         determined by the proximity of the word to other words; essentially a count in the 
         simplest case. The mapping checks to see if the index is convertible to a numeric
         type. If so, this will imply the reverse mapping (ie qubit result to string val), 
         and is indicated by -1. Otherwise, this will be a forward mapping, and given by 1.
-        """
+        '''
         conn = self.connect_db()
         c = conn.cursor()
         
         for k,v in values.items():
-            c.execute('''INSERT INTO qnlp 
-                (type, bin_id, weight, mapping_dir) VALUES(?,?,?,?)''', 
-                (k, v[0], v[1], -1 if str(v[0]).isnumeric() else 1 )
-            )
+            if not str(k).isnumeric():
+                c.execute('''INSERT INTO qnlp 
+                    (type, name, bin_id, weight ) VALUES(?,?,?,?)''', 
+                    (data_type, k, int(v,2), 0 )
+                )
+                print (data_type, k, int(v,2), 0 )
         conn.commit()
 
 ###############################################################################
 
-    def db_read(self):
+    def db_print(self):
         """Prints all the available data stored in the DB"""
 
         conn = self.connect_db()
         c = conn.cursor()
 
-        c.execute('''SELECT type, bin_id, weight, mapping_dir FROM qnlp''',
+        c.execute('''SELECT type, name, bin_id, weight FROM qnlp''',
                     #        WHERE type=? AND bin_id=? AND mapping=?''', 
                     #    ()
         )
@@ -124,6 +130,6 @@ class qnlp_db:
         print("################################################################")
         all_rows = c.fetchall()
         for row in all_rows:
-            print('{0}\t\t{1}\t\t{2}\t\t{3}'.format(row[0], row[1], row[2], row[3]))
+            print('{0}\t\t{1}\t\t{2}\t\t{3}'.format(row[0], row[1], row[2], row[3] ))
 
 ###############################################################################
