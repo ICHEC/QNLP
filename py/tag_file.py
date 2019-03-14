@@ -1,4 +1,4 @@
-import tagging as t
+import tagging.word_types as t
 import nltk
 import sys
 import numpy as np
@@ -6,7 +6,6 @@ import numpy as np
 from collections import Counter
 from nltk.corpus import stopwords
 sw = stopwords.words('english')
-
 
 def remove_stopwords(text, sw):
     return [w for w in text if w not in sw]
@@ -21,7 +20,7 @@ def tokenize_corpus(corpus, proc_mode=0):
 
     for s in token_sents:
         tk = nltk.word_tokenize(s)
-        tk = remove_stopwords(tk, sw)
+        tk = remove_stopwords(tk, stopwords.words('english'))
         token_words.extend(tk)
         tags.extend(nltk.pos_tag(tk))
 
@@ -62,12 +61,11 @@ if __name__ == "__main__":
 
     for s in words['tk_sent']:
         tokens = nltk.word_tokenize(s)
-        tokens = remove_stopwords(tokens, sw)
+        tokens = remove_stopwords(tokens, stopwords.words('english'))
         tags = nltk.pos_tag(tokens)
 
         nouns = [i[0] for i in tags if t.matchables(t.Noun, i[1])]
         verbs = [i[0] for i in tags if t.matchables(t.Verb, i[1])]
-        from IPython import embed; embed()
 
 
 

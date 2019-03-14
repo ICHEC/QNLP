@@ -1,14 +1,7 @@
 # Convert corpus to non-zero state coefficients for quantum encoding
 
-# Set the installation path of the intel-qnlp directory
-QNLP_PATH="/Users/mlxd/workspace/quantum/intel-qnlp/"
-corpus_name="jack_and_jill.txt"
-
-# Load the module files assuming they are not on path
-import importlib.util
-spec = importlib.util.spec_from_file_location("tagging", QNLP_PATH+"py/tagging.py")
-tg = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(tg)
+import tagging as tg
+import os
 
 import nltk
 import sys
@@ -36,10 +29,10 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
     Keyword arguments:
     corpus      -- string representing the corpus to tokenize
     proc_mode   -- defines the processing mode. Lemmatization: proc_mode=\"l\";  Stemming: proc_mode=\"s\"; No additional processing: proc_mode=0 (default=0)
-    stop_words  -- indicates whether stop words should be removed (from nltk.corpus.stopwords.words(\"english\"))
+    stop_words  -- indicates whether stop words should be removed (False) or kept (True) (from nltk.corpus.stopwords.words(\"english\"))
     """
 
-    token_sents = nltk.sent_tokenize(corpus_text) #Split on sentences
+    token_sents = nltk.sent_tokenize(corpus) #Split on sentences
     token_words = [] # Individual words
     tags = [] # Words and respective tags
 
@@ -52,14 +45,13 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
 
     if proc_mode != 0:
         if proc_mode == 's':
-            s = nltk.SnowballStemmer('english', ignore_stopwords=True)
+            s = nltk.SnowballStemmer('english', ignore_stopwords = not stop_words)
             token_words = [s.stem(t) for t in token_words]
         elif proc_mode == 'l':
             wnl = nltk.WordNetLemmatizer()
             token_words = [wnl.lemmatize(t) for t in token_words]
 
     tags = nltk.pos_tag(token_words)
-
     nouns = [i[0] for i in tags if tg.matchables(tg.Noun, i[1])]
     verbs = [i[0] for i in tags if tg.matchables(tg.Verb, i[1])]
 
@@ -71,7 +63,7 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
 ###################################
 
 def process(corpus_path, proc_mode=0):
-    # Load the corpus
+    """Load and tokenize the corpus from disk."""
     corpus_text=""
 
     with open(corpus_path, 'r') as corpusFile:
@@ -115,12 +107,6 @@ def word_pairing(words, window_size):
                     print("LEFT:=",n,v)
                 if l_right==0 and (v_idx + window_right) < len(words['tk_words']) and n in words['tk_words'][v_idx:v_idx+window_right] :
                     print("RIGHT:=",v,n)
-
-###################################
- 
-#window = (2,3)
-window=1
-word_pairing(words, window)
 
 ###################################
 
@@ -172,4 +158,33 @@ def mapNameToBinaryBasis(words):
 
 ###################################
 
-nMap,vMap = mapNameToBinaryBasis(words)
+if __name__ == "__main__":
+    if len(os.sys.argv) < 2:
+        raise("Please specify the path to corpus as arg 1 and processing mode as arg 2")
+    CorpusPath = os.sys.argv[1]
+    if len(os.sys.argv) == 3:
+        proc_mode = os.sys.argv[2]
+    else:
+        proc_mode=0
+
+    # Load the corpus
+    corpus_text=""
+
+    with open(CorpusPath, 'r') as corpusFile:
+        corpus_text=corpusFile.read()
+
+    words = tokenize_corpus(corpus_text, proc_mode=proc_mode)
+
+    #Naively set sentence boundary at location of full-stops.
+    sentence_boundary = set([i for i, x in enumerate(words['tk_words']) if "." in x])
+
+    # examine word windowing for proximity
+    #window = (2,3)
+    window=1
+    word_pairing(words, window)
+
+    # Determine qubit requirements
+    _, num_q_total, num_q_n, num_q_v = num_qubits(words)
+
+    #Map name to binary strings, and populate DB
+    nMap,vMap = mapNameToBinaryBasis(words)
