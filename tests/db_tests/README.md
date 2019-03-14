@@ -15,8 +15,8 @@ chmod +x ./CondInstall.sh
 ./CondInstall.sh
 source load_env.sh
 cd ../tests/db_tests
-g++ ../tests/db_tests/test_read_tags.cpp ../src/read_tags.cpp -lsqlite3 -std=c++11 -I../include -o test_db
-python ../py/process_corpus.py ../corpus/<corpus_file_to_process>
+g++ ./test_read_tags.cpp ../../src/read_tags.cpp -lsqlite3 -std=c++11 -I../../include -o test_db
+python ../../py/process_corpus.py ../../corpus/<corpus_file_to_process>
 ./test_db
 ```
 
