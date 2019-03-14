@@ -8,7 +8,7 @@ g++ ../tests/db_tests/test_read_tags.cpp ../src/read_tags.cpp -lsqlite3 -std=c++
 ```
 and assuming the `qnlp_tagged_corpus.sqlite` database exists in the current directory, it will be loaded.
 
-The entire rpocedure is as follows:
+The entire procedure is as follows:
 ```bash
 cd corpus
 chmod +x ./CondInstall.sh
