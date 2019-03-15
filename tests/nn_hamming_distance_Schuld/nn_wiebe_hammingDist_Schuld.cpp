@@ -26,7 +26,7 @@ void print_all_bit_strings(vector<unsigned int> pattern, int start, int end, int
 //      input   - n
 //      c       - m + 1
 //      g       - 1
-void set_circ_register_indexing(vector<int>& x, vector<int>& input, vector<int>& c, vector<int>& g, int m, int n){
+void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, vector<unsigned>& c, vector<unsigned>& g, int m, int n){
     for(int i = 0; i < n; i++){
         x[i] = i;
     }
@@ -40,7 +40,7 @@ void set_circ_register_indexing(vector<int>& x, vector<int>& input, vector<int>&
 }
 
 
-void set_circ_register_indexing(vector<int>& x, vector<int>& input, vector<int>& c, vector<int>& g, vector<int>& class_reg, int m, int n, int num_q_class){
+void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, vector<unsigned>& c, vector<unsigned>& g, vector<unsigned>& class_reg, int m, int n, int num_q_class){
     for(int i = 0; i < n; i++){
         x[i] = i;
     }
@@ -66,11 +66,11 @@ void encode_binarystrings(vector<unsigned int> pattern, vector<unsigned int> pat
     //      - x holds superposition of training data
     //      - c is an ancillary control register
     //      - g is garbage register - also named ancilla qubit
-    vector<int> x(n);
-    vector<int> dummy(n);
-    vector<int> c(m+1);
-    vector<int> g(1);
-    vector<int> class_reg(numQubits_class);
+    vector<unsigned> x(n);
+    vector<unsigned> dummy(n);
+    vector<unsigned> c(m+1);
+    vector<unsigned> g(1);
+    vector<unsigned> class_reg(numQubits_class);
 
     set_circ_register_indexing(x,dummy,c,g,class_reg,m,n,numQubits_class);
 
@@ -182,8 +182,8 @@ int main(int argc, char **argv){
 
     m = 4;
     n = 4;
-    num_exps = 1000;
-    num_classes = 4;
+    num_exps = 100;
+    num_classes = 3;
 
     numQubits_class = (int)ceil(log2(num_classes));
     total_qubits = m + 2*n + 1 + 1 + numQubits_class;
@@ -207,7 +207,7 @@ int main(int argc, char **argv){
     pattern_class[0] = 0;
     pattern_class[1] = 1;
     pattern_class[2] = 2;
-    pattern_class[3] = 3;
+    pattern_class[3] = 2;
 
     //input_pattern[0] = 62;
     input_pattern[0] = 14;
@@ -216,16 +216,17 @@ int main(int argc, char **argv){
     //      - x holds superposition of training data
     //      - c is an ancillary control register
     //      - g is garbage register - also named ancilla qubit
-    vector<int> x(n);
-    vector<int> input(n);
-    vector<int> class_reg(numQubits_class);
-    vector<int> c(m+1);
-    vector<int> g(1);
+    vector<unsigned> x(n);
+    vector<unsigned> input(n);
+    vector<unsigned> class_reg(numQubits_class);
+    vector<unsigned> c(m+1);
+    vector<unsigned> g(1);
 
     set_circ_register_indexing(x,input,c,g,class_reg,m,n,numQubits_class);
 
     // Declare quantum circuit
     QubitCircuit<ComplexDP> circ(total_qubits);
+    QubitCircuit<ComplexDP> circ_control(total_qubits);
 
 
     vector<double> count(m);
@@ -236,8 +237,13 @@ int main(int argc, char **argv){
     int ancilla, count_ancilla_is_one;
     count_ancilla_is_one = 0;
 
+
+    vector<unsigned> observables(numQubits_class,3);
+    double average = 0;
+
     int exp = 0;
     while(exp < num_exps){
+        average = 0.0;
         circ.Initialize("base",0);
 
         // Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
@@ -251,6 +257,9 @@ int main(int argc, char **argv){
         compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n, numQubits_class);
 
         // If ancilla collapses to state |1> we discard this experiment
+        if(!circ.IsClassicalBit(g[0])){
+            cout << "g: I am entangled" << endl;
+        }
         circ.ApplyMeasurement(g[0]);
         ancilla = circ.GetProbability(g[0]);
 
@@ -263,19 +272,28 @@ int main(int argc, char **argv){
 
             // Collapse qubits in input register
             for(int j = 0; j < numQubits_class; j++){
+                if(!circ.IsClassicalBit(class_reg[j])){
+                    cout << "class_reg " << j << ": I am entangled" << endl;
+                }
+            }
+            // Collapse qubits in input register
+            for(int j = 0; j < numQubits_class; j++){
+
                 circ.ApplyMeasurement(class_reg[j]);
             }
+          // circ.ExpectationValue(class_reg, observables, average);
+
 
             // Store current state of training register in it's integer format
             val = 0;
             for(int j = numQubits_class-1; j > -1; j--){
                 val |= ((unsigned int)circ.GetProbability(class_reg[j]) << j);
             }
-
+#define DEBUG
 #ifdef DEBUG
             cout << val << "\t";
             print_bits(val,numQubits_class);
-            cout << endl;
+            cout << "\t" << average << endl;
 #endif
 
 
@@ -331,11 +349,11 @@ int main(int argc, char **argv){
 template <class Type>
 void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> input_pattern, QubitCircuit<Type>& circ, int m, int n, int numQubits_class){
     // Use vectors to store indices of appropriate registers in circuit
-    vector<int> x(n);
-    vector<int> input(n);
-    vector<int> c(m+1);
-    vector<int> g(1);
-    vector<int> class_reg(numQubits_class);
+    vector<unsigned> x(n);
+    vector<unsigned> input(n);
+    vector<unsigned> c(m+1);
+    vector<unsigned> g(1);
+    vector<unsigned> class_reg(numQubits_class);
 
     //    set_ci costermrc_register_indexing( x, input, g, c, m,  n);
     set_circ_register_indexing(x,input,c,g,class_reg,m,n,numQubits_class);

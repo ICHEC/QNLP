@@ -30,6 +30,9 @@ int main(int argc, char **argv){
         circ.ApplyHadamard(1);
 
         for(std::size_t j = 0; j < n; j++){
+            if(!circ.IsClassicalBit(j)){
+                cout << j << ": I am entangled" << endl;
+            }
             circ.ApplyMeasurement(j);
         }
 
