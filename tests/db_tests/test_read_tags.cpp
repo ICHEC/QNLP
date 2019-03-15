@@ -24,6 +24,11 @@ void testDataLoad(ReadTags& rt, std::string dataType){
 }
 
 int main(){
+
+    openqu::mpi::Environment env(argc, argv);
+    if(env.is_usefull_rank() == false) return 0;
+    int rank = env.rank();
+
     ReadTags rt {};
 
     assert(rt.getBinToName().size() == 0);
