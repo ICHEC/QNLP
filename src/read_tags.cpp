@@ -16,6 +16,7 @@ ReadTags::ReadTags() : DB(nullptr) {
 }
 
 ReadTags::~ReadTags(){
+    ReadTags::closeDB();
 }
 
 void ReadTags::closeDB(){
