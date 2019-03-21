@@ -145,7 +145,7 @@ int main(int argc, char **argv){
     unsigned m, n, total_qubits, num_exps;
 
     m = 4;
-    n = 6;
+    n = 4;
     num_exps = 1000;
 
     total_qubits = m + 2*n + 1 + 1;
@@ -176,12 +176,12 @@ int main(int argc, char **argv){
     //input_pattern[0] = {0,1,1,1};
     //
 
-    pattern[0] = 63;
-    pattern[1] = 62;
+    pattern[0] = 14;
+    pattern[1] = 15;
     pattern[2] = 4;
     pattern[3] = 1;
 
-    input_pattern[0] = 62;
+    input_pattern[0] = 14;
 
 
     vector<unsigned int> all_pattern(pow(2,n));
@@ -224,12 +224,12 @@ int main(int argc, char **argv){
 
         // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
         //             - Results are stored in the coefficient of each state of the input pattern
-        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
+        //compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
 
         // If ancilla collapses to state |1> we discard this experiment
-        circ.ApplyMeasurement(g[0]);
+        circ.ApplyMeasurement(g[0], false);
         ancilla = circ.GetProbability(g[0]);
-
+        ancilla = 0;
         // Reject sample
         if(ancilla){
             count_ancilla_is_one++;
@@ -239,7 +239,7 @@ int main(int argc, char **argv){
 
             // Collapse qubits in input register
             for(int j = 0; j < n; j++){
-                circ.ApplyMeasurement(x[j]);
+                circ.ApplyMeasurement(x[j], false);
             }
 
             // Store current state of training register in it's integer format

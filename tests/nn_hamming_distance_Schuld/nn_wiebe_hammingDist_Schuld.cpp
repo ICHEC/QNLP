@@ -182,7 +182,7 @@ int main(int argc, char **argv){
 
     m = 4;
     n = 4;
-    num_exps = 100;
+    num_exps = 1000;
     num_classes = 3;
 
     numQubits_class = (int)ceil(log2(num_classes));
@@ -195,19 +195,15 @@ int main(int argc, char **argv){
 
 //    pattern[0] = 62;
 //    pattern[1] = 63;
-    pattern[0] = 2;
-    pattern[1] = 15;
-    pattern[2] = 4;
-    pattern[3] = 1;
-
-
-    pattern[2] = 4;
-    pattern[3] = 1;
+    pattern[0] = 14;
+    pattern[1] = 1;
+    pattern[2] = 15;
+    pattern[3] = 0;
 
     pattern_class[0] = 0;
     pattern_class[1] = 1;
     pattern_class[2] = 2;
-    pattern_class[3] = 2;
+    pattern_class[3] = 3;
 
     //input_pattern[0] = 62;
     input_pattern[0] = 14;
@@ -257,10 +253,7 @@ int main(int argc, char **argv){
         compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n, numQubits_class);
 
         // If ancilla collapses to state |1> we discard this experiment
-        if(!circ.IsClassicalBit(g[0])){
-            cout << "g: I am entangled" << endl;
-        }
-        circ.ApplyMeasurement(g[0]);
+        circ.ApplyMeasurement(g[0], false);
         ancilla = circ.GetProbability(g[0]);
 
         // Reject sample
@@ -272,15 +265,11 @@ int main(int argc, char **argv){
 
             // Collapse qubits in input register
             for(int j = 0; j < numQubits_class; j++){
-                if(!circ.IsClassicalBit(class_reg[j])){
-                    cout << "class_reg " << j << ": I am entangled" << endl;
-                }
-            }
-            // Collapse qubits in input register
-            for(int j = 0; j < numQubits_class; j++){
 
-                circ.ApplyMeasurement(class_reg[j]);
+                //circ.ApplyMeasurement(class_reg[j]);
+                circ.ApplyMeasurement(class_reg[j], false);
             }
+            circ.Normalize();
           // circ.ExpectationValue(class_reg, observables, average);
 
 
@@ -289,7 +278,7 @@ int main(int argc, char **argv){
             for(int j = numQubits_class-1; j > -1; j--){
                 val |= ((unsigned int)circ.GetProbability(class_reg[j]) << j);
             }
-#define DEBUG
+//#define DEBUG
 #ifdef DEBUG
             cout << val << "\t";
             print_bits(val,numQubits_class);
