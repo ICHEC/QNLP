@@ -10,7 +10,7 @@
  - Extracting the closest state now requires some more thought:
  	- **Method 1**: Consider an additional ancillary qubit $`\vert q_2 \rangle = \vert 0 \rangle`$, giving $`\vert \Psi \rangle = \vert q_0 \rangle \otimes \vert q_1^{\prime} \rangle \otimes \vert q_2 \rangle`$. Applying controlled $`R_y(\theta)`$ gates to this state, wherein the control lines are each of the qubits in register $`\vert q_1^{\prime} \rangle`$, and the angle $`\theta = \pi\frac{1}{n_{1}}`$, with $`n_1`$ being the number of qubits in register $`\vert q_1^{\prime} \rangle`$. If all the bits are set in a specific register state, then the number of $`R_y`$ applications will be such that $`\vert 0 \rangle \rightarrow \vert 1 \rangle`$. Thus, measuring the ancillary qubit and collecting statistics of the resulting states should yield the closest match.
  
- 	- **Method 2**: Using Durr-Hoyer algorithm, set a threshold index value $`i`$, and mark all values below this threshold in $`\vert q_1^{\prime} \rangle`$ by negating the sign of the state. If result of quantum exponential search over a vector $`V`$, given by index $`i^{\prime}`$, are such that $`V[i] > V[i^{\prime}]$, choose $i^{\prime}`$ as the new threshold and repeat.
+ 	- **Method 2**: Using Durr-Hoyer algorithm, set a threshold index value $`i`$, and mark all values below this threshold in $`\vert q_1^{\prime} \rangle`$ by negating the sign of the state. If result of quantum exponential search over a vector $`V`$, given by index $`i^{\prime}`$, are such that $`V[i] > V[i^{\prime}]`$, choose $`i^{\prime}`$ as the new threshold and repeat.
  
  	- **Method 3**: The amplitude of the Hamming distance calculation can give the closest state the highest probability out of a set of states in some arbitrary superposition. A measurement will, similar to **Method 1**, resulting in the collapse to the most likely state with highest probability. Additionally, a combination of the methods may yield the best approach.
 
@@ -49,7 +49,7 @@ For nouns, we have two sets, $`n_s = \{\textrm{adult},\textrm{child},\textrm{smi
 Given the above meaning-space, we can begin to define entities that exist in this space, and choose to encode them into quantum states as follows:
 
 - $`\textrm{John is an adult, and a smith}`$. The resulting state is $`\vert \textrm{John} \rangle = 1/\sqrt{2}\left(\vert \textrm{adult} \rangle + \vert \textrm{smith} \rangle\right)`$, which is essentially just a superposition of the number of entities from the basis set.
-- $\textrm{Mary is a child, and a surgeon}`$. The resulting state is $`\vert \textrm{Mary} \rangle = 1/\sqrt{2}\left(\vert \textrm{child} \rangle + \vert \textrm{surgeon} \rangle\right)$, again, following the same as above.
+- $`\textrm{Mary is a child, and a surgeon}`$. The resulting state is $`\vert \textrm{Mary} \rangle = 1/\sqrt{2}\left(\vert \textrm{child} \rangle + \vert \textrm{surgeon} \rangle\right)`$, again, following the same as above.
 
 With these definitions, we can look at some sentences with John and Mary. An example corpus with meaning that can exist in our meaning-space is:
 *"John rests outside, and Mary walks inside"*.
@@ -122,6 +122,6 @@ Marking the Hamming distance between both registers, and overwriting the test re
 
 This example is simple as any state differing from $`\vert 00\cdots\rangle`$ essentially just flips the test when a $`\vert 1\rangle`$ is seen in the training.
 
-The resulting data in register $`\vert T \rangle$ now encodes the number of different flips between both test and training data; as such, it can be seen as a similarity measure, and such the state with the fewest flips will give the closest meaning to the posed test. The above example has only a single data set with one flip, that of $`\vert 00100 \rangle`$. By decoding the result using the mapping provided earlier, we can see that this corresponds with a meaning of *"Adult(s) sit inside"*. We can subsequently see that this data will give a non-zero overlap with $`\vert J \rangle`$.
+The resulting data in register $`\vert T \rangle`$ now encodes the number of different flips between both test and training data; as such, it can be seen as a similarity measure, and such the state with the fewest flips will give the closest meaning to the posed test. The above example has only a single data set with one flip, that of $`\vert 00100 \rangle`$. By decoding the result using the mapping provided earlier, we can see that this corresponds with a meaning of *"Adult(s) sit inside"*. We can subsequently see that this data will give a non-zero overlap with $`\vert J \rangle`$.
 
 There are some remaining questions on implementing this, however. Firstly, ensuring that the Hamming distance is encoded correctly, and such that the amplitudes are adjusted to respect the minimal difference has the highest probability of outcome. Additionally, if we wish to compare that statement with the previous corpus, we need to determine which statement encoded the resulting data-set --- a problem unless we aim to calculate many overlap integrals.
