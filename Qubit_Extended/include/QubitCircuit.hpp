@@ -1,6 +1,16 @@
 #pragma once
 #include "qureg/qureg.hpp"
 
+/**
+ * @brief Class derived from QubitRegister. 
+ *      Allows for N qubit controlled unitary operations and for random collapsing of qubits.
+ *      
+ * To Do   - Random collapsing of qubits should not occur according to frequency of state 1 or 0
+ *           for a qubit, but according to its amplitude. NEEDS UPDATING - CRITICAL
+ *         - Clean up source code into .cpp or .tpp files and build accordingly
+ * 
+ * @tparam ComplexDP 
+ */
 template <class Type = ComplexDP>
 class QubitCircuit: public QubitRegister<Type>{
     private:

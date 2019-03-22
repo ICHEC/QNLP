@@ -31,18 +31,6 @@
 #define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
 
 
-
-/**
- * @brief Left shifts current
- * 
- * @param current 
- * @param val 
- * @return unsigned int 
- */
-unsigned int update_left_shift_binary(unsigned int current, bool val){
-    return (current << 1) & val;
-}
-
 /**
  * @brief Print binary representation of input value of length len
  * 
