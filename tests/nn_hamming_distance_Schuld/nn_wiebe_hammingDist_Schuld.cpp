@@ -3,29 +3,64 @@
 #include "QubitCircuit.hpp"
 #include <bitset>
 
+/**
+ * @brief Application which 
+ *      - encodes a set of binary strings into a superposition state
+ *      - Computes the Hamming difference between a test pattern and all
+ *      of the binary strings stored in the superposition, storing the distance
+ *      in the corresponding amplitude term.
+ * 
+ *  NOTE:
+ *      This application needs further validation and investigation as the results
+ *      are not as expected after the quantum Hamming distance algorithm is applied.
+ * 
+ */
+
+
+/**
+ * @brief Checks if the bit'th bit of the integer byte is set
+ * 
+ * @param byte - integer representing a binary string
+ * @param bit - the index of the bit to be checked (beginning
+ * with the least significant bit)
+ */
+#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
+
+
+
+/**
+ * @brief Left shifts current
+ * 
+ * @param current 
+ * @param val 
+ * @return unsigned int 
+ */
 unsigned int update_left_shift_binary(unsigned int current, bool val){
     return (current << 1) & val;
 }
 
+/**
+ * @brief Print binary representation of input value of length len
+ * 
+ * @param val - positive integer input
+ * @param len - length of the binary string to be printed beginning at LSB.
+ */
 void print_bits(unsigned int val, int len){
     for (int i = len-1; i > -1; i--){
         std::cout << ((val >> i) & 1UL);
     }
 }
 
-void print_all_bit_strings(vector<unsigned int> pattern, int start, int end, int len){
-    for(int i = start; i < end; i++){
-        print_bits(pattern[i],len);
-    }
-}
-
-#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
-
-// Set vectors containing appropriate indices of each qubit in each register in the overall circuit
-//      x       - n
-//      input   - n
-//      c       - m + 1
-//      g       - 1
+/**
+ * @brief Update the global circuit indices for each register
+ * 
+ * @param x - Training data register
+ * @param input - Input data register
+ * @param c - Ancilla register for the encoding stage
+ * @param g - Ancilla register for the Hamming distance stage
+ * @param m - Number of training datum
+ * @param n - Length of training data binary strings
+ */
 void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, vector<unsigned>& c, vector<unsigned>& g, int m, int n){
     for(int i = 0; i < n; i++){
         x[i] = i;
@@ -39,7 +74,18 @@ void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, ve
     g[0] = m + 2*n + 1;
 }
 
-
+/**
+ * @brief Update the global circuit indices for each register
+ * 
+ * @param x - Training data register
+ * @param input - Input data register
+ * @param c - Ancilla register for the encoding stage
+ * @param g - Ancilla register for the Hamming distance stage
+ * @param class_reg - Register for binary representation of class label 
+ * @param m - Number of training datum
+ * @param n - Length of training data binary strings
+ * @param num_q_class - Number of unique classes
+ */
 void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, vector<unsigned>& c, vector<unsigned>& g, vector<unsigned>& class_reg, int m, int n, int num_q_class){
     for(int i = 0; i < n; i++){
         x[i] = i;
@@ -59,6 +105,18 @@ void set_circ_register_indexing(vector<unsigned>& x, vector<unsigned>& input, ve
 // Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
 //              - Let there exist m vectors of binary number, each of length n.
 //              - Require m+2n+2 qubits
+/**
+ * @brief Updates the circuit by encoding the binary strings of the training data into a superposition represented
+ * in the x register. The c register is used as an ancilla register and is unusable after this encoding has been completed.
+ * 
+ * @tparam Type - datatype of the quantum circuit
+ * @param pattern - binary strings in integer format to be encoded
+ * @param pattern_class - class labels for respective input patterns which are also encoded
+ * @param circ - Quantum circuit
+ * @param m - number of training binary strings
+ * @param n - length of input binary strings
+ * @param numQubits_class - number of unique classes present
+ */
 template < class Type >
 void encode_binarystrings(vector<unsigned int> pattern, vector<unsigned int> pattern_class, QubitCircuit<Type>& circ, int m, int n, int numQubits_class){
 
@@ -99,7 +157,6 @@ void encode_binarystrings(vector<unsigned int> pattern, vector<unsigned int> pat
         }
     }
 
-    //    
     //    for(int i = 0; i < m; i++){
     //        cout << " S^" << m-i << " matrix" << endl;  
     //        cout << S[i](0,0) << "\t" << S[i](0,1) << endl;  
@@ -166,9 +223,112 @@ void encode_binarystrings(vector<unsigned int> pattern, vector<unsigned int> pat
 
 }
 
-
+/**
+ * @brief Updates the quantum circuit so that the amplitudes of each state in the superposition has a cosine term with ancilla g = |0>
+ * and a sine term with ancilla g = |1>. The argument of the trigonometric terms for each state in the superposition contians is 2*pi*d/(2n) 
+ * where d is the Hamming distance between that state's training bit string and the test bit string.
+ * 
+ * @tparam Type - datatype of the quantum circuit
+ * @param input_pattern - Integer representing bit string of the test point
+ * @param circ - Quantum circuit
+ * @param m - number of training binary strings
+ * @param n - length of input binary strings
+ * @param numQubits_class - number of unique classes present
+ */
 template <class Type>
-void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> input_pattern, QubitCircuit<Type>& circ, int m, int n, int numQubits_class);
+void compute_HammingDistance(vector<unsigned int> input_pattern, QubitCircuit<Type>& circ, int m, int n, int numQubits_class){
+    // Use vectors to store indices of appropriate registers in circuit
+    vector<unsigned> x(n);
+    vector<unsigned> input(n);
+    vector<unsigned> c(m+1);
+    vector<unsigned> g(1);
+    vector<unsigned> class_reg(numQubits_class);
+
+    set_circ_register_indexing(x,input,c,g,class_reg,m,n,numQubits_class);
+
+   // Define unitary matrices U[i] corresponding to the appropriate Hamiltomian that is to be
+   // applied.
+    vector<openqu::TinyMatrix<Type, 2, 2, 32>> U(3);
+    {
+        double cos_term, sin_term, pi_term;
+
+
+        // U for H=Idnetity
+        pi_term = 0.5*M_PI/(double)n;
+        cos_term = cos(pi_term);
+        sin_term = sin(pi_term);
+        U[0](0,0) = {cos_term,     -sin_term};
+        U[0](0,1) = {0.0,          0.0};
+        U[0](1,0) = {0.0,          0.0};
+        U[0](1,1) = {cos_term,     -sin_term};
+
+        // U for H=PauliZ
+        U[1](0,0) = {cos_term,     -sin_term};
+        U[1](0,1) = {0.0,          0.0};
+        U[1](1,0) = {0.0,          0.0};
+        U[1](1,1) = {cos_term,     sin_term};
+
+        // U for H=(PauliZ +1)/2
+        pi_term *= 0.5;
+        cos_term = cos(pi_term);
+        sin_term = sin(pi_term);
+        U[2](0,0) = {2.0*cos_term*cos_term - 1.0,     -2.0*cos_term*sin_term};
+        U[2](0,1) = {0.0,          0.0};
+        U[2](1,0) = {0.0,          0.0};
+        U[2](1,1) = {1.0,          0.0};
+    }         
+
+    // Step 2       - Hamming distance calculation
+    //
+    // Step 2.1      - Encode test pattern into quantum register input
+    for(int j = 0; j < n; j++){
+        if(IS_SET(input_pattern[0],j)){
+            circ.ApplyPauliX(input[j]);
+        }
+    }
+
+    // Apply Hadamard to the Ancilla bit g
+    circ.ApplyHadamard(g[0]);
+
+    // Step 2.2     
+    //              - Apply CX with control the input vector and target the superpositions 
+    //              - Apply X to all x values
+    for(int j = 0; j < n; j++){
+        circ.ApplyCPauliX(input[j],x[j]);
+        circ.ApplyPauliX(x[j]);
+    }
+
+    // Step 2.3     - Compute Hamming distance with the distances recorded in the input register
+
+    // Apply unitary with H=Identiy to the test data registers
+    for(int j = 0; j < n; j++){
+        circ.Apply1QubitGate(input[j],U[0]);
+    }
+
+    // Apply unitary with H=PauliZ to the ancillary register
+    circ.Apply1QubitGate(g[0],U[1]);
+
+
+    // Apply unitary with H=(PauliZ+1)/2 to the input data registers
+    for(int j = 0; j < n; j++){
+        circ.Apply1QubitGate(x[j],U[2]);
+    }
+
+    //  ???
+    // Apply unitary with H=Identiy to the ancillary junk data registers
+    for(int j = 0; j < m+1; j++){
+          circ.Apply1QubitGate(c[j],U[0]);
+    }
+
+    // Apply unitary with H=Identiy to the training class registers
+    for(int j = 0; j < numQubits_class; j++){
+          circ.Apply1QubitGate(class_reg[j],U[0]);
+    }
+
+    // Step 2.4     - Apply Hadamard to ancilla bit again
+    circ.ApplyHadamard(g[0]);
+}
+
 
 int main(int argc, char **argv){
 
@@ -183,7 +343,7 @@ int main(int argc, char **argv){
     m = 4;
     n = 4;
     num_exps = 1000;
-    num_classes = 3;
+    num_classes = 4;
 
     numQubits_class = (int)ceil(log2(num_classes));
     total_qubits = m + 2*n + 1 + 1 + numQubits_class;
@@ -224,7 +384,6 @@ int main(int argc, char **argv){
     QubitCircuit<ComplexDP> circ(total_qubits);
     QubitCircuit<ComplexDP> circ_control(total_qubits);
 
-
     vector<double> count(m);
 
     unsigned int val;
@@ -250,12 +409,12 @@ int main(int argc, char **argv){
 
         // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
         //             - Results are stored in the coefficient of each state of the input pattern
-        compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n, numQubits_class);
+        compute_HammingDistance<ComplexDP>(input_pattern, circ,  m,  n, numQubits_class);
 
         // If ancilla collapses to state |1> we discard this experiment
-        circ.ApplyMeasurement(g[0], false);
+        circ.ApplyMeasurement(g[0]);
         ancilla = circ.GetProbability(g[0]);
-
+        // ancilla = 0;
         // Reject sample
         if(ancilla){
             count_ancilla_is_one++;
@@ -263,14 +422,14 @@ int main(int argc, char **argv){
         // Accept sample
         else{
 
-            // Collapse qubits in input register
+            // Collapse qubits in class register
             for(int j = 0; j < numQubits_class; j++){
 
-                //circ.ApplyMeasurement(class_reg[j]);
-                circ.ApplyMeasurement(class_reg[j], false);
+                circ.ApplyMeasurement(class_reg[j]);
+                //circ.ApplyMeasurement(class_reg[j], false);
             }
-            circ.Normalize();
-          // circ.ExpectationValue(class_reg, observables, average);
+            //circ.Normalize();
+            // circ.ExpectationValue(class_reg, observables, average);
 
 
             // Store current state of training register in it's integer format
@@ -295,9 +454,10 @@ int main(int argc, char **argv){
                 }
             }
             if(!flag){
+                cerr << "Aborting" << endl;
                 print_bits(val,n);
                 cout << endl;
-
+                assert(0);
             }
 
             exp++;
@@ -308,15 +468,17 @@ int main(int argc, char **argv){
         cout << "NumTimes ancilla was one: \t" << count_ancilla_is_one << endl;
 
         double dist;
-        double prob, prob_sum;
+        double prob, prob_sum, prob_cos_term;
         prob_sum = 0.0;
         cout << "state\t\tfreq\tprob\tdist\tProb(D)" << endl;
+        prob_cos_term = (double)num_exps/(double)(num_exps + count_ancilla_is_one);
         for(int i = 0; i < m; i++){
 
             prob = count[i]/(double) num_exps;
             prob_sum += prob;
             //dist = ((double)(2*n))*acos(sqrt(prob*(double)m))/M_PI;
-            dist = ((double)(2*n))*acos(sqrt(prob))/M_PI;
+            //dist = ((double)(2*n))*acos(sqrt(prob))/M_PI;
+            dist = ((double)(2*n))*acos(sqrt(prob))/(M_PI* prob_cos_term);
 
             cout << i << " |";
             print_bits(pattern[i], n);
@@ -334,101 +496,3 @@ int main(int argc, char **argv){
 
 }
 
-
-template <class Type>
-void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> input_pattern, QubitCircuit<Type>& circ, int m, int n, int numQubits_class){
-    // Use vectors to store indices of appropriate registers in circuit
-    vector<unsigned> x(n);
-    vector<unsigned> input(n);
-    vector<unsigned> c(m+1);
-    vector<unsigned> g(1);
-    vector<unsigned> class_reg(numQubits_class);
-
-    //    set_ci costermrc_register_indexing( x, input, g, c, m,  n);
-    set_circ_register_indexing(x,input,c,g,class_reg,m,n,numQubits_class);
-
-    // Step 2       - Hamming distance calculation
-    //
-    // Step 2.1      - Encode test pattern into quantum register input
-    for(int j = 0; j < n; j++){
-        if(IS_SET(input_pattern[0],j)){
-            circ.ApplyPauliX(input[j]);
-        }
-    }
-
-    // Apply Hadamard to the Ancilla bit g
-    circ.ApplyHadamard(g[0]);
-
-    // Step 2.2     
-    //              - Apply CX with control the input vector and target the superpositions 
-    //              - Apply X to all x values
-    for(int j = 0; j < n; j++){
-        circ.ApplyCPauliX(input[j],x[j]);
-        circ.ApplyPauliX(x[j]);
-    }
-
-    // Step 2.3     - Compute Hamming distance with the distances recorded in the input register
-    // Define unitary matrices U[i] for each term in superposition
-    vector<openqu::TinyMatrix<Type, 2, 2, 32>> U(3);
-    {
-        double cos_term, sin_term, pi_term;
-
-
-        // U for H=Idnetity
-        pi_term = 0.5*M_PI/(double)n;
-        cos_term = cos(pi_term);
-        sin_term = sin(pi_term);
-        U[0](0,0) = {cos_term,     -sin_term};
-        U[0](0,1) = {0.0,          0.0};
-        U[0](1,0) = {0.0,          0.0};
-        U[0](1,1) = {cos_term,     -sin_term};
-
-        // U for H=PauliZ
-        U[1](0,0) = {cos_term,     -sin_term};
-        U[1](0,1) = {0.0,          0.0};
-        U[1](1,0) = {0.0,          0.0};
-        U[1](1,1) = {cos_term,     sin_term};
-
-        // U for H=(PauliZ +1)/2
-        pi_term *= 0.5;
-        cos_term = cos(pi_term);
-        sin_term = sin(pi_term);
-        U[2](0,0) = {2.0*cos_term*cos_term - 1.0,     -2.0*cos_term*sin_term};
-        U[2](0,1) = {0.0,          0.0};
-        U[2](1,0) = {0.0,          0.0};
-        U[2](1,1) = {1.0,          0.0};
-    }         
-
-    // Apply unitary with H=Identiy to the training data registers
-    for(int j = 0; j < n; j++){
-        circ.Apply1QubitGate(input[j],U[0]);
-    }
-
-    // Apply unitary with H=PauliZ to the ancillary register
-    circ.Apply1QubitGate(g[0],U[1]);
-
-
-    // Apply unitary with H=(PauliZ+1)/2 to the input data registers
-    for(int j = 0; j < n; j++){
-        circ.Apply1QubitGate(x[j],U[2]);
-    }
-
-    //  ???
-    // Apply unitary with H=Identiy to the training data registers
-        for(int j = 0; j < m+1; j++){
-          circ.Apply1QubitGate(c[j],U[0]);
-    }
-
-    // Apply unitary with H=Identiy to the training class registers
-        for(int j = 0; j < numQubits_class; j++){
-          circ.Apply1QubitGate(class_reg[j],U[0]);
-    }
-
-
-
-    /*
-    */
-
-    // Step 2.4     - Apply Hadamard to ancilla bit again
-    circ.ApplyHadamard(g[0]);
-}
