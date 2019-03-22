@@ -14,6 +14,10 @@
  *      This application needs further validation and investigation as the results
  *      are not as expected after the quantum Hamming distance algorithm is applied.
  * 
+ *  To Do - Formulate relation with NLP compositional semantics work, implement, apply
+ *      decoding of Hamming distance results with fewer classes than training points
+ *      correctly (decoding to relative distances only works for each point with a 
+ *      unique class label).
  */
 
 
@@ -355,9 +359,9 @@ int main(int argc, char **argv){
 
 //    pattern[0] = 62;
 //    pattern[1] = 63;
-    pattern[0] = 14;
+    pattern[0] = 15;
     pattern[1] = 1;
-    pattern[2] = 15;
+    pattern[2] = 14;
     pattern[3] = 0;
 
     pattern_class[0] = 0;
@@ -412,9 +416,9 @@ int main(int argc, char **argv){
         compute_HammingDistance<ComplexDP>(input_pattern, circ,  m,  n, numQubits_class);
 
         // If ancilla collapses to state |1> we discard this experiment
-        circ.ApplyMeasurement(g[0]);
+        circ.ApplyMeasurement(g[0], false);
         ancilla = circ.GetProbability(g[0]);
-        // ancilla = 0;
+
         // Reject sample
         if(ancilla){
             count_ancilla_is_one++;
@@ -425,12 +429,13 @@ int main(int argc, char **argv){
             // Collapse qubits in class register
             for(int j = 0; j < numQubits_class; j++){
 
-                circ.ApplyMeasurement(class_reg[j]);
-                //circ.ApplyMeasurement(class_reg[j], false);
+                //circ.ApplyMeasurement(class_reg[j]);
+                circ.ApplyMeasurement(class_reg[j], false);
             }
-            //circ.Normalize();
+            circ.Normalize();
             // circ.ExpectationValue(class_reg, observables, average);
 
+            // *** Requires updating
 
             // Store current state of training register in it's integer format
             val = 0;
@@ -464,6 +469,7 @@ int main(int argc, char **argv){
         }
     }
 
+    // Requires updating
     if(rank == 0){
         cout << "NumTimes ancilla was one: \t" << count_ancilla_is_one << endl;
 
