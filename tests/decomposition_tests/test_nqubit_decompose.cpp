@@ -6,14 +6,23 @@
 
 using namespace QNLP;
 
+//For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
+/**
+ * @brief Tests the n-qubit controlled gate decomposition for all test patterns given the supplied number of qubits
+ *
+ */
 void test_decompose(std::size_t num_qubits, openqu::TinyMatrix<Type, 2, 2, 32> U, bool isX){
+    //For a given register of size num_qubits, the control lines are the first to last-1 
+    //indexed qubits, and the target is the last.
     unsigned int c_start = 0, c_end = num_qubits-2;
     unsigned int target = num_qubits-1;
 
     QubitRegister<ComplexDP> psi1(num_qubits, "base", 0);
     
+    //Measure the probability of the target state being set by applying all bit-patterns of control-qubits
+    //for the given number of qubits.
     double p = -1.;
     for( unsigned int cc = 0; cc < 1<<(num_qubits-1); cc++ ){
         psi1.Initialize("base",0);
@@ -43,9 +52,9 @@ int main(int argc, char **argv){
     {
         if (rank == 0) {
             printf("\n --- n-Qubit Controlled U Test --- \n");
-            std::cout << "The 3-qubit register (gates 0 to 2) is initialized in state |000>. \n"
-                << "The controlled U test uses U=X, and as such implements a Toffoli decomposition. \n"
-                << "The resulting logic table should operate as follows \n"
+            std::cout << "The n-qubit register (gates 0 to n-1) is initialized in state |0..0>. \n"
+                << "The controlled U test uses U=X, and as such implements an (n-1)-qubit controlled Not decomposition.  n"
+                << "The resulting logic table should operate as follows (for n=3, 2 control, 1 target) \n"
                 << "C C -> T\n"
                 << "0 0 -> 0\n"
                 << "0 1 -> 0\n"
@@ -57,6 +66,7 @@ int main(int argc, char **argv){
         X(0,1) = {1., 0.};
         X(1,0) = {1., 0.};
         X(1,1) = {0.,  0.};
+        //Hard-coded number of tests to perform. Starts with a 3-qubit register and increments the number for each subsequent test
         unsigned int num_tests=7;
 //        std::cin >> num_tests;
         if (rank == 0){
@@ -65,9 +75,7 @@ int main(int argc, char **argv){
                 std::cout << "Testing "<< i+2 <<" control lines" << std::endl;
                 test_decompose(i+3, X, true);
                 std::cout << "################################################" << std::endl;
-
             }
         }
     }
-
 }

@@ -147,13 +147,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 
     //If the number of control qubits is less than 2, assume we have decomposed sufficiently
     else{
-        if (isPauliX == true){ 
-            op = U; 
-        }
-        else { 
-            op = U; 
-        }
-
+        op = U; 
         qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, op); //The first decomposed matrix value is used here
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
