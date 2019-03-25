@@ -347,10 +347,10 @@ int main(int argc, char **argv){
 
 //    pattern[0] = 62;
 //    pattern[1] = 63;
-    pattern[0] = 15;
+    pattern[0] = 8;
     pattern[1] = 1;
-    pattern[2] = 14;
-    pattern[3] = 0;
+    pattern[2] = 0;
+    pattern[3] = 14;
 
     pattern_class[0] = 0;
     pattern_class[1] = 1;
@@ -373,8 +373,8 @@ int main(int argc, char **argv){
     set_circ_register_indexing(x,input,c,g,class_reg,m,n,numQubits_class);
 
     // Declare quantum circuit
-    QubitCircuit<ComplexDP> circ(total_qubits);
-    QubitCircuit<ComplexDP> circ_control(total_qubits);
+    QubitCircuit<ComplexDP> circ(total_qubits,"base",0);
+    QubitCircuit<ComplexDP> circ_control(total_qubits,"base",0);
 
     vector<double> count(m);
 
@@ -417,10 +417,10 @@ int main(int argc, char **argv){
             // Collapse qubits in class register
             for(int j = 0; j < numQubits_class; j++){
 
-                //circ.ApplyMeasurement(class_reg[j]);
-                circ.ApplyMeasurement(class_reg[j], false);
+                circ.ApplyMeasurement(class_reg[j]);
+//                circ.ApplyMeasurement(class_reg[j], false);
             }
-            circ.Normalize();
+            //circ.Normalize();
             // circ.ExpectationValue(class_reg, observables, average);
 
             // *** Requires updating
