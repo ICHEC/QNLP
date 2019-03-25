@@ -2,6 +2,13 @@
 #include "util/tinymatrix.hpp"
 #include "QubitCircuit.hpp"
 
+/**
+ * @brief Demonstrate different forms of measurement
+ * 
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 
 
 int main(int argc, char **argv){
@@ -19,8 +26,10 @@ int main(int argc, char **argv){
 
     vector<int> count(m);
 
-    QubitCircuit<ComplexDP> circ(n);
+    QubitCircuit<ComplexDP> circ(n,"base",0);
 
+
+    cout << "\nExperiment 1" << endl; 
     // Repeated shots of experiment
     for(int exp = 0; exp < num_exps; exp++){
 
@@ -30,11 +39,13 @@ int main(int argc, char **argv){
         circ.ApplyHadamard(1);
 
         for(std::size_t j = 0; j < n; j++){
-            if(!circ.IsClassicalBit(j)){
-                cout << j << ": I am entangled" << endl;
-            }
+//            if(!circ.IsClassicalBit(j)){
+//                cout << j << ": I am entangled" << endl;
+//            }
+            //circ.ApplyMeasurement(j, false);
             circ.ApplyMeasurement(j);
         }
+        //circ.Normalize();
 
         // Obtain the probability of state being |1>
         vector<double> output(n);
@@ -66,6 +77,9 @@ int main(int argc, char **argv){
      //   cout << exp << ":\t" << output[0] << "\t" << output[1] << endl;
     
     }
+
+
+    cout << "\nResult of final experiment:" << endl;
             
     cout << "Measure:" << endl;
     for(int i = 0; i < m; i++){
@@ -73,6 +87,7 @@ int main(int argc, char **argv){
     }
 
 
+    cout << "\nExperiment 2" << endl; 
     std::vector<unsigned>qubits_to_be_measured={0,1};
     // Paulimatrices(X=1,Y=2,Z=3)
     std::vector<unsigned>observables={3,3};
