@@ -129,12 +129,14 @@ def num_qubits(words):
     print("Unique states:",nvn_space_size,"\tRequired qubits total:", req_qubits,           "\tRequired qubits nouns:", req_qubits_n, "\tRequired qubits verbs:", req_qubits_v)
     return (nvn_space_size, req_qubits, req_qubits_n, req_qubits_v)
 
-def mapNameToBinaryBasis(words):
+def mapNameToBinaryBasis(words, db_name, table_name="qnlp"):
     """
     Maps the unique string in each respective space to a binary basis number for qubit representation.
 
     Keyword arguments:
     words       -- list of the tokenized words
+    db_name     -- name of the database file
+    table_name  -- name of the table to store data in db_name
     """
 
     _, num_q_total, num_q_n, num_q_v = num_qubits(words)
@@ -150,9 +152,9 @@ def mapNameToBinaryBasis(words):
         verbMap.update({v:format(i,'b').zfill(num_q_v)})
         verbMap.update({format(i,'b').zfill(num_q_v):v})
         
-    db = qdb.qnlp_db("qnlp_tagged_corpus",".")
-    db.db_insert(nounMap, "noun")
-    db.db_insert(verbMap, "verb")
+    db = qdb.qnlp_db(db_name, ".")
+    db.db_insert(nounMap, "noun", table_name)
+    db.db_insert(verbMap, "verb", table_name)
     
     return (nounMap, verbMap)
 
@@ -160,31 +162,42 @@ def mapNameToBinaryBasis(words):
 
 if __name__ == "__main__":
     if len(os.sys.argv) < 2:
-        raise("Please specify the path to corpus as arg 1 and processing mode as arg 2")
-    CorpusPath = os.sys.argv[1]
-    if len(os.sys.argv) == 3:
-        proc_mode = os.sys.argv[2]
+        raise("Please specify the path to basis words as arg 1, corpus as arg 2, and processing mode as arg 3")
+
+    BasisPath = os.sys.argv[1]
+    CorpusPath = os.sys.argv[2]
+    
+    if len(os.sys.argv) == 4:
+        proc_mode = os.sys.argv[3]
     else:
         proc_mode=0
 
+    # Load the basis words
+    basis_text=""    
     # Load the corpus
     corpus_text=""
+
+    with open(BasisPath, 'r') as basisFile:
+        basis_text=basisFile.read()
 
     with open(CorpusPath, 'r') as corpusFile:
         corpus_text=corpusFile.read()
 
-    words = tokenize_corpus(corpus_text, proc_mode=proc_mode)
+    basis_words = tokenize_corpus(basis_text, proc_mode=proc_mode)
+    corpus_words = tokenize_corpus(corpus_text, proc_mode=proc_mode)
 
     #Naively set sentence boundary at location of full-stops.
-    sentence_boundary = set([i for i, x in enumerate(words['tk_words']) if "." in x])
+    sentence_boundary = set([i for i, x in enumerate(corpus_words['tk_words']) if "." in x])
 
     # examine word windowing for proximity
     #window = (2,3)
     window=1
-    word_pairing(words, window)
+    word_pairing(basis_words, window)
 
     # Determine qubit requirements
-    _, num_q_total, num_q_n, num_q_v = num_qubits(words)
+    _, num_q_total, num_q_n, num_q_v = num_qubits(basis_words)
 
-    #Map name to binary strings, and populate DB
-    nMap,vMap = mapNameToBinaryBasis(words)
+    #Map basis words to binary strings, and populate DB
+    basis_nMap, basis_vMap = mapNameToBinaryBasis(basis_words, "qnlp_tagged_corpus","basis")
+
+    corpus_nMap, corpus_vMap = mapNameToBinaryBasis(corpus_words, "qnlp_tagged_corpus","corpus")
