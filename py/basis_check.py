@@ -13,9 +13,11 @@ corpus_verbs = db.db_load("verb", "corpus")
 names = []
 
 #All names return type person
-with open("/Users/mlxd/workspace/quantum/NLP/Data/Names/combined_names_sorted.txt", 'r') as namesFile:
+with open("../corpus/names.dat", 'r') as namesFile:
     names=namesFile.read().splitlines()
 
+#Skip the header of the file
+names = names[17:]
 db.close_db()
 
 print("NOUNS:\n", basis_nouns)
