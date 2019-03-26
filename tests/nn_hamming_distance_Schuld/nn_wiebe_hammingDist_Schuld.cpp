@@ -332,9 +332,9 @@ int main(int argc, char **argv){
     unsigned m, n, total_qubits, num_exps;
     unsigned num_classes, numQubits_class;
 
-    m = 4;
-    n = 4;
-    num_exps = 1000;
+    m = 6;
+    n = 5;
+    num_exps = 100;
     num_classes = 4;
 
     numQubits_class = (int)ceil(log2(num_classes));
@@ -348,17 +348,21 @@ int main(int argc, char **argv){
 //    pattern[0] = 62;
 //    pattern[1] = 63;
     pattern[0] = 8;
-    pattern[1] = 1;
-    pattern[2] = 0;
-    pattern[3] = 14;
+    pattern[1] = 4;
+    pattern[2] = 16;
+    pattern[3] = 31;
+    pattern[4] = 29;
+    pattern[5] = 30;
 
     pattern_class[0] = 0;
     pattern_class[1] = 1;
     pattern_class[2] = 2;
     pattern_class[3] = 3;
+    pattern_class[4] = 3;
+    pattern_class[5] = 3;
 
     //input_pattern[0] = 62;
-    input_pattern[0] = 14;
+    input_pattern[0] = 8;
 
     // Use vectors to store indices of appropriate registers in circuit 
     //      - x holds superposition of training data
@@ -377,6 +381,9 @@ int main(int argc, char **argv){
     QubitCircuit<ComplexDP> circ_control(total_qubits,"base",0);
 
     vector<double> count(m);
+    vector<double> prob_state(m);
+
+
 
     unsigned int val;
 
@@ -387,6 +394,10 @@ int main(int argc, char **argv){
 
     vector<unsigned> observables(numQubits_class,3);
     double average = 0;
+
+    std::random_device rd;
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> dist(0.0,1.0);
 
     int exp = 0;
     while(exp < num_exps){
@@ -404,7 +415,7 @@ int main(int argc, char **argv){
         compute_HammingDistance<ComplexDP>(input_pattern, circ,  m,  n, numQubits_class);
 
         // If ancilla collapses to state |1> we discard this experiment
-        circ.ApplyMeasurement(g[0], false);
+        circ.ApplyMeasurement(g[0]);
         ancilla = circ.GetProbability(g[0]);
 
         // Reject sample
@@ -414,44 +425,46 @@ int main(int argc, char **argv){
         // Accept sample
         else{
 
-            // Collapse qubits in class register
-            for(int j = 0; j < numQubits_class; j++){
-
-                circ.ApplyMeasurement(class_reg[j]);
-//                circ.ApplyMeasurement(class_reg[j], false);
+            for(vector<double>::iterator it = prob_state.begin(); it != prob_state.end(); it++){
+                *it = 1.0;
             }
-            //circ.Normalize();
-            // circ.ExpectationValue(class_reg, observables, average);
-
-            // *** Requires updating
-
-            // Store current state of training register in it's integer format
-            val = 0;
-            for(int j = numQubits_class-1; j > -1; j--){
-                val |= ((unsigned int)circ.GetProbability(class_reg[j]) << j);
-            }
-//#define DEBUG
-#ifdef DEBUG
-            cout << val << "\t";
-            print_bits(val,numQubits_class);
-            cout << "\t" << average << endl;
-#endif
 
 
-            // Increase the count of the training pattern measured
-            bool flag = false;
-            for(int i = 0; i < m; i++){
-                if(pattern_class[i] == val){
-                    count[i]++;
-                    flag = true;
+            double dart = dist(mt);
+
+            // Obtains the probability of each state being measured
+            for(int i = 0; i < num_classes; i++){
+                for(int j = 0; j < numQubits_class; j++){
+                    // Multiply prob_state by the probability observed for that qubit being the same as that of the class pattern qubit
+                    prob_state[i] *= (!IS_SET(pattern_class[i],j))*(1.0 - circ.GetProbability(class_reg[j])) +  (IS_SET(pattern_class[i],j))*(circ.GetProbability(class_reg[j]));
                 }
             }
-            if(!flag){
-                cerr << "Aborting" << endl;
-                print_bits(val,n);
-                cout << endl;
-                assert(0);
+
+            double partition = prob_state[0];
+            unsigned partition_id = 0;
+            while(dart > partition){
+                partition_id++;
+                partition += prob_state[partition_id];
             }
+            assert(partition_id < num_classes);
+            assert(partition <= 1.0);
+
+//#define DEBUG
+#ifdef DEBUG
+            cout << "\t" << prob_state[0] << "\t"; 
+            for(int i = 1; i < num_classes; i++){
+                cout << prob_state[i] << "\t"; 
+            }
+            cout << partition_id << endl;
+#endif
+
+            // Collapse qubits to state randomly selectd in class register
+            for(int j = 0; j < numQubits_class; j++){
+                circ.CollapseQubit(class_reg[j],IS_SET(pattern_class[partition_id],j));
+            }
+
+            // Increase the count of the training pattern measured
+            count[partition_id]++;
 
             exp++;
         }
@@ -459,31 +472,35 @@ int main(int argc, char **argv){
 
     // Requires updating
     if(rank == 0){
-        cout << "NumTimes ancilla was one: \t" << count_ancilla_is_one << endl;
+        cout << "NumTimes ancilla was one (ie sine term was measured): \t" << count_ancilla_is_one << endl;
 
         double dist;
         double prob, prob_sum, prob_cos_term;
         prob_sum = 0.0;
-        cout << "state\t\tfreq\tprob\tdist\tProb(D)" << endl;
+        cout << " \tclass\t\tfreq\tprob" << endl;
         prob_cos_term = (double)num_exps/(double)(num_exps + count_ancilla_is_one);
-        for(int i = 0; i < m; i++){
+        for(int i = 0; i < num_classes; i++){
 
             prob = count[i]/(double) num_exps;
             prob_sum += prob;
-            //dist = ((double)(2*n))*acos(sqrt(prob*(double)m))/M_PI;
-            //dist = ((double)(2*n))*acos(sqrt(prob))/M_PI;
-            dist = ((double)(2*n))*acos(sqrt(prob))/(M_PI* prob_cos_term);
 
-            cout << i << " |";
-            print_bits(pattern[i], n);
-            cout << ">\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%\t" << dist  << "\t"<< dist/(double)n << endl;
+            cout << i << " \t|";
+            print_bits(pattern_class[i], numQubits_class);
+            cout << ">\t\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%" << endl;
         }
         cout << "Sum of probs =\t" << prob_sum << endl;
 
 
+//        unsigned chosen_class = max_element(count, count+num_classes);
+        unsigned chosen_class = std::distance(count.begin(), std::max_element(count.begin(), count.end()));
+;
+
         cout << "TestPattern = " << "|";
         print_bits(input_pattern[0], n);
-        cout << ">" << endl;;
+        cout << ">" << endl;
+        cout << "Pattern Class with highest probability = " << chosen_class << " = |";
+        print_bits(pattern_class[chosen_class], numQubits_class);
+        cout << ">" << endl;
     }
 
     return 0;
