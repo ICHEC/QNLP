@@ -25,6 +25,7 @@ int main(int argc, char **argv){
     m = pow(2,n);       // Number of possible states
 
     vector<int> count(m);
+    vector<double> prob_state(m);
 
     QubitCircuit<ComplexDP> circ(n,"base",0);
 
@@ -42,10 +43,10 @@ int main(int argc, char **argv){
 //            if(!circ.IsClassicalBit(j)){
 //                cout << j << ": I am entangled" << endl;
 //            }
-            //circ.ApplyMeasurement(j, false);
-            circ.ApplyMeasurement(j);
+            circ.ApplyMeasurement(j, false);
+            //circ.ApplyMeasurement(j);
         }
-        //circ.Normalize();
+        circ.Normalize();
 
         // Obtain the probability of state being |1>
         vector<double> output(n);
@@ -129,6 +130,85 @@ int main(int argc, char **argv){
 
         cout << "register" << j << "\t" <<  1.0 - circ.GetProbability(j) << "\t" <<  circ.GetProbability(j)  << endl;
     }
+
+
+    cout << "\nExperiment 3" << endl; 
+    // Repeated shots of experiment
+    for(int exp = 0; exp < num_exps; exp++){
+
+        for(vector<double>::iterator it = prob_state.begin(); it != prob_state.end(); it++){
+            *it = 1.0;
+        }
+
+        circ.Initialize("base",0);
+         
+        circ.ApplyHadamard(0);
+        circ.ApplyHadamard(1);
+
+        double prob;
+        prob =  circ.GetProbability(0);
+        prob_state[0] *= prob;
+        prob_state[1] *= prob;
+        prob_state[2] *= 1.0 - prob;
+        prob_state[3] *= 1.0 - prob;
+
+        prob =  circ.GetProbability(1);
+        prob_state[0] *= prob;
+        prob_state[1] *= 1 - prob;
+        prob_state[2] *= prob;
+        prob_state[3] *= 1.0 - prob;
+
+        cout << "\t" << prob_state[0] << "\t"; 
+        for(int i = 1; i < m; i++){
+            cout << prob_state[i] << "\t"; 
+        }
+        cout << endl;
+
+        for(std::size_t j = 0; j < n; j++){
+            circ.ApplyMeasurement(j, false);
+            //circ.ApplyMeasurement(j);
+        }
+        circ.Normalize();
+
+        // Obtain the probability of state being |1>
+        vector<double> output(n);
+        // Obtain the measured qubit 
+        for(std::size_t j = 0; j < n; j++){
+            //output[j] = circ.GetClassicalValue(j);
+            output[j] = circ.GetProbability(j);
+        }
+
+        // Increase the count of the pattern being measured
+        int tmp_count;
+        if(output[0] == 0){
+            if(output[1] == 0){
+                count[0]++;
+            }
+            else if(output[1] == 1){
+                count[1]++;
+            }
+        }
+        if(output[0] == 1){
+            if(output[1] == 0){
+                count[2]++;
+            }
+            else if(output[1] == 1){
+                count[3]++;
+            }
+        }
+
+     //   cout << exp << ":\t" << output[0] << "\t" << output[1] << endl;
+    
+    }
+
+
+    cout << "\nResult of final experiment:" << endl;
+            
+    cout << "Measure:" << endl;
+    for(int i = 0; i < m; i++){
+        cout << i << '\t' << count[i] << '\t' << 100.0*(double)count[i]/(double) num_exps << "%" <<  endl;
+    }
+
 
     return 0;
 }
