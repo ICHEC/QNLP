@@ -6,10 +6,11 @@ class PregroupType():
         self.label = label
     def __str__(self):
         return self.label
+
 """
-Simple class for pregroup types with adjacency
+Simple class for pregroup types with adjoint
 """ 
-class AdjacencyType(PregroupType):
+class AdjointType(PregroupType):
     def __init__(self, label, isAdj, adjOrder=0):
         super().__init__(label)
         self.isAdj = isAdj
@@ -30,15 +31,17 @@ class AdjacencyType(PregroupType):
 """
 Noun data type with matched nltk type defined in matchables()
 """
-class Noun(AdjacencyType):
+class Noun(AdjointType):
     def __init__(self, isAdj, adjOrder=0):
         super().__init__('n', isAdj, adjOrder)
+
 """
 Verb data type with matched nltk type defined in matchables()
 """
-class Verb(AdjacencyType):
+class Verb(AdjointType):
     def __init__(self, isAdj, adjOrder=0):
         super().__init__('v', isAdj, adjOrder)
+
 """
 Simple sentence data type
 """
@@ -47,13 +50,3 @@ class Sentence():
         self.structure = structure
     def __str__(self):
         return 's:' + ','.join([s.label for s in self.structure])
-    
-def matchables(classType, tag):
-    if isinstance(classType, Noun) or classType is Noun:
-        return tag in ["NN","NNS","NNP","NNPS"]
-    elif isinstance(classType, Verb) or classType is Verb:
-        return tag in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]
-    else:
-        return False        
-
-

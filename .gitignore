@@ -1,0 +1,34 @@
+# Sample gitignore for common filetypes encountered in project
+
+# Generated files as part of Python install
+corpus/*.log
+corpus/downloads/
+corpus/install/
+corpus/load_env.sh
+
+# Jupyter notebook
+.ipynb_checkpoints
+
+# Built objects
+__pycache__
+*.py[cod]
+*.so
+a.out*
+
+# OS and Editor
+.DS_Store
+../.vscode/
+
+# PDF and metadata
+*.pdf
+*.fdf
+
+# DB
+*.db
+*.sqlite
+
+# TeX generated code
+*.aux
+*.nav
+*.snm
+*.toc
