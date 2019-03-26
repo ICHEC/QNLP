@@ -73,8 +73,8 @@ include_directories("${QUBIT_EXTENDED_INC}")
 include_directories("${QHIPSTER_INC}")
 include_directories("${BIGMPI_INC}")
 
-ADD_LIBRARY(qubitExtended STATIC IMPORTED)
-SET_TARGET_PROPERTIES(qubitExtended PROPERTIES IMPORTED_LOCATION "${QUBIT_EXTENDED_LIB}")
+#ADD_LIBRARY(qubitExtended STATIC IMPORTED)
+#SET_TARGET_PROPERTIES(qubitExtended PROPERTIES IMPORTED_LOCATION "${QUBIT_EXTENDED_LIB}")
 
 
 
@@ -84,7 +84,8 @@ SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 ADD_LIBRARY(bigmpi STATIC IMPORTED)
 SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
 
-target_link_libraries(exe_measurement qubitExtended qhipster bigmpi)
+target_link_libraries(exe_measurement qhipster bigmpi)
+#target_link_libraries(exe_measurement qubitExtended qhipster bigmpi)
 
 
 
