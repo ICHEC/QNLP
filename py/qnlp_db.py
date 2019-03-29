@@ -125,11 +125,13 @@ class qnlp_db:
 ###############################################################################
 
 
-    def db_load(self, data_type="noun", table_name="qnlp"):
+    def db_load(self, data_type="noun", table_name="qnlp", direction="forward"):
         """
         Load the tag to binary encoded mapping into from DB.
 
-        data_type -- Data type to load from the DB (noun, verb, etc)
+        data_type   -- Data type to load from the DB (noun, verb, etc)
+        table_name  -- Database table to load data
+        direction   -- Direction of the returned mapping (forward: tag -> int, reverse: int -> tag)
         """
 
         conn = self.connect_db()
@@ -141,8 +143,15 @@ class qnlp_db:
         dat = {}
 
         for r in all_rows:
-            dat.update({r[0] : [r[1]]})
-    
+            if( direction == "forward" ):
+                dat.update({r[0] : [r[1]]})
+            elif( direction == "reverse" ):
+                #No need to carry second term as list for reverse mapping
+                dat.update({r[1] : r[0]})
+            else:
+                print("Direction not understood. Please try again")
+                exit()
+
         return dat
 
 ###############################################################################
