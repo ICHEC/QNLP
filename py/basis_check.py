@@ -40,60 +40,54 @@ class data_tmp:
     def words(self):
         return self.word_list
 
+def match_syn(word, basis_dat, pos_type=None, deep_search=False):
+    """Calculates the synonym set of a given word, and attempts to match the meanings."""
+    basis_set = set()
+    syn = wn.synsets(word, pos=pos_type)
+    for s in syn:
+        spl = s.name().rsplit(".")
+        for bn in basis_dat.keys():
+            if spl[0].casefold() == bn.casefold():
+                basis_set.add(basis_dat[bn][0])
+
+    #If nothing found, perform next closest match using similarity measures between all basis terms and current synonyms. Very expensive!
+    if len( basis_set ) == 0 and deep_search == True:
+        sim=[]
+        for b in basis_dat.keys():
+            b_syn = wn.synsets(b, pos=pos_type)
+            for s1,s2 in itertools.product(syn, b_syn):
+                sim.append((b, wn.wup_similarity(s1,s2)))
+        sim.sort(reverse=True, key=lambda x:x[1])
+        print(word, sim[0:5])
+        x = iter(sim)
+        #Take top three elements if they exist
+        basis_set.add(next(x)[0])
+        basis_set.add(next(x)[0])
+        basis_set.add(next(x)[0])
+    return basis_set
+
+deep_search = False
+
 # Match corpus nouns to basis nouns
 for ci in corpus_nouns.keys():
-    if ci in names:
-        basis_set.add(basis_nouns["person"][0])
-    elif (ci.casefold() not in basis_nouns.keys()):
-        s_c = wn.synsets(ci)
-        for s in s_c:
-            spl = s.name().rsplit(".")
-            if spl[1] == "n":
-                for bn in basis_nouns.keys():
-                    if spl[0].casefold() == bn.casefold():
-                        basis_set.add(basis_nouns[bn][0])
+    #Match directly, or first level synonyms
+    #if ci in names:
+        #basis_set.add( basis_nouns["person"][0] )
+    if 0:
+        pass
+    elif (ci.casefold() in [b.casefold() for b in basis_nouns.keys()]):
+        basis_set.add( basis_nouns[ci][0]) 
     else:
-        basis_set.add(basis_nouns[ci][0])
-        # if nothing found, delve deeper for words in the basis
-    if len(basis_set) == 0:
-        #from IPython import embed; embed()
-        sim = []
-        a = wn.synsets( ci, pos='n' )
-        for bn in basis_nouns.keys():
-            b = wn.synsets( bn, pos='n' )
-            for s1,s2 in itertools.product(a,b):
-                sim.append((bn, wn.wup_similarity(s1,s2)))
-        sim.sort(reverse=True, key=lambda x:x[1])
-        print(ci, sim[0:5])
-
+        basis_set.update( match_syn(ci, basis_nouns, pos_type='n', deep_search=deep_search) )
     corpus_nouns[ci].append(list(basis_set))
     basis_set.clear()
 
 # Match corpus verbs to basis verbs
 for ci in corpus_verbs.keys():
-    if (ci.casefold() not in basis_verbs.keys()):
-        s_c = wn.synsets(ci)
-        for s in s_c:
-            spl = s.name().rsplit(".")
-            if spl[1] == "v":
-                for bn in basis_verbs.keys():
-                    if spl[0].casefold() == bn.casefold():
-                        basis_set.add(basis_verbs[bn][0])
-    else:
+    if (ci.casefold() in [b.casefold() for b in basis_verbs.keys()]):
         basis_set.add(basis_verbs[ci][0])
-    # if nothing found, delve deeper for words in the basis
-    if len(basis_set) == 0:
-        sim = 0.0
-        bs = ""
-        a = wn.synsets( ci, pos='v' )
-        for bn in basis_verbs.keys():
-            b = wn.synsets( bn, pos='v' )
-            for s1,s2 in itertools.product(a,b):
-                tmp = wn.wup_similarity(s1,s2)
-                if (tmp > sim):
-                    bs = bn
-                    sim = tmp
-        print(ci, bs, sim)
+    else:
+        basis_set.update( match_syn(ci, basis_verbs, pos_type='v', deep_search=deep_search) )
     corpus_verbs[ci].append(list(basis_set))
     basis_set.clear()
 
@@ -109,4 +103,3 @@ for k,v in corpus_verbs.items():
     if(len(v[1]) > 0):
         for j in v[1]:
             print(k, "->", basis_verbs_rev[j])
-#print (corpus_verbs)
