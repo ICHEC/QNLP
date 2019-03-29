@@ -34,12 +34,6 @@ print("#########################################################################
 
 basis_set = set()
 
-class data_tmp:
-    def __init__(self,word_list):
-        self.word_list = word_list
-    def words(self):
-        return self.word_list
-
 def match_syn(word, basis_dat, pos_type=None, deep_search=False):
     """Calculates the synonym set of a given word, and attempts to match the meanings."""
     basis_set = set()
@@ -51,22 +45,29 @@ def match_syn(word, basis_dat, pos_type=None, deep_search=False):
                 basis_set.add(basis_dat[bn][0])
 
     #If nothing found, perform next closest match using similarity measures between all basis terms and current synonyms. Very expensive!
-    if len( basis_set ) == 0 and deep_search == True:
+    if len( basis_set ) == 0 and deep_search == True and len(syn) > 0:
         sim=[]
         for b in basis_dat.keys():
             b_syn = wn.synsets(b, pos=pos_type)
             for s1,s2 in itertools.product(syn, b_syn):
                 sim.append((b, wn.wup_similarity(s1,s2)))
         sim.sort(reverse=True, key=lambda x:x[1])
-        print(word, sim[0:5])
-        x = iter(sim)
         #Take top three elements if they exist
-        basis_set.add(next(x)[0])
-        basis_set.add(next(x)[0])
-        basis_set.add(next(x)[0])
+        #basis_set.add(next(x)[0])
+        #basis_set.add(next(x)[0])
+        #basis_set.add(next(x)[0])
+        #print (word, sim[0])
+        #exit()
+        if len(sim) == 0:
+            from IPython import embed; embed()
+        basis_set.add(basis_dat[sim[0][0]][0])
     return basis_set
 
-deep_search = False
+import sys
+if len(sys.argv) > 1 and sys.argv[1] == "t":
+    deep_search = True
+else:
+    deep_search = False
 
 # Match corpus nouns to basis nouns
 for ci in corpus_nouns.keys():
