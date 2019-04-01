@@ -4,7 +4,7 @@ import process_corpus as pc
 import qnlp_db
 
 import itertools
-from heapq import heappush, heappop
+import sys
 
 db = qnlp_db.qnlp_db("qnlp_tagged_corpus",".")
 
@@ -52,18 +52,11 @@ def match_syn(word, basis_dat, pos_type=None, deep_search=False):
             for s1,s2 in itertools.product(syn, b_syn):
                 sim.append((b, wn.wup_similarity(s1,s2)))
         sim.sort(reverse=True, key=lambda x:x[1])
-        #Take top three elements if they exist
-        #basis_set.add(next(x)[0])
-        #basis_set.add(next(x)[0])
-        #basis_set.add(next(x)[0])
-        #print (word, sim[0])
-        #exit()
         if len(sim) == 0:
             from IPython import embed; embed()
         basis_set.add(basis_dat[sim[0][0]][0])
     return basis_set
 
-import sys
 if len(sys.argv) > 1 and sys.argv[1] == "t":
     deep_search = True
 else:
