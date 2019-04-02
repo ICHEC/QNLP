@@ -1,4 +1,4 @@
-#include "qft.hpp"
+#include "utils/util.hpp"
 
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
@@ -31,7 +31,7 @@ void test_rotate_iqft_full(std::size_t num_qubits, bool include_rot_qubit){
 
             //Examine last qubit
             unsigned int offset = (include_rot_qubit == true) ? 0 : 1;
-            Ops::applyIQFT(psi1, 0, num_qubits - offset);
+            Util::applyIQFT(psi1, 0, num_qubits - offset);
             //std::cout << " Prob(" << cc << ", " << theta <<", " << include_rot_qubit <<")=" << psi1.GetProbability(num_qubits-1) << std::endl;
             std::cout << cc << "," << theta << "," << include_rot_qubit << "," << psi1.GetProbability(num_qubits-1) << std::endl;
         }
@@ -57,7 +57,7 @@ void test_rotate_iqft(std::size_t num_qubits, unsigned int pattern, bool include
     } 
 
     unsigned int offset = (include_rot_qubit == true) ? 0 : 1;
-    Ops::applyIQFT(psi1, 0, num_qubits - offset);
+    Util::applyIQFT(psi1, 0, num_qubits - offset);
     std::cout << " Th(" << current_angle <<", " << include_rot_qubit <<")"; 
     std::cout << " prob=" << psi1.GetProbability(num_qubits-1) << std::endl;
 }
@@ -75,7 +75,7 @@ void test_qft(std::size_t num_qubits){
                 psi1.ApplyPauliX(ctrl_qubit);
             }
         }
-        Ops::applyQFT(psi1, 0, num_qubits);
+        Util::applyQFT(psi1, 0, num_qubits);
         std::cout << "Test " << cc << "\t\tPattern=" << std::bitset<8>(cc);
         std::cout << "\t\tP(0,1)=["; 
         for(int qb = 0; qb < num_qubits; qb++){
@@ -99,7 +99,7 @@ void test_iqft(std::size_t num_qubits){
             }
         }
 
-        Ops::applyIQFT(psi1, 0, num_qubits);
+        Util::applyIQFT(psi1, 0, num_qubits);
         std::cout << "\t\tP(0,1)=["; 
         for(int qb = 0; qb < num_qubits; qb++){
             std::cout << "[" << 1. - psi1.GetProbability( qb ) << "," << psi1.GetProbability( qb ) << "],";
@@ -122,8 +122,8 @@ void test_qft_iqft(std::size_t num_qubits){
             }
         }
 
-        Ops::applyQFT(psi1, 0, num_qubits);
-        Ops::applyIQFT(psi1, 0, num_qubits);
+        Util::applyQFT(psi1, 0, num_qubits);
+        Util::applyIQFT(psi1, 0, num_qubits);
         std::cout << "Test " << cc << "\t\tPattern=" << std::bitset<8>(cc);
         std::cout << "\t\tP(0,1)=["; 
         for(int qb = 0; qb < num_qubits; qb++){
@@ -151,3 +151,4 @@ int main(int argc, char **argv){
         return 0;
 
     }
+}

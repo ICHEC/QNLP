@@ -21,13 +21,13 @@ void Util::sum_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
 
     assert( num_qubits_r1 == num_qubits_r2 );
 
-    Ops::applyQFT(r2, r2_min, r2_max);
+    Util::applyQFT(qReg, r2_min, r2_max);
     for(int i = num_qubits_r2; i > 0; i--){
         for(int j = i; j > 0; j--){
             ApplyCPhaseGate(qReg, 2.0*M_PI / (1<<(1 + (i-j))), r1_min + (j-1), r2_min + (i-1));
         }
     }
-    Ops::applyIQFT(r2, r2_min, r2_max);
+    Util::applyIQFT(qReg, r2_min, r2_max);
 }
 
 void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned int r1_max, unsigned int r2_min, unsigned int r2_max){
@@ -40,7 +40,7 @@ void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
     for(int i = r1_min; i < r1_max; i++){
         qReg.ApplyPauliX(i);
     }
-    Ops::sum_reg(qReg, r1_min, r1_max, r2_min, r2_max);
+    Util::sum_reg(qReg, r1_min, r1_max, r2_min, r2_max);
     //Flip states to return the sum
     for(int i = r2_min; i < r2_max; i++){
         qReg.ApplyPauliX(i);
@@ -57,7 +57,7 @@ void Util::applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigne
         for(std::size_t j = i-1; j > minIdx; j--){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
             // QNLP::ApplyCPhaseGate(qReg, 2.0*M_PI / pow(2, i-j + 1), j-1, i-1);
-            QNLP::Ops::ApplyCPhaseGate(qReg, 2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+            QNLP::Util::ApplyCPhaseGate(qReg, 2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
         }
     }
 }
@@ -67,7 +67,7 @@ void Util::applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsign
         for(std::size_t j = minIdx+1; j < i; j++){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
             // QNLP::ApplyCPhaseGate(qReg, -2.0*M_PI / pow(2, i - j +1), j-1, i-1);
-            QNLP::Ops::ApplyCPhaseGate(qReg, -2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+            QNLP::Util::ApplyCPhaseGate(qReg, -2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
         }
         qReg.ApplyHadamard(i-1);
     }
