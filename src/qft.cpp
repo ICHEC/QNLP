@@ -9,8 +9,8 @@ void QNLP::Ops::applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, un
         qReg.ApplyHadamard(i-1);
         for(std::size_t j = i-1; j > minIdx; j--){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
+            // QNLP::ApplyCPhaseGate(qReg, 2.0*M_PI / pow(2, i-j + 1), j-1, i-1);
             QNLP::Ops::ApplyCPhaseGate(qReg, 2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
-            //QNLP::ApplyCPhaseGate(qReg, 2.0*M_PI / pow(2, i-j + 1), j-1, i-1);
         }
     }
 }
@@ -19,8 +19,8 @@ void QNLP::Ops::applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, u
     for(std::size_t i = minIdx+1; i < maxIdx+1; i++){
         for(std::size_t j = minIdx+1; j < i; j++){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
+            // QNLP::ApplyCPhaseGate(qReg, -2.0*M_PI / pow(2, i - j +1), j-1, i-1);
             QNLP::Ops::ApplyCPhaseGate(qReg, -2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
-            //QNLP::ApplyCPhaseGate(qReg, -2.0*M_PI / pow(2, i - j +1), j-1, i-1);
         }
         qReg.ApplyHadamard(i-1);
     }
