@@ -10,6 +10,7 @@
  */
 
 #include "../include/utils/util.hpp"
+#include "../include/nqubit_decompose.hpp"
 #include "qureg/qureg.hpp"
 #include <cmath>
 
@@ -80,4 +81,29 @@ void Util::ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, double angle, unsigne
     U(1, 0) = ComplexDP(0., 0.);
     U(1, 1) = ComplexDP(cos(angle), sin(angle));
     qReg.ApplyControlled1QubitGate(control, target, U);
+}
+
+void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+    //For n-controlled not
+    openqu::TinyMatrix<ComplexDP, 2, 2, 32> X;
+    X(0,0) = {0.,  0.};
+    X(0,1) = {1., 0.};
+    X(1,0) = {1., 0.};
+    X(1,1) = {0.,  0.};
+
+    //for(unsigned int i = minIdx; i <= maxIdx; i++){
+    //    qReg.ApplyHadamard(i);
+    //}
+    for(unsigned int i = minIdx; i <= maxIdx; i++){
+        qReg.ApplyPauliX(i);
+    }
+    qReg.ApplyHadamard(maxIdx);
+
+    NQubitDecompose<ComplexDP> nCtrlX(X, (maxIdx-minIdx)-1);
+    nCtrlX.applyNQubitControl(qReg, minIdx, maxIdx-1, maxIdx, X, 0, true);
+
+    qReg.ApplyHadamard(maxIdx);
+    for(unsigned int i = minIdx; i <= maxIdx; i++){
+        qReg.ApplyPauliX(i);
+    }
 }
