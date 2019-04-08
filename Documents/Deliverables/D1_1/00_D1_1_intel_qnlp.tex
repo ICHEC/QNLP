@@ -1,0 +1,107 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{Images/}}
+\usepackage{hyperref}
+% \usepackage{fullpage}
+
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+\begin{document}
+\begin{titlepage}
+\newcommand{\HRule}{\rule{\linewidth}{0.1mm}} 
+\center % Center everything on the page
+ 
+%---------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%---------------------------------------------------------------------------------
+\textsc{\LARGE Quantum Natural Language Processing}\\[0.5cm] % heading course name
+% \textsc{\large Sub Heading }\\[0.5cm] % Minor heading
+\vfill
+%---------------------------------------------------------------------------------
+%	TITLE SECTION
+%---------------------------------------------------------------------------------
+\HRule \\[0.4cm]
+{ \Large \bfseries D1.1} \\[0.2cm]
+{ \Large \bfseries Overview of DisCo Algorithms \& Methods for Testing and Evaluation}\\[0.1cm]
+\HRule \\[1.5cm]
+ 
+%---------------------------------------------------------------------------------
+%	AUTHOR SECTION 
+%---------------------------------------------------------------------------------
+\vfill
+\begin{center} \large
+\emph{Authors}\\[0.5cm]
+Lee \textsc{O'Riordan}, ICHEC\\[0.2cm]
+Myles \textsc{DOYLE}, ICHEC\\[0.2cm]
+Venkatesh \textsc{Kannan}, ICHEC
+\end{center}
+\vfill
+{\large April 15, 2019}\\[1cm] 
+\vfill
+\hfill\begin{minipage}{0.4\textwidth}
+\includegraphics[scale=0.3]{ichec_logo.jpeg}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+\includegraphics[scale=0.4]{intel_logo.png}
+\end{minipage}
+\hfill
+\vfill
+\end{titlepage}
+
+%---------------------------------------------------------------------------------
+%	AUTHOR SECTION 
+%---------------------------------------------------------------------------------
+\section*{Executive Summary}
+Executive summary goes here.
+
+\newpage
+\tableofcontents
+\listoffigures
+\listoftables
+
+%---------------------------------------------------------------------------------
+\newpage
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{01_Introduction.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{02_DisCo_Model_and_Algorithms.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{03_Representative_Corpora.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{04_Testing_and_Evaluation_Methodologies.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{05_Intel_Quantum_Simulator_on_Kay.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\input{06_Discussions_and_Summary.tex}
+
+%---------------------------------------------------------------------------------
+\newpage
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\bibliographystyle{plain}
+\bibliography{Bibliography.bib}
+
+
+% \newpage
+% %---------------------------------------------------------------------------------
+% %---------------------------------------------------------------------------------
+% \appendix
+% \section{Appendix}
+% \label{sec:appendix}
+
+\end{document}
