@@ -68,7 +68,7 @@ Weak scaling was performed keeping the problem size assigned to each task fixed 
 
 
 
-![scaling_weak_.png](tests/Installation_Tests/scaling/scaling_weak_.png)
+![scaling_weak_.png](tests/Installation_Tests/scaling/scaling_weak_log2log10.png)
 ![scaling_speedup_weak.png](tests/Installation_Tests/scaling/scaling_speedup_weak.png)
 
 
