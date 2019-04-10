@@ -68,8 +68,8 @@ Weak scaling was performed keeping the problem size assigned to each task fixed 
 
 
 
-![scaling_weak_.png](tests/Installation_Tests/scaling_weak_.png)
-![scaling_speedup_weak.png](tests/Installation_Tests/scaling_speedup_weak.png)
+![scaling_weak_.png](tests/Installation_Tests/scaling/scaling_weak_.png)
+![scaling_speedup_weak.png](tests/Installation_Tests/scaling/scaling_speedup_weak.png)
 
 
 From the above plots for weak scaling, it can be seen that the program scales resonably well. The execution time increases as the number of processes is increased, likely due to MPI communication overhead. It would be worthwhile repeating weak scaling experiments with BiGMPI working so as to compare the two for smaller problem sizes. BiGMPI should also be used for larger numbers of processes in terms of weak scaling.
