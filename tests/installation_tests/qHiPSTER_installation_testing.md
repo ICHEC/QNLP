@@ -34,17 +34,17 @@ The `qft_test.cpp` program supplied with the Intel-QS installation was used to t
 The `qft_test.cpp` executable was generated successfully. The script `run_script.sh` was then used to launch jobs on Kay using SLURM for different problem sizes (numbers of qubits) and for different node configurations. Note, that for the node configurations, only two processes were allocated per node, each with 20 threads. The number of processes was restricted by the Intel-QS framework to be in powers of two. Therefore, the scaling was performed for $`2,4,8,16,32,64`$ and $`128`$ processes.
 
 ## Strong Scaling
-Strong scaling was performed keeping the problem size fixed to $`34`$ qubits and varying the number of processes according to the aforementioned configurations.
+Strong scaling was performed keeping the problem size fixed to $`28`$ qubits and varying the number of processes according to the aforementioned configurations.
 
-| Nodes           |  p    | NumProcesses = $`2^p`$  | Local States $`= 2^{n-p} = 2^{27}`$  | Qubits = $`n`$ |
+| Nodes           |  p    | NumProcesses = $`2^p`$  | Local States $`= 2^{n-p}`$  | Qubits = $`n`$ |
 | :-------------: | :---: | :---------------------: | :----------------------------------: | :------------: |
-| 64              |   7   | 128                   | $`2^{34-7}`$                        | 34           |
-| 32              |   6   | 64                    | $`2^{34-6}`$                         | 34           |
-| 16              |   5   | 32                    | $`2^{34-5}`$                         | 34           |
-| 8               |   4   | 16                    | $`2^{34-4}`$                         | 34           |
-| 4               |   3   | 8                     | $`2^{34-3}`$                         | 34           |
-| 2               |   2   | 4                     | $`2^{34-2}`$                         | 34           |
-| 1               |   1   | 2                     | $`2^{34-1}`$                        | 34           |
+| 64              |   7   | 128                   | $`2^{28-7}`$                        | 28           |
+| 32              |   6   | 64                    | $`2^{28-6}`$                         | 28           |
+| 16              |   5   | 32                    | $`2^{28-5}`$                         | 28           |
+| 8               |   4   | 16                    | $`2^{28-4}`$                         | 28           |
+| 4               |   3   | 8                     | $`2^{28-3}`$                         | 28           |
+| 2               |   2   | 4                     | $`2^{28-2}`$                         | 28           |
+| 1               |   1   | 2                     | $`2^{28-1}`$                        | 28           |
 
 
 
