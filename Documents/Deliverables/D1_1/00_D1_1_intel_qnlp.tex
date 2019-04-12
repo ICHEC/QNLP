@@ -5,6 +5,13 @@
 \usepackage{graphicx}
 \graphicspath{{Images/}}
 \usepackage{hyperref}
+\usepackage{float}
+
+%Remove this when sending;
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{geometry}
+\usepackage[title,toc,page]{appendix}
+
 % \usepackage{fullpage}
 
 %\usepackage{fancyhdr}
@@ -34,7 +41,7 @@
 \vfill
 \begin{center} \large
 \emph{Authors}\\[0.5cm]
-Lee \textsc{O'Riordan}, ICHEC\\[0.2cm]
+Lee J.~\textsc{O'Riordan}, ICHEC\\[0.2cm]
 Myles \textsc{DOYLE}, ICHEC\\[0.2cm]
 Venkatesh \textsc{Kannan}, ICHEC
 \end{center}
@@ -95,7 +102,14 @@ Executive summary goes here.
 \newpage
 %---------------------------------------------------------------------------------
 %---------------------------------------------------------------------------------
-\bibliographystyle{plain}
+\input{Appendix.tex}
+
+%---------------------------------------------------------------------------------
+\newpage
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+%\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{Bibliography.bib}
 
 

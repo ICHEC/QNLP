@@ -1,0 +1,44 @@
+\begin{appendices}
+\section{Alternative approaches to DisCo}
+
+%\noindent\rule{\textwidth}{1pt}
+While the DisCo methods are central to our body of work, we may opt to use an alternative approach to the DisCo model for choice of encoding the data; instead of defining word meanings from their proximity to nearby words, we use a look-up model. This removes the distributional approach of DisCo, but still enables use of the compositional approach via tensoring the meanings. As such, we propose calling this the ``LoCo/LoCal'' (\textbf{Lo}ok-up \textbf{Co}mpositional / \textbf{Lo}ok-up \textbf{C}omposition\textbf{al}) model. We make use of a basis set of terms, wherein the words follow an ``orthogonal''-like set of meanings, with each word having little to no associated meaning with another in the language. For this, we may consider the approach of Ogden~\cite{OgdenC.K.CharlesKay1940BE:a}. The author defines approximately 850 words which may be used to construct all other words in a language. We can treat these as the basis set of words, and define a mapping of our corpus to the basis by examining a synonym-based look-up. 
+\begin{itemize}
+    \item For each word in Ogden's data set, tag and type each word.
+    \item Give each unique type a set of unique bit-patterns to represent meaning in this space.
+    \item Examine, tokenise and tag corpus data.
+    \item Check basis set for appearance of word: if word exists, return given basis bit-pattern; if not, recursively examine synonyms and related words for matching terms in basis.
+    \item The returned bit-patterns for the matched words enable the creation of an even superposition to represent the corpus word meaning-space.
+    \item If no matching term found, create new unique bit-pattern.
+\end{itemize}
+%\noindent\rule{\textwidth}{1pt}
+The use of this approach would be easily implementable in the preprocessing stage as described within Section~\ref{sec:disco_model_and_algorithms}. We describe the method here as a comparison may be beneficial for real-world data at a later stage in the project.
+
+
+\section{Hamming distance and Durr-Hoyer optimization}\label{app:hamming_dh}
+The DH algorithm defines a method to determine a minimum value in a quantum state, wherein a threshold value is used to define relative from the calculated Hamming distance values. This method makes use of those proposed by Wiebe et al, and can be defined as follows:
+
+\begin{itemize}
+\item Begin by negating all possible Hamming distance qubit values, turning the smallest into the largest values.
+\item Define a threshold value for the DH algorithm randomly in the range of min to max of what the register may represent (the middle of the range is acceptable).
+\item Using quantum register arithmetic, subtract the negated Hamming value from the threshold. Should the value underflow, the outermost qubit will be flipped from $\vert0\rangle\rightarrow \vert 1\rangle$.
+\item Applying a Pauli-$Z$ gate on the outermost qubit will perform a shift of the register from $\vert1\rangle\rightarrow -\vert1\rangle$.
+\item Using the diffusion operator from Grover's search algorithm, all marked states increase in amplitude relative to unmarked states.
+\item A new threshold can be set and iterated upon to the required convergence condition has been reached.
+\item A measurement of the state will now return the closest matching state with high probability, Multiple shot-based measurements will allow a statistical collection of the hierarchical state probability matches.
+\end{itemize}
+Given the implementation of methods as discussed in Section~\ref{par:qram_alt_approach}, this would be a viable extension to the model, and may potentially offer an advantage in terms of implementability.
+
+\section{$R_y$ rotation for improvement of measurement-based state determination}
+In addition to the use of a Hamming distance approach, as proposed in Section~\ref{}, we may use the Hamming distance to control the angle of rotation from $|0\rangle\rightarrow\vert 1\rangle$ for an additional ancillary qubit, $\vert a \rangle$. Assuming we have use of a controlled rotation gate around the $y$-axis of the Bloch sphere, hence labelled $CR_y(\theta,c,t)$, where $\theta$ is the angle of rotation, $c$ is the control qubit, and $t$ is the target, we may operate as follows:
+\begin{itemize}
+    \item Encode the Hamming distance as described earlier, into a register $\vert H\rangle = \vert 0\rangle\otimes\dots\vert i-1\rangle$ of size $i$ qubits.
+    \item Apply Pauli-$x$ to all qubits in $\vert H \rangle$.
+    \item Iterate over each qubit in $\vert H\rangle$, applying $CR_y(\pi/i, \vert i \rangle, \vert a\rangle)$.
+    \item By measuring this ancillary qubit in $\vert 1\rangle$, the resulting state of the system is most likely to be the determined by state with highest overlap. By repeating this with multiple shots, a statistical distribution can be obtained of the closest matching state.
+\end{itemize}
+While this approach has the downside of multiple shots being required to obtain the result, it offers an experimentally realizable approach given low-overhead with state creation.
+
+\end{appendices}
+
+

@@ -1,14 +1,257 @@
 \section{DisCo Model and Algorithms}
 \label{sec:disco_model_and_algorithms}
-Introduction to distributional and compositional approaches - Overview of DisCo model - ``nearest neighbour" and ``sentence similarity" algorithms
-\cite{DisCoWillBob}
+Introduction to distributional and compositional approaches - Overview of DisCo model - ``nearest neighbour" and ``sentence similarity" algorithms~\cite{DisCoWillBob}
 
 %---------------------------------------------------------------------------------
-\subsection{Abstraction of DisCo Algorithms}
+\subsection{Abstraction of DisCo Algorithms}%non-Intel generalised routines
 \label{sec:abstraction_of_disco_algorithms}
 High-level routines and operations to implement the algorithms
 
+
+To implement the DisCo models, we first consider the representative mappings between DisCo's graphical notation and the resulting quantum Dirac notation. Figure~\ref{fig:disco_dirac} represents the meaning space and mappings necessary to understand the sentence ``\textsc{Mary likes John}'', and follows directly from the work discussed in \cite{Coecke_Sadrzadeh_Clark_2010}. Above the dotted line, the blue triangles represent each component (tag, word) of the sentence. The lines beneath the sentences indicate the space in which their meanings exist, and the looped, where \textbf{P} and \textbf{P$^*$} indicate the meaning space of nouns, and their conjugates, and \textbf{S} represents the overall meaning of the sentence, where verbs exist in the composite meaning space of \textsc{noun-sentence-noun}. Below the dotted line, by wiring up these meaning-spaces allows us to perform computations on this abstract formalism, and is akin to tensor-network operations commonly used in condensed matter systems~\cite{ Coecke_Paquette_Pavlovic_2009,Biamonte_Clark_Jaksch_2011}. By performing these ``U''-shaped wirings, we consider these individual tensors as being contracted over their specific index of meaning-space, and as such the problem size of the system is inherently reduced to represent a state with non-zero overlap over the meaning in the space \textbf{S}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{D1_1/Images/MappingDisCo.pdf}
+    \caption{Structural mapping of DisCo graphical notation to quantum Dirac notation. }
+    \label{fig:disco_dirac}
+\end{figure}
+
+
 %---------------------------------------------------------------------------------
-\subsection{Mapping DisCo Algorithms on Intel Quantum Simulator}
+\subsection{Mapping DisCo Algorithms on Intel Quantum Simulator}%Intel specific
 \label{sec:mapping_disco_algorithms_on_intel_quantum_simulator}
 Summary of the nearest neighbour and sentence similarity algorithms that have been designed and are under development
+
+%%WIP
+The encoding of classical data into a quantum system can be achieved through a variety of means, though they can be mapped to two different approaches: state (digital) encoding, or amplitude (analogue) encoding~\cite{Schuld_2017,Mitarai_Kitagawa_Fujii_2019}. For our work on the Q-NLP project the use of a state encoding method for corpus representation offered the best mapping to our problem. Though, much of the problem can be described and implemented using this digital approach, the use of amplitude-based methods are well suited when results are to be obtained. As such, we operate in a mixed-mode approach: encoding and querying our data using state encoding, and obtaining the best result through amplitude modification and measurement.
+
+The nearest-neighbour and sentence similarity algorithms rely on the encoding of a large representative data-set into the quantum domain. With this, we may determine the closest vector to a given query through use of many proposed methods~\cite{Wiebe_Kapoor_Svore_2014}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\iftrue
+%\iffalse
+\paragraph{Hamming distance similarity example:}\label{par:example_hamming}
+We define a set of orthogonal words (i.e. words with no overlapping meaning) through which we can define the meaning of other words. For this test case, we can consider a simple set of words. Following the work of Coecke et al, we consider the simplified \textsc{noun-verb-noun} sentence structure, and define sets of words within each space, through which we can construct our full meaning space. For nouns, we have two sets, $n_s = \{\textsc{adult},\textsc{child},\textsc{smith},\textsc{surgeon}\}$ and $n_o = \{\textsc{outside},\textsc{inside}\}$, and for verbs, $v = \{\textsc{stand},\textsc{sit},\textsc{move},\textsc{sleep}\}$. With this \textsc{noun-verb-noun} meaning space sentence structure, we can calculate this as
+
+\begin{equation*}
+\left(
+\begin{array}{c}
+\textsc{adult} \\\\
+\textsc{child} \\\\
+\textsc{smith} \\\\
+\textsc{surgeon} \\\\
+\end{array}
+\right) \otimes
+\left(
+\begin{array}{c}
+\textsc{stand} \\\\
+\textsc{sit} \\\\
+\textsc{move} \\\\
+\textsc{sleep} \\\\
+\end{array}
+\right) \otimes
+\left(
+\begin{array}{c}
+\textsc{outside} \\\\
+\textsc{inside} \\\\
+\end{array}
+\right)
+\end{equation*}
+
+Given the above meaning-space, we can begin to define entities that exist in this space, and choose to encode them into quantum states as follows:
+\begin{itemize}
+    \item $\textsc{John is an adult, and a smith}$. The resulting state is $\vert \textsc{John} \rangle = 1/\sqrt{2}\left(\vert \textsc{adult} \rangle + \vert \textsc{smith} \rangle\right)$, which is essentially just a superposition of the number of entities from the basis set.
+    \item $\textsc{Mary is a child, and a surgeon}$. The resulting state is \\ $\vert \textsc{Mary} \rangle = 1/\sqrt{2}\left(\vert \textsc{child} \rangle + \vert \textsc{surgeon} \rangle\right)$, again, following the same as above.
+\end{itemize}
+
+With these definitions, we can look at some sentences with John and Mary. An example corpus with meaning that can exist in our meaning-space is:
+\textsc{John rests outside, and Mary walks inside}.
+
+In this instance, we also require meanings for \textsc{rests} and \textsc{walks}. If we examine synonyms for \textsc{rests} and cross-compare with our given vocab, we can find \textsc{sit} and \textsc{sleep}. Similarly, for \textsc{walks} we can have \textsc{stand} and \textsc{move} (though matching these may involve look-ups in a dictionary/thesaurus, and subsequently attempting to match the found words with our basis; may be costly). We can define the states of these words as $\vert \textsc{rest} \rangle = 1/\sqrt{2}\left(\vert \textsc{sit} \rangle + \vert \textsc{sleep} \rangle\right)$ and $\vert \textsc{walk} \rangle = 1/\sqrt{2}\left(\vert \textsc{stand} \rangle + \vert \textsc{move} \rangle\right)$.
+Now that we have a means to define the states in terms of our given vocabulary, we can begin constructing quantum states to encode the data: firstly, however, we must decide on how to encode the states.
+
+We can give each entity in the sets of nouns and verbs a unique binary index, where the word can be mapped to the binary string (gives the encoding value), and inversely mapped back (decoding value). Classically, we can use a key-value pair for this task, wherein the key (word) gives the value (index), and vice versa. Given that we intend to encode this data into quantum states, we opt for a sufficient number of qubits to represent our states: namely, we require $\lceil \log_2({\textrm{num elements})} \rceil$ qubits to represent our data from each respective set.
+
+For this example, we opt for the following mappings:
+
+\begin{equation*}
+\begin{array}{c|c|c}
+\mathbf{Dataset} & \mathbf{Word} & \mathbf{Bin.~Index} \\
+\hline
+{n_s} & \textsc{adult} & 00 \\
+{n_s} & \textsc{child} & 01 \\
+{n_s} & \textsc{smith} & 10 \\
+{n_s} & \textsc{surgeon} & 11 \\
+\\
+{v} & \textsc{stand} & 00 \\
+{v} & \textsc{move} & 01 \\
+{v} & \textsc{sit} & 10 \\
+{v} & \textsc{sleep} & 11 \\
+\\
+{n_o} & \textsc{inside} & 0 \\
+{n_o} & \textsc{outside} & 1 \\
+\end{array}
+\end{equation*}
+
+It should be noted that here we have chosen a naive mapping for our key-value pairs; the use of a Gray code~\cite{gray_code}, or alternative encoding strategies, may provide more instructive meanings to the resulting meaning-space queries later. However, we leave this to future work for implementation and testing, and use the given encoding method for this example.
+To represent our statement meaning of \textsc{John rests outside, and Mary walks inside}, we define the following quantum states:
+
+\begin{equation*}
+\begin{array}{c|c|c}
+\mathbf{Dataset} & \mathbf{Word} & \mathbf{State} \\
+\hline
+{n_s} & \textsc{John} & (\vert 00 \rangle + \vert 10 \rangle)/\sqrt{2} \\
+{n_s} & \textsc{Mary} & (\vert 01 \rangle + \vert 11 \rangle)/\sqrt{2} \\
+{v} & \textsc{walk} & (\vert 00 \rangle + \vert 01 \rangle)/\sqrt{2} \\
+{v} & \textsc{rest} & (\vert 10 \rangle + \vert 11 \rangle)/\sqrt{2} \\
+{n_o} & \textsc{inside} & \vert 0 \rangle  \\
+{n_o} & \textsc{outside} & \vert 1 \rangle  \\
+\end{array}
+\end{equation*}
+
+We construct our quantum state by tensoring these entities, following the NVN DisCo-like formalism. If we consider the John and Mary sentences separately for the moment, they are respectively given by the states $(1/2)*(\vert 00 \rangle + \vert 10 \rangle)\otimes (\vert 10 \rangle + \vert 11 \rangle)\otimes \vert 0 \rangle$ for John, and $(1/2)*(\vert 01 \rangle + \vert 11 \rangle)\otimes (\vert 00 \rangle + \vert 01 \rangle)\otimes \vert 1 \rangle$ for Mary. Tidying these up and multiplying out gives 
+
+\begin{equation*}
+\begin{array}{ccc}
+\textsc{John rests outside} & \rightarrow & \frac{1}{2}(\vert 00100 \rangle + \vert 00110 \rangle +\vert 10100 \rangle +\vert 10110 \rangle) \rightarrow \vert J\rangle \\
+\\
+\textsc{Mary walks inside} & \rightarrow & \frac{1}{2}(\vert 01001 \rangle + \vert 01011 \rangle +\vert 11001 \rangle +\vert 11011 \rangle) \rightarrow \vert M\rangle\\
+\end{array}
+\end{equation*}
+where the full meaning is given by $\vert S\rangle = \frac{\vert J \rangle + \vert M \rangle}{\sqrt{2}}$, which is a superposition of the 8 unique encodings defined by our meaning-space and sentence. 
+
+From here, we can now introduce an additional register of equal size to $\vert S\rangle$, wherein we will encode a test vector for comparison against the given encoded meanings, denoted as $\vert T \rangle$. This test vector will be overwritten with the Hamming distance of it against the other states, with the resulting Hamming distance giving the intended meaning, or closest possible meaning to that of the test. Continuing with our example, we use *"Adults stand inside"*, which is encoded as $\vert T \rangle = \vert 00000 \rangle$. Constructing our query state, $\vert Q \rangle = \vert T \rangle \otimes \vert S\rangle$, we get the following fully expanded state
+
+\begin{eqnarray*}
+\vert Q \rangle = \frac{1}{2/\sqrt{2}} (\vert 00000 \rangle\vert 00100 \rangle + \vert 00000 \rangle\vert 00110 \rangle + \vert 00000 \rangle\vert 10100 \rangle + \vert 00000 \rangle\vert 10110 \rangle \\+\vert 00000 \rangle\vert 01001 \rangle + \vert 00000 \rangle\vert 01011 \rangle + \vert 00000 \rangle\vert 11001 \rangle + \vert 00000 \rangle\vert 11011 \rangle).
+\end{eqnarray*}
+Marking the Hamming distance between both registers, and overwriting the test register modifies the above state to
+\begin{eqnarray*}
+\vert Q^{\prime} \rangle = \frac{1}{2/\sqrt{2}} (\vert 00100 \rangle\vert 00100 \rangle + \vert 00110 \rangle\vert 00110 \rangle + \vert 10100 \rangle\vert 10100 \rangle +  \vert 10110 \rangle\vert 10110 \rangle \\+\vert 01001 \rangle\vert 01001 \rangle + \vert 01011 \rangle\vert 01011 \rangle + \vert 11001 \rangle\vert 11001 \rangle + \vert 11011 \rangle\vert 11011 \rangle).
+\end{eqnarray*}
+
+This example is simple as any state differing from $\vert 00\cdots\rangle$ essentially just flips the test when a $\vert 1\rangle$ is seen in the training. The resulting data in register $\vert T \rangle$ now encodes the number of different flips between both test and training data; as such, it can be seen as a similarity measure, and such the state with the fewest flips will give the closest meaning to the posed test. The above example has only a single data set with one flip, that of $\vert 00100 \rangle$. By decoding the result using the mapping provided earlier, we can see that this corresponds with a meaning of \textsc{Adult(s) sit inside}. We can subsequently see that this data will give a non-zero overlap with $\vert J \rangle$.
+
+The above approach can be mapped directly onto a qubit register, with indices used for partitioning into sub-registers. As such, the above methods can be directly implemented on qHiPSTER.
+
+%There are some remaining questions on implementing this, however. Firstly, ensuring that the Hamming distance is encoded correctly, and such that the amplitudes are adjusted to respect the minimal difference has the highest probability of outcome. Additionally, if we wish to compare that statement with the previous corpus, we need to determine which statement encoded the resulting data-set --- a problem unless we aim to calculate many overlap integrals.
+
+\fi
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Design considerations}
+\label{sec:design_considerations}
+
+We approach the design of the QNLP project from a two-level approach: $(i)$ the corpus analysis and formatting layer, and $(ii)$ the quantum processing layer. Layer $(i)$ will be written in Python, to avail of ease-of-use in text processing and analysis. Given that this layer will be called at the initial outset of the program run, the performance impact will be negligible compared to the DisCo methods. Layer $(ii)$ will be written entirely in C++, and will directly leverage the underlying quantum simulator. The preprocessed data from layer $(i)$ will be loaded, and encoded into the quantum simulator to generate the full meaning-space representing the analysed corpus. The structure of this software is described provisionally in Figure~\ref{fig:qnlp_controlflow}.
+
+
+\paragraph{Alternative approach to QRAM methods:}\label{par:qram_alt_approach} The methods proposed by Zeng and and Coecke~\cite{DisCoWillBob} rely on the use of a quantum random access memory (QRAM)~\cite{Giovannetti_Lloyd_Maccone_2008} model to achieve the data access bounds proposed for the closest vector and sentence similarity problems. However, the use of QRAM models in quantum computing algorithms is currently considered controversial by many researchers in the field (TODO: various reports, find citation). This is in part due to the difficulties in realising the QRAM model as originally proposed (3-level quantum states required), or given the large resource requirements necessary for a qubit-implementable model~\cite{Arunachalam_Gheorghiu_Jochym-OConnor_Mosca_Srinivasan_2015}, rendering it almost unusable for for real-world  problems in systems with small numbers of qubits. As a result, given the small number of qubits with which we aim to work with, we deemed it necessary to find an alternative approach to realising the state-creation and distance methods. For the purpose of state creation, we aim to follow the approach as given by Trugenberger~\cite{Trugenberger_2001,Trugenberger_2002} encoding the data by ``slicing-off'' probabilities and encoding the required state information into these slices. Following this, we use an additional qubit register to store a representative test data vector to compare with. We make use of the Hamming distance metric between the encoded data and the test input to determine the closest representative encoded state.
+
+This method allows us to avoid the use of a QRAM implementation, at the cost of an iterative state-preparation routine, as we feed in each bit-string to be encoded. The Hamming distance takes advantage of the inherent quantum parallelism offered by the register, and as such can be computed over the entire superposition state simultaneously. 
+
+At this stage, we have two options to determine the closest vector to a given data set: follow the approach of Trugenberger~\cite{Trugenberger_2001,Trugenberger_2002}, Schuld et al~\cite{Schuld_Sinayskiy_Petruccione_2014}, Wiebe et al~\cite{Wiebe_Kapoor_Svore_2014}, or follow an alternative approach defined by use of the the Durr-Hoyer (DH) algorithm~\cite{Durr_Hoyer_1996}. This alternative approach is discussed in further detail in Appendix~\ref{app:hamming_dh}.
+
+
+It may be instructive to implement the best of all discussed approaches to determine the optimal method for the closest vector problem, using the encoding strategy and similarity calculations from \cite{Trugenberger_2001,Trugenberger_2002}, the amplitude-based approaches given separately \cite{Schuld_Sinayskiy_Petruccione_2014} and \cite{Wiebe_Kapoor_Svore_2014}, as well as the modified Hamming approach discussed above. Given these methods for the closest vector problem, the extension to the sentence similarity problem is trivial. 
+%%
+\paragraph{Pre-computation:}
+To analyse and prepare the corpus data for encoding into the quantum state-space, we have determined that the use of well-defined classical routines for corpus tokenisation and tagging can be achieved using the NLTK suite~\cite{BirdKleinLoper09}. Given that this pre-computation step is required once during initial set-up, we can neglect the run-time cost of this step from the overall algorithm performance. Following the pre-compute step, all required data and metadata for the qHiPSTER encoding and processing will be stored in an intermediary data format.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth,keepaspectratio]{D1_1/Images/QNLP_Controlflow.pdf}
+    \caption{Control flow of proposed QNLP project implementation.}
+    \label{fig:qnlp_controlflow}
+\end{figure}
+
+
+\subsubsection{Encoding of Classical Bit Stings to Superposition of States}
+\label{sec:encoding_trugenberger}
+As discussed above in section \ref{sec:design_considerations}, the sequential methods for encoding binary strings to a superposition of states proposed by Trugenberger \cite{Trugenberger_2001,Trugenberger_2002} are being considered for encoding the binary representation of our corpus into a superposition of quantum states.
+
+For a set of binary patterns $p^i$ for $i=1,\dots,N$, where $N$ is the number of binary patterns of length $n$ being encoded, we can encode these patterns into a quantum superposition of states such that
+
+\begin{align}
+    \label{eqn:superposition_state}
+    \vert m \rangle = \frac{1}{\sqrt{N}}\sum\limits_{i=1}^ {N} \vert p^i \rangle.
+\end{align}
+
+Trugenberger first developed a sequential method for achieving the superposition $\vert m \rangle$ in \cite{Trugenberger_2001} by first loading a pattern into an auxillary register, which was then copied into the memory register. This process being repeated for each binary pattern to encode, 'carving' off the newly encoded state term from the already encoded terms while maintaining the appropriate normalization factors in the amplitudes. This method required $2n + 2$ qubits. It will be referred to as method $1$. 
+
+Trugenberger generalizes this method in \cite{Trugenberger_2002} which generates the superposition of states $\vert m \rangle$, by applying a unitary matrix to the state $\vert 0_1\dots 0_n \rangle$. It repeats this process for each input binary pattern with using the aforementioned 'carving' off method to store the new term in a state. This method requires only two additional ancillary qubits, bringing the total number of qubits required to $n+2$. This will be referred to as method $2$.
+
+Clearly method $2$ is more efficient than method 1 in terms of the number of qubits required. Method $2$ also requires less applications of operations than method $1$, hence is less computationally expensive. Therefore, method $2$ appears to be the best approach out of the two to use as an encoding strategy. For the sake of completeness and for comparison, both methods will be implemented.
+
+Both of the aforementioned methods are realizable using the Intel Quantum Simulator since they use defined quantum gate operations including the NOT, XOR, 2XOR (Toffoli) and CU (controlled unitary) gates. We have also developed some necessary extensions of the standard routines available in Intel's Quantum Simulator, including the $n$-qubit controlled unitary gate (nCU), which is required in the form of an n-qubit controlled not (nCX) gate for method 1. Hence, both methods prove to be reliable approaches to procede with.
+
+To implement either method, the unitary matrix
+\begin{align}
+    S^i = 
+    \begin{bmatrix}
+        \sqrt{\frac{i-1}{i}} & \frac{1}{\sqrt{i}} \\
+        -\frac{1}{\sqrt{i}}  & \sqrt{\frac{i-1}{i}}
+    \end{bmatrix}
+\end{align}
+must first be constructed for $i = 1,\dots,N$. $S^i$ is applied using the controlled unitary operator with $S^i$ being the corresponding unitary matrix. The quantum operations required to implement both methods are displayed below. Each operation used below is directly implementable using the Intel Quantum Simulator, apart from nXOR which required an extension of the available gate operations. 
+
+
+\begin{minipage}[b]{0.45\textwidth}
+\textbf{Method 1:}
+\begin{align*}{}
+\vert \psi_0 \rangle & =  \vert p_1^1,\dots,p_n^1\rangle\vert 01\rangle\vert0_1,\dots,0_n \rangle\\
+\vert \psi_1 \rangle & =  \prod\limits_{j=1}^{n} \textrm{2XOR}_{p_j^i u_2 m_j} \vert \psi_1 \rangle\\
+\vert \psi_2 \rangle & =  \prod\limits_{j=1}^{n} \textrm{NOT}_{m_j} \textrm{XOR}_{p_j^i m_j}  \vert \psi_1 \rangle\\
+\vert \psi_3 \rangle & =  \textrm{nXOR}_{m_1\dots m_n u_1}  \vert \psi_2 \rangle\\
+\vert \psi_4 \rangle & =  \textrm{CS}_{u_1 u_2}^{p+1-i}  \vert \psi_3 \rangle\\
+\vert \psi_5 \rangle & =  \textrm{nXOR}_{m_1\dots m_n u_1}  \vert \psi_4 \rangle\\
+\vert \psi_6 \rangle & =  \prod\limits_{j=n}^{1} \textrm{XOR}_{p_j^i m_j} \textrm{NOT}_{m_j}  \vert \psi_5 \rangle\\
+\vert \psi_7 \rangle & =  \prod\limits_{j=n}^{1} 2\textrm{XOR}_{p_j^i u_2 m_j} \vert \psi_6 \rangle
+\end{align*}
+\hspace{10pt}\\
+\hspace{10pt}
+\end{minipage}
+\begin{minipage}[b]{0.45\textwidth}
+\textbf{Method 2:}
+Let us define the single qubit unitary gate
+\begin{align*}{}
+U_j^i = \cos\left(\frac{\pi}{2} p_j^i\right)1 + \sin \left(\frac{\pi}{2} p_j^i\right)\sigma_y
+\end{align*}
+For a pattern $p^i$, we can encode the pattern into a single state by applying $U_j^i$
+\begin{align*}
+    \vert p^i \rangle = \prod\limits_{j=1}^n U_j^i \vert 0_1\dots 0_n\rangle
+\end{align*}
+
+Then to store it in a superposition state given initial state $\vert\psi_0\rangle$, we compute the following;
+\begin{multline*}
+    \vert\psi_0 \rangle = \vert 0_1\dots0_n\rangle\vert00\rangle\\
+    \vert\psi_1 \rangle = \prod\limits_{j=1}^{n} \left[\left( \textrm{CP}_{u_2}^{i}\right)^{-1} \textrm{NOT}_{u_1} \textrm{CS}_{u_1u_2}^{p+1-i} \textrm{XOR}_{u_{2}u_{1}} \textrm{CP}_{u_{2}}^{i}\right] \\ \times \textrm{NOT}_{u_2} \vert\psi_0\rangle    
+\end{multline*}
+\end{minipage}
+
+The main idea of both methods is detailed above. Repeating either process appropriately for different input binary patterns allows us to build a superposition state in a reliable and manner.
+
+\subsubsection{Hamming Distance}
+Two approaches to calculate the Hamming distance are proposed. One, being a variations of Trugenberger's Hamming distance subroutine developed by Schuld et al \cite{Trugenberger_2001, Schuld_Sinayskiy_Petruccione_2014} and Wiebe et al \cite{Wiebe_Kapoor_Svore_2014}. Given a test word represented as a binary state, we can calculate the Hamming distance between this word's meaning and every other basis word in the superposition. The approach pulls the Hamming distance into the eigenvalue of the eigenstate corresponding to a each individual term in the superposition. Thus, the Hamming distance can be stored in the amplitude of its corresponding state. This enables us to quantify the similarity in meaning between the test word and the set of basis words, resulting in the test word's meaning.
+
+The algorithm is detailed in Dirac notation as defined by Trugenberger \cite{Trugenberger_2001} as follows. Given the superposition of encoded binary patterns $\vert m \rangle$ as defined in \ref{eqn:superposition_state} which will be denoted as register $m$, we define two extra registers $d$ of length $n$ and $c$ of length $1$. Thus a total of $2n + 1$ qubits are required for this stage of the calculation. Note, that the ancilla register of the previous encoding strategy can be reused here, reducing the overhead of the number of qubits used. We define our initial state to be the tensor product of these three registers, where $c$ is in the state $\vert 0 \rangle$ and the register $d$ is the binary test pattern $x = x_1,\dots,x_n$. Thus,
+
+\begin{align*}
+    \vert \psi_0 \rangle &= \frac{1}{\sqrt{N}}\sum\limits_{i=1}^{N} \vert x \rangle \vert p^i \rangle \vert 0 \rangle \\
+    &= \frac{1}{\sqrt{N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 0 \rangle
+\end{align*}
+
+The next step is to apply a Hadamard operation to the ancilla bit;
+\begin{align*}
+    \vert \psi_1 \rangle = \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 0 \rangle + \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 1 \rangle
+\end{align*}
+
+The Hamming distance between $x$ and $p^i$ for $k=1,\dots, n$ is then calculated in binary format and stored in the $d$ register overwriting the test pattern stored there. This is done by flipping all qubits in register $d$, then applying a controlled-NOT gate on each qubit in register $d$ with the corresponding qubit in $m$ acting as control;
+
+\begin{align*}
+    \vert \psi_2 \rangle &= \prod\limits_{k=1}^{n}\textrm{X}_{x_k} \textrm{CNOT}_{x_{k}p_{k}^{i}} \vert \psi_1 \rangle\\
+    &= \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert d_1^i\dots d_n^i\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 0 \rangle + \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert d_1^i\dots d_n^i\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 1 \rangle
+\end{align*}
+
+\noindent where $d_k^i$ is the distance between the test pattern and the $i^{th}$ training pattern for their $k^{th}$ qubit.
