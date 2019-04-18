@@ -124,6 +124,7 @@ function fetchSDKs(){
             python -m pip install --no-binary all --compile ${PIP_PACKAGES[${s}]}
         done
     fi
+    python -c "import nltk; nltk.dowdnload('wordnet')"
 }
 
 ##########################################
