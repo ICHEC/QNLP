@@ -4,7 +4,6 @@ project (QNLP)
 #include(intel)
 
 #list(APPEND CMAKE_MODULE_PATH "/ichec/work/ichec001/modules")
-#include(bigmpi)
 
 #Require C++11 for Intel-QS_tmp
 set(CMAKE_CXX_STANDARD 11)
@@ -15,9 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(QHIPSTER $ENV{QHIPSTER_DIR}) 
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
-
-set(BIGMPI_INC $ENV{BIGMPI_DIR_INC})
-set(BIGMPI_LIB $ENV{BIGMPI_DIR_LIB}/libbigmpi.a)
 
 set(CMAKE_CXX_FLAGS 
     "-DUSE_MM_MALLOC \
@@ -45,7 +41,6 @@ set(CMAKE_CXX_FLAGS
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DBIGMPI \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
@@ -70,9 +65,7 @@ add_executable(exe_qft_test qft_test.cpp)
 include_directories("${QHIPSTER_INC}")
 #include_directories("${QHIPSTER}/include")
 #link_directories("${QHIPSTER}/lib/intel64")
-#link_directories("${BIGMPI_LIB}")
 
-include_directories("${BIGMPI_INC}")
 
 #find_library(QHIPSTER_LIBRARY
 #    NAMES qHiPSTER
@@ -82,7 +75,6 @@ include_directories("${BIGMPI_INC}")
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 #target_link_libraries(exe_qft_test qhipster)
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-target_link_libraries(exe_qft_test qhipster bigmpi)
+
+target_link_libraries(exe_qft_test qhipster)
 

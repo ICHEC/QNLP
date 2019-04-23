@@ -164,6 +164,8 @@ void QubitCircuit<Type>::ApplyNCPauliX(vector<std::size_t> input, vector<std::si
 
 /*
  *      // Won't work ing general since measurement will destroy states in a superposition
+ * 
+ *      DEPRECATE!!
  *
  */
 // Applies N qubit controlled PauliX where N is the length of the input.
