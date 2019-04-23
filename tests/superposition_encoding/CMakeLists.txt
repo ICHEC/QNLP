@@ -4,7 +4,6 @@ project (QNLP)
 #include(intel)
 
 #list(APPEND CMAKE_MODULE_PATH "/ichec/work/ichec001/modules")
-#include(bigmpi)
 
 #Require C++11 for Intel-QS_tmp
 set(CMAKE_CXX_STANDARD 11)
@@ -54,6 +53,8 @@ set(CMAKE_CXX_FLAGS
 
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=skylake-avx512")
 
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
+
 find_package(OpenMP)
 if (OPENMP_FOUND)
     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -63,7 +64,6 @@ endif()
 
 find_package(MPI REQUIRED)
 
-add_executable(exe_measurement measurement_test.cpp)
 
 include_directories("${QUBIT_EXTENDED_INC}")
 include_directories("${QHIPSTER_INC}")
@@ -71,13 +71,15 @@ include_directories("${QHIPSTER_INC}")
 #ADD_LIBRARY(qubitExtended STATIC IMPORTED)
 #SET_TARGET_PROPERTIES(qubitExtended PROPERTIES IMPORTED_LOCATION "${QUBIT_EXTENDED_LIB}")
 
-
+# Adds n qubit controlled U operator
+include_directories("../../include")
+add_executable(exe_nn_Superposition_Encoding superposition_encoding.cpp ../../src/nqubit_decompose.cpp ../../include/nqubit_decompose.hpp)
 
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
-target_link_libraries(exe_measurement qhipster)
-#target_link_libraries(exe_measurement qubitExtended qhipster bigmpi)
+#target_link_libraries(exe_nn_Superposition_Encoding qubitExtended qhipster)
+target_link_libraries(exe_nn_Superposition_Encoding qhipster)
 
 
 

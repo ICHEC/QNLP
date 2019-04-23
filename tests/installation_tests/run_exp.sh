@@ -20,6 +20,6 @@ module load intel
 #module load bigmpi
 
 export OMP_NUM_THREADS=${NTHREADS}
-srun -N ${NNODES} -n ${NPROCS} -c ${NTHREADS} ./exe_qft_test ${NQUBITS}
+srun -N ${NNODES} -n ${NPROCS} -c ${NTHREADS} ./build/exe_qft_test ${NQUBITS}
 
 mv slurm-${SLURM_JOBID}.out slurm_${NQUBITS}_${NNODES}_${NPROCS}_${NTHREADS}.out
