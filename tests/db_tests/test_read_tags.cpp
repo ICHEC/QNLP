@@ -1,4 +1,5 @@
 #include "read_tags.hpp"
+#include <cassert>
 
 using namespace QNLP;
 

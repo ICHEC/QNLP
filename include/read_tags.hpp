@@ -65,6 +65,10 @@ namespace QNLP{
         int openDB();
 
         /**
+         * @brief Closes the qnlp_tagged_corpus.sqlite database if the DB pointer is open.
+         */
+        void closeDB();
+        /**
          * @brief Loads from the database for a given data type (noun, verb, etc)
          * 
          * @param data_type String of the data type to load

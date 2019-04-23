@@ -10,18 +10,24 @@
 
 using namespace QNLP;
 
-ReadTags::ReadTags() {
-    SQL_RETURN_CHECK ( openDB(), SQLITE_OK );
+ReadTags::ReadTags() : DB(nullptr) {
+    std::cout << this->DB << std::endl;
+    SQL_RETURN_CHECK ( ReadTags::openDB(), SQLITE_OK );
 }
+
 ReadTags::~ReadTags(){
-    if(this->DB){
+    ReadTags::closeDB();
+}
+
+void ReadTags::closeDB(){
+    if(this->DB != nullptr ){
         std::cout << "CLOSING " << QNLP_DB_FILE << std::endl;
         SQL_RETURN_CHECK ( sqlite3_close(this->DB), SQLITE_OK );
     }
 }
 
 int ReadTags::openDB(){
-    if(this->DB == NULL){ 
+    if(this->DB == nullptr){ 
         std::cout << "OPENING " << QNLP_DB_FILE << std::endl;
         return sqlite3_open( (const char *) QNLP_DB_FILE, &this->DB ); 
     } else {
@@ -34,7 +40,8 @@ void ReadTags::loadData(std::string data_type){
     sqlite3_stmt *select_stmt = NULL;
 
     ReadTags::openDB();
-    std::string query = "SELECT name, bin_id FROM qnlp WHERE type=?";
+    //std::string query = "SELECT name, bin_id FROM qnlp WHERE type=?";
+    std::string query = "select name, bin_id from qnlp where type=?";
     SQL_RETURN_CHECK ( sqlite3_prepare_v2( this->DB, query.c_str(), -1, &select_stmt, NULL ), SQLITE_OK );
 
     //Arg 2 is the 1-based index of the variable to replace
