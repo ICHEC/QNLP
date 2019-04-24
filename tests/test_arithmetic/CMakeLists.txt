@@ -58,7 +58,7 @@ include_directories("${BIGMPI_INC}")
 
 include_directories("../../include")
 
-add_executable(test_arithmetic test_arithmetic.cpp ../../src/utils/util.cpp ../../include/utils/util.hpp)
+add_executable(test_arithmetic test_arithmetic.cpp ../../src/utils/util.cpp ../../include/utils/util.hpp ../../include/nqubit_decompose.hpp ../../src/nqubit_decompose.cpp)
 
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")

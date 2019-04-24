@@ -35,7 +35,7 @@ void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
     std::size_t num_qubits_r1 = r1_max - r1_min;
     std::size_t num_qubits_r2 = r2_max - r2_min;
 
-    assert( num_qubits_r1 == num_qubits_r2 );
+    //assert( num_qubits_r1 == num_qubits_r2 );
 
     //Flip all states in r1
     for(int i = r1_min; i < r1_max; i++){
@@ -53,24 +53,41 @@ void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
 }
 
 void Util::applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
-    for(std::size_t i = maxIdx; i > minIdx; i--){
-        qReg.ApplyHadamard(i-1);
-        for(std::size_t j = i-1; j > minIdx; j--){
+    for(std::size_t ctrl = maxIdx; ctrl <= minIdx; ctrl--){
+        qReg.ApplyHadamard(ctrl);
+        for(std::size_t tgt = ctrl - 1; tgt <= maxIdx; tgt--){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
             // QNLP::ApplyCPhaseGate(qReg, 2.0*M_PI / pow(2, i-j + 1), j-1, i-1);
-            QNLP::Util::ApplyCPhaseGate(qReg, 2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+            std::cout << " QFT:={" << tgt << "," << ctrl << "}"<< std::endl;
+            //QNLP::Util::ApplyCPhaseGate(qReg, 2.0*M_PI / ( 1 << ( 1 + (ctrl - target) ) ), ctrl, target);
+            QNLP::Util::ApplyCPhaseGate(qReg, -M_PI / (1 << (ctrl-tgt)), ctrl, tgt);
         }
     }
 }
 
 void Util::applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
-    for(std::size_t i = minIdx+1; i < maxIdx+1; i++){
-        for(std::size_t j = minIdx+1; j < i; j++){
+    for(std::size_t target = minIdx; target <= maxIdx; target++){
+        for(std::size_t ctrl = target + 1; ctrl <= maxIdx; ctrl++){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
             // QNLP::ApplyCPhaseGate(qReg, -2.0*M_PI / pow(2, i - j +1), j-1, i-1);
-            QNLP::Util::ApplyCPhaseGate(qReg, -2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+            std::cout << "IQFT:={" << target << "," << ctrl << "}"<< std::endl;
+            QNLP::Util::ApplyCPhaseGate(qReg, -2.0*M_PI / ( 1 << ( 1 + (ctrl-target) ) ), ctrl, target);
         }
-        qReg.ApplyHadamard(i-1);
+        qReg.ApplyHadamard(target);
+    }
+}
+
+void Util::ApplySwap(QubitRegister<ComplexDP>& qReg, unsigned int q1, unsigned int q2){
+    qReg.ApplyCPauliX(q1,q2); 
+    qReg.ApplyCPauliX(q2,q1); 
+    qReg.ApplyCPauliX(q1,q2); 
+}
+
+void Util::InvertRegister(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+    unsigned int range2 = ((maxIdx - minIdx)%2 == 1) ? (maxIdx - minIdx)/2 +1 : (maxIdx - minIdx)/2;
+    for(unsigned int idx = 0; idx < range2; idx++){
+        std::cout << "Swapping " << minIdx+idx << "," << maxIdx-idx << std::endl;
+        Util::ApplySwap(qReg, minIdx+idx, maxIdx-idx);
     }
 }
 
@@ -91,9 +108,9 @@ void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx,
     X(1,0) = {1., 0.};
     X(1,1) = {0.,  0.};
 
-    //for(unsigned int i = minIdx; i <= maxIdx; i++){
-    //    qReg.ApplyHadamard(i);
-    //}
+    for(unsigned int i = minIdx; i <= maxIdx; i++){
+        qReg.ApplyHadamard(i);
+    }
     for(unsigned int i = minIdx; i <= maxIdx; i++){
         qReg.ApplyPauliX(i);
     }
@@ -105,5 +122,8 @@ void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx,
     qReg.ApplyHadamard(maxIdx);
     for(unsigned int i = minIdx; i <= maxIdx; i++){
         qReg.ApplyPauliX(i);
+    }
+    for(unsigned int i = minIdx; i <= maxIdx; i++){
+        qReg.ApplyHadamard(i);
     }
 }
