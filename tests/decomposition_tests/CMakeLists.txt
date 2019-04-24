@@ -9,8 +9,6 @@ set(QHIPSTER $ENV{QHIPSTER_DIR})
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
 
-set(BIGMPI_INC $ENV{BIGMPI_DIR_INC})
-set(BIGMPI_LIB $ENV{BIGMPI_DIR_LIB}/libbigmpi.a)
 
 set(CMAKE_CXX_FLAGS 
     "-DUSE_MM_MALLOC \
@@ -37,7 +35,6 @@ set(CMAKE_CXX_FLAGS
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DBIGMPI \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
@@ -54,7 +51,6 @@ find_package(MPI REQUIRED)
 
 
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 
 include_directories("../../include")
 
@@ -64,7 +60,5 @@ ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 #target_link_libraries(cswap_test qhipster)
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-target_link_libraries(nqc_test qhipster bigmpi)
+target_link_libraries(nqc_test qhipster)
 

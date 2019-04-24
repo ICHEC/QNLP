@@ -2,7 +2,7 @@
 
 #Load our pre-built qhipster library
 module use /ichec/work/ichec001/modules/
-module load qhipster bigmpi
+module load qhipster
 
 #Load required build toolchains
 module load intel cmake3

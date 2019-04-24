@@ -47,6 +47,7 @@ set(CMAKE_CXX_FLAGS
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
+     -O3        \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
 )
 
