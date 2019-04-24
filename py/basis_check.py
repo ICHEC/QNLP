@@ -86,14 +86,28 @@ for ci in corpus_verbs.keys():
     basis_set.clear()
 
 # Print the matched data
-print (corpus_nouns)
+from tabulate import tabulate
+print("###############################################################################")
+print("############################## Noun encodings #################################")
+print("###############################################################################")
+d = [(k,v[0],[bin(i) for i in v[1]]) for k,v in corpus_nouns.items()]
+print(tabulate(d,["Token","ID","Encoding"]))
+print("")
+#print (corpus_nouns)
 for k,v in corpus_nouns.items():
     if(len(v[1]) > 0):
         for j in v[1]:
             print(k, "->", basis_nouns_rev[j])
-
-print (corpus_verbs)
+print("")
+print("###############################################################################")
+print("############################## Verb encodings #################################")
+print("###############################################################################")
+d = [(k,v[0],[bin(i) for i in v[1]]) for k,v in corpus_verbs.items()]
+print(tabulate(d,["Token","ID","Encoding"]))
+print("")
+#print (corpus_verbs)
 for k,v in corpus_verbs.items():
     if(len(v[1]) > 0):
         for j in v[1]:
             print(k, "->", basis_verbs_rev[j])
+print("")
