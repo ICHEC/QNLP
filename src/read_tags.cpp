@@ -41,7 +41,7 @@ void ReadTags::loadData(std::string data_type){
 
     ReadTags::openDB();
     //std::string query = "SELECT name, bin_id FROM qnlp WHERE type=?";
-    std::string query = "select name, bin_id from qnlp where type=?";
+    std::string query = "select name, bin_id from corpus where type=?";
     SQL_RETURN_CHECK ( sqlite3_prepare_v2( this->DB, query.c_str(), -1, &select_stmt, NULL ), SQLITE_OK );
 
     //Arg 2 is the 1-based index of the variable to replace
