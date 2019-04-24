@@ -182,7 +182,7 @@ int main(int argc, char **argv){
         std::cout << "NOUN: Name=" << name_bin.first << "\t\t Pattern=" << name_bin.second << std::endl;
         ct++;
     }
-    rt.closeDB();
+    //rt.closeDB();
 
     // To store initial patterns 
     vector<unsigned int> input_pattern(1);

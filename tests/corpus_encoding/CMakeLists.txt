@@ -15,8 +15,6 @@ set(CONDA $ENV{CONDA_PREFIX})
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
 
-set(BIGMPI_INC $ENV{BIGMPI_DIR_INC})
-set(BIGMPI_LIB $ENV{BIGMPI_DIR_LIB}/libbigmpi.a)
 
 set(QUBIT_EXTENDED_INC "${CMAKE_CURRENT_SOURCE_DIR}/../../Qubit_Extended/include")
 #set(QUBIT_EXTENDED_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../Qubit_Extended/lib/libQubit_Extended.a")
@@ -50,7 +48,6 @@ set(CMAKE_CXX_FLAGS
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DBIGMPI \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
@@ -72,7 +69,6 @@ include_directories("../../include")
 
 include_directories("${QUBIT_EXTENDED_INC}")
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 include_directories("${CONDA}/include")
 
 link_directories(${CONDA}/lib)
@@ -82,7 +78,4 @@ add_executable(encoding_corpus encoding_corpus.cpp ../../src/read_tags.cpp)
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-
-target_link_libraries(encoding_corpus qhipster bigmpi sqlite3)
+target_link_libraries(encoding_corpus qhipster sqlite3)
