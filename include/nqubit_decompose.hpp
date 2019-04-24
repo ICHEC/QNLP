@@ -62,7 +62,7 @@ class NQubitDecompose{
                         unsigned int qControlStart,
                         unsigned int qControlEnd,
                         unsigned int qTarget,
-                        openqu::TinyMatrix<Type, 2, 2, 32> U, 
+                        openqu::TinyMatrix<Type, 2, 2, 32>& U, 
                         unsigned int depth, bool isPauliX);
 
     /**

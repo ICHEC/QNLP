@@ -83,7 +83,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
                     unsigned int qControlStart,
                     unsigned int qControlEnd,
                     unsigned int qTarget,
-                    openqu::TinyMatrix<Type, 2, 2, 32> U, 
+                    openqu::TinyMatrix<Type, 2, 2, 32>& U, 
                     unsigned int depth, bool isPauliX)
 {
     //Some safety checks
@@ -104,54 +104,79 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
     std::cout << "cOps[" << local_depth << "]:=" << cOps << std::endl;
 #endif
 
-    openqu::TinyMatrix<Type, 2, 2, 32> op, opAdj;
 
     if (cOps >= 2){
         //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
         if ( ! isPauliX ){
-            op = sqrtMatricesU[local_depth];
-            opAdj = sqrtMatricesU[-local_depth];
+            //Apply single qubit gate ops, and decompose higher order controls further
+            qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, sqrtMatricesU[local_depth]);
+
+#ifdef __VERBOSE__
+            std::cout << "################################################" << std::endl;
+            sqrtMatricesU[local_depth].print("OP");
+            std::cout << op_counter <<". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+            std::cout << "################################################" << std::endl;
+            op_counter++;
+#endif
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
+
+            qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, sqrtMatricesU[-local_depth]);
+
+#ifdef __VERBOSE__
+            std::cout << "################################################" << std::endl;
+            sqrtMatricesU[-local_depth].print("OPADJ");
+            std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+            std::cout << "################################################" << std::endl;
+            op_counter++;
+#endif
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0],   0,              true );
+
+
+            openqu::TinyMatrix<Type, 2, 2, 32> sqrt_U(matrixSqrt(U));
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget, sqrt_U,      local_depth,    false );
         }
         else {
-            op = sqrtMatricesX[local_depth];
-            opAdj = sqrtMatricesX[-local_depth];
+            //Apply single qubit gate ops, and decompose higher order controls further
+            qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, sqrtMatricesX[local_depth]);
+
+#ifdef __VERBOSE__
+            std::cout << "################################################" << std::endl;
+            sqrtMatricesX[local_depth].print("OP");
+            std::cout << op_counter <<". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+            std::cout << "################################################" << std::endl;
+            op_counter++;
+#endif
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
+
+            qReg.ApplyControlled1QubitGate(qControlEnd, qTarget,sqrtMatricesX[-local_depth]);
+
+#ifdef __VERBOSE__
+            std::cout << "################################################" << std::endl;
+            sqrtMatricesX[-local_depth].print("OPADJ");
+            std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
+            std::cout << "################################################" << std::endl;
+            op_counter++;
+#endif
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0],   0,              true );
+
+
+            openqu::TinyMatrix<Type, 2, 2, 32> sqrt_U(matrixSqrt(U));
+
+            applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget, sqrt_U,      local_depth,    false );
         }
-
-        //Apply single qubit gate ops, and decompose higher order controls further
-        qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, op);
-
-#ifdef __VERBOSE__
-        std::cout << "################################################" << std::endl;
-        op.print("OP");
-        std::cout << op_counter <<". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
-        std::cout << "################################################" << std::endl;
-        op_counter++;
-#endif
-
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
-
-        qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, opAdj);
-
-#ifdef __VERBOSE__
-        std::cout << "################################################" << std::endl;
-        opAdj.print("OPADJ");
-        std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
-        std::cout << "################################################" << std::endl;
-        op_counter++;
-#endif
-
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0],   0,              true );
-
-        applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget,     matrixSqrt(U),      local_depth,    false );
     }
 
     //If the number of control qubits is less than 2, assume we have decomposed sufficiently
     else{
-        op = U; 
-        qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, op); //The first decomposed matrix value is used here
+        qReg.ApplyControlled1QubitGate(qControlEnd, qTarget, U); //The first decomposed matrix value is used here
 #ifdef __VERBOSE__
         std::cout << "################################################" << std::endl;
-        op.print("U");
+        U.print("U");
         std::cout << op_counter << ". Applied op between " << qControlEnd <<" and " << qTarget << std::endl;
         std::cout << "################################################" << std::endl;
         op_counter++;
