@@ -6,16 +6,15 @@
 \graphicspath{{Images/}}
 \usepackage{hyperref}
 \usepackage{float}
-
-%Remove this when sending;
+\usepackage{todonotes}
+\usepackage[linesnumbered,algoruled,boxed,lined]{algorithm2e}
 \usepackage[a4paper, margin=2.5cm]{geometry}
 \usepackage{geometry}
 \usepackage[title,toc,page]{appendix}
-
 % \usepackage{fullpage}
-
 %\usepackage{fancyhdr}
 %\pagestyle{fancy}
+
 \begin{document}
 \begin{titlepage}
 \newcommand{\HRule}{\rule{\linewidth}{0.1mm}} 
@@ -24,15 +23,15 @@
 %---------------------------------------------------------------------------------
 %	HEADING SECTIONS
 %---------------------------------------------------------------------------------
-\textsc{\LARGE Quantum Natural Language Processing}\\[0.5cm] % heading course name
-% \textsc{\large Sub Heading }\\[0.5cm] % Minor heading
+\vfill
+\textsc{\LARGE Quantum Natural Language Processing}
 \vfill
 %---------------------------------------------------------------------------------
 %	TITLE SECTION
 %---------------------------------------------------------------------------------
 \HRule \\[0.4cm]
-{ \Large \bfseries D1.1} \\[0.2cm]
-{ \Large \bfseries Overview of DisCo Algorithms \& Methods for Testing and Evaluation}\\[0.1cm]
+{ \Large \bfseries D1.1} \\[0.3cm]
+{ \Large \bfseries Overview of DisCo Algorithms \& \\[0.1cm]Methods for Testing and Evaluation}\\[0.1cm]
 \HRule \\[1.5cm]
  
 %---------------------------------------------------------------------------------
@@ -42,20 +41,20 @@
 \begin{center} \large
 \emph{Authors}\\[0.5cm]
 Lee J.~\textsc{O'Riordan}, ICHEC\\[0.2cm]
-Myles \textsc{DOYLE}, ICHEC\\[0.2cm]
+Myles \textsc{Doyle}, ICHEC\\[0.2cm]
 Venkatesh \textsc{Kannan}, ICHEC
 \end{center}
 \vfill
 {\large April 15, 2019}\\[1cm] 
 \vfill
-\hfill\begin{minipage}{0.4\textwidth}
+\hfill
+\begin{minipage}{0.4\textwidth}
 \includegraphics[scale=0.3]{ichec_logo.jpeg}
 \end{minipage}
 \hfill
 \begin{minipage}{0.4\textwidth}
-\includegraphics[scale=0.4]{intel_logo.png}
+\includegraphics[scale=0.3]{intel_logo.png}
 \end{minipage}
-\hfill
 \vfill
 \includegraphics[scale=0.3]{ei_logo.JPG}
 \vfill
@@ -65,43 +64,54 @@ Venkatesh \textsc{Kannan}, ICHEC
 %	AUTHOR SECTION 
 %---------------------------------------------------------------------------------
 \section*{Executive Summary}
-Executive summary goes here.
+In Q2 2018, Intel Ireland and the Irish Centre for High-End Computing (ICHEC) identified the opportunity to leverage the Intel Quantum Simulator (qHiPSTER) to port and implement the quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a given corpus. Funded by both Intel Ireland and Enterprise Ireland, this project has the following aims: (1) to leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model; (2) to develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP; and (3) to pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
+
+In this deliverable, we report on the strategies to map an existing NLP model called DisCo (Distributional Compositional Semantics) and its component algorithms to quantum computing platforms, particularly Intel qHiPSTER. The strategies address computing and encoding the meaning spaces of a given sentence into quantum states, and computing the closeness of the meanings of two sentences. This report also presents the representative corpora and the methods that will be used to test and evaluate the implementations of the algorithms, along with an overview of the details of the Intel qHiPSTER installation on the Irish national supercomputer (Kay). We also present an overview of the open challenges that have been identified and the workarounds that are employed, along with a summary of the next steps in the project towards implementing the solution on Intel qHiPSTER.
 
 \newpage
 \tableofcontents
+\newpage
 \listoffigures
 \listoftables
 
 %---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
 \newpage
-%---------------------------------------------------------------------------------
-%---------------------------------------------------------------------------------
 \input{01_Introduction.tex}
 
 %---------------------------------------------------------------------------------
 %---------------------------------------------------------------------------------
-\input{02_DisCo_Model_and_Algorithms.tex}
+\newpage
+\input{02_Abstraction_of_DisCo_Algorithms.tex}
 
 %---------------------------------------------------------------------------------
-%---------------------------------------------------------------------------------
-\input{03_Representative_Corpora.tex}
-
-%---------------------------------------------------------------------------------
-%---------------------------------------------------------------------------------
-\input{04_Testing_and_Evaluation_Methodologies.tex}
-
-%---------------------------------------------------------------------------------
-%---------------------------------------------------------------------------------
-\input{05_Intel_Quantum_Simulator_on_Kay.tex}
-
-%---------------------------------------------------------------------------------
-%---------------------------------------------------------------------------------
-\input{06_Discussions_and_Summary.tex}
-
 %---------------------------------------------------------------------------------
 \newpage
+\input{03_Mapping_DisCo_Algorithms_on_Intel_Quantum_Simulator.tex}
+
 %---------------------------------------------------------------------------------
 %---------------------------------------------------------------------------------
+\newpage
+\input{04_Representative_Corpora.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{05_Testing_and_Evaluation_Methodologies.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{06_Intel_Quantum_Simulator_on_Kay.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{07_Discussions_and_Summary.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
 \input{Appendix.tex}
 
 %---------------------------------------------------------------------------------
@@ -111,13 +121,5 @@ Executive summary goes here.
 %\bibliographystyle{plain}
 \bibliographystyle{unsrt}
 \bibliography{Bibliography.bib}
-
-
-% \newpage
-% %---------------------------------------------------------------------------------
-% %---------------------------------------------------------------------------------
-% \appendix
-% \section{Appendix}
-% \label{sec:appendix}
 
 \end{document}
