@@ -21,6 +21,7 @@ set(QUBIT_EXTENDED_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../Qubit_Extended/lib/lib
 
 set(CMAKE_CXX_FLAGS 
     "-DUSE_MM_MALLOC \
+     -O3        \
      -lmkl_rt \
      -lpthread \
      -ldl \
@@ -47,12 +48,11 @@ set(CMAKE_CXX_FLAGS
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
-     -O3        \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
 )
 
 
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=skylake-avx512")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=skylake-avx512 -O3")
 
 #set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
