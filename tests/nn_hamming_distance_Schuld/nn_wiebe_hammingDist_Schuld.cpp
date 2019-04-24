@@ -526,7 +526,7 @@ int main(int argc, char **argv){
 
         // Step 2      - Compute the Hamming distance between the input pattern and each training pattern.
         //             - Results are stored in the coefficient of each state of the input pattern
-        //compute_HammingDistance<ComplexDP>(input_pattern, circ, qReg, U);
+        compute_HammingDistance<ComplexDP>(input_pattern, circ, qReg, U);
 
         // If ancilla collapses to state |1> we discard this experiment
         ancilla = (dist(mt) < circ.GetProbability(qReg.get_g(0)));
@@ -544,11 +544,12 @@ int main(int argc, char **argv){
                 *it = 1.0;
             }
 
-            dart = dist(mt);
 
             // Obtains the probability of each state being measured
             for(int i = 0; i < num_classes; i++){
                 for(int j = 0; j < numQubits_class; j++){
+
+                    dart = dist(mt);
                     // Multiply prob_class by the probability observed for that qubit being the same as that of the class pattern qubit
                     prob_class[i] *= (!IS_SET(pattern_class[i],j))*(1.0 - circ.GetProbability(qReg.get_classReg2(j))) +  (IS_SET(pattern_class[i],j))*(circ.GetProbability(qReg.get_classReg2(j)));
                 }
