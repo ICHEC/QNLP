@@ -71,5 +71,23 @@ class Util{
      * @param maxIdx The ending qubit index of the register to consider.
      */
     static void ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx);
+
+    /**
+     * @brief Swap the states between the two given qubits
+     *
+     * @param qReg The quantum register to perform the swap within.
+     * @param q1 Qubit index 1.
+     * @param q2 Qubit index 2.
+     */
+    static void ApplySwap(QubitRegister<ComplexDP>& qReg, unsigned int q1, unsigned int q2);
+    
+    /**
+     * @brief Inverts the qubit register order from 1,2,3...n to n,n-1,...3,2,1
+     * 
+     * @param qReg The quantum register to apply the operation.
+     * @param minIdx The starting qubit index of the register to consider.
+     * @param maxIdx The ending qubit index of the register to consider.
+     */
+    static void InvertRegister(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx);
 };
 }

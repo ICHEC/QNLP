@@ -30,7 +30,7 @@ void test_rotate_iqft_full(std::size_t num_qubits, bool include_rot_qubit){
             psi1.ApplyRotationY(num_qubits-1, theta);
 
             //Examine last qubit
-            unsigned int offset = (include_rot_qubit == true) ? 0 : 1;
+            unsigned int offset = (include_rot_qubit == true) ? 1 : 2;
             Util::applyIQFT(psi1, 0, num_qubits - offset);
             //std::cout << " Prob(" << cc << ", " << theta <<", " << include_rot_qubit <<")=" << psi1.GetProbability(num_qubits-1) << std::endl;
             std::cout << cc << "," << theta << "," << include_rot_qubit << "," << psi1.GetProbability(num_qubits-1) << std::endl;
@@ -56,7 +56,7 @@ void test_rotate_iqft(std::size_t num_qubits, unsigned int pattern, bool include
         psi1.ApplyCRotationY(i, num_qubits-1, angle);
     } 
 
-    unsigned int offset = (include_rot_qubit == true) ? 0 : 1;
+    unsigned int offset = (include_rot_qubit == true) ? 1 : 2;
     Util::applyIQFT(psi1, 0, num_qubits - offset);
     std::cout << " Th(" << current_angle <<", " << include_rot_qubit <<")"; 
     std::cout << " prob=" << psi1.GetProbability(num_qubits-1) << std::endl;
@@ -122,8 +122,10 @@ void test_qft_iqft(std::size_t num_qubits){
             }
         }
 
-        Util::applyQFT(psi1, 0, num_qubits);
-        Util::applyIQFT(psi1, 0, num_qubits);
+        Util::applyQFT(psi1, 0, num_qubits-1);
+        Util::InvertRegister(psi1, 0, num_qubits-1);
+        Util::applyIQFT(psi1, 0, num_qubits-1);
+        Util::InvertRegister(psi1, 0, num_qubits-1);
         std::cout << "Test " << cc << "\t\tPattern=" << std::bitset<8>(cc);
         std::cout << "\t\tP(0,1)=["; 
         for(int qb = 0; qb < num_qubits; qb++){
@@ -133,8 +135,24 @@ void test_qft_iqft(std::size_t num_qubits){
     }
 }
 
-int main(int argc, char **argv){
+void test_swap(unsigned int num_qubits){
+    assert(num_qubits%2 == 0);
+    QubitRegister<ComplexDP> psi1(num_qubits, "base", 0);    
+    for(int i =0; i < num_qubits; i+=2){
+        psi1.ApplyPauliX(i);
+    }
+    for(int qb = 0; qb < num_qubits; qb++){
+        std::cout << "[" << 1. - psi1.GetProbability( qb ) << "," << psi1.GetProbability( qb ) << "],";
+    }
+    std::cout << "\n";
+    Util::InvertRegister(psi1, 0, num_qubits-1);
+    for(int qb = 0; qb < num_qubits; qb++){
+        std::cout << "[" << 1. - psi1.GetProbability( qb ) << "," << psi1.GetProbability( qb ) << "],";
+    }
+    std::cout << "\n";
+}
 
+int main(int argc, char **argv){
     openqu::mpi::Environment env(argc, argv);
     if (env.is_usefull_rank() == false) return 0;
 
@@ -144,10 +162,13 @@ int main(int argc, char **argv){
         if (rank == 0) {
             printf("\n --- n-Qubit QFT --- \n");
         }
-        unsigned int num_qubits = 5;
+        unsigned int num_qubits = 4;
         std::cout <<"#" << "bit-pattern" << "," << "theta" << "," << "include_rotation_bit" << "," << "P(1)" << std::endl;
-        test_rotate_iqft_full(num_qubits, true);
-        test_rotate_iqft_full(num_qubits, false);
+
+        //test_rotate_iqft_full(num_qubits, true);
+        //test_rotate_iqft_full(num_qubits, false);
+        //test_qft_iqft(num_qubits);
+        test_swap(num_qubits);
         return 0;
 
     }
