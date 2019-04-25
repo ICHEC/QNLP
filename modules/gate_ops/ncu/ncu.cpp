@@ -1,7 +1,7 @@
 /**
- * @file nqubit_decompose.cpp
+ * @file ncu.cpp
  * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
- * @brief Functions for applying n-qubit controlled U gates
+ * @brief Functions for applying n-qubit controlled U (unitary) gates
  * @version 0.1
  * @date 2019-03-06
  */
@@ -13,20 +13,20 @@
 static unsigned int op_counter = 0;
 #endif
 
-#include "nqubit_decompose.hpp"
+#include "ncu.hpp"
 using namespace QNLP;
 
 template <class Type>
-NQubitDecompose<Type>::NQubitDecompose(){ }
+NCU<Type>::NCU(){ }
 
 template <class Type>
-NQubitDecompose<Type>::NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates){
-    NQubitDecompose<Type>::initialiseMaps(U, num_ctrl_gates);
+NCU<Type>::NCU(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates){
+    NCU<Type>::initialiseMaps(U, num_ctrl_gates);
 }
 
 template <class Type>
-NQubitDecompose<Type>::~NQubitDecompose(){
-    NQubitDecompose<Type>::clearMaps();
+NCU<Type>::~NCU(){
+    NCU<Type>::clearMaps();
 }
 
 /**
@@ -34,9 +34,9 @@ NQubitDecompose<Type>::~NQubitDecompose(){
  * 
  */
 template <class Type>
-void NQubitDecompose<Type>::clearMaps(){
-    NQubitDecompose<Type>::sqrtMatricesU.clear();
-    NQubitDecompose<Type>::sqrtMatricesX.clear();
+void NCU<Type>::clearMaps(){
+    NCU<Type>::sqrtMatricesU.clear();
+    NCU<Type>::sqrtMatricesX.clear();
 }
 
 /**
@@ -45,7 +45,7 @@ void NQubitDecompose<Type>::clearMaps(){
  * @param U Unitary matrix
  */
 template <class Type>
-void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines){
+void NCU<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines){
     openqu::TinyMatrix<Type, 2, 2, 32> px;
     px(0, 0) = Type(0., 0.);
     px(0, 1) = Type(1., 0.);
@@ -79,7 +79,7 @@ void NQubitDecompose<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U,
  * @param isPauliX To indicate if the decomposition is of a PauliX matrix.
  */
 template <class Type>
-void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
+void NCU<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
                     unsigned int qControlStart,
                     unsigned int qControlEnd,
                     unsigned int qTarget,
@@ -164,7 +164,6 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 
             applyNQubitControl(qReg, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0],   0,              true );
 
-
             openqu::TinyMatrix<Type, 2, 2, 32> sqrt_U(matrixSqrt(U));
 
             applyNQubitControl(qReg, qControlStart, qControlEnd-1, qTarget, sqrt_U,      local_depth,    false );
@@ -205,7 +204,7 @@ void NQubitDecompose<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
  * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
  */
 template <class Type>
-openqu::TinyMatrix<Type, 2, 2, 32> NQubitDecompose<Type>::matrixSqrt(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
+openqu::TinyMatrix<Type, 2, 2, 32> NCU<Type>::matrixSqrt(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
     openqu::TinyMatrix<Type, 2, 2, 32> V(U);
     Type delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
     Type tau = U(0,0) + U(1,1);
@@ -241,7 +240,7 @@ openqu::TinyMatrix<Type, 2, 2, 32> NQubitDecompose<Type>::matrixSqrt(const openq
  * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
  */
 template <class Type>
-openqu::TinyMatrix<Type, 2, 2, 32> NQubitDecompose<Type>::adjointMatrix(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
+openqu::TinyMatrix<Type, 2, 2, 32> NCU<Type>::adjointMatrix(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
     openqu::TinyMatrix<Type, 2, 2, 32> Uadjoint(U);
     Type tmp;
     tmp = Uadjoint(0,0);

@@ -1,13 +1,13 @@
 /**
- * @file nqubit_decompose.hpp
+ * @file ncu.hpp
  * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
- * @brief Functions for applying n-qubit controlled U gates
+ * @brief Functions for applying n-qubit controlled U (unitary) gates
  * @version 0.1
  * @date 2019-03-06
  */
 
-#ifndef QNLP_NQUBIT_DECOMPOSE
-#define QNLP_NQUBIT_DECOMPOSE
+#ifndef QNLP_NCU
+#define QNLP_NCU
 
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
@@ -16,17 +16,17 @@
 namespace QNLP{
 
 template <class Type>
-class NQubitDecompose{
+class NCU{
     private:
         // Maintains a table of pre-calculated matrices to avoid repeated work. Absolute value of the key gives the depth of the sqrt ( U^{1/2^n} ), and the sign indicates if it is the adjoint (negative).
         std::unordered_map<int, openqu::TinyMatrix<Type, 2, 2, 32>> sqrtMatricesU {};
         std::unordered_map<int, openqu::TinyMatrix<Type, 2, 2, 32>> sqrtMatricesX {};
 
     public:
-    NQubitDecompose();
-    NQubitDecompose(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates);
+    NCU();
+    NCU(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates);
 
-    ~NQubitDecompose();
+    ~NCU();
 
     /**
      * @brief Add the PauliX and the given unitary U to the maps, both indexed with key 0
@@ -55,7 +55,7 @@ class NQubitDecompose{
      * @param qTarget Target qubit for the unitary matrix U
      * @param U Unitary matrix, U
      * @param depth Depth of recursion.
-     * @param isPauliX To indicate if the decomposition is of a PauliX matrix.
+     * @param isPauliX To indicate if the unitary is a PauliX matrix.
      */
     //template <class Type>
     void applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
@@ -88,8 +88,8 @@ class NQubitDecompose{
 };
 
 //Instantiate the allowed class types
-template class NQubitDecompose<ComplexSP>;
-template class NQubitDecompose<ComplexDP>;
+template class NCU<ComplexSP>;
+template class NCU<ComplexDP>;
 
 };
 #endif

@@ -1,13 +1,13 @@
 /**
- * @file read_tags.hpp
+ * @file db.hpp
  * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
  * @brief Reads the tagged corpus data for representation with quantum states
  * @version 0.1
  * @date 2019-03-11
  */
 
-#ifndef QNLP_READ_TAGS
-#define QNLP_READ_TAGS
+#ifndef QNLP_DB
+#define QNLP_DB
 
 #include <iostream> 
 #include <sqlite3.h> 
@@ -36,13 +36,13 @@ inline void sql_return_check(   const int ret_code,
 //#############################################################################
 
 namespace QNLP{
-    class ReadTags{
+    class DB{
     public:
         typedef std::unordered_map<std::string, std::unordered_map<std::string, unsigned int> > NTB;
         typedef std::unordered_map<std::string, std::unordered_map<unsigned int, std::string> > BTN;
 
-        ReadTags();
-        ~ReadTags();
+        DB();
+        ~DB();
 
         /**
          * @brief Get the NTB object. This is a map of maps, wherein the first key represents the grammatical type to load. The second key accesses the name to binary string mapping data, wherein each unique entity has a mapping to a unique binary string, which will representation it's encoding in the quantum state-space.
@@ -90,7 +90,7 @@ namespace QNLP{
         sqlite3* getDBRef();
 
     private:
-        sqlite3* DB;
+        sqlite3* db_ptr;
 
         //Maps for strings to binary pattern and reverse maps. Outer map keys are grammatical
         //types (nouns, verbs, etc.). Returned maps then hold unique entries. 
