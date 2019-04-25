@@ -404,8 +404,7 @@ int main(int argc, char **argv){
 
     progressBar progress(num_exps);
 
-    double dart, partition;
-    unsigned partition_id;
+    double dart;
     bool ancilla_is_set;
 
     unsigned count_ancilla_is_one = 0;
@@ -417,7 +416,6 @@ int main(int argc, char **argv){
 
         // Encode input binary patterns into superposition in registers for x.
         encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
-
 
         // Hamming Diatance:
         //             - Compute the Hamming distance between the input pattern and each training pattern.
@@ -443,11 +441,9 @@ int main(int argc, char **argv){
         }
 
         // Increase the count of the training pattern measured
-        bool flag = false;
         for(int i = 0; i < m; i++){
             if(pattern[i] == val){
                 count[ancilla_is_set][i]++;
-                flag = true;
             }
         }
 
@@ -455,37 +451,44 @@ int main(int argc, char **argv){
         // keep track of the number of times this happens.
         count_ancilla_is_one += ancilla_is_set;
 
-        exp++;
         progress.iterate();
-
     }
 
     if(rank == 0){
         double dist;
-        double prob, prob_sum, prob_cos_term;
-        prob_sum = 0.0;
+        double prob, prob_sum, prob_cos_term, prob_ancilla_isZero;
 
-        cout << " \tPattern\t\t\tfreq\tprob" << endl;
+        prob_sum = 0.0;
+        prob_ancilla_isZero = 1.0 - (double)( count_ancilla_is_one) / (double) num_exps;
+
+
+
+        cout << " \tPattern\t\t\tfreq\tprob\tdist" << endl;
         cout << "Cosine (Ancilla = 0)" << endl;
         for(int i = 0; i < m; i++){
 
-            prob = count[0][i]/(double) (num_exps - count_ancilla_is_one);
+            //prob = count[0][i]/(double) (num_exps - count_ancilla_is_one);
+            prob = count[0][i]/(double) (num_exps);
             prob_sum += prob;
+
+            dist = 2*n*M_1_PI*acos(m*prob*prob_ancilla_isZero);
 
             cout << i << " \t|";
             print_bits(pattern[i], n);
-            cout << ">\t\t" << count[0][i] << "\t" << prob * 100.0 << "%" << endl;
+            cout << ">\t\t" << count[0][i] << "\t" << prob * 100.0 << "%\t" << dist << endl;
         }
         cout << "Sine (Ancilla = 1)" << endl;
         for(int i = 0; i < m; i++){
 
-            prob = count[1][i]/(double) count_ancilla_is_one;
+            //prob = count[1][i]/(double) count_ancilla_is_one;
+            prob = count[1][i]/(double)num_exps;
             prob_sum += prob;
 
             cout << i << " \t|";
             print_bits(pattern[i], n);
             cout << ">\t\t" << count[1][i] << "\t" << prob * 100.0 << "%" << endl;
         }
+
 
         cout << "Sum of probs =\t" << prob_sum << endl;
         cout << "NumTimes ancilla was one (ie sine term was measured): \t" << count_ancilla_is_one << endl << endl;
