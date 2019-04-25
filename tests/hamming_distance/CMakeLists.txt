@@ -1,6 +1,10 @@
 cmake_minimum_required (VERSION 3.0)
 project (QNLP)
 
+#include(intel)
+
+#list(APPEND CMAKE_MODULE_PATH "/ichec/work/ichec001/modules")
+
 #Require C++11 for Intel-QS_tmp
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -9,9 +13,15 @@ set(QHIPSTER $ENV{QHIPSTER_DIR})
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
 
+set(QUBIT_EXTENDED_INC "${CMAKE_CURRENT_SOURCE_DIR}/../../Qubit_Extended/include")
+set(QUBIT_EXTENDED_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../../Qubit_Extended/lib/libQubit_Extended.a")
+
+#set(QUBIT_EXTENDED_INC "/ichec/home/staff/mdoyle/intel-qnlp/Qubit_Extended/include")
+#set(QUBIT_EXTENDED_LIB "/ichec/home/staff/mdoyle/intel-qnlp/Qubit_Extended/lib/libQubit_Extended.a")
 
 set(CMAKE_CXX_FLAGS 
     "-DUSE_MM_MALLOC \
+     -O3        \
      -lmkl_rt \
      -lpthread \
      -ldl \
@@ -32,6 +42,7 @@ set(CMAKE_CXX_FLAGS
      -lmkl_core \
      -lmkl_intel_thread \
      -lmkl_blacs_intelmpi_ilp64 \
+     -march=skylake-avx512      \
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
@@ -39,6 +50,11 @@ set(CMAKE_CXX_FLAGS
      -DINTELQS_HAS_MPI \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
 )
+
+
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=skylake-avx512 -O3")
+
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
@@ -50,15 +66,21 @@ endif()
 find_package(MPI REQUIRED)
 
 
+include_directories("${QUBIT_EXTENDED_INC}")
 include_directories("${QHIPSTER_INC}")
 
-include_directories("../../include")
+#ADD_LIBRARY(qubitExtended STATIC IMPORTED)
+#SET_TARGET_PROPERTIES(qubitExtended PROPERTIES IMPORTED_LOCATION "${QUBIT_EXTENDED_LIB}")
 
-add_executable(nqc_test test_nqubit_decompose.cpp ../../src/nqubit_decompose.cpp ../../include/nqubit_decompose.hpp)
+# Adds n qubit controlled U operator
+include_directories("../../include")
+add_executable(exe_hamming_distance hamming_distance.cpp ../../src/nqubit_decompose.cpp ../../include/nqubit_decompose.hpp)
 
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
-#target_link_libraries(cswap_test qhipster)
-target_link_libraries(nqc_test qhipster)
+#target_link_libraries(exe_hamming_distance qubitExtended qhipster)
+target_link_libraries(exe_hamming_distance qhipster)
+
+
 
