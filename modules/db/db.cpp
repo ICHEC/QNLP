@@ -1,48 +1,48 @@
 /**
- * @file read_tags.cpp
+ * @file db.cpp
  * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
- * @brief Reads the tagged corpus data for representation with quantum states
+ * @brief Loads the database corpus data for representation with quantum states
  * @version 0.1
  * @date 2019-03-11
  */
 
-#include "../include/read_tags.hpp"
+#include "db.hpp"
 
 using namespace QNLP;
 
-ReadTags::ReadTags() : DB(nullptr) {
-    std::cout << this->DB << std::endl;
-    SQL_RETURN_CHECK ( ReadTags::openDB(), SQLITE_OK );
+DB::DB() : db_ptr(nullptr) {
+    std::cout << this->db_ptr << std::endl;
+    SQL_RETURN_CHECK ( DB::openDB(), SQLITE_OK );
 }
 
-ReadTags::~ReadTags(){
-    ReadTags::closeDB();
+DB::~DB(){
+    DB::closeDB();
 }
 
-void ReadTags::closeDB(){
-    if(this->DB != nullptr ){
+void DB::closeDB(){
+    if(this->db_ptr != nullptr ){
         std::cout << "CLOSING " << QNLP_DB_FILE << std::endl;
-        SQL_RETURN_CHECK ( sqlite3_close(this->DB), SQLITE_OK );
+        SQL_RETURN_CHECK ( sqlite3_close(this->db_ptr), SQLITE_OK );
     }
 }
 
-int ReadTags::openDB(){
-    if(this->DB == nullptr){ 
+int DB::openDB(){
+    if(this->db_ptr == nullptr){ 
         std::cout << "OPENING " << QNLP_DB_FILE << std::endl;
-        return sqlite3_open( (const char *) QNLP_DB_FILE, &this->DB ); 
+        return sqlite3_open( (const char *) QNLP_DB_FILE, &this->db_ptr ); 
     } else {
         return 0;
     }
 }
 
-void ReadTags::loadData(std::string data_type){
+void DB::loadData(std::string data_type){
     int rc;
     sqlite3_stmt *select_stmt = NULL;
 
-    ReadTags::openDB();
+    DB::openDB();
     //std::string query = "SELECT name, bin_id FROM qnlp WHERE type=?";
     std::string query = "select name, bin_id from corpus where type=?";
-    SQL_RETURN_CHECK ( sqlite3_prepare_v2( this->DB, query.c_str(), -1, &select_stmt, NULL ), SQLITE_OK );
+    SQL_RETURN_CHECK ( sqlite3_prepare_v2( this->db_ptr, query.c_str(), -1, &select_stmt, NULL ), SQLITE_OK );
 
     //Arg 2 is the 1-based index of the variable to replace
     //Arg 4 is used to give the number of bytes, where -1 takes the length of string
@@ -59,23 +59,23 @@ void ReadTags::loadData(std::string data_type){
     SQL_RETURN_CHECK( sqlite3_finalize(select_stmt), SQLITE_OK );
 }
 
-ReadTags::NTB& ReadTags::getNameToBin(){
+DB::NTB& DB::getNameToBin(){
     return this->name_to_bin;
 }
 
-ReadTags::BTN& ReadTags::getBinToName(){
+DB::BTN& DB::getBinToName(){
     return this->bin_to_name;
 }
 
-void ReadTags::printData(std::string type){
+void DB::printData(std::string type){
     if(! this->name_to_bin.size()){
-        ReadTags::loadData(type);
+        DB::loadData(type);
     }
     for(auto& dat : this->name_to_bin[type]){
         std::cout << dat.first << " : " << dat.second << std::endl;
     }
 }
 
-sqlite3* ReadTags::getDBRef(){
-    return this->DB;
+sqlite3* DB::getDBRef(){
+    return this->db_ptr;
 }
