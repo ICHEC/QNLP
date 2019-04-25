@@ -14,10 +14,17 @@ declare -a PIP_PACKAGES
 declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
-GITHUB_REPOS=("catchorg/Catch2" "catchorg/Clara")
+GITHUB_REPOS=(  "catchorg/Catch2" 
+                "catchorg/Clara" 
+                "CLIUtils/CLI11"
+             )
 PIP_PACKAGES=()
-CONDA_PACKAGES=("nltk::anaconda" "jupyter" "numpy::intel" "scipy::intel" )
-CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all") #"import nltk; nltk.download('wordnet')")
+CONDA_PACKAGES=("nltk::anaconda" 
+                "jupyter" 
+                "numpy::intel" 
+                "scipy::intel" 
+               )
+CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
 
 ###############################################################################
 # Create all directories required by QNLP project
