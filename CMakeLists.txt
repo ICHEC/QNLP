@@ -54,12 +54,12 @@ add_definitions(
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI" 
-}
+)
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
 ################################################################################
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" )
+#find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" )
 
 if(CLANG_TIDY_EXE)
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
@@ -77,19 +77,20 @@ endif()
 find_package(MPI REQUIRED)
 
 ################################################################################
-add_executable(cswap_test test_control_swap.cpp)
 
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 
 ################################################################################
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 ################################################################################
-#target_link_libraries(cswap_test qhipster)
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-target_link_libraries(cswap_test qhipster bigmpi)
+add_subdirectory(modules)
 
-################################################################################
+add_library(mion STATIC qhipster QNLP_gate_ops_ncu)
+target_link_libraries(mion qhipster QNLP_gate_ops_ncu)
+
+
+
+#add_subdirectory(tests)
+
