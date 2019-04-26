@@ -21,8 +21,9 @@ GITHUB_REPOS=(  "catchorg/Catch2"
 PIP_PACKAGES=()
 CONDA_PACKAGES=("nltk::anaconda" 
                 "jupyter" 
-                "numpy::intel" 
-                "scipy::intel" 
+                "numpy" 
+                "scipy"
+                "tabulate"
                )
 CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
 
