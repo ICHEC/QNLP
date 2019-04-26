@@ -34,7 +34,7 @@ namespace QNLP{
     public:
 
         DBHelper();
-        DBHelper(const std::string filename);
+        DBHelper(const std::string filename) ;
         ~DBHelper();
 
         /**
@@ -60,6 +60,7 @@ namespace QNLP{
     private:
         //Pointer to database object
         sqlite3* db_ptr;
+        std::string db_filename;
     };
 }
 #endif

@@ -12,9 +12,9 @@ using namespace QNLP;
 
 DBHelper::DBHelper() : db_ptr(nullptr){};
 
-DBHelper::DBHelper(const std::string filename) : db_ptr(nullptr) {
+DBHelper::DBHelper(const std::string filename) : db_ptr(nullptr), db_filename(filename){
     std::cout << this->db_ptr << std::endl;
-    SQL_RETURN_CHECK ( DB::openDB(filename), SQLITE_OK );
+    SQL_RETURN_CHECK ( DBHelper::openDB(filename), SQLITE_OK );
 }
 
 DBHelper::~DBHelper(){
@@ -23,13 +23,14 @@ DBHelper::~DBHelper(){
 
 void DBHelper::closeDB(){
     if(this->db_ptr != nullptr ){
-        std::cout << "CLOSING " << QNLP_DB_FILE << std::endl;
+        std::cout << "CLOSING " << db_filename << std::endl;
         SQL_RETURN_CHECK ( sqlite3_close(this->db_ptr), SQLITE_OK );
     }
 }
 
 int DBHelper::openDB(std::string filename){
-    if(this->db_ptr == nullptr){ 
+    if(this->db_ptr == nullptr){
+        this->db_filename = filename;
         std::cout << "OPENING " << filename << std::endl;
         return sqlite3_open( (const char *) filename.c_str(), &this->db_ptr ); 
     } else {
