@@ -32,8 +32,7 @@ set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC})
 
 ################################################################################
 set(CMAKE_CXX_FLAGS 
-    "-DUSE_MM_MALLOC \
-     -lmkl_rt \
+     "-lmkl_rt \
      -lpthread \
      -ldl \
      -liomp5 \
@@ -44,13 +43,18 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -lmkl_blacs_intelmpi_ilp64 \
+     -lmkl_blacs_intelmpi_ilp64"
+)
+
+################################################################################
+add_definitions(
+    "-DUSE_MM_MALLOC \
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI" 
-)
+}
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
