@@ -54,7 +54,7 @@ add_definitions(
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI" 
-}
+)
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
