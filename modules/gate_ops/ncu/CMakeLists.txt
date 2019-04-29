@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #find_package(IntelQS REQUIRED)
-
-add_library(qnlpNCU STATIC ncu.hpp ncu.cpp)
+add_library(qnlpNCU STATIC ncu.hpp ncu.cpp ${QHIPSTER_INC})
+target_include_directories(qnlpNCU PUBLIC ${QHIPSTER_INC})

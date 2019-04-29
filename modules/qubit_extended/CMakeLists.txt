@@ -12,26 +12,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message(STATUS "CURRENT PATH  ${CMAKE_CURRENT_SOURCE_DIR}")
 
-set(QHIPSTER $ENV{QHIPSTER_DIR}) 
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
-
-set(BIGMPI_INC $ENV{BIGMPI_DIR_INC})
-set(BIGMPI_LIB $ENV{BIGMPI_DIR_LIB}/libbigmpi.a)
-
 set(CMAKE_CXX_FLAGS 
     "-DUSE_MM_MALLOC \
      -lmkl_rt \
      -lpthread \
      -ldl \
-     $ENV{MKLROOT}/lib/intel64/libmkl_scalapack_ilp64.a \
-     -Wl,--start-group \
-     $ENV{MKLROOT}/lib/intel64/libmkl_cdft_core.a \
-     $ENV{MKLROOT}/lib/intel64/libmkl_intel_ilp64.a \
-     $ENV{MKLROOT}/lib/intel64/libmkl_intel_thread.a \
-     $ENV{MKLROOT}/lib/intel64/libmkl_core.a \
-     $ENV{MKLROOT}/lib/intel64/libmkl_blacs_intelmpi_ilp64.a \
-     -Wl,--end-group \
      -liomp5 \
      -lm \
      -qopenmp \
@@ -45,7 +30,6 @@ set(CMAKE_CXX_FLAGS
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DBIGMPI \
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI \
      -DNOREPA_HAS_MPI"   # Not required for anything outside of Intel-QS/tests
@@ -64,7 +48,6 @@ endif()
 find_package(MPI REQUIRED)
 
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 #include_directories("/ichec/home/staff/mdoyle/intel-qnlp/Qubit_Extended/include")
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")

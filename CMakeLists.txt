@@ -26,18 +26,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
+
+set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE) 
+set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE) 
+set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
+
+################################################################################
 # Include the directories with sources
 add_subdirectory(modules)
+add_subdirectory(third_party)
 
 ################################################################################
 # Include third_party depedencies
 add_library(${PROJECT_NAME} INTERFACE)
-
-################################################################################
-
-set(QHIPSTER $ENV{QHIPSTER_DIR}) 
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
 
 ################################################################################
 set(CMAKE_CXX_FLAGS 
@@ -82,10 +83,9 @@ endif()
 find_package(MPI REQUIRED)
 
 ################################################################################
-add_executable(cswap_test test_control_swap.cpp)
+add_executable(cswap_test ./tests/test_control_swap.cpp)
 
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 
 ################################################################################
 ADD_LIBRARY(qhipster STATIC IMPORTED)
@@ -93,8 +93,6 @@ SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 ################################################################################
 #target_link_libraries(cswap_test qhipster)
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
 target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11)
 
 ################################################################################
