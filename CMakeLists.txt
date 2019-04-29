@@ -22,10 +22,19 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
-#Include cmake directory for use of custom Find<packagename> commands
+# Include cmake directory for use of custom Find<packagename> commands
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
+# Include the directories with sources
+add_subdirectory(modules)
+
+################################################################################
+# Include third_party depedencies
+add_library(${PROJECT_NAME} INTERFACE)
+
+################################################################################
+
 set(QHIPSTER $ENV{QHIPSTER_DIR}) 
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
@@ -86,6 +95,6 @@ SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 #target_link_libraries(cswap_test qhipster)
 ADD_LIBRARY(bigmpi STATIC IMPORTED)
 SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-target_link_libraries(cswap_test qhipster bigmpi)
+target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11)
 
 ################################################################################
