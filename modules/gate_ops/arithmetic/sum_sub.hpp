@@ -11,7 +11,7 @@
 #include "qureg/qureg.hpp"
 
 namespace QNLP{
-    class Ops{
+    class SumSub{
         public:
         /**
          * @brief Implements |r1>|r2> -> |r1>|r1+r2>. Required bits to represent |r1+r2> should be available prior to calling, or overflow will occur.

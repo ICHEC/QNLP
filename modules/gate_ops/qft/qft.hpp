@@ -11,7 +11,7 @@
 #include "qureg/qureg.hpp"
 
 namespace QNLP{
-    class Ops{
+    class QFT{
         public:
             /**
              * @brief Applies the forward QFT on the given register

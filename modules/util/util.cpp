@@ -9,8 +9,8 @@
  * 
  */
 
-#include "../include/utils/util.hpp"
-#include "../include/nqubit_decompose.hpp"
+#include "util.hpp"
+#include "ncu.hpp"
 #include "qureg/qureg.hpp"
 #include <cmath>
 
