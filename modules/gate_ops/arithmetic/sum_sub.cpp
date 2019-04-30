@@ -1,4 +1,4 @@
-#include "../include/qft.hpp"
+#include "qft.hpp"
 #include "qureg/qureg.hpp"
 #include <cmath>
 
@@ -39,3 +39,4 @@ void Ops::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned 
         qReg.ApplyPauliX(i);
     }
 }
+

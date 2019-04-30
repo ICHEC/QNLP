@@ -1,4 +1,4 @@
-#include "../include/qft.hpp"
+#include "qft.hpp"
 #include "qureg/qureg.hpp"
 #include <cmath>
 
