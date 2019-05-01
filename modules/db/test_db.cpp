@@ -154,7 +154,7 @@ TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
  * @brief Testing parameterised constructor and subsequent functions on CorpusUtils class
  * 
  */
-TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
+TEST_CASE("CorpusUtils unit tests: Paramaterised constructor: CorpusUtils(test_db.sql)","[db]"){
     CorpusUtils cu("test_db.sql");
     
     REQUIRE(cu.getBinToName().size() == 0);
