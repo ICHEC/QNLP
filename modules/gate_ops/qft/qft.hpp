@@ -20,7 +20,7 @@ namespace QNLP{
              * @param minIdx the lower-bounded index in the register to transform
              * @param maxIdx the upper-bounded index in the register to transform
              */
-            static void applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx);
+            static void applyQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx);
             /**
              * @brief Applies the inverse QFT on the given register
              * 
@@ -28,7 +28,7 @@ namespace QNLP{
              * @param minIdx the lower-bounded index in the register to transform
              * @param maxIdx the upper-bounded index in the register to transform
              */
-            static void applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx);
+            static void applyIQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx);
 
             /**
              * @brief Apply the phase gate, shifting the |1> qubit phase by the given angle.
@@ -37,7 +37,7 @@ namespace QNLP{
              * @param control index of the control qubit
              * @param target index of the target qubit
              */
-            static void ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, double angle, unsigned int control, unsigned int target);
+            static void ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, const double angle, const unsigned int control, const unsigned int target);
     };
 
 }

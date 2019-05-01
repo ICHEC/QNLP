@@ -16,7 +16,7 @@ CorpusUtils::CorpusUtils() :
     db_helper(QNLP_DB_FILE), database_filename(QNLP_DB_FILE) {}
 
 //Otherwise, take the given string name
-CorpusUtils::CorpusUtils(std::string filename) : 
+CorpusUtils::CorpusUtils(const std::string filename) : 
     db_helper(filename), database_filename(filename) {}
 
 CorpusUtils::~CorpusUtils() {
@@ -32,7 +32,7 @@ CorpusUtils::BTN& CorpusUtils::getBinToName(){
     return this->bin_to_name;
 }
 
-void CorpusUtils::loadData(std::string data_type, std::string table="corpus"){
+void CorpusUtils::loadData(const std::string data_type, const std::string table="corpus"){
     int rc;
     sqlite3_stmt *select_stmt = NULL;
     db_helper.openDB(database_filename);
@@ -55,7 +55,7 @@ void CorpusUtils::loadData(std::string data_type, std::string table="corpus"){
     SQL_RETURN_CHECK( sqlite3_finalize(select_stmt), SQLITE_OK );
 }
 
-void CorpusUtils::printData(std::string type, std::string table="corpus"){
+void CorpusUtils::printData(const std::string type, const std::string table="corpus"){
     if(! this->name_to_bin.size()){
         loadData(type, table);
     }

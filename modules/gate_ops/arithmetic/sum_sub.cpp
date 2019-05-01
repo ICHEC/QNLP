@@ -5,7 +5,7 @@
 
 using namespace QNLP;
 
-void SumSub::sum_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned int r1_max, unsigned int r2_min, unsigned int r2_max){
+void SumSub::sum_reg(QubitRegister<ComplexDP>& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
     std::size_t num_qubits_r1 = r1_max - r1_min;
     std::size_t num_qubits_r2 = r2_max - r2_min;
 
@@ -20,7 +20,7 @@ void SumSub::sum_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsign
     QFT::applyIQFT(qReg, r2_min, r2_max);
 }
 
-void SumSub::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned int r1_max, unsigned int r2_min, unsigned int r2_max){
+void SumSub::sub_reg(QubitRegister<ComplexDP>& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
     std::size_t num_qubits_r1 = r1_max - r1_min;
     std::size_t num_qubits_r2 = r2_max - r2_min;
 

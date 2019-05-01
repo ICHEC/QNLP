@@ -29,7 +29,7 @@ namespace QNLP{
          * 
          * @param filename Database filename
          */
-        CorpusUtils(std::string filename);
+        CorpusUtils(const std::string filename);
         ~CorpusUtils();
 
         typedef std::unordered_map<std::string, std::unordered_map<std::string, unsigned int> > NTB;
@@ -54,7 +54,7 @@ namespace QNLP{
          * @param data_type String of the data type to load
          * @param table Database table to load data from
          */
-        void loadData(std::string data_type, std::string table);
+        void loadData(const std::string data_type, const std::string table);
 
         /**
          * @brief Return reference to database object 
@@ -69,7 +69,7 @@ namespace QNLP{
          * @param type Grammatical type
          * @param table Database table to print data from
          */
-        void printData(std::string type, std::string table);
+        void printData(const std::string type, const std::string table);
 
         /**
          * @brief Get the database filename object
