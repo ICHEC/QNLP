@@ -9,11 +9,12 @@
  * 
  */
 
+#define CATCH_CONFIG_MAIN
+
 #include "db_helper.hpp"
 #include "corpus_utils.hpp"
-#include "Catch2/single_include/catch2/catch.hpp"
+#include "catch2/catch.hpp"
 
-#define CATCH_CONFIG_MAIN
 using namespace QNLP;
 
 /**
@@ -197,3 +198,4 @@ TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
         REQUIRE(vn_size[1] != v_size[1]);
     }
 }
+

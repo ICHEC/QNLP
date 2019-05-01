@@ -2,12 +2,12 @@
 cmake_minimum_required (VERSION 3.10)
 set(QNLP_LOGO "
 
-                  ▄▄▄▄    █   ▄▄   ▄ ▄      ▄▄▄▄▄   █
-                 ▄▀  ▀▄   █   █▀▄  █ █      █   ▀█   █
-                 █    █   █   █ █▄ █ █      █▄▄▄█▀    █
-                 █    █   █   █  █ █ █      █         █
-                  █▄▄█▀   █   █   ██ █▄▄▄▄▄ █        █
-                     █    █                         █
+              ▄▄▄▄    █   ▄▄   ▄ ▄      ▄▄▄▄▄   █
+             ▄▀  ▀▄   █   █▀▄  █ █      █   ▀█   █
+             █    █   █   █ █▄ █ █      █▄▄▄█▀    █
+             █    █   █   █  █ █ █      █         █
+              █▄▄█▀   █   █   ██ █▄▄▄▄▄ █        █
+                 █    █                         █
 
 ")
 message(${QNLP_LOGO})
@@ -35,8 +35,9 @@ set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
 # Include the directories with sources
-add_subdirectory(modules)
 add_subdirectory(third_party)
+message("BASE: ${CMAKE_MODULE_PATH}")
+add_subdirectory(modules)
 
 ################################################################################
 # Include third_party depedencies
@@ -95,6 +96,6 @@ SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 ################################################################################
 #target_link_libraries(cswap_test qhipster)
-target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11)
+target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11 qnlp_db qnlp_ncu qnlp_qft qnlp_arithmetic)
 
 ################################################################################
