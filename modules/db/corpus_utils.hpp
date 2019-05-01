@@ -54,8 +54,7 @@ namespace QNLP{
          * @param data_type String of the data type to load
          * @param table Database table to load data from
          */
-        void loadData(const std::string data_type, const std::string table);
-
+        void loadData(const std::string data_type, const std::string table="corpus");
         /**
          * @brief Return reference to database object 
          * 

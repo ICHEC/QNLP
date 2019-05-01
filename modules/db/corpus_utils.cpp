@@ -32,7 +32,7 @@ CorpusUtils::BTN& CorpusUtils::getBinToName(){
     return this->bin_to_name;
 }
 
-void CorpusUtils::loadData(const std::string data_type, const std::string table="corpus"){
+void CorpusUtils::loadData(const std::string data_type, const std::string table){
     int rc;
     sqlite3_stmt *select_stmt = NULL;
     db_helper.openDB(database_filename);
