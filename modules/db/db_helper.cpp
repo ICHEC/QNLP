@@ -26,6 +26,8 @@ void DBHelper::closeDB(){
         std::cout << "CLOSING " << db_filename << std::endl;
         SQL_RETURN_CHECK ( sqlite3_close(this->db_ptr), SQLITE_OK );
     }
+    db_filename.clear();
+    db_ptr == nullptr;
 }
 
 int DBHelper::openDB(std::string filename){
@@ -40,4 +42,8 @@ int DBHelper::openDB(std::string filename){
 
 sqlite3* DBHelper::getDBRef(){
     return this->db_ptr;
+}
+
+std::string DBHelper::getFilename(){
+    return this->db_filename;
 }

@@ -57,6 +57,13 @@ namespace QNLP{
          */
         sqlite3* getDBRef();
 
+        /**
+         * @brief Get the name of the opened database
+         * 
+         * @return std::string 
+         */
+        std::string getFilename();
+
     private:
         //Pointer to database object
         sqlite3* db_ptr;
