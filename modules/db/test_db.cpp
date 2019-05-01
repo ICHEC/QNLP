@@ -26,11 +26,11 @@ TEST_CASE("DBHelper unit tests: Default constructor: DBHelper()","[db]"){
     REQUIRE(db.getFilename() == "qnlp_tagged_corpus.sqlite");
     REQUIRE(db.getDBRef() == nullptr);
 
-    SECTION("openDB(const std::string filename) with 'test.db'"){
-        int ret_code = db.openDB("test.db");
+    SECTION("openDB(const std::string filename) with 'test_db.sql'"){
+        int ret_code = db.openDB("test_db.sql");
         REQUIRE(ret_code == 0);
         REQUIRE(db.getDBRef() != nullptr);
-        REQUIRE(db.getFilename().compare("test.db") == 0);
+        REQUIRE(db.getFilename().compare("test_db.sql") == 0);
 
         SECTION("closeDB()"){
             db.closeDB();
@@ -58,16 +58,16 @@ TEST_CASE("DBHelper unit tests: Default constructor: DBHelper()","[db]"){
  * 
  */
 TEST_CASE("Parameterised constructor: DBHelper(const std::string filename) with 'test.db'","[db]"){
-    DBHelper db("test.db");
+    DBHelper db("test_db.sql");
 
-    REQUIRE(db.getFilename() == "test.db");
+    REQUIRE(db.getFilename() == "test_db.sql");
     REQUIRE(db.getDBRef() != nullptr);
 
-    SECTION("openDB(const std::string filename) with 'test.db'"){
-        int ret_code = db.openDB("test.db");
+    SECTION("openDB(const std::string filename) with 'test_db.sql'"){
+        int ret_code = db.openDB("test_db.sql");
         REQUIRE(ret_code == 0);
         REQUIRE(db.getDBRef() != nullptr);
-        REQUIRE(db.getFilename().compare("test.db") == 0);
+        REQUIRE(db.getFilename().compare("test_db.sql") == 0);
     }
     SECTION("closeDB()"){
         db.closeDB();
@@ -106,6 +106,55 @@ TEST_CASE("Parameterised constructor: DBHelper(const std::string filename) with 
  */
 TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
     CorpusUtils cu;
+    
+    REQUIRE(cu.getBinToName().size() == 0);
+    REQUIRE(cu.getNameToBin().size() == 0);
+    REQUIRE(cu.get_database_filename().compare("qnlp_tagged_corpus.sqlite") == 0);
+    REQUIRE(cu.getDBHelper().getFilename().compare("qnlp_tagged_corpus.sqlite") == 0);
+    REQUIRE(cu.getDBHelper().getDBRef() == nullptr);
+
+    SECTION("Load data: data_type=noun, table is default ('corpus')"){
+        cu.loadData("noun");
+        std::size_t n_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(n_size[0] != 0);
+        REQUIRE(n_size[1] != 0);
+    }
+    SECTION("Load data: data_type=verb, table is default ('corpus')"){
+        cu.loadData("verb");
+        std::size_t v_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(v_size[0] != 0);
+        REQUIRE(v_size[1] != 0);
+    }
+    SECTION("Load data: data_type=noun and verb, table is default ('corpus')"){
+        cu.loadData("verb");
+        std::size_t v_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(v_size[0] != 0);
+        REQUIRE(v_size[1] != 0);
+
+        cu.loadData("noun");
+        std::size_t vn_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(vn_size[0] != v_size[0]);
+        REQUIRE(vn_size[1] != v_size[1]);
+    }
+    SECTION("Load data: data_type=noun and verb, table='basis'"){
+        cu.loadData("verb", "basis");
+        std::size_t v_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(v_size[0] != 0);
+        REQUIRE(v_size[1] != 0);
+                
+        cu.loadData("noun", "basis");
+        std::size_t vn_size[2] = {cu.getBinToName().size(), cu.getNameToBin().size()};
+        REQUIRE(vn_size[0] != v_size[0]);
+        REQUIRE(vn_size[1] != v_size[1]);
+    }
+}
+
+/**
+ * @brief Testing parameterised constructor and subsequent functions on CorpusUtils class
+ * 
+ */
+TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
+    CorpusUtils cu("test_db.sql");
     
     REQUIRE(cu.getBinToName().size() == 0);
     REQUIRE(cu.getNameToBin().size() == 0);
