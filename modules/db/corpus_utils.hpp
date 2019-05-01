@@ -77,6 +77,12 @@ namespace QNLP{
          */
         const std::string get_database_filename();
 
+        /**
+         * @brief Clear all loaded data
+         * 
+         */
+        void clearData();
+
     private:
         //Maps for strings to binary pattern and reverse maps. Outer map keys are grammatical
         //types (nouns, verbs, etc.). Returned maps then hold unique entries. 

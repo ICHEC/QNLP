@@ -20,8 +20,7 @@ CorpusUtils::CorpusUtils(const std::string filename) :
     db_helper(filename), database_filename(filename) {}
 
 CorpusUtils::~CorpusUtils() {
-    name_to_bin.clear();
-    bin_to_name.clear();
+    CorpusUtils::clearData();
 }
 
 CorpusUtils::NTB& CorpusUtils::getNameToBin(){
@@ -66,4 +65,9 @@ void CorpusUtils::printData(const std::string type, const std::string table="cor
 
 const std::string CorpusUtils::get_database_filename(){
     return this->database_filename;
+}
+
+void CorpusUtils::clearData(){
+    this->bin_to_name.clear();
+    this->name_to_bin.clear();
 }
