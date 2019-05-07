@@ -21,10 +21,12 @@ inline void sql_return_check(   const int ret_code,
                                 const int expected_code, 
                                 const char* fileName, 
                                 const std::size_t lineNum){
+#ifdef SQL_ERR_CHECK
     if ( ret_code != expected_code ) { 
         std::cerr << "SQL error: FILE: " << fileName << "\t LINE: " << lineNum << "\t RETURN_CODE: " << ret_code << std::endl; 
         std::exit(ret_code); 
     }
+#endif
 }
 
 //#############################################################################

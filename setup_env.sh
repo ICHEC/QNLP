@@ -199,6 +199,7 @@ cat > ${QNLP_ROOT}/load_env.sh << EOL
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
 PATH="${QNLP_ROOT}/install":"$PATH"
 NLTK_DATA="${NLTK_DATA}"
+QNLP_ROOT="${QNLP_ROOT}"
 conda activate intel-qnlp 
 
 EOL

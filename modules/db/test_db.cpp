@@ -11,6 +11,10 @@
 
 #define CATCH_CONFIG_MAIN
 
+//For DB file access paths
+#include <fstream>
+#include <cstdlib>
+
 #include "db_helper.hpp"
 #include "corpus_utils.hpp"
 #include "catch2/catch.hpp"
@@ -24,14 +28,15 @@ using namespace QNLP;
 TEST_CASE("DBHelper unit tests: Default constructor: DBHelper()","[db]"){
     DBHelper db;
 
-    REQUIRE(db.getFilename() == "qnlp_tagged_corpus.sqlite");
+    //REQUIRE(db.getFilename() == "qnlp_tagged_corpus.sqlite");
+    REQUIRE(db.getFilename() == "");
     REQUIRE(db.getDBRef() == nullptr);
 
-    SECTION("openDB(const std::string filename) with 'test_db.sql'"){
-        int ret_code = db.openDB("test_db.sql");
+    SECTION("openDB(const std::string filename) with 'test_db.db'"){
+        int ret_code = db.openDB("test_db.db");
         REQUIRE(ret_code == 0);
         REQUIRE(db.getDBRef() != nullptr);
-        REQUIRE(db.getFilename().compare("test_db.sql") == 0);
+        REQUIRE(db.getFilename().compare("test_db.db") == 0);
 
         SECTION("closeDB()"){
             db.closeDB();
@@ -40,10 +45,9 @@ TEST_CASE("DBHelper unit tests: Default constructor: DBHelper()","[db]"){
         }
     }
     SECTION("openDB(const std::string filename) with 'none.db'"){
-        int ret_code = db.openDB("none.db");
-        REQUIRE(ret_code != 0);
+        REQUIRE(db.openDB("none.db") != 0);
         REQUIRE(db.getDBRef() == nullptr);
-        REQUIRE(db.getFilename().compare("none.db") == 0);
+        REQUIRE(db.getFilename().compare("") == 0);
 
         SECTION("closeDB()"){
             db.closeDB();
@@ -59,16 +63,15 @@ TEST_CASE("DBHelper unit tests: Default constructor: DBHelper()","[db]"){
  * 
  */
 TEST_CASE("Parameterised constructor: DBHelper(const std::string filename) with 'test.db'","[db]"){
-    DBHelper db("test_db.sql");
+    DBHelper db("test_db.db");
 
-    REQUIRE(db.getFilename() == "test_db.sql");
+    REQUIRE(db.getFilename() == "test_db.db");
     REQUIRE(db.getDBRef() != nullptr);
 
-    SECTION("openDB(const std::string filename) with 'test_db.sql'"){
-        int ret_code = db.openDB("test_db.sql");
-        REQUIRE(ret_code == 0);
+    SECTION("openDB(const std::string filename) with 'test_db.db'"){
+        REQUIRE(db.openDB("test_db.db") == 0);
         REQUIRE(db.getDBRef() != nullptr);
-        REQUIRE(db.getFilename().compare("test_db.sql") == 0);
+        REQUIRE(db.getFilename().compare("test_db.db") == 0);
     }
     SECTION("closeDB()"){
         db.closeDB();
@@ -85,14 +88,13 @@ TEST_CASE("Parameterised constructor: DBHelper(const std::string filename) with 
 TEST_CASE("Parameterised constructor: DBHelper(const std::string filename) with 'none.db'","[db]"){
     DBHelper db("none.db");
 
-    REQUIRE(db.getFilename() == "none.db");
+    REQUIRE(db.getFilename() == "");
     REQUIRE(db.getDBRef() == nullptr);
 
     SECTION("openDB(const std::string filename) with 'none.db'"){
-        int ret_code = db.openDB("none.db");
-        REQUIRE(ret_code != 0);
+        REQUIRE(db.openDB("none.db") != 0 );
         REQUIRE(db.getDBRef() == nullptr);
-        REQUIRE(db.getFilename().compare("test.db") == 0);
+        REQUIRE(db.getFilename().compare("") == 0);
     }
     SECTION("closeDB()"){
         db.closeDB();
@@ -112,7 +114,7 @@ TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
     REQUIRE(cu.getNameToBin().size() == 0);
     REQUIRE(cu.get_database_filename().compare("qnlp_tagged_corpus.sqlite") == 0);
     REQUIRE(cu.getDBHelper().getFilename().compare("qnlp_tagged_corpus.sqlite") == 0);
-    REQUIRE(cu.getDBHelper().getDBRef() == nullptr);
+    REQUIRE(cu.getDBHelper().getDBRef() != nullptr);
 
     SECTION("Load data: data_type=noun, table is default ('corpus')"){
         cu.loadData("noun");
@@ -154,14 +156,15 @@ TEST_CASE("CorpusUtils unit tests: Default constructor: CorpusUtils()","[db]"){
  * @brief Testing parameterised constructor and subsequent functions on CorpusUtils class
  * 
  */
-TEST_CASE("CorpusUtils unit tests: Paramaterised constructor: CorpusUtils(test_db.sql)","[db]"){
-    CorpusUtils cu("test_db.sql");
+TEST_CASE("CorpusUtils unit tests: Paramaterised constructor: CorpusUtils(test_db.db)","[db]"){
+    CorpusUtils cu("test_db.db");
     
     REQUIRE(cu.getBinToName().size() == 0);
     REQUIRE(cu.getNameToBin().size() == 0);
-    REQUIRE(cu.get_database_filename().compare("qnlp_tagged_corpus.sqlite") == 0);
-    REQUIRE(cu.getDBHelper().getFilename().compare("qnlp_tagged_corpus.sqlite") == 0);
-    REQUIRE(cu.getDBHelper().getDBRef() == nullptr);
+    REQUIRE(cu.get_database_filename() == cu.getDBHelper().getFilename());
+    REQUIRE(cu.get_database_filename().compare("test_db.db") == 0);
+    REQUIRE(cu.getDBHelper().getFilename().compare("test_db.db") == 0);
+    REQUIRE(cu.getDBHelper().getDBRef() != nullptr);
 
     SECTION("Load data: data_type=noun, table is default ('corpus')"){
         cu.loadData("noun");
