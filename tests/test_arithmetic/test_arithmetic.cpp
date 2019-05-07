@@ -1,5 +1,5 @@
 #include "utils/util.hpp"
-#include "nqubit_decompose.hpp"
+#include "ncu.hpp"
 
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
@@ -148,7 +148,7 @@ void test_sub_amplitude_inversion(){
     };
 
     //Create state : |00>(|00>|0> + |01>Ry(pi/6)(|0>) + |10>Ry(pi/3)(|0>) + |11>Ry(pi/2)(|0>))
-    NQubitDecompose<ComplexDP> nCtrlRY(RY(M_PI/8), r1_size);
+    NCU<ComplexDP> nCtrlRY(RY(M_PI/8), r1_size);
     nCtrlRY.applyNQubitControl(psi1, r2_min, r2_max, r3_min, RY(M_PI/8), 0, false);
     nCtrlRY.applyNQubitControl(psi1, r2_min, r2_max, r3_min, RY(M_PI/8), 0, false);
     nCtrlRY.applyNQubitControl(psi1, r2_min, r2_max, r3_min, RY(M_PI/8), 0, false);

@@ -1,4 +1,4 @@
-#include "nqubit_decompose.hpp"
+#include "ncu.hpp"
 
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
@@ -33,7 +33,7 @@ void test_decompose(std::size_t num_qubits, openqu::TinyMatrix<Type, 2, 2, 32> U
                 psi1.ApplyPauliX(ctrl_qubit);
             }
         }
-        NQubitDecompose<ComplexDP> nqd(U, num_qubits-1);
+        NCU<ComplexDP> nqd(U, num_qubits-1);
         nqd.applyNQubitControl(psi1, c_start, c_end, target, U, 0, isX);
         std::cout << "Test " << cc << "\t\tPattern=" << std::bitset<8>(cc);
         std::cout << "\t\tP(0)=" << 1. - psi1.GetProbability( target );

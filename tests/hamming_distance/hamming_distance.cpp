@@ -14,7 +14,7 @@
 #include "QubitCircuit.hpp"
 #include <bitset>
 
-#include "nqubit_decompose.hpp"
+#include "ncu.hpp"
 using namespace QNLP;
 
 double EPSILON = 1e-6;
@@ -30,12 +30,12 @@ class progressBar{
         progressBar(unsigned num_exps_) : num_exps(num_exps_){
             step = (double) num_exps / 100.0;
             next_partition = step;
-            cout << "|";
+            cout << "|" <<  flush;
         }
 
         void iterate(){
             if(count == next_partition){
-                cout << "-";
+                cout << "-" << flush;
                 next_partition += step;
                 if(next_partition >= num_exps){
                     cout << "|" << endl;
@@ -135,7 +135,7 @@ void print_bits(unsigned int val, int len){
  * @param X - The unitary matrix U of the nCU operation (in this case Pauli-X matrix)
  */
 template < class Type >
-void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& circ, myRegisters& qRegCirc, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NQubitDecompose<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
+void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& circ, myRegisters& qRegCirc, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
 
     // Encode
     int m,n;
@@ -324,10 +324,9 @@ int main(int argc, char **argv){
     // Holds indices of qubits in each register in Circuit
     myRegisters qRegCirc(m,n);
 
-    vector<double> count(m);
-    vector<double> prob_dist(m);
+    vector<vector<double>> count(2, vector<double> (m));
+    vector<vector<double>> prob_dist(2, vector<double> (m));
 
-    double average = 0;
 
     std::random_device rd;
     std::mt19937 mt(rd());
@@ -365,7 +364,7 @@ int main(int argc, char **argv){
     X(0,1) = {1., 0.};
     X(1,0) = {1., 0.};
     X(1,1) = {0.,  0.};
-    NQubitDecompose<ComplexDP> op_nCDecomp(X, n);
+    NCU<ComplexDP> op_nCDecomp(X, n);
 
 
     // Preparation for Hamming distance computation:
@@ -405,87 +404,92 @@ int main(int argc, char **argv){
 
     progressBar progress(num_exps);
 
-    double dart, partition;
-    unsigned partition_id;
+    double dart;
+    bool ancilla_is_set;
 
     unsigned count_ancilla_is_one = 0;
 
-    int exp = 0;
-    while(exp < num_exps){
+    for(int exp = 0; exp < num_exps; exp++){
+    
         // Re-init
-        average = 0.0;
-        for(vector<double>::iterator it = prob_dist.begin(); it != prob_dist.end(); it++){
-            *it = 1.0;
-        }
         circ.Initialize("base",0);
 
         // Encode input binary patterns into superposition in registers for x.
         encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
-
 
         // Hamming Diatance:
         //             - Compute the Hamming distance between the input pattern and each training pattern.
         //             - Results are stored in the coefficient of each state of the input pattern
         compute_HammingDistance<ComplexDP>(test_pattern, circ, qRegCirc, U);
 
+        // Collapse ancilla register to 0 or 1 randomly
+        ancilla_is_set = (dist(mt) < circ.GetProbability(qRegCirc.get_cReg(0)));
+        circ.CollapseQubit(qRegCirc.get_cReg(0),ancilla_is_set);
+        circ.Normalize();
 
-        // If ancilla collapses to state |1> we discard this experiment
-        // keeping track of the number of times this happens.
-        if (dist(mt) < circ.GetProbability(qRegCirc.get_cReg(0))){
-            count_ancilla_is_one++;
-        }
-        else{
-            circ.CollapseQubit(qRegCirc.get_cReg(0),0);
+        // Collapse qubits to state randomly selectd in class register
+        for(int j = 0; j < n; j++){
+            dart = dist(mt);
+            circ.CollapseQubit(qRegCirc.get_mReg(j),(dart < circ.GetProbability(qRegCirc.get_mReg(j))));
             circ.Normalize();
-            
-
-            // Collapse qubits to state randomly selectd in class register
-            for(int j = 0; j < n; j++){
-                dart = dist(mt);
-                circ.CollapseQubit(qRegCirc.get_mReg(j),(dart < circ.GetProbability(qRegCirc.get_mReg(j))));
-                circ.Normalize();
-            }
-
-            // Store current state of training register in it's integer format
-            int val = 0;
-            for(int j = n-1; j > -1; j--){
-                val |= ((unsigned int)circ.GetProbability(qRegCirc.get_mReg(j)) << j);
-            }
-
-            // Increase the count of the training pattern measured
-            bool flag = false;
-            for(int i = 0; i < m; i++){
-                if(pattern[i] == val){
-                    count[i]++;
-                    flag = true;
-                }
-            }
-            if(!flag){
-                print_bits(val,n);
-                cout << endl;
-
-            }
-
-            exp++;
-            progress.iterate();
         }
+
+        // Store current state of training register in it's integer format
+        int val = 0;
+        for(int j = n-1; j > -1; j--){
+            val |= ((unsigned int)circ.GetProbability(qRegCirc.get_mReg(j)) << j);
+        }
+
+        // Increase the count of the training pattern measured
+        for(int i = 0; i < m; i++){
+            if(pattern[i] == val){
+                count[ancilla_is_set][i]++;
+            }
+        }
+
+        // If ancilla collapses to state |1> we
+        // keep track of the number of times this happens.
+        count_ancilla_is_one += ancilla_is_set;
+
+        progress.iterate();
     }
 
     if(rank == 0){
         double dist;
-        double prob, prob_sum, prob_cos_term;
-        prob_sum = 0.0;
+        double prob, prob_sum, prob_cos_term, prob_ancilla_isZero;
 
-        cout << " \tPattern\t\t\tfreq\tprob" << endl;
+        prob_sum = 0.0;
+        prob_ancilla_isZero = 1.0 - (double)( count_ancilla_is_one) / (double) num_exps;
+
+
+
+        cout << " \tPattern\t\t\tfreq\tprob\tdist" << endl;
+        cout << "Cosine (Ancilla = 0)" << endl;
         for(int i = 0; i < m; i++){
 
-            prob = count[i]/(double) num_exps;
+            //prob = count[0][i]/(double) (num_exps - count_ancilla_is_one);
+            prob = count[0][i]/(double) (num_exps);
+            prob_sum += prob;
+
+            dist = 2*n*M_1_PI*acos(m*prob*prob_ancilla_isZero);
+
+            cout << i << " \t|";
+            print_bits(pattern[i], n);
+            cout << ">\t\t" << count[0][i] << "\t" << prob * 100.0 << "%\t" << dist << endl;
+        }
+        cout << "Sine (Ancilla = 1)" << endl;
+        for(int i = 0; i < m; i++){
+
+            //prob = count[1][i]/(double) count_ancilla_is_one;
+            prob = count[1][i]/(double)num_exps;
             prob_sum += prob;
 
             cout << i << " \t|";
             print_bits(pattern[i], n);
-            cout << ">\t\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%" << endl;
+            cout << ">\t\t" << count[1][i] << "\t" << prob * 100.0 << "%" << endl;
         }
+
+
         cout << "Sum of probs =\t" << prob_sum << endl;
         cout << "NumTimes ancilla was one (ie sine term was measured): \t" << count_ancilla_is_one << endl << endl;
 
@@ -494,7 +498,7 @@ int main(int argc, char **argv){
         cout << "Number of required qubits: " << total_qubits << endl << endl;
 
 
-        unsigned chosen_pattern_id = std::distance(count.begin(), std::max_element(count.begin(), count.end()));
+        unsigned chosen_pattern_id = std::distance(count[0].begin(), std::max_element(count[0].begin(), count[0].end()));
 ;
         cout << "TestPattern = " << "|";
         print_bits(test_pattern[0], n);
@@ -511,32 +515,3 @@ int main(int argc, char **argv){
     return 0;
 
 }
-
-
-/*
-    if(rank == 0){
-        cout << "------ Training ------" << endl;
-        for(int i = 0; i < m; i++){
-            print_bits(pattern[i],n);
-            cout << "\tClass: " << pattern_class[i] << " - ";  
-            print_bits(pattern_class[i], numQubits_class);
-            cout << endl;
-        }
-
-        double dist;
-        double prob, prob_sum, prob_cos_term;
-        prob_sum = 0.0;
-        cout << " \tclass\t\tfreq\tprob" << endl;
-        prob_cos_term = (double)num_exps/(double)(num_exps + count_ancilla_is_one);
-        for(int i = 0; i < num_classes; i++){
-
-            prob = count[i]/(double) num_exps;
-            prob_sum += prob;
-
-            cout << i << " \t|";
-            print_bits(pattern_class[i], numQubits_class);
-            cout << ">\t\t" << count[i] << "\t" << count[i]/(double)num_exps * 100.0 << "%" << endl;
-        }
-        cout << "Sum of probs =\t" << prob_sum << endl;
-
-*/

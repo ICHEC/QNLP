@@ -3,7 +3,11 @@
 ###############################################################################
 # Define env variables for paths
 ###############################################################################
-QNLP_ROOT=$1
+if [ "$#" -eq 1 ]; then
+    QNLP_ROOT=$1
+else 
+    QNLP_ROOT=$PWD
+fi
 NLTK_DATA=${QNLP_ROOT}/third_party/install/nltk_data
 
 ###############################################################################
@@ -196,6 +200,7 @@ cat > ${QNLP_ROOT}/load_env.sh << EOL
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
 PATH="${QNLP_ROOT}/install":"$PATH"
 NLTK_DATA="${NLTK_DATA}"
+QNLP_ROOT="${QNLP_ROOT}"
 conda activate intel-qnlp 
 
 EOL
