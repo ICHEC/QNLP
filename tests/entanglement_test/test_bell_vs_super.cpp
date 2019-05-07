@@ -1,8 +1,6 @@
-#include "utils/util.hpp"
-#include "nqubit_decompose.hpp"
+#include "util/util.hpp"
 
 #include "qureg/qureg.hpp"
-#include "util/tinymatrix.hpp"
 #include <bitset>
 
 using namespace QNLP;

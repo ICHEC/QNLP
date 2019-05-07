@@ -1,12 +1,14 @@
 ################################################################################
 cmake_minimum_required (VERSION 3.10)
 set(QNLP_LOGO "
-                        ▄▄▄▄  ▄▄   ▄ ▄      ▄▄▄▄▄
-                       ▄▀  ▀▄ █▀▄  █ █      █   ▀█
-                       █    █ █ █▄ █ █      █▄▄▄█▀
-                       █    █ █  █ █ █      █
-                        █▄▄█▀ █   ██ █▄▄▄▄▄ █
-                           █
+
+              ▄▄▄▄    █   ▄▄   ▄ ▄      ▄▄▄▄▄   █
+             ▄▀  ▀▄   █   █▀▄  █ █      █   ▀█   █
+             █    █   █   █ █▄ █ █      █▄▄▄█▀    █
+             █    █   █   █  █ █ █      █         █
+              █▄▄█▀   █   █   ██ █▄▄▄▄▄ █        █
+                 █    █                         █
+
 ")
 message(${QNLP_LOGO})
 ################################################################################
@@ -22,13 +24,26 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
-#Include cmake directory for use of custom Find<packagename> commands
+# Include cmake directory for use of custom Find<packagename> commands
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
-set(QHIPSTER $ENV{QHIPSTER_DIR}) 
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a) 
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC}) 
+
+set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE) 
+set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE) 
+set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
+
+################################################################################
+# Include the directories with sources
+add_subdirectory(third_party)
+message("BASE: ${CMAKE_MODULE_PATH}")
+add_subdirectory(modules)
+
+################################################################################
+# Include third_party depedencies
+add_library(${PROJECT_NAME} INTERFACE)
+
+
 
 ################################################################################
 set(CMAKE_CXX_FLAGS 
@@ -59,7 +74,7 @@ add_definitions(
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
 ################################################################################
-find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" )
+#find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" )
 
 if(CLANG_TIDY_EXE)
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
@@ -77,19 +92,19 @@ endif()
 find_package(MPI REQUIRED)
 
 ################################################################################
-add_executable(cswap_test test_control_swap.cpp)
+#add_executable(cswap_test ./tests/test_control_swap.cpp)
 
 include_directories("${QHIPSTER_INC}")
-include_directories("${BIGMPI_INC}")
 
 ################################################################################
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
+
+add_subdirectory(tests)
+
 ################################################################################
 #target_link_libraries(cswap_test qhipster)
-ADD_LIBRARY(bigmpi STATIC IMPORTED)
-SET_TARGET_PROPERTIES(bigmpi PROPERTIES IMPORTED_LOCATION "${BIGMPI_LIB}")
-target_link_libraries(cswap_test qhipster bigmpi)
+#target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11)
 
 ################################################################################
