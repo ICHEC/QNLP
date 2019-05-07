@@ -20,7 +20,7 @@ template <class Type>
 NCU<Type>::NCU(){ }
 
 template <class Type>
-NCU<Type>::NCU(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates){
+NCU<Type>::NCU(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_gates){
     NCU<Type>::initialiseMaps(U, num_ctrl_gates);
 }
 
@@ -45,7 +45,7 @@ void NCU<Type>::clearMaps(){
  * @param U Unitary matrix
  */
 template <class Type>
-void NCU<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines){
+void NCU<Type>::initialiseMaps(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_lines){
     openqu::TinyMatrix<Type, 2, 2, 32> px;
     px(0, 0) = Type(0., 0.);
     px(0, 1) = Type(1., 0.);
@@ -80,11 +80,11 @@ void NCU<Type>::initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t
  */
 template <class Type>
 void NCU<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
-                    unsigned int qControlStart,
-                    unsigned int qControlEnd,
-                    unsigned int qTarget,
-                    openqu::TinyMatrix<Type, 2, 2, 32>& U, 
-                    unsigned int depth, bool isPauliX)
+                    const unsigned int qControlStart,
+                    const unsigned int qControlEnd,
+                    const unsigned int qTarget,
+                    const openqu::TinyMatrix<Type, 2, 2, 32>& U, 
+                    const unsigned int depth, const bool isPauliX)
 {
     //Some safety checks
     assert (qControlStart <= qControlEnd);
@@ -103,7 +103,6 @@ void NCU<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
 #ifdef __VERBOSE__
     std::cout << "cOps[" << local_depth << "]:=" << cOps << std::endl;
 #endif
-
 
     if (cOps >= 2){
         //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.

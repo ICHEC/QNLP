@@ -9,14 +9,14 @@
  * 
  */
 
-#include "../include/utils/util.hpp"
-#include "../include/nqubit_decompose.hpp"
+#include "util.hpp"
+#include "ncu.hpp"
 #include "qureg/qureg.hpp"
 #include <cmath>
 
 using namespace QNLP;
 
-void Util::sum_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned int r1_max, unsigned int r2_min, unsigned int r2_max){
+void Util::sum_reg(QubitRegister<ComplexDP>& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
     std::size_t num_qubits_r1 = r1_max - r1_min;
     std::size_t num_qubits_r2 = r2_max - r2_min;
 
@@ -31,7 +31,7 @@ void Util::sum_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
     Util::applyIQFT(qReg, r2_min, r2_max);
 }
 
-void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned int r1_max, unsigned int r2_min, unsigned int r2_max){
+void Util::sub_reg(QubitRegister<ComplexDP>& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
     std::size_t num_qubits_r1 = r1_max - r1_min;
     std::size_t num_qubits_r2 = r2_max - r2_min;
 
@@ -52,7 +52,7 @@ void Util::sub_reg(QubitRegister<ComplexDP>& qReg, unsigned int r1_min, unsigned
     }
 }
 
-void Util::applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+void Util::applyQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx){
     for(std::size_t ctrl = maxIdx; ctrl <= minIdx; ctrl--){
         qReg.ApplyHadamard(ctrl);
         for(std::size_t tgt = ctrl - 1; tgt <= maxIdx; tgt--){
@@ -65,7 +65,7 @@ void Util::applyQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigne
     }
 }
 
-void Util::applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+void Util::applyIQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx){
     for(std::size_t target = minIdx; target <= maxIdx; target++){
         for(std::size_t ctrl = target + 1; ctrl <= maxIdx; ctrl++){
             // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
@@ -77,13 +77,13 @@ void Util::applyIQFT(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsign
     }
 }
 
-void Util::ApplySwap(QubitRegister<ComplexDP>& qReg, unsigned int q1, unsigned int q2){
+void Util::ApplySwap(QubitRegister<ComplexDP>& qReg, const unsigned int q1, const unsigned int q2){
     qReg.ApplyCPauliX(q1,q2); 
     qReg.ApplyCPauliX(q2,q1); 
     qReg.ApplyCPauliX(q1,q2); 
 }
 
-void Util::InvertRegister(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+void Util::InvertRegister(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx){
     unsigned int range2 = ((maxIdx - minIdx)%2 == 1) ? (maxIdx - minIdx)/2 +1 : (maxIdx - minIdx)/2;
     for(unsigned int idx = 0; idx < range2; idx++){
         std::cout << "Swapping " << minIdx+idx << "," << maxIdx-idx << std::endl;
@@ -91,7 +91,7 @@ void Util::InvertRegister(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, u
     }
 }
 
-void Util::ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, double angle, unsigned int control, unsigned int target){
+void Util::ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, const double angle, const unsigned int control, const unsigned int target){
     openqu::TinyMatrix<ComplexDP, 2, 2, 32> U;
     U(0, 0) = ComplexDP(1., 0.);
     U(0, 1) = ComplexDP(0., 0.);
@@ -100,7 +100,7 @@ void Util::ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, double angle, unsigne
     qReg.ApplyControlled1QubitGate(control, target, U);
 }
 
-void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx, unsigned int maxIdx){
+void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx){
     //For n-controlled not
     openqu::TinyMatrix<ComplexDP, 2, 2, 32> X;
     X(0,0) = {0.,  0.};
@@ -116,7 +116,7 @@ void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, unsigned int minIdx,
     }
     qReg.ApplyHadamard(maxIdx);
 
-    NQubitDecompose<ComplexDP> nCtrlX(X, (maxIdx-minIdx)-1);
+    NCU<ComplexDP> nCtrlX(X, (maxIdx-minIdx)-1);
     nCtrlX.applyNQubitControl(qReg, minIdx, maxIdx-1, maxIdx, X, 0, true);
 
     qReg.ApplyHadamard(maxIdx);

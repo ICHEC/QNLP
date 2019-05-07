@@ -24,7 +24,7 @@ class NCU{
 
     public:
     NCU();
-    NCU(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_gates);
+    NCU(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_gates);
 
     ~NCU();
 
@@ -34,9 +34,7 @@ class NCU{
      * @param U 
      */
     //template <class Type>
-    void initialiseMaps(openqu::TinyMatrix<Type, 2, 2, 32> U, std::size_t num_ctrl_lines);
-
-
+    void initialiseMaps(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_lines);
 
     /**
      * @brief Clears the maps of stored sqrt matrices
@@ -59,11 +57,11 @@ class NCU{
      */
     //template <class Type>
     void applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
-                        unsigned int qControlStart,
-                        unsigned int qControlEnd,
-                        unsigned int qTarget,
-                        openqu::TinyMatrix<Type, 2, 2, 32>& U, 
-                        unsigned int depth, bool isPauliX);
+                        const unsigned int qControlStart,
+                        const unsigned int qControlEnd,
+                        const unsigned int qTarget,
+                        const openqu::TinyMatrix<Type, 2, 2, 32>& U, 
+                        const unsigned int depth, const bool isPauliX);
 
     /**
      * @brief Calculates the unitary matrix square root (U == VV, where V is returned)

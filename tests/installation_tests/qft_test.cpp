@@ -195,7 +195,11 @@ int main(int argc, char **argv)
 
       t_dp = (float)(t_end - t_start)/CLOCKS_PER_SEC;
 
+#ifdef NOREPA_HAS_MPI
       printf("Execution Time (seconds),%d,%d,%f,%f\n",num_qubits,env.get_nnodes(),t_sp,t_dp);
+#else
+      printf("Execution Time (seconds),%d,%d,%f,%f\n",num_qubits,1,t_sp,t_dp);
+#endif
   }
 
   }

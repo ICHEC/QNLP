@@ -14,7 +14,7 @@
 #include "QubitCircuit.hpp"
 #include <bitset>
 
-#include "nqubit_decompose.hpp"
+#include "ncu.hpp"
 using namespace QNLP;
 
 double EPSILON = 1e-6;
@@ -204,7 +204,7 @@ void print_bits(unsigned int val, int len){
  * @param X 
  */
 template < class Type >
-void encode_binarystrings(vector<unsigned int>& pattern, vector<unsigned int>& pattern_class, QubitCircuit<Type>& circ, myRegisters& qReg, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NQubitDecompose<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
+void encode_binarystrings(vector<unsigned int>& pattern, vector<unsigned int>& pattern_class, QubitCircuit<Type>& circ, myRegisters& qReg, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
 
     // Encode
     int m,n;
@@ -470,7 +470,7 @@ int main(int argc, char **argv){
     X(0,1) = {1., 0.};
     X(1,0) = {1., 0.};
     X(1,1) = {0.,  0.};
-    NQubitDecompose<ComplexDP> op_nCDecomp(X, n);
+    NCU<ComplexDP> op_nCDecomp(X, n);
 
 
     // Preparation for Hamming distance computation:

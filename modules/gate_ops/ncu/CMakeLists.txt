@@ -1,5 +1,10 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 
-add_library(QNLP_gate_ops_ncu STATIC ncu.cpp)
+project(qnlp_ncu)
 
-target_include_directories(QNLP_gate_ops_ncu PRIVATE ${CMAKE_CURRENT_LIST_DIR})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#find_package(IntelQS REQUIRED)
+add_library(qnlp_ncu STATIC ncu.hpp ncu.cpp ${QHIPSTER_INC})
+target_include_directories(qnlp_ncu PUBLIC ${QHIPSTER_INC} ${CMAKE_CURRENT_SOURCE_DIR})
