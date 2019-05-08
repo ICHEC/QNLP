@@ -1,11 +1,11 @@
 //##############################################################################
 /**
- *  @file    qhipster_interface.hpp
+ *  @file    intel_simulator.cpp
  *  @author  Lee J. O'Riordan
  *  @date    25/01/2019
  *  @version 0.1
  *
- *  @brief Intel qHiPSTER simulator interface.
+ *  @brief Intel QS interface layer.
  *
  *  @section DESCRIPTION
  *  This class implements a mapping between the QNLP code and the 
@@ -21,7 +21,7 @@
 using namespace QNLP;
 
 class IntelSimulator : SimulatorInterface< QbitRegister<ComplexDP>, QbitRegister<ComplexDP>> {
-
+    typedef const std::size_T CST;
     IntelSimulator(int numQubits) : numQubits(numQubits), qubitRegister(numQubits, "base", 0){
     }
 
@@ -29,21 +29,11 @@ class IntelSimulator : SimulatorInterface< QbitRegister<ComplexDP>, QbitRegister
         //TODO: ensure everything is safely freed here
     }
 
-    inline void applyGateX(std::size_t qubitIndex){
-        qubitRegister.applyPauliX(qubitIndex);
-    }
-    inline void applyGateY(std::size_t qubitIndex){
-        qubitRegister.applyPauliY(qubitIndex);
-    }
-    inline void applyGateZ(std::size_t qubitIndex){
-        qubitRegister.applyPauliZ(qubitIndex);
-    }
-    inline void applyGateI(std::size_t qubitIndex){
-        qubitRegister.applyPauliX(qubitIndex);
-    }
-    inline void applyGateH(std::size_t qubitIndex){
-        qubitRegister.applyPauliY(qubitIndex);
-    }
+    inline void applyGateX(CST qubitIndex){ qubitRegister.applyPauliX(qubitIndex); }
+    inline void applyGateY(CST qubitIndex){ qubitRegister.applyPauliY(qubitIndex); }
+    inline void applyGateZ(CST qubitIndex){ qubitRegister.applyPauliZ(qubitIndex); }
+    inline void applyGateH(CST qubitIndex){ qubitRegister.applyHadamard(qubitIndex); }
+    //inline void applyGateI(std::size_t qubitIndex){ qubitRegister.applyPauliX(qubitIndex); }
 
     // Defining gate operations
     inline void applyGate(std::array<ComplexDP>& gate){
@@ -60,50 +50,50 @@ class IntelSimulator : SimulatorInterface< QbitRegister<ComplexDP>, QbitRegister
         //May be difficult to generalise
     }
 
-    inline void applyGateSqrtX(std::size_t qubitIndex){
-        qubitRegister.applyPauliSqrtX(std::size_t qubitIndex);
+    inline void applyGateSqrtX(CST qubitIndex){
+        qubitRegister.applyPauliSqrtX(qubitIndex);
     };
 
     //Arbitrary rotation along axis; given in radians
-    inline void applyGateRotX(std::size_t qubitIndex) {
+    inline void applyGateRotX(CST qubitIndex) {
         qubitRegister.applyRotationX(qubitIndex);
     };
-    inline void applyGateRotY(std::size_t qubitIndex) {
+    inline void applyGateRotY(CST qubitIndex) {
         qubitRegister.applyRotationY(qubitIndex);
     };
-    inline void applyGateRotZ(std::size_t qubitIndex) {
+    inline void applyGateRotZ(CST qubitIndex) {
         qubitRegister.applyRotationZ(qubitIndex);
     };
 
     //2 qubit gates
-    inline void applyGateCU(std::size_t control, std::size_t target, TinyMatrix<ComplexDP, 2, 2, 32> & U){
+    inline void applyGateCU(CST control, CST target, TinyMatrix<ComplexDP, 2, 2, 32> & U){
         qubitRegister.applyControlled1QubitGate(control, target, U);
     }
 
-    inline void applyGateCX(const std::size_t control, const std::size_t target){
+    inline void applyGateCX(CST control, CST target){
         qubitRegister.applyCPauliX(control, target);
     }
-    inline void applyGateCY(const std::size_t control, const std::size_t target){
+    inline void applyGateCY(CST control, CST target){
         qubitRegister.applyCPauliY(control, target);
     }
-    inline void applyGateCZ(const std::size_t control, const std::size_t target){
+    inline void applyGateCZ(CST control, CST target){
         qubitRegister.applyCPauliZ(control, target);
     }
-    inline void applyGateCH(const std::size_t control, const std::size_t target){
+    inline void applyGateCH(CST control, CST target){
         qubitRegister.applyCHadamard(control, target);
     }
 
-    inline void applyGateCRotX(const std::size_t control, const std::size_t target, const double theta){
+    inline void applyGateCRotX(CST control, CST target, const double theta){
         qubitRegister.applyCRotationX(control, target, theta);
     }
-    inline void applyGateCRotY(const std::size_t control, const std::size_t target, const double theta){
+    inline void applyGateCRotY(CST control, CST target, CST theta){
         qubitRegister.applyCRotationY(control, target, theta);
     }
-    inline void applyGateCRotZ(const std::size_t control, const std::size_t target, const double theta){
+    inline void applyGateCRotZ(CST control, CST target, const double theta){
         qubitRegister.applyCRotationZ(control, target, theta);
     }
 
-    inline void applyGateSwap(std::size_t q1, std::size_t q2){
+    inline void applyGateSwap(CST q1, CST q2){
         qubitRegister.applySwap(q1, q2);
     }
     inline void applyGateSqrtSwap(){

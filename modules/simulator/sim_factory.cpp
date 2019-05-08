@@ -8,10 +8,10 @@
  * @copyright Copyright (c) 2019
  * 
  */
-#include "../include/sim_interface.hpp"
-#include "../include/qhipster_interface.hpp"
+#include "Simulator.hpp"
+#include "IntelSimulator.hpp"
 
-//#include <stdexcept>
+#include <stdexcept>
 #include <memory>
 
 using namespace QNLP;
@@ -26,13 +26,13 @@ enum SimBackend { intelqs=0, unknown=1 };
  * @param numQubits number of qubits to create in simulator register.
  * @return std::unique_ptr<Simulator> returns pointer to the chosen subclassed simulator
  */
-std::unique_ptr<Simulator> Simulator::createSimulator(SimBackend s, std::size_t numQubits){
+std::unique_ptr<Simulator> Simulator::createSimulator(SimBackend sim, std::size_t numQubits){
     //For new backends, please extend the switch case below.
-    switch( s ){
+    switch( sim ){
         case SimBackend::intelqs: 
             return std::make_unique<IntelSimulator>(numQubits);
         default:
-            printf("No simulator chosen. Exitting.");
+            printf("No simulator chosen.");
             throw std::runtime_error("Unknown simulator backend.");
     }
 }
