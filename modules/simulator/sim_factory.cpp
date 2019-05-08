@@ -9,7 +9,7 @@
  * 
  */
 #include "Simulator.hpp"
-#include "IntelSimulator.hpp"
+#include "IntelSimulator.cpp"
 
 #include <stdexcept>
 #include <memory>
@@ -26,7 +26,8 @@ enum SimBackend { intelqs=0, unknown=1 };
  * @param numQubits number of qubits to create in simulator register.
  * @return std::unique_ptr<Simulator> returns pointer to the chosen subclassed simulator
  */
-std::unique_ptr<Simulator> Simulator::createSimulator(SimBackend sim, std::size_t numQubits){
+template<class regType, class gateType>
+std::unique_ptr<Simulator<regType,gateType>> Simulator<regType,gateType>::createSimulator(SimBackend sim, std::size_t numQubits){
     //For new backends, please extend the switch case below.
     switch( sim ){
         case SimBackend::intelqs: 

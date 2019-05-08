@@ -10,8 +10,8 @@
  */
 
 #include "catch2/catch.hpp"
-#include "sim_interface.hpp"
-#include "qhipster_interface.hpp"
+#include "Simulator.hpp"
+#include "IntelSimulator.cpp"
 #include "sim_factory.cpp"
 
 using namespace QNLP;
@@ -22,8 +22,10 @@ using namespace QNLP;
  */
 TEST_CASE("Testing Intel-QS simulator creation with 'new'","[simulator]"){
     Simulator *sim_test = nullptr;
+    std::string label = "";
     for(std::size_t num_qubits = 0; num_qubits<16; num_qubits++){
-        SECTION("Testing " + string(num_qubits) + " qubits"){
+        label = "Testing " + std::to_string(num_qubits) + " qubits";
+        SECTION(label){
             REQUIRE(sim_test == nullptr);
             sim_test = new IntelSimulator(num_qubits);
             delete sim_test;

@@ -18,6 +18,7 @@
 #define QNLP_SIMULATOR_INTERFACE_H
 
 #include <iostream>
+#include<memory>
 
 namespace QNLP{
 
@@ -205,8 +206,7 @@ namespace QNLP{
 
         std::size_t getNumQubits() { return numQubits; }
 
-        extern enum SimBackend;
-        std::unique_ptr<Simulator> createSimulator(SimBackend s, std::size_t numQubits);
+        std::unique_ptr< Simulator<QubitRegisterType, GateType> > createSimulator(std::size_t s, std::size_t numQubits);
 
     protected:
         std::size_t numQubits = 0;
