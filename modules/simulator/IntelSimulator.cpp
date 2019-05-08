@@ -23,7 +23,7 @@ using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
 using QRDP = QubitRegister<ComplexDP>;
 using CST = const std::size_t;
 
-class IntelSimulator : Simulator< QRDP, TMDP> {
+class IntelSimulator : Simulator<QRDP, TMDP> {
     //IntelSimulator(int numQubits) : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
     IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
         this->numQubits = numQubits;
@@ -34,11 +34,31 @@ class IntelSimulator : Simulator< QRDP, TMDP> {
         //TODO: ensure everything is safely freed here
     }
 
+    //#################################################
+    //   TO IMPLEMENT
+    //#################################################
+    // 1 qubit
+    inline void applyGateU(TMDP& U, CST qubitIndex){            std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateI(std::size_t qubitIndex){             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGatePhaseShift(std::size_t qubit_idx){     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline TMDP getGateX(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline TMDP getGateY(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline TMDP getGateZ(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline TMDP getGateI(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline TMDP getGateH(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    // 2 qubit
+    inline void applyGateSqrtSwap(  std::size_t qubit_idx0, 
+                                    std::size_t qubit_idx1){    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    // 3 qubit
+    inline void applyGateToffoli(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateFredkin(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+
+    //#################################################
+
     inline void applyGateX(CST qubitIndex){ qubitRegister.ApplyPauliX(qubitIndex); }
     inline void applyGateY(CST qubitIndex){ qubitRegister.ApplyPauliY(qubitIndex); }
     inline void applyGateZ(CST qubitIndex){ qubitRegister.ApplyPauliZ(qubitIndex); }
     inline void applyGateH(CST qubitIndex){ qubitRegister.ApplyHadamard(qubitIndex); }
-    //inline void applyGateI(std::size_t qubitIndex){ qubitRegister.ApplyPauliX(qubitIndex); }
 
     // Defining gate operations
     inline void applyGate(TMDP& gate){
@@ -101,16 +121,8 @@ class IntelSimulator : Simulator< QRDP, TMDP> {
     inline void applyGateSwap(CST q1, CST q2){
         qubitRegister.ApplySwap(q1, q2);
     }
-    inline void applyGateSqrtSwap(){
-        //qubitRegister.ApplySqrtISwap
-    }
-    inline void applyGatePhaseShift(){
-        //qubitRegister.Apply
-    }
 
     //3 qubit gates
-    inline void applyGateToffoli(){}
-    inline void applyGateFredkin(){}
 
     //Defining Qubit operations
     inline QubitRegister<ComplexDP> getQubitRegister() { return this->qubitRegister; }

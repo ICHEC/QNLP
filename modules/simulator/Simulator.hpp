@@ -16,6 +16,7 @@
 
 #ifndef QNLP_SIMULATOR_INTERFACE_H
 #define QNLP_SIMULATOR_INTERFACE_H
+#include <cstddef>
 
 namespace QNLP{
 
@@ -190,8 +191,8 @@ namespace QNLP{
          * @param qubit_idx1 Index of qubit 1 to swap &(1 -> 0)
          */
         virtual void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1) = 0;
-        virtual void applyGateSqrtSwap() = 0;
-        virtual void applyGatePhaseShift() = 0;
+        virtual void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1) = 0;
+        virtual void applyGatePhaseShift(std::size_t qubit_idx) = 0;
 
         //3 qubit gates
         virtual void applyGateToffoli() = 0;
