@@ -39,7 +39,7 @@ namespace QNLP{
          * @param U User-defined unitary 2x2 matrix of templated type GateType
          * @param qubit_idx Index of qubit to apply gate upon
          */
-        virtual void applyGateU(const GateType &U, std::size_t qubit_idx); 
+        virtual void applyGateU(const GateType &U, std::size_t qubit_idx) = 0;
 
         /**
          * @brief Apply Pauli-X gate to qubit at qubit_idx

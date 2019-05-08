@@ -24,6 +24,7 @@ using QRDP = QubitRegister<ComplexDP>;
 using CST = const std::size_t;
 
 class IntelSimulator : Simulator<QRDP, TMDP> {
+    public:
     //IntelSimulator(int numQubits) : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
     IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
         this->numQubits = numQubits;
@@ -38,7 +39,7 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
     //   TO IMPLEMENT
     //#################################################
     // 1 qubit
-    inline void applyGateU(TMDP& U, CST qubitIndex){            std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateU(const TMDP& U, CST qubitIndex){            std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline void applyGateI(std::size_t qubitIndex){             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline void applyGatePhaseShift(std::size_t qubit_idx){     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline TMDP getGateX(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
@@ -52,6 +53,7 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
     // 3 qubit
     inline void applyGateToffoli(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline void applyGateFredkin(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+
 
     //#################################################
 
@@ -91,10 +93,9 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
     };
 
     //2 qubit gates
-    inline void applyGateCU(CST control, CST target, TMDP& U){
+    inline void applyGateCU(TMDP& U, CST control, CST target){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
     }
-
     inline void applyGateCX(CST control, CST target){
         qubitRegister.ApplyCPauliX(control, target);
     }
