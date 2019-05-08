@@ -19,10 +19,11 @@
 #include "util/tinymatrix.hpp"
 
 using namespace QNLP;
+using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
+using QRDP = QubitRegister<ComplexDP>;
+using CST = const std::size_t;
 
-class IntelSimulator : Simulator< QubitRegister<ComplexDP>, openqu::TinyMatrix<ComplexDP, 2, 2, 32>> {
-    using CST = const std::size_t;
-    using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
+class IntelSimulator : Simulator< QRDP, TMDP> {
     //IntelSimulator(int numQubits) : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
     IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
         this->numQubits = numQubits;
@@ -108,15 +109,12 @@ class IntelSimulator : Simulator< QubitRegister<ComplexDP>, openqu::TinyMatrix<C
     }
 
     //3 qubit gates
-    virtual void applyGateToffoli();
-    virtual void applyGateFredkin();
+    inline void applyGateToffoli(){}
+    inline void applyGateFredkin(){}
 
     //Defining Qubit operations
     inline QubitRegister<ComplexDP> getQubitRegister() { return this->qubitRegister; }
     inline const QubitRegister<ComplexDP>& getQubitRegister() const { return this->qubitRegister; };
-
-    //virtual QubitType getQubit();
-    //virtual const QubitType& getQubit() const;
 
     inline std::size_t getNumQubits() { return numQubits; }
 
