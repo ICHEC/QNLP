@@ -34,16 +34,6 @@ set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
 
 ################################################################################
-# Include the directories with sources
-add_subdirectory(third_party)
-message("BASE: ${CMAKE_MODULE_PATH}")
-add_subdirectory(modules)
-
-################################################################################
-# Include third_party depedencies
-add_library(${PROJECT_NAME} INTERFACE)
-
-################################################################################
 set(CMAKE_CXX_FLAGS 
      "-lmkl_rt \
      -lpthread \
@@ -68,6 +58,16 @@ add_definitions(
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI" 
 )
+
+################################################################################
+# Include the directories with sources
+add_subdirectory(third_party)
+message("BASE: ${CMAKE_MODULE_PATH}")
+add_subdirectory(modules)
+
+################################################################################
+# Include third_party depedencies
+add_library(${PROJECT_NAME} INTERFACE)
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake

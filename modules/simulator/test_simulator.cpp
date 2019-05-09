@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2019
  * 
  */
+#define CATCH_CONFIG_MAIN
 
 #include "catch2/catch.hpp"
 #include "Simulator.hpp"
@@ -20,6 +21,11 @@ using namespace QNLP;
  * 
  */
 TEST_CASE("Testing Intel-QS simulator creation","[simulator]"){
+    int argc = 1;
+    char* argv = "";
+    char** aa = &argv;
+    openqu::mpi::Environment env(argc, aa);
+
     std::string label = "";
     for(std::size_t num_qubits = 0; num_qubits<16; num_qubits++){
         label = "Testing " + std::to_string(num_qubits) + " qubits";
