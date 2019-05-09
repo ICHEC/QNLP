@@ -34,32 +34,44 @@ TEST_CASE("Pauli operators"){
     IntelSimulator sim(1);
     auto& reg = sim.getQubitRegister();
 
-    SECTION("Initial state as |0>"){
-        REQUIRE(reg[0].real() == 1.);
-        REQUIRE(reg[0].imag() == 0.);
-        REQUIRE(reg[1].real() == 0.);
-        REQUIRE(reg[1].imag() == 0.);
+    SECTION("State |0>"){
+        SECTION("Initial state as |0>"){
+            REQUIRE(reg[0] == std::complex<double>(1.,0.) );
+            REQUIRE(reg[1] == std::complex<double>(0.,0.) );
+        }
+        SECTION("Pauli X |0>"){
+            sim.applyGateX(0);
+            REQUIRE(reg[0].real() == std::complex<double>(0.,0.));
+            REQUIRE(reg[1].real() == std::complex<double>(1.,0.));
+        }
+        SECTION("Pauli Y |0>"){
+            sim.applyGateY(0);
+            REQUIRE(reg[0] == std::complex<double>(0.,0.));
+            REQUIRE(reg[1] == std::complex<double>(0.,1.));
+        }
+        SECTION("Pauli Z |0>"){
+            sim.applyGateZ(0);
+            REQUIRE(reg[0] == std::complex<double>(1.,0.) );
+            REQUIRE(reg[1] == std::complex<double>(0.,0.) );
+        }
     }
-    SECTION("Pauli X |0>"){
+    SECTION("State |1>"){
         sim.applyGateX(0);
-        REQUIRE(reg[0].real() == 0.);
-        REQUIRE(reg[0].imag() == 0.);
-        REQUIRE(reg[1].real() == 1.);
-        REQUIRE(reg[1].imag() == 0.);
-    }
-    SECTION("Pauli Y |0>"){
-        sim.applyGateY(0);
-        REQUIRE(reg[0].real() == 0.);
-        REQUIRE(reg[0].imag() == 0.);
-        REQUIRE(reg[1].real() == 0.);
-        REQUIRE(reg[1].imag() == 1.);
-    }
-    SECTION("Pauli Z |0>"){
-        sim.applyGateZ(0);
-        REQUIRE(reg[0].real() == 1.);
-        REQUIRE(reg[0].imag() == 0.);
-        REQUIRE(reg[1].real() == 0.);
-        REQUIRE(reg[1].imag() == 0.);
+        SECTION("Pauli X |1>"){
+            sim.applyGateX(0);
+            REQUIRE(reg[0] == std::complex<double>(1.,0.));
+            REQUIRE(reg[1] == std::complex<double>(0.,0.));
+        }
+        SECTION("Pauli Y |1>"){
+            sim.applyGateY(0);
+            REQUIRE(reg[0] == std::complex<double>(0.,-1.));
+            REQUIRE(reg[1] == std::complex<double>(0.,0.));
+        }
+        SECTION("Pauli Z |1>"){
+            sim.applyGateZ(0);
+            REQUIRE(reg[0] == std::complex<double>(0.,0.));
+            REQUIRE(reg[1] == std::complex<double>(-1.,0.));
+        }
     }
 }
 
@@ -69,9 +81,9 @@ TEST_CASE("Pauli operators"){
  * all have finished.
  */
 int main( int argc, char* argv[] ) {
-  openqu::mpi::Environment env(argc, argv);
+    openqu::mpi::Environment env(argc, argv);
 
-  int result = Catch::Session().run( argc, argv );
+    int result = Catch::Session().run( argc, argv );
 
-  return result;
+    return result;
 }
