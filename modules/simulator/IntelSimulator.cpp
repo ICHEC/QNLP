@@ -23,8 +23,7 @@ using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
 using QRDP = QubitRegister<ComplexDP>;
 using CST = const std::size_t;
 
-template class Simulator<QRDP, TMDP>; 
-//Simulator<QRDP, TMDP>::~Simulator() {} // Pure virtual destructor must be defined
+//template class Simulator<QRDP, TMDP>; 
 
 class IntelSimulator : Simulator<QRDP, TMDP> {
     private:
