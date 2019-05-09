@@ -24,22 +24,11 @@ namespace QNLP{
     * @class	The abstract interface for implementing the QNLP-quantum 
     * simulator connector.
     */
-    template <class QubitRegisterType, class GateType>
-    class Simulator {
+    class ISimulator{
     public:
-        virtual ~Simulator(){ }
-
         //##############################################################################
-        //                           Single qubit gates
+        //                                  1 qubit gates
         //##############################################################################
-
-        /**
-         * @brief Apply arbitrary user-defined unitary gate to qubit at qubit_idx
-         * 
-         * @param U User-defined unitary 2x2 matrix of templated type GateType
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateU(const GateType &U, std::size_t qubit_idx) = 0;
 
         /**
          * @brief Apply Pauli-X gate to qubit at qubit_idx
@@ -107,50 +96,9 @@ namespace QNLP{
          */
         virtual void applyGateRotZ(std::size_t qubit_idx, double angle_rad) = 0;
 
-        /**
-         * @brief Get the Pauli-X gate; returns templated type GateType
-
-         * 
-         * @return GateType Templated return type of Pauli-X gate
-         */
-        virtual GateType getGateX() = 0;
-
-        /**
-         * @brief Get the Pauli-Y gate; must be overloaded with appropriate return type
-         * @return GateType Templated return type of Pauli-Y gate
-         */
-        virtual GateType getGateY() = 0;
-
-        /**
-         * @brief Get the Pauli-Z gate; must be overloaded with appropriate return type
-         * @return GateType Templated return type of Pauli-Z gate
-         */
-        virtual GateType getGateZ() = 0;
-
-        /**
-         * @brief Get the Identity; must be overloaded with appropriate return type
-         * @return GateType Templated return type of Identity gate
-         */
-        virtual GateType getGateI() = 0;
-
-        /**
-         * @brief Get the Hadamard gate; must be overloaded with appropriate return type
-         * @return GateType Templated return type of Hadamard gate
-         */
-        virtual GateType getGateH() = 0;
-
         //##############################################################################
         //                                  2 qubit gates
         //##############################################################################
-
-        /**
-         * @brief Apply the given controlled unitary gate on target qubit
-         * 
-         * @param U User-defined arbitrary 2x2 unitary gate (matrix)
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCU(GateType &U, std::size_t control, std::size_t target) = 0;
 
         /**
          * @brief Apply Controlled Pauli-X (CNOT) on target qubit
@@ -183,6 +131,84 @@ namespace QNLP{
          * @param target Qubit index acting as target
          */
         virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
+    };
+
+    /**
+     * @brief CRTP defined class for simulator implementations
+     * 
+     * @tparam DerivedType CRTP derived class
+     */
+    template <class DerivedType>//<class QubitRegisterType, class GateType>
+    class SimulatorGeneral : virtual ISimulator {
+    public:
+        virtual ~SimulatorGeneral(){ }
+
+        //##############################################################################
+        //                           Single qubit gates
+        //##############################################################################
+
+        virtual void applyGateX(std::size_t qubit_idx)                      override = 0;
+        virtual void applyGateY(std::size_t qubit_idx)                      override = 0;
+        virtual void applyGateZ(std::size_t qubit_idx)                      override = 0;
+        virtual void applyGateI(std::size_t qubit_idx)                      override = 0;
+        virtual void applyGateH(std::size_t qubit_idx)                      override = 0;
+        virtual void applyGateSqrtX(std::size_t qubit_idx)                  override = 0;
+        virtual void applyGateRotX(std::size_t qubit_idx, double angle_rad) override = 0;
+        virtual void applyGateRotY(std::size_t qubit_idx, double angle_rad) override = 0;
+        virtual void applyGateRotZ(std::size_t qubit_idx, double angle_rad) override = 0;
+
+        /**
+         * @brief Apply arbitrary user-defined unitary gate to qubit at qubit_idx
+         * 
+         * @param U User-defined unitary 2x2 matrix of templated type GateType
+         * @param qubit_idx Index of qubit to apply gate upon
+         */
+        virtual void applyGateU(const decltype(DerivedType::getGateX()) &U, std::size_t qubit_idx) = 0;
+
+        /**
+         * @brief Get the Pauli-X gate; returns templated type GateType
+
+         * 
+         * @return GateType Templated return type of Pauli-X gate
+         */
+        virtual auto getGateX() -> decltype(DerivedType::getGateX());
+
+        /**
+         * @brief Get the Pauli-Y gate; must be overloaded with appropriate return type
+         * @return GateType Templated return type of Pauli-Y gate
+         */
+        virtual auto getGateY() -> decltype(DerivedType::getGateY());
+
+        /**
+         * @brief Get the Pauli-Z gate; must be overloaded with appropriate return type
+         * @return GateType Templated return type of Pauli-Z gate
+         */
+        virtual auto getGateZ() -> decltype(DerivedType::getGateZ());
+
+        /**
+         * @brief Get the Identity; must be overloaded with appropriate return type
+         * @return GateType Templated return type of Identity gate
+         */
+        virtual auto getGateI() -> decltype(DerivedType::getGateI());
+
+        /**
+         * @brief Get the Hadamard gate; must be overloaded with appropriate return type
+         * @return GateType Templated return type of Hadamard gate
+         */
+        virtual auto getGateH() -> decltype(DerivedType::getGateH());
+
+        //##############################################################################
+        //                                  2 qubit gates
+        //##############################################################################
+
+        /**
+         * @brief Apply the given controlled unitary gate on target qubit
+         * 
+         * @param U User-defined arbitrary 2x2 unitary gate (matrix)
+         * @param control Qubit index acting as control
+         * @param target Qubit index acting as target
+         */
+        virtual void applyGateCU(GateType &U, std::size_t control, std::size_t target) = 0;
 
         /**
          * @brief Swap the qubits at the given indices
@@ -199,16 +225,11 @@ namespace QNLP{
         virtual void applyGateFredkin() = 0;
 
         //Defining Qubit operations
-        virtual QubitRegisterType& getQubitRegister() = 0;
-        virtual const QubitRegisterType& getQubitRegister() const = 0;
+        virtual auto& getQubitRegister() -> decltype(DerivedType::getQubitRegister) = 0;
+        virtual const auto& getQubitRegister() -> decltype(DerivedType::getQubitRegister) const = 0;
 
         virtual std::size_t getNumQubits() = 0;
 
-        //std::unique_ptr< Simulator<QubitRegisterType, GateType> > createSimulator(std::size_t s, std::size_t numQubits);
-
-/*    protected:
-        std::size_t numQubits = 0;
-        QubitRegisterType qubitRegister;
-*/    };
+    };
 }
 #endif

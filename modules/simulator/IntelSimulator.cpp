@@ -31,19 +31,10 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
         QRDP qubitRegister;
 
     public:
-    //IntelSimulator(int numQubits) : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
-/*    IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
-        this->numQubits = numQubits;
-        std::cout << "Attempting to create QubitRegister with " << numQubits << " qubits" << std::endl;
-        this->qubitRegister = QubitRegister<ComplexDP> (numQubits, "base", 0);
-    }
-*/
-    IntelSimulator(int numQubits) : Simulator<QRDP, TMDP>(), numQubits(numQubits), qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)){
-    
-    }
-    ~IntelSimulator(){
-        //TODO: ensure everything is safely freed here
-    }
+    IntelSimulator(int numQubits) : SimulatorGeneral<IntelSimulator>(), 
+                                    numQubits(numQubits), 
+                                    qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)){ }
+    ~IntelSimulator(){ }
 
     //#################################################
     //   TO IMPLEMENT
