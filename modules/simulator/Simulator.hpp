@@ -27,7 +27,7 @@ namespace QNLP{
     template <class QubitRegisterType, class GateType>
     class Simulator {
     public:
-        virtual ~Simulator() = 0;
+        virtual ~Simulator(){ }
 
         //##############################################################################
         //                           Single qubit gates
