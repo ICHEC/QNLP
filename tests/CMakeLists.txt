@@ -8,6 +8,7 @@ set(QNLP_MODULES_SUBDIRS      hamming_distance;
 #                            corpus_encoding;
                             nn_hamming_distance;
                             superposition_encoding;
+                            nn_superposition_encoding;
 #                            db_tests;
                             installation_tests;
 #                            nn_hamming_distance_Schuld;
