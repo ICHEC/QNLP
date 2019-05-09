@@ -199,16 +199,16 @@ namespace QNLP{
         virtual void applyGateFredkin() = 0;
 
         //Defining Qubit operations
-        QubitRegisterType& getQubitRegister() { return this->qubitRegister; }
-        const QubitRegisterType& getQubitRegister() const { return this->qubitRegister; };
+        virtual QubitRegisterType& getQubitRegister() = 0;
+        virtual const QubitRegisterType& getQubitRegister() const = 0;
 
-        std::size_t getNumQubits() { return numQubits; }
+        virtual std::size_t getNumQubits() = 0;
 
         //std::unique_ptr< Simulator<QubitRegisterType, GateType> > createSimulator(std::size_t s, std::size_t numQubits);
 
-    protected:
+/*    protected:
         std::size_t numQubits = 0;
         QubitRegisterType qubitRegister;
-    };
+*/    };
 }
 #endif

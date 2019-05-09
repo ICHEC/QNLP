@@ -27,13 +27,21 @@ template class Simulator<QRDP, TMDP>;
 //Simulator<QRDP, TMDP>::~Simulator() {} // Pure virtual destructor must be defined
 
 class IntelSimulator : Simulator<QRDP, TMDP> {
+    private:
+        std::size_t numQubits = 0;
+        QRDP qubitRegister;
+
     public:
     //IntelSimulator(int numQubits) : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
-    IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
+/*    IntelSimulator(int numQubits){// : Simulator<QubitRegister<ComplexDP>, TMDP>(numQubits), qubitRegister(numQubits, "base", 0){
         this->numQubits = numQubits;
+        std::cout << "Attempting to create QubitRegister with " << numQubits << " qubits" << std::endl;
         this->qubitRegister = QubitRegister<ComplexDP> (numQubits, "base", 0);
     }
-
+*/
+    IntelSimulator(int numQubits) : Simulator<QRDP, TMDP>(), numQubits(numQubits), qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)){
+    
+    }
     ~IntelSimulator(){
         //TODO: ensure everything is safely freed here
     }
@@ -42,7 +50,7 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
     //   TO IMPLEMENT
     //#################################################
     // 1 qubit
-    inline void applyGateU(const TMDP& U, CST qubitIndex){            std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateU(const TMDP& U, CST qubitIndex){      std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline void applyGateI(std::size_t qubitIndex){             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline void applyGatePhaseShift(std::size_t qubit_idx){     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
     inline TMDP getGateX(){                                     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
@@ -129,7 +137,7 @@ class IntelSimulator : Simulator<QRDP, TMDP> {
     //3 qubit gates
 
     //Defining Qubit operations
-    inline QubitRegister<ComplexDP> getQubitRegister() { return this->qubitRegister; }
+    inline QubitRegister<ComplexDP>& getQubitRegister() { return this->qubitRegister; }
     inline const QubitRegister<ComplexDP>& getQubitRegister() const { return this->qubitRegister; };
 
     inline std::size_t getNumQubits() { return numQubits; }
