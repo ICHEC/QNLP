@@ -2,6 +2,8 @@
 #include "util/tinymatrix.hpp"
 #include "QubitCircuit.hpp"
 
+using namespace QNLP;
+
 /**
  * @brief Demonstrate different forms of measurement
  * 

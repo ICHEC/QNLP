@@ -4,6 +4,8 @@
 
 #include "QubitCircuit.hpp"
 
+using namespace QNLP;
+
 int main(int argc, char **argv){
 
     openqu::mpi::Environment env(argc, argv);

@@ -1,6 +1,8 @@
 #include "QubitCircuit.hpp"
 #include "ncu.hpp"
 
+using namespace QNLP;
+
 //#include "util/tinymatrix.hpp"
 
 /**
@@ -198,7 +200,7 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
 }
 
 template <class Type>
-void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bin_pattern){
+void QubitCircuit<Type>::EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bin_pattern){
 
     int m, len_reg_ancilla;
     m = bin_patterns.size();
@@ -241,10 +243,11 @@ void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& 
     X(0,1) = {1., 0.};
     X(1,0) = {1., 0.};
     X(1,1) = {0.,  0.};
-    NCU<ComplexDP> op_nCDecomp(X, n);
+    NCU<ComplexDP> op_nCDecomp(X, len_bin_pattern);
     
     // Prepare state in |0...>|0...0>|10> of lengths n,n,2
-    circ.ApplyPauliX(reg_ancilla[len_reg_ancilla-1]);
+    this->ApplyPauliX(reg_ancilla[len_reg_ancilla-1]);
+
 
     // Begin Encoding
     for(int i = 0; i < m; i++){
@@ -252,44 +255,45 @@ void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& 
         // Encode inputted binary pattern to pReg
         for(int j = 0; j < len_bin_pattern; j++){
             if(IS_SET(bin_patterns[i],j)){
-                circ.ApplyPauliX(reg_ancilla[j]);
+                this->ApplyPauliX(reg_ancilla[j]);
             }
         }
 
         // Psi1
         // Encode inputted binary pattern
         for(int j = 0; j < len_bin_pattern; j++){
-            circ.ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+            this->ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
         }
 
         // Psi2
         for(int j = 0; j < len_bin_pattern; j++){
-            circ.ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
-            circ.ApplyPauliX(reg_memory[j]);
+            this->ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
+            this->ApplyPauliX(reg_memory[j]);
         }
 
+
         // Psi3
-        op_nCDecomp.applyNQubitControl(circ, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], X, 0, true);
+        op_nCDecomp.applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], X, 0, true);
 
         // Psi4
         // Step 1.3 - Apply S^i
         // This flips the second control bit of the new term in the position so
         // that we get old|11> + new|10>
         // Break off into larger and smaller chunks
-        circ.ApplyControlled1QubitGate(reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1], S[i]);
+        this->ApplyControlled1QubitGate(reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1], S[i]);
 
         // Psi5
-        op_nCDecomp.applyNQubitControl(circ, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], X, 0, true);
+        op_nCDecomp.applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], X, 0, true);
 
         // Psi6 
         for(int j = len_bin_pattern-1; j > -1; j--){
-            circ.ApplyPauliX(reg_memory[j]);
-            circ.ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
+            this->ApplyPauliX(reg_memory[j]);
+            this->ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
         }
 
         // Psi7
         for(int j = len_bin_pattern-1; j > -1; j--){
-            circ.ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+            this->ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
         }
 
 
@@ -297,7 +301,7 @@ void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& 
         for(int j = 0; j < len_bin_pattern; j++){
             // Check current pattern against next pattern
             if(IS_SET(bin_patterns[i],j)){
-                circ.ApplyPauliX(reg_ancilla[j]);
+                this->ApplyPauliX(reg_ancilla[j]);
             }
 
         }
@@ -305,4 +309,4 @@ void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& 
 }
 
 template class QubitCircuit<ComplexDP>;
-template class QubitCircuit<ComplexSP>;
+//template class QubitCircuit<ComplexSP>;

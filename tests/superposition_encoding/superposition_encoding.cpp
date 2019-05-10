@@ -258,6 +258,22 @@ int main(int argc, char **argv){
     double dart, partition;
     unsigned partition_id;
 
+
+
+    vector<unsigned> reg_memory(n);
+    vector<unsigned> reg_ancilla(n+2);
+    for(int j = 0; j < n; j++){
+        reg_memory[j] = qRegCirc.get_mReg(j);
+    }
+    for(int j = 0; j < n; j++){
+        reg_ancilla[j] = qRegCirc.get_pReg(j);
+    }
+    reg_ancilla[n] = qRegCirc.get_cReg(0);
+    reg_ancilla[n+1] = qRegCirc.get_cReg(1);
+
+
+
+
     int exp = 0;
     while(exp < num_exps){
         // Re-init
@@ -267,8 +283,10 @@ int main(int argc, char **argv){
         }
         circ.Initialize("base",0);
 
+
         // Encode input binary patterns into superposition in registers for x.
-        encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
+        //encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
+        circ.EncodeBinInToSuperposition(reg_memory, reg_ancilla, pattern, n);
 
         // Collapse qubits to state randomly selectd in class register
         for(int j = 0; j < n; j++){

@@ -1,8 +1,7 @@
 #pragma once
 #include "qureg/qureg.hpp"
-#include "ncu.hpp"
 
-using namespace QNLP;
+namespace QNLP{
 
 /**
  * @brief Class derived from QubitRegister. 
@@ -28,3 +27,5 @@ class QubitCircuit: public QubitRegister<Type>{
 
         void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bin_pattern);
 };
+
+}
