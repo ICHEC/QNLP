@@ -13,6 +13,7 @@
 #include "catch2/catch.hpp"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
+#include <memory>
 
 using namespace QNLP;
 
@@ -73,6 +74,11 @@ TEST_CASE("Pauli operators"){
             REQUIRE(reg[1] == std::complex<double>(-1.,0.));
         }
     }
+}
+
+TEST_CASE("Simulator interface"){
+   std::unique_ptr<ISimulator> derived(new IntelSimulator(8));
+   REQUIRE(derived->getNumQubits() == 8);
 }
 
 /**
