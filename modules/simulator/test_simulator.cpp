@@ -82,11 +82,25 @@ TEST_CASE("Pauli operators"){
  *  rarely needed, thus performance isn't as critical.
  */
 
-
 TEST_CASE("Simulator interface"){
-/*   std::unique_ptr<ISimulator> derived(new IntelSimulator(8));
-   REQUIRE(derived->getNumQubits() == 8);
-*/}
+    SECTION("SimulatorGeneral<T> create"){
+        auto& s = SimulatorGeneral<IntelSimulator>() ;//createSimulator(8);
+//        REQUIRE(s.getNumQubits() == 8);
+    }
+    SECTION("Create unique_ptr<ISimulator> to IntelSimulator object"){
+        std::unique_ptr<ISimulator> derived1(new IntelSimulator(8));
+        REQUIRE(derived1->getNumQubits() == 8);
+
+        SECTION("Create multiple simulator objects"){
+            std::unique_ptr<ISimulator> derived2(new IntelSimulator(8));
+            std::unique_ptr<SimulatorGeneral<IntelSimulator>> derived3(new IntelSimulator(8));
+            REQUIRE(derived1 != derived2);
+            REQUIRE(derived2 != derived3);
+            REQUIRE(derived2->getNumQubits() == 8);
+            REQUIRE(derived3->getNumQubits() == 8);
+        }
+    }
+}
 
 /**
  * @brief User defined main required for this instance, as openqu::mpi::Environment destructor calls MPI_Finalize.

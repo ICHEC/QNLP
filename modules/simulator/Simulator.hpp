@@ -139,6 +139,10 @@ namespace QNLP{
         virtual std::size_t getNumQubits() = 0;
     };
 
+    //##############################################################################
+    //##############################################################################
+
+
     /**
      * @brief CRTP defined class for simulator implementations
      * 
@@ -149,21 +153,25 @@ namespace QNLP{
     public:
         virtual ~SimulatorGeneral(){ }
 
+        DerivedType* createSimulator(std::size_t num_qubits){
+            return new DerivedType(static_cast<DerivedType&>(*this));
+                
+        }
         //##############################################################################
         //                           Single qubit gates
         //##############################################################################
 
         void applyGateX(std::size_t qubit_idx){ 
-            dynamic_cast<DerivedType*>(this)->getNumQubits();//applyGateX(qubit_idx); 
+            static_cast<DerivedType&>(*this).getNumQubits();//applyGateX(qubit_idx); 
         };
         void applyGateY(std::size_t qubit_idx){
-            static_cast<DerivedType*>(this)->applyGateY(qubit_idx);
+            static_cast<DerivedType&>(*this).applyGateY(qubit_idx);
         }
         void applyGateZ(std::size_t qubit_idx){
-            static_cast<DerivedType*>(this)->applyGateZ(qubit_idx);
+            static_cast<DerivedType&>(*this).applyGateZ(qubit_idx);
         }
         void applyGateI(std::size_t qubit_idx){
-            static_cast<DerivedType*>(this)->applyGateI(qubit_idx); 
+            static_cast<DerivedType&>(*this).applyGateI(qubit_idx); 
         }
         void applyGateH(std::size_t qubit_idx){}
         void applyGateSqrtX(std::size_t qubit_idx){}

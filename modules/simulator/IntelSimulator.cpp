@@ -17,6 +17,7 @@
 #include "Simulator.hpp"
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
+#include <cstdlib>
 
 namespace QNLP{
 
@@ -28,11 +29,33 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     private:
         std::size_t numQubits = 0;
         QRDP qubitRegister;
+        std::vector<TMDP> gates;
 
     public:
     IntelSimulator(int numQubits) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
-                                    qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)){ 
+                                    qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
+                                    gates(5){
+        //Define Pauli X
+        gates[0](0,0) = ComplexDP(0.,0.);       gates[0](0,1) = ComplexDP(1.,0.);
+        gates[0](1,0) = ComplexDP(1.,0.);       gates[0](1,1) = ComplexDP(0.,0.);
+
+        //Define Pauli Y
+        gates[1](0,0) = ComplexDP(0.,0.);       gates[1](0,1) = -ComplexDP(0.,1.);
+        gates[1](1,0) = ComplexDP(0.,1.);       gates[1](1,1) = ComplexDP(0.,0.);
+
+        //Define Pauli Z
+        gates[2](0,0) = ComplexDP(1.,0.);       gates[2](0,1) = ComplexDP(0.,0.);
+        gates[2](1,0) = ComplexDP(0.,0.);       gates[2](1,1) = -ComplexDP(1.,0.);
+
+        //Define I
+        gates[3](0,0) = ComplexDP(1.,0.);       gates[3](0,1) = ComplexDP(0.,0.);
+        gates[3](1,0) = ComplexDP(0.,0.);       gates[3](1,1) = ComplexDP(1.,0.);
+
+        //Define Pauli H
+        double coeff = (1./sqrt(2.));
+        gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
+        gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
     }
     ~IntelSimulator(){ }
 
@@ -40,33 +63,46 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     //   TO IMPLEMENT
     //#################################################
     // 1 qubit
-    inline void applyGateU(const TMDP& U, CST qubitIndex){      std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline void applyGateI(std::size_t qubitIndex){             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline void applyGatePhaseShift(std::size_t qubit_idx){     std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline TMDP getGateX(){ TMDP X; return X; }//                                    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline TMDP getGateY(){ TMDP Y; return Y; }//                                    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline TMDP getGateZ(){ TMDP Z; return Z; }//                                    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline TMDP getGateI(){ TMDP I; return I; }//                                    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline TMDP getGateH(){ TMDP H; return H; }//                                    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateU(const TMDP& U, CST qubitIndex){      
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
+        std::abort(); 
+    }
+    inline void applyGateI(std::size_t qubitIndex){
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
+        std::abort();
+    }
+    inline void applyGatePhaseShift(std::size_t qubit_idx){
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl;
+        std::abort();
+    }
+
     // 2 qubit
-    inline void applyGateSqrtSwap(  std::size_t qubit_idx0, 
-                                    std::size_t qubit_idx1){    std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateSqrtSwap(  std::size_t qubit_idx0, std::size_t qubit_idx1){    
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
+        std::abort();
+    }
+
     // 3 qubit
-    inline void applyGateToffoli(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
-    inline void applyGateFredkin(){                             std::cerr << "NOT YET IMPLEMENTED" << std::endl; exit(-1); }
+    inline void applyGateToffoli(){
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
+        std::abort();
+    }
+    inline void applyGateFredkin(){
+        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
+        std::abort();
+    }
 
     //#################################################
 
-    inline void applyGateX(CST qubitIndex){ qubitRegister.ApplyPauliX(qubitIndex); }
-    inline void applyGateY(CST qubitIndex){ qubitRegister.ApplyPauliY(qubitIndex); }
-    inline void applyGateZ(CST qubitIndex){ qubitRegister.ApplyPauliZ(qubitIndex); }
-    inline void applyGateH(CST qubitIndex){ qubitRegister.ApplyHadamard(qubitIndex); }
+    inline void applyGateX(CST qubitIndex){ qubitRegister.ApplyPauliX(qubitIndex);      }
+    inline void applyGateY(CST qubitIndex){ qubitRegister.ApplyPauliY(qubitIndex);      }
+    inline void applyGateZ(CST qubitIndex){ qubitRegister.ApplyPauliZ(qubitIndex);      }
+    inline void applyGateH(CST qubitIndex){ qubitRegister.ApplyHadamard(qubitIndex);    }
 
     inline void applyGateSqrtX(CST qubitIndex){
         qubitRegister.ApplyPauliSqrtX(qubitIndex);
     };
 
-    //Arbitrary rotation along axis; given in radians
     inline void applyGateRotX(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationX(qubitIndex, angle);
     };
@@ -76,6 +112,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateRotZ(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationZ(qubitIndex, angle);
     };
+
+    inline TMDP getGateX(){ return gates[0]; }
+    inline TMDP getGateY(){ return gates[1]; }
+    inline TMDP getGateZ(){ return gates[2]; }
+    inline TMDP getGateI(){ return gates[3]; }
+    inline TMDP getGateH(){ return gates[4]; }
 
     //2 qubit gates
     inline void applyGateCU(TMDP& U, CST control, CST target){
