@@ -83,22 +83,30 @@ TEST_CASE("Pauli operators"){
  */
 
 TEST_CASE("Simulator interface"){
-    SECTION("SimulatorGeneral<T> create"){
-        auto& s = SimulatorGeneral<IntelSimulator>() ;//createSimulator(8);
-//        REQUIRE(s.getNumQubits() == 8);
+    SECTION("ISimulator virtual base pointer"){
+        ISimulator *s1 = new IntelSimulator(8) ;//createSimulator(8);
+        REQUIRE(s1->getNumQubits() == 8);
+        delete s1;
     }
-    SECTION("Create unique_ptr<ISimulator> to IntelSimulator object"){
-        std::unique_ptr<ISimulator> derived1(new IntelSimulator(8));
-        REQUIRE(derived1->getNumQubits() == 8);
-
-        SECTION("Create multiple simulator objects"){
-            std::unique_ptr<ISimulator> derived2(new IntelSimulator(8));
-            std::unique_ptr<SimulatorGeneral<IntelSimulator>> derived3(new IntelSimulator(8));
-            REQUIRE(derived1 != derived2);
-            REQUIRE(derived2 != derived3);
-            REQUIRE(derived2->getNumQubits() == 8);
-            REQUIRE(derived3->getNumQubits() == 8);
-        }
+    SECTION("SimulatorGeneral<IntelSimulator> pointer"){
+        SimulatorGeneral<IntelSimulator> *s2 = new IntelSimulator(8) ;//createSimulator(8);
+        REQUIRE(s2->getNumQubits() == 8);
+        delete s2; 
+    }
+    SECTION("unique_ptr<ISimulator> to IntelSimulator object"){
+        std::unique_ptr<ISimulator> s3(new IntelSimulator(8));
+        REQUIRE(s3->getNumQubits() == 8);
+    }
+    SECTION("unique_ptr<ISimulator> to IntelSimulator object"){
+        std::unique_ptr<SimulatorGeneral<IntelSimulator> > s4(new IntelSimulator(8));
+        REQUIRE(s4->getNumQubits() == 8);
+    }
+    SECTION("Create multiple simulator objects"){
+        std::unique_ptr<ISimulator> s5(new IntelSimulator(8));
+        std::unique_ptr<SimulatorGeneral<IntelSimulator>> s6(new IntelSimulator(8));
+        REQUIRE(s5 != s6);
+        REQUIRE(s5->getNumQubits() == 8);
+        REQUIRE(s5->getNumQubits() == 8);
     }
 }
 
