@@ -22,7 +22,7 @@ namespace QNLP{
          * @param r2_min The lowest bounded r2 index to perform Fourier transform on.
          * @param r2_max The highest bounded r2 index to perform Fourier transform on.
          */
-        static void sum_reg(QubitRegister<ComplexDP>& rReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max);
+        void sum_reg(ISimulator& rReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max);
         
         /**
          * @brief Implements |r1>|r2> -> |r1>|r1-r2>. If r1 < r2 the state will underflow, with the subtraction continuing from |11..1>. 
@@ -34,7 +34,7 @@ namespace QNLP{
          * @param r2_min The lowest bounded r2 index to perform Fourier transform on.
          * @param r2_max The highest bounded r2 index to perform Fourier transform on.
          */
-        static void sub_reg(QubitRegister<ComplexDP>& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max);
+        void sub_reg(ISimulator& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max);
     };
 
 }

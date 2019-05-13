@@ -71,10 +71,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
         std::abort();
     }
-    inline void applyGatePhaseShift(std::size_t qubit_idx){
-        std::cerr << "NOT YET IMPLEMENTED" << std::endl;
-        std::abort();
+    inline void applyGatePhaseShift(std::size_t qubit_idx, double angle){
+        //Phase gate is identity with 1,1 index modulated by angle
+        openqu::TinyMatrix<ComplexDP, 2, 2, 32> U(gates[3]);
+        U(1, 1) = ComplexDP(cos(angle), sin(angle));
+        qubitRegister.Apply1QubitGate(qubit_idx, U);
     }
+
 
     // 2 qubit
     inline void applyGateSqrtSwap(  std::size_t qubit_idx0, std::size_t qubit_idx1){    
@@ -134,6 +137,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
     inline void applyGateCH(CST control, CST target){
         qubitRegister.ApplyCHadamard(control, target);
+    }
+
+    inline void applyGateCPhaseShift(double angle, unsigned int control, unsigned int target){
+        openqu::TinyMatrix<ComplexDP, 2, 2, 32> U(gates[3]);
+        U(1, 1) = ComplexDP(cos(angle), sin(angle));
+        qubitRegister.ApplyControlled1QubitGate(control, target, U);
     }
 
     inline void applyGateCRotX(CST control, CST target, const double theta){

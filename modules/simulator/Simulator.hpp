@@ -134,7 +134,9 @@ namespace QNLP{
         virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
 
 
+        virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
 
+        virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
 
         virtual std::size_t getNumQubits() = 0;
     };
@@ -173,7 +175,9 @@ namespace QNLP{
         void applyGateI(std::size_t qubit_idx){
             static_cast<DerivedType&>(*this).applyGateI(qubit_idx); 
         }
-        void applyGateH(std::size_t qubit_idx){}
+        void applyGateH(std::size_t qubit_idx){
+            static_cast<DerivedType&>(*this).applyGateH(qubit_idx); 
+        }
         void applyGateSqrtX(std::size_t qubit_idx){}
         void applyGateRotX(std::size_t qubit_idx, double angle_rad){}
         void applyGateRotY(std::size_t qubit_idx, double angle_rad){}
@@ -248,7 +252,13 @@ namespace QNLP{
          */
         void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
         void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
-        void applyGatePhaseShift(std::size_t qubit_idx);
+        
+        void applyGatePhaseShift(double angle, std::size_t qubit_idx){
+            static_cast<DerivedType*>(this)->applyGatePhaseShift(angle, qubit_idx);
+        }
+        void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCPhaseShift(angle, control, target);
+        }
 
         //3 qubit gates
         void applyGateToffoli();
