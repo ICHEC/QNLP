@@ -16,7 +16,7 @@ else()
     message( SEND_ERROR "SQLite3 required for database access. libqnlp_db will not be built" )
 endif ()
 
-enable_testing()
+#enable_testing()
 #find_package(Catch2 REQUIRED)
 add_executable(test_db test_db.cpp)
 

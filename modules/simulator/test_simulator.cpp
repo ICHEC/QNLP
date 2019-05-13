@@ -9,6 +9,7 @@
  * 
  */
 #define CATCH_CONFIG_RUNNER
+//#define CATCH_CONFIG_MAIN
 
 #include "catch2/catch.hpp"
 #include "Simulator.hpp"
