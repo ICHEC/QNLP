@@ -13,6 +13,7 @@
 #include "catch2/catch.hpp"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
+#include <memory>
 
 using namespace QNLP;
 
@@ -71,6 +72,32 @@ TEST_CASE("Pauli operators"){
             sim.applyGateZ(0);
             REQUIRE(reg[0] == std::complex<double>(0.,0.));
             REQUIRE(reg[1] == std::complex<double>(-1.,0.));
+        }
+    }
+}
+
+/**
+ *  Consider using virtual for non-standard functions, and CRTP for everything else.
+ *  Default functions should be as fast as possible, with the others being only
+ *  rarely needed, thus performance isn't as critical.
+ */
+
+TEST_CASE("Simulator interface"){
+    SECTION("SimulatorGeneral<T> create"){
+        auto& s = SimulatorGeneral<IntelSimulator>() ;//createSimulator(8);
+//        REQUIRE(s.getNumQubits() == 8);
+    }
+    SECTION("Create unique_ptr<ISimulator> to IntelSimulator object"){
+        std::unique_ptr<ISimulator> derived1(new IntelSimulator(8));
+        REQUIRE(derived1->getNumQubits() == 8);
+
+        SECTION("Create multiple simulator objects"){
+            std::unique_ptr<ISimulator> derived2(new IntelSimulator(8));
+            std::unique_ptr<SimulatorGeneral<IntelSimulator>> derived3(new IntelSimulator(8));
+            REQUIRE(derived1 != derived2);
+            REQUIRE(derived2 != derived3);
+            REQUIRE(derived2->getNumQubits() == 8);
+            REQUIRE(derived3->getNumQubits() == 8);
         }
     }
 }
