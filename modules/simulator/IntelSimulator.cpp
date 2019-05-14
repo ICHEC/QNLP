@@ -123,7 +123,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline TMDP getGateH(){ return gates[4]; }
 
     //2 qubit gates
-    inline void applyGateCU(TMDP& U, CST control, CST target){
+    //template<>
+    //inline void applyGateCU<TMDP>(TMDP& U, CST control, CST target){
+    inline void applyGateCU(const TMDP& U, CST control, CST target){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
     }
     inline void applyGateCX(CST control, CST target){
@@ -167,6 +169,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     inline std::size_t getNumQubits() { return numQubits; }
 
+
+    /**
+     * Initialise register to |0....0>
+     */
+    inline void initRegister(){
+        this->qubitRegister.Initialize("base",0);
+    }
 };
 
 };

@@ -90,16 +90,16 @@ endif()
 find_package(MPI REQUIRED)
 
 ################################################################################
-add_executable(cswap_test ./tests/test_control_swap.cpp)
+#add_executable(cswap_test ./tests/test_control_swap.cpp)
 
-include_directories("${QHIPSTER_INC}")
+#include_directories("${QHIPSTER_INC}")
 
 ################################################################################
-ADD_LIBRARY(qhipster STATIC IMPORTED)
-SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
+#ADD_LIBRARY(qhipster STATIC IMPORTED)
+#SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 ################################################################################
 #target_link_libraries(cswap_test qhipster)
-target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11 qnlp_db qnlp_ncu qnlp_qft qnlp_arithmetic)
+#target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11 qnlp_db qnlp_ncu qnlp_qft qnlp_arithmetic)
 
 ################################################################################

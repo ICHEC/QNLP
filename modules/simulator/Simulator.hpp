@@ -133,12 +133,13 @@ namespace QNLP{
          */
         virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
 
-
         virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
 
         virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
 
         virtual std::size_t getNumQubits() = 0;
+
+        //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);
     };
 
     //##############################################################################
@@ -153,6 +154,7 @@ namespace QNLP{
     template <class DerivedType>//<class QubitRegisterType, class GateType>
     class SimulatorGeneral : virtual public ISimulator {
     public:
+
         virtual ~SimulatorGeneral(){ }
 
         DerivedType* createSimulator(std::size_t num_qubits){
@@ -240,9 +242,10 @@ namespace QNLP{
          * @param control Qubit index acting as control
          * @param target Qubit index acting as target
          */
-        //void applyGateCU(decltype(std::declval<DerivedType>().getGateX()) &U, std::size_t control, std::size_t target){
-        //
-        //}
+        template<class Mat2x2Type>
+        void applyGateCU(const Mat2x2Type &U, std::size_t control, std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCU(U, control, target);
+        }
 
         /**
          * @brief Swap the qubits at the given indices
@@ -251,6 +254,7 @@ namespace QNLP{
          * @param qubit_idx1 Index of qubit 1 to swap &(1 -> 0)
          */
         void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
+
         void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
         
         void applyGatePhaseShift(double angle, std::size_t qubit_idx){
