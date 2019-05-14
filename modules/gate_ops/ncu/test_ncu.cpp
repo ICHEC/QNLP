@@ -1,4 +1,4 @@
-#define CATCH_CONFIG_RUNNER
+//#define CATCH_CONFIG_RUNNER
 
 #include "ncu.hpp"
 #include "Simulator.hpp"
@@ -50,7 +50,7 @@ TEST_CASE("Test n-controlled unitary","[ncu]"){
 
     }
 }
-
+/*
 int main( int argc, char* argv[] ) {
     openqu::mpi::Environment env(argc, argv);
 
@@ -58,6 +58,7 @@ int main( int argc, char* argv[] ) {
 
     return result;
 }
+*/
 
 /**
  * @brief Tests the n-qubit controlled gate decomposition for all test patterns given the supplied number of qubits

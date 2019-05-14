@@ -10,8 +10,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #target_include_directories(qnlp_ncu PUBLIC ${QHIPSTER_INC} ${CMAKE_CURRENT_SOURCE_DIR})
 #target_link_libraries(qnlp_ncu qnlp_simulator qhipster)
 
+add_library(qnlp_ncu INTERFACE)
+target_include_directories(qnlp_ncu INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-add_executable(test_ncu test_ncu.cpp)
+add_library(test_ncu OBJECT test_ncu.cpp)
 
 add_library(qhipster STATIC IMPORTED)
 set_target_properties(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")

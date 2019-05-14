@@ -100,30 +100,3 @@ void Util::ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, const double angle, c
     qReg.ApplyControlled1QubitGate(control, target, U);
 }
 
-void Util::ApplyDiffusionOp(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx){
-    //For n-controlled not
-    openqu::TinyMatrix<ComplexDP, 2, 2, 32> X;
-    X(0,0) = {0.,  0.};
-    X(0,1) = {1., 0.};
-    X(1,0) = {1., 0.};
-    X(1,1) = {0.,  0.};
-
-    for(unsigned int i = minIdx; i <= maxIdx; i++){
-        qReg.ApplyHadamard(i);
-    }
-    for(unsigned int i = minIdx; i <= maxIdx; i++){
-        qReg.ApplyPauliX(i);
-    }
-    qReg.ApplyHadamard(maxIdx);
-
-    NQubitDecompose<ComplexDP> nCtrlX(X, (maxIdx-minIdx)-1);
-    nCtrlX.applyNQubitControl(qReg, minIdx, maxIdx-1, maxIdx, X, 0, true);
-
-    qReg.ApplyHadamard(maxIdx);
-    for(unsigned int i = minIdx; i <= maxIdx; i++){
-        qReg.ApplyPauliX(i);
-    }
-    for(unsigned int i = minIdx; i <= maxIdx; i++){
-        qReg.ApplyHadamard(i);
-    }
-}

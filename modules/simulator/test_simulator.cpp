@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2019
  * 
  */
-#define CATCH_CONFIG_RUNNER
+//#define CATCH_CONFIG_RUNNER
 //#define CATCH_CONFIG_MAIN
 
 #include "catch2/catch.hpp"
@@ -116,6 +116,7 @@ TEST_CASE("Simulator interface"){
  * As we require MPI until the end of the test session, it must be created before the tests, and destroyed after
  * all have finished.
  */
+/*
 int main( int argc, char* argv[] ) {
     openqu::mpi::Environment env(argc, argv);
 
@@ -123,3 +124,4 @@ int main( int argc, char* argv[] ) {
 
     return result;
 }
+*/

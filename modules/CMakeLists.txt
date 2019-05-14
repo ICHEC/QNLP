@@ -9,7 +9,8 @@ set(QNLP_MODULES_SUBDIRS    db;
                             py;
 #                            qubit_extended;
                             simulator;
-                            util
+                            #util;
+                            test
 )
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
     add_subdirectory(${MOD})

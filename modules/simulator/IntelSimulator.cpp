@@ -176,6 +176,16 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void initRegister(){
         this->qubitRegister.Initialize("base",0);
     }
+
+    inline void applyQFT(std::size_t minIdx, std::size_t maxIdx){
+        qft.applyQFT(*this, minIdx, maxIdx);
+    }
+    inline void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
+        qft.applyIQFT(*this, minIdx, maxIdx);
+    }
+
+    private:
+    NCU<TMDP, IntelSimulator> ncu;
 };
 
 };

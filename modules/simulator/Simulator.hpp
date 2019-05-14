@@ -20,6 +20,9 @@
 #include <utility> //std::declval
 
 // Include all additional modules to be used within simulator
+#include "ncu.hpp"
+#include "qft.hpp"
+//#include "arithmetic.hpp"
 
 namespace QNLP{
 
@@ -168,7 +171,6 @@ namespace QNLP{
 
         DerivedType* createSimulator(std::size_t num_qubits){
             return new DerivedType(static_cast<DerivedType&>(*this));
-                
         }
         //##############################################################################
         //                           Single qubit gates
@@ -288,6 +290,18 @@ namespace QNLP{
             return static_cast<DerivedType*>(this)->getNumQubits();    
         }
 
+        void applyQFT(std::size_t minIdx, std::size_t maxIdx){
+            static_cast<DerivedType&>(*this)->applyQFT(minIdx, maxIdx);
+            //qft.applyQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+        }
+
+        void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
+            static_cast<DerivedType&>(*this)->applyIQFT(minIdx, maxIdx);
+            //qft.applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+        }
+
+        protected:
+        QFT<DerivedType> qft;
     };
 }
 #endif

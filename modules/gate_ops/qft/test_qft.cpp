@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2019
  * 
  */
-#define CATCH_CONFIG_RUNNER
+//#define CATCH_CONFIG_RUNNER
 //#define CATCH_CONFIG_MAIN
 
 #include "catch2/catch.hpp"
@@ -29,7 +29,9 @@ TEST_CASE("QFT forward","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyQFT(sim, min_idx, max_idx);
+        //template class QFT<decltype(sim)>;
+        //QFT<decltype(sim)>::applyQFT(sim, min_idx, max_idx);
+        sim.applyQFT(min_idx, max_idx);
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == Approx( sqrt( 1. / num_qubits ) ) );
         }
@@ -39,7 +41,7 @@ TEST_CASE("QFT forward","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyQFT(sim, min_idx+1, max_idx);
+        sim.applyQFT(min_idx+1, max_idx);
         REQUIRE( r.GetProbability(min_idx) == 0.0 );
         for(std::size_t idx = min_idx+1; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == Approx( sqrt( 1. / (num_qubits-1) ) ) );
@@ -56,7 +58,7 @@ TEST_CASE("QFT inverse","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyIQFT(sim, min_idx, max_idx);
+        sim.applyIQFT(min_idx, max_idx);
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == Approx( sqrt( 1. / num_qubits ) ) );
         }
@@ -66,7 +68,7 @@ TEST_CASE("QFT inverse","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyIQFT(sim, min_idx+1, max_idx);
+        sim.applyIQFT(min_idx+1, max_idx);
         REQUIRE( r.GetProbability(min_idx) == 0.0 );
         for(std::size_t idx = min_idx+1; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == Approx( sqrt( 1. / (num_qubits-1) ) ) );
@@ -83,8 +85,8 @@ TEST_CASE("QFT forward and inverse","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyQFT(sim, min_idx, max_idx);
-        QFT::applyIQFT(sim, min_idx, max_idx);
+        sim.applyQFT(min_idx, max_idx);
+        sim.applyIQFT(min_idx, max_idx);
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
@@ -94,14 +96,14 @@ TEST_CASE("QFT forward and inverse","[simulator]"){
         for(std::size_t idx = min_idx; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
-        QFT::applyQFT(sim, min_idx+1, max_idx);
-        QFT::applyIQFT(sim, min_idx+1, max_idx);
+        sim.applyQFT(min_idx+1, max_idx);
+        sim.applyIQFT(min_idx+1, max_idx);
         for(std::size_t idx = min_idx+1; idx <= max_idx; idx++){
             REQUIRE( r.GetProbability(idx) == 0.0 );
         }
     }
 }
-
+/*
 int main( int argc, char* argv[] ) {
     openqu::mpi::Environment env(argc, argv);
 
@@ -109,6 +111,7 @@ int main( int argc, char* argv[] ) {
 
     return result;
 }
+*/
 
 //#############################################################################
 /*

@@ -85,7 +85,7 @@ namespace QNLP{
                  * @param depth Depth of recursion.
                  * @param isPauliX To indicate if the unitary is a PauliX matrix.
                  */
-                void applyNQubitControl(SimulatorGeneral<SimulatorType>& qReg, 
+                void applyNQubitControl(SimulatorType& qReg, 
                         const unsigned int qControlStart,
                         const unsigned int qControlEnd,
                         const unsigned int qTarget,

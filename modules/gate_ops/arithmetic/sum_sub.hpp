@@ -8,7 +8,7 @@
  * 
  * @copyright Copyright (c) 2019
  */
-#include "qureg/qureg.hpp"
+//#include "qureg/qureg.hpp"
 
 namespace QNLP{
     class SumSub{

@@ -18,9 +18,9 @@ endif ()
 
 #enable_testing()
 #find_package(Catch2 REQUIRED)
-add_executable(test_db test_db.cpp)
-
+add_library(test_db OBJECT test_db.cpp)
 target_link_libraries(test_db Catch2::Catch2 qnlp_db)
+
 #include(CTest)
 #include(Catch)
 #catch_discover_tests(test_db)
