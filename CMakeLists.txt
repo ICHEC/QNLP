@@ -56,7 +56,8 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
-     -DINTELQS_HAS_MPI" 
+     -DINTELQS_HAS_MPI \ 
+     -DVIRTUAL_INTERFACE"
 )
 
 ################################################################################

@@ -19,11 +19,15 @@
 #include <cstddef>
 #include <utility> //std::declval
 
+// Include all additional modules to be used within simulator
+
 namespace QNLP{
 
+#ifdef VIRTUAL_INTERFACE
     /**
     * @class	The abstract interface for implementing the QNLP-quantum 
-    * simulator connector.
+    * simulator connector. Currently exists for the purpose of later implementing 
+    * dynamic polymorphism.
     */
     class ISimulator{
     public:
@@ -141,18 +145,23 @@ namespace QNLP{
 
         //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);
     };
+#endif
 
     //##############################################################################
     //##############################################################################
 
 
     /**
-     * @brief CRTP defined class for simulator implementations
+     * @brief CRTP defined class for simulator implementations. 
      * 
-     * @tparam DerivedType CRTP derived class
+     * @tparam DerivedType CRTP derived class simulator type
      */
     template <class DerivedType>//<class QubitRegisterType, class GateType>
+#ifdef VIRTUAL_INTERFACE
     class SimulatorGeneral : virtual public ISimulator {
+#else
+    class SimulatorGeneral {
+#endif
     public:
 
         virtual ~SimulatorGeneral(){ }
