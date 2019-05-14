@@ -33,17 +33,6 @@ set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
 
-################################################################################
-# Include the directories with sources
-add_subdirectory(third_party)
-message("BASE: ${CMAKE_MODULE_PATH}")
-add_subdirectory(modules)
-
-################################################################################
-# Include third_party depedencies
-add_library(${PROJECT_NAME} INTERFACE)
-
-
 
 ################################################################################
 set(CMAKE_CXX_FLAGS 
@@ -58,6 +47,7 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
+     -O3        \
      -lmkl_blacs_intelmpi_ilp64"
 )
 
@@ -70,6 +60,18 @@ add_definitions(
      -DOPENQU_HAVE_MPI \
      -DINTELQS_HAS_MPI" 
 )
+
+
+################################################################################
+# Include the directories with sources
+add_subdirectory(third_party)
+message("BASE: ${CMAKE_MODULE_PATH}")
+add_subdirectory(modules)
+
+################################################################################
+# Include third_party depedencies
+add_library(${PROJECT_NAME} INTERFACE)
+
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake

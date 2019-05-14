@@ -1,5 +1,8 @@
 #pragma once
 #include "qureg/qureg.hpp"
+#include "ncu.hpp"
+#include <memory>
+//#include "util/tinymatrix.hpp"
 
 namespace QNLP{
 
@@ -16,6 +19,10 @@ class QubitCircuit: public QubitRegister<Type>{
         std::mt19937 mt;
         std::uniform_real_distribution<double> dist;
 
+        unique_ptr< vector<openqu::TinyMatrix<Type, 2, 2, 32>>> S;
+        unique_ptr<openqu::TinyMatrix<Type, 2, 2, 32>> X;
+        unique_ptr<NCU<Type>> op_nCDecomp;
+ 
     public:
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
 
