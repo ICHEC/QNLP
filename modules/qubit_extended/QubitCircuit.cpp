@@ -198,6 +198,7 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
     }        
 }
 
+
 template <class Type>
 void QubitCircuit<Type>::EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bin_pattern){
 

@@ -22,9 +22,15 @@ class QubitCircuit: public QubitRegister<Type>{
         unique_ptr< vector<openqu::TinyMatrix<Type, 2, 2, 32>>> S;
         unique_ptr<openqu::TinyMatrix<Type, 2, 2, 32>> X;
         unique_ptr<NCU<Type>> op_nCDecomp;
+
  
     public:
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
+        ~QubitCircuit(){
+//            delete []S;
+ //           delete []X;
+   //         delete []op_nCDecomp;
+        }
 
         void ApplyMeasurement(std::size_t qubit, bool normalize=true);
         void ApplyNCPauliX(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target);             // Won't work ing general since measurement will destroy states in a superposition
