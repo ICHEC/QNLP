@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
-
 project(qnlp_qubit_extended)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_BUILD_TYPE "Release")
 
-add_library(qnlp_qubit_extended STATIC QubitCircuit.cpp ${QHIPSTER_INC})
-target_include_directories(qnlp_qubit_extended PUBLIC ${QHIPSTER_INC} ${CMAKE_CURRENT_SOURCE_DIR})
+add_library(qnlp_qubit_extended STATIC QubitCircuit.hpp QubitCircuit.cpp ${QHIPSTER_INC})
+target_include_directories(qnlp_qubit_extended PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(qnlp_qubit_extended qnlp_ncu qhipster ) 
