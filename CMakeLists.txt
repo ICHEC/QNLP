@@ -20,7 +20,7 @@ set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 project (QNLP)
 
 ################################################################################
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
@@ -63,7 +63,7 @@ add_definitions(
 ################################################################################
 # Include the directories with sources
 add_subdirectory(third_party)
-message("BASE: ${CMAKE_MODULE_PATH}")
+#message("BASE: ${CMAKE_MODULE_PATH}")
 add_subdirectory(modules)
 
 ################################################################################
