@@ -23,6 +23,13 @@ project (QNLP)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
+#Selectively build the test object and binary
+option(ENABLE_TESTS "Enable QNLP tests" OFF)
+if (${ENABLE_TESTS})
+    enable_testing()
+endif()
+
 ################################################################################
 # Include cmake directory for use of custom Find<packagename> commands
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
