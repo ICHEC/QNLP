@@ -18,7 +18,7 @@ set(QNLP_MODULES_SUBDIRS      hamming_distance;
                             nqubit_ControlledU;
 #                            test_qft;
 #                            entanglement_test;
-                            measure_probs;
+#                            measure_probs;
                             yRot
 )
 

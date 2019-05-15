@@ -279,7 +279,6 @@ void QubitCircuit<Type>::EncodeBinInToSuperposition(vector<unsigned>& reg_memory
             this->ApplyPauliX(reg_memory[j]);
         }
 
-
         // Psi3
         op_nCDecomp->applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], *X, 0, true);
 
