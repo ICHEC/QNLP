@@ -22,6 +22,7 @@ project (QNLP)
 ################################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_BUILD_TYPE Release)
 
 
 #Selectively build the test object and binary
@@ -53,7 +54,8 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -lmkl_blacs_intelmpi_ilp64"
+     -lmkl_blacs_intelmpi_ilp64 \
+     "#-O3"
 )
 
 ################################################################################

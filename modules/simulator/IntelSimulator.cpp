@@ -21,17 +21,12 @@
 
 namespace QNLP{
 
-using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
-using QRDP = QubitRegister<ComplexDP>;
-using CST = const std::size_t;
-
 class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
-    private:
-        std::size_t numQubits = 0;
-        QRDP qubitRegister;
-        std::vector<TMDP> gates;
-
     public:
+    using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
+    using QRDP = QubitRegister<ComplexDP>;
+    using CST = const std::size_t;
+
     IntelSimulator(int numQubits) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
@@ -204,7 +199,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     private:
-    NCU<TMDP, IntelSimulator> ncu;
+    std::size_t numQubits = 0;
+    QRDP qubitRegister;
+    std::vector<TMDP> gates;
 };
 
 };

@@ -12,7 +12,7 @@ using namespace QNLP;
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class NCU< openqu::TinyMatrix< complex<double>, 2, 2, 32 >, IntelSimulator>;
+template class NCU<IntelSimulator>;
 
 TEST_CASE("Test n-controlled unitary","[ncu]"){
     for(std::size_t num_qubits=3; num_qubits <=8; num_qubits++){
@@ -30,7 +30,7 @@ TEST_CASE("Test n-controlled unitary","[ncu]"){
                             sim.applyGateX(ctrl_qubit);
                         }
                     }
-                    NCU<decltype(sim.getGateX()), decltype(sim)> nqd(sim.getGateX(), num_qubits-1);
+                    NCU<decltype(sim)> nqd(sim.getGateX(), num_qubits-1);
                     nqd.applyNQubitControl(sim, c_start, c_end, target, sim.getGateX(), 0, true); //isX = true
 
                     if(pattern_idx != pattern_total-1){

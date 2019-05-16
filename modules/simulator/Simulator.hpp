@@ -165,6 +165,10 @@ namespace QNLP{
 #else
     class SimulatorGeneral {
 #endif
+    //private:
+    //    template class NCU<DerivedType>;
+    //    NCU<DerivedType> ncu;
+
     public:
 
         virtual ~SimulatorGeneral(){ }
@@ -317,6 +321,13 @@ namespace QNLP{
 
         void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
             QFT<decltype(static_cast<DerivedType&>(*this))>::applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+        }
+
+        template<class Mat2x2Type>
+        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+            NCU<DerivedType> n;
+            //NCU<decltype(static_cast<DerivedType&>(*this))> n;
+            n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, U, 0, false);
         }
 
         void initRegister(){
