@@ -57,7 +57,6 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
-     -DNDEBUG  \
      -DINTELQS_HAS_MPI" 
 )
 
