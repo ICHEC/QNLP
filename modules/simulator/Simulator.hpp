@@ -192,9 +192,15 @@ namespace QNLP{
             static_cast<DerivedType&>(*this).applyGateH(qubit_idx); 
         }
         void applyGateSqrtX(std::size_t qubit_idx){}
-        void applyGateRotX(std::size_t qubit_idx, double angle_rad){}
-        void applyGateRotY(std::size_t qubit_idx, double angle_rad){}
-        void applyGateRotZ(std::size_t qubit_idx, double angle_rad){}
+        void applyGateRotX(std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateRotX(qubit_idx, angle_rad);
+        }
+        void applyGateRotY(std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateRotY(qubit_idx, angle_rad);
+        }
+        void applyGateRotZ(std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateRotZ(qubit_idx, angle_rad);
+        }
 
         /**
          * @brief Apply arbitrary user-defined unitary gate to qubit at qubit_idx
@@ -264,44 +270,48 @@ namespace QNLP{
          * @param qubit_idx0 Index of qubit 0 to swap &(0 -> 1)
          * @param qubit_idx1 Index of qubit 1 to swap &(1 -> 0)
          */
-        void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
+        void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1){
+            return static_cast<DerivedType*>(this)->applyGateSwap(qubit_idx0,qubit_idx1);
+        }
 
-        void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1);
+        void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1){
+            return static_cast<DerivedType*>(this)->applyGateSqrtSwap(qubit_idx0,qubit_idx1);
+        }
         
         void applyGatePhaseShift(double angle, std::size_t qubit_idx){
             static_cast<DerivedType*>(this)->applyGatePhaseShift(angle, qubit_idx);
         }
+
         void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target){
             static_cast<DerivedType*>(this)->applyGateCPhaseShift(angle, control, target);
         }
 
         //3 qubit gates
-        void applyGateToffoli();
-        void applyGateFredkin();
+        void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
+            static_cast<DerivedType*>(this)->applyGateCCX(ctrl_qubit0, ctrl_qubit1, target_qubit);
+        }
+
+        void applyGateCSwap(std::size_t ctrl_qubit, std::size_t qubit_swap0, std::size_t qubit_swap1){
+            static_cast<DerivedType*>(this)->applyGateCSwap(ctrl_qubit, qubit_swap0, qubit_swap1);
+        }
 
         //Defining Qubit operations
         //virtual decltype(auto)& getQubitRegister() -> decltype(DerivedType::getQubitRegister()) & = 0;
         decltype(auto) getQubitRegister(){ //-> decltype(std::declval<DerivedType&>().getQubitRegister())=0;
            return static_cast<DerivedType*>(this)->getQubitRegister();
         }
-        //virtual auto getQubitRegister() -> decltype(DerivedType::getQubitRegister()) & const = 0;
 
         std::size_t getNumQubits(){
             return static_cast<DerivedType*>(this)->getNumQubits();    
         }
 
         void applyQFT(std::size_t minIdx, std::size_t maxIdx){
-            static_cast<DerivedType&>(*this)->applyQFT(minIdx, maxIdx);
-            //qft.applyQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+            QFT<decltype(static_cast<DerivedType&>(*this))>::applyQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
         }
 
         void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
-            static_cast<DerivedType&>(*this)->applyIQFT(minIdx, maxIdx);
-            //qft.applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+            QFT<decltype(static_cast<DerivedType&>(*this))>::applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
         }
-
-        protected:
-        QFT<DerivedType> qft;
     };
 }
 #endif

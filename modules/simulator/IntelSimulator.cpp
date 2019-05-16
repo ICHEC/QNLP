@@ -177,12 +177,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         this->qubitRegister.Initialize("base",0);
     }
 
-    inline void applyQFT(std::size_t minIdx, std::size_t maxIdx){
+    /*inline void applyQFT(std::size_t minIdx, std::size_t maxIdx){
         qft.applyQFT(*this, minIdx, maxIdx);
+        QFT<static_cast<DerivedType&>(*this)>::applyQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
     }
     inline void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
         qft.applyIQFT(*this, minIdx, maxIdx);
-    }
+    }*/
 
     private:
     NCU<TMDP, IntelSimulator> ncu;
