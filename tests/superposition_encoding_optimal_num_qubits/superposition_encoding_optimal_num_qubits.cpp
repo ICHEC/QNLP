@@ -38,6 +38,95 @@ void print_bits(unsigned int val, int len){
     }
 }
 
+
+// Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
+//              - Let there exist m vectors of binary number, each of length n.
+/**
+ * @brief 
+ * 
+ * @tparam Type 
+ * @param pattern - binary strings in integer format to be encoded
+ * @param circ - Quantum circuit
+ * @param qRegCirc - Instance of class containing indices for each register int eh circuit 
+ * @param S - Matrices required for the encoding algorithm (one for each input)
+ * @param op_nCDecomp - Method defining the operator for nCU
+ * @param X - The unitary matrix U of the nCU operation (in this case Pauli-X matrix)
+ */
+template < class Type >
+void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& circ, myRegisters& qRegCirc, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
+
+    // Encode
+    int m,n;
+    m = qRegCirc.get_numTrainStrings();
+    n = qRegCirc.get_lenTrainStrings();
+
+    // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+    circ.ApplyPauliX(qRegCirc.get_cReg(1));
+
+
+    for(int i = 0; i < m; i++){
+        // Psi0
+        // Encode inputted binary pattern to pReg
+        for(int j = 0; j < n; j++){
+            if(IS_SET(pattern[i],j)){
+                circ.ApplyPauliX(qRegCirc.get_pReg(j));
+            }
+        }
+
+        // Psi1
+        // Encode inputted binary pattern
+        for(int j = 0; j < n; j++){
+            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
+        }
+
+        // Psi2
+        for(int j = 0; j < n; j++){
+            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
+            circ.ApplyPauliX(qRegCirc.get_mReg(j));
+        }
+
+        // Psi3
+        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
+
+        // Psi4
+        // Step 1.3 - Apply S^i
+        // This flips the second control bit of the new term in the position so
+        // that we get old|11> + new|10>
+        // Break off into larger and smaller chunks
+        circ.ApplyControlled1QubitGate(qRegCirc.get_cReg(0), qRegCirc.get_cReg(1), S[i]);
+
+        // Psi5
+        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
+
+        // Psi6 
+        for(int j = n-1; j > -1; j--){
+            circ.ApplyPauliX(qRegCirc.get_mReg(j));
+            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
+        }
+
+        // Psi7
+        for(int j = n-1; j > -1; j--){
+            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
+        }
+
+        // Reset the p register of the new term to the state |0...0>
+        for(int j = 0; j < n; j++){
+            // Check current pattern against next pattern
+            bool p1, p2;
+            p1 = IS_SET(pattern[i],j);
+            if(p1){
+                circ.ApplyPauliX(qRegCirc.get_pReg(j));
+            }
+
+        }
+
+
+    }
+}
+
+
+
+
 int main(int argc, char **argv){
 
     openqu::mpi::Environment env(argc, argv);
@@ -158,6 +247,9 @@ int main(int argc, char **argv){
 
 }
 
+
+
+#ifdef NEVER
 /**
  * @file encoding.cpp
  * @author Myles Doyle (myles.doyle@ichec.ie)
@@ -252,91 +344,6 @@ class myRegisters{
 void print_bits(unsigned int val, int len){
     for (int i = len-1; i > -1; i--){
         std::cout << ((val >> i) & 1UL);
-    }
-}
-
-// Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
-//              - Let there exist m vectors of binary number, each of length n.
-/**
- * @brief 
- * 
- * @tparam Type 
- * @param pattern - binary strings in integer format to be encoded
- * @param circ - Quantum circuit
- * @param qRegCirc - Instance of class containing indices for each register int eh circuit 
- * @param S - Matrices required for the encoding algorithm (one for each input)
- * @param op_nCDecomp - Method defining the operator for nCU
- * @param X - The unitary matrix U of the nCU operation (in this case Pauli-X matrix)
- */
-template < class Type >
-void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& circ, myRegisters& qRegCirc, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
-
-    // Encode
-    int m,n;
-    m = qRegCirc.get_numTrainStrings();
-    n = qRegCirc.get_lenTrainStrings();
-
-    // Prepare state in |0...>|0...0>|10> of lengths n,n,2
-    circ.ApplyPauliX(qRegCirc.get_cReg(1));
-
-
-    for(int i = 0; i < m; i++){
-        // Psi0
-        // Encode inputted binary pattern to pReg
-        for(int j = 0; j < n; j++){
-            if(IS_SET(pattern[i],j)){
-                circ.ApplyPauliX(qRegCirc.get_pReg(j));
-            }
-        }
-
-        // Psi1
-        // Encode inputted binary pattern
-        for(int j = 0; j < n; j++){
-            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
-        }
-
-        // Psi2
-        for(int j = 0; j < n; j++){
-            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
-            circ.ApplyPauliX(qRegCirc.get_mReg(j));
-        }
-
-        // Psi3
-        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
-
-        // Psi4
-        // Step 1.3 - Apply S^i
-        // This flips the second control bit of the new term in the position so
-        // that we get old|11> + new|10>
-        // Break off into larger and smaller chunks
-        circ.ApplyControlled1QubitGate(qRegCirc.get_cReg(0), qRegCirc.get_cReg(1), S[i]);
-
-        // Psi5
-        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
-
-        // Psi6 
-        for(int j = n-1; j > -1; j--){
-            circ.ApplyPauliX(qRegCirc.get_mReg(j));
-            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
-        }
-
-        // Psi7
-        for(int j = n-1; j > -1; j--){
-            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
-        }
-
-        // Reset the p register of the new term to the state |0...0>
-        for(int j = 0; j < n; j++){
-            // Check current pattern against next pattern
-            bool p1, p2;
-            p1 = IS_SET(pattern[i],j);
-            if(p1){
-                circ.ApplyPauliX(qRegCirc.get_pReg(j));
-            }
-
-        }
-
-
     }
 }
 
@@ -487,3 +494,4 @@ int main(int argc, char **argv){
 
 }
 
+#endif
