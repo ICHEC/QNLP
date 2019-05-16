@@ -55,7 +55,6 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -O3        \
      -lmkl_blacs_intelmpi_ilp64"
 )
 
@@ -69,6 +68,7 @@ add_definitions(
      -DINTELQS_HAS_MPI \ 
      -DVIRTUAL_INTERFACE"
 )
+
 
 ################################################################################
 # Include the directories with sources
