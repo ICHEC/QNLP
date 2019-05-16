@@ -4,13 +4,13 @@ project(qnlp_modules LANGUAGES CXX)
 ###############################################################################
 # Include all nested sources directories
 ###############################################################################
-set(QNLP_MODULES_SUBDIRS   
-#                            db;
+set(QNLP_MODULES_SUBDIRS    db;
                             gate_ops;
-#                            py;
-                            qubit_extended;
-#                            simulator;
-                            util
+                            py;
+#                            qubit_extended;
+                            simulator;
+                            #util;
+                            test
 )
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
     add_subdirectory(${MOD})
@@ -29,3 +29,4 @@ endforeach()
 #    target_include_directories(qnlp_modules PUBLIC ${SQLITE3_INCLUDE_DIRS})
 #    target_link_libraries (qnlp_modules ${SQLITE3_LIBRARIES})
 #endif (SQLITE3_FOUND)
+

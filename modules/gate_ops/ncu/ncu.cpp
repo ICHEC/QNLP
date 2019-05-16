@@ -16,27 +16,27 @@ static unsigned int op_counter = 0;
 #include "ncu.hpp"
 using namespace QNLP;
 
-template <class Type>
-NCU<Type>::NCU(){ }
+template <class Mat2x2Type>
+NCU<Mat2x2Type>::NCU(){ }
 
-template <class Type>
-NCU<Type>::NCU(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_gates){
-    NCU<Type>::initialiseMaps(U, num_ctrl_gates);
+template <class Mat2x2Type>
+NCU<Mat2x2Type>::NCU(const Mat2x2Type& U, const std::size_t num_ctrl_gates){
+    NCU<Mat2x2Type>::initialiseMaps(U, num_ctrl_gates);
 }
 
-template <class Type>
-NCU<Type>::~NCU(){
-    NCU<Type>::clearMaps();
+template <class Mat2x2Type>
+NCU<Mat2x2Type>::~NCU(){
+    NCU<Mat2x2Type>::clearMaps();
 }
 
 /**
  * @brief Clears the maps of stored sqrt matrices
  * 
  */
-template <class Type>
-void NCU<Type>::clearMaps(){
-    NCU<Type>::sqrtMatricesU.clear();
-    NCU<Type>::sqrtMatricesX.clear();
+template <class Mat2x2Type>
+void NCU<Mat2x2Type>::clearMaps(){
+    NCU<Mat2x2Type>::sqrtMatricesU.clear();
+    NCU<Mat2x2Type>::sqrtMatricesX.clear();
 }
 
 /**
@@ -44,13 +44,14 @@ void NCU<Type>::clearMaps(){
  * 
  * @param U Unitary matrix
  */
-template <class Type>
-void NCU<Type>::initialiseMaps(const openqu::TinyMatrix<Type, 2, 2, 32> U, const std::size_t num_ctrl_lines){
-    openqu::TinyMatrix<Type, 2, 2, 32> px;
-    px(0, 0) = Type(0., 0.);
-    px(0, 1) = Type(1., 0.);
-    px(1, 0) = Type(1., 0.);
-    px(1, 1) = Type(0., 0.);
+template <class Mat2x2Type>
+void NCU<Mat2x2Type>::initialiseMaps(const Mat2x2Type& U, const std::size_t num_ctrl_lines){
+    Mat2x2Type px;
+    px(0, 0) = complex<double>( 0., 0. );
+    px(0, 1) = complex<double>( 1., 0. );
+    px(1, 0) = complex<double>( 1., 0. );
+    px(1, 1) = complex<double>( 0., 0. );
+
     sqrtMatricesX[0] = px;
     sqrtMatricesX[1] = matrixSqrt(px);
     sqrtMatricesX[-1] = adjointMatrix(sqrtMatricesX[1]);
@@ -78,12 +79,12 @@ void NCU<Type>::initialiseMaps(const openqu::TinyMatrix<Type, 2, 2, 32> U, const
  * @param depth Depth of recursion.
  * @param isPauliX To indicate if the decomposition is of a PauliX matrix.
  */
-template <class Type>
-void NCU<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg, 
+template <class Mat2x2Type>
+void NCU<Mat2x2Type>::applyNQubitControl(ISimulator& qReg, 
                     const unsigned int qControlStart,
                     const unsigned int qControlEnd,
                     const unsigned int qTarget,
-                    const openqu::TinyMatrix<Type, 2, 2, 32>& U, 
+                    const Mat2x2Type& U, 
                     const unsigned int depth, const bool isPauliX)
 {
     //Some safety checks
@@ -202,13 +203,13 @@ void NCU<Type>::applyNQubitControl(QubitRegister<ComplexDP>& qReg,
  * @param U Unitary matrix to be rooted
  * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
  */
-template <class Type>
-openqu::TinyMatrix<Type, 2, 2, 32> NCU<Type>::matrixSqrt(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
-    openqu::TinyMatrix<Type, 2, 2, 32> V(U);
-    Type delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
-    Type tau = U(0,0) + U(1,1);
-    Type s = sqrt(delta);
-    Type t = sqrt(tau + 2.0*s);
+template <class Mat2x2Type>
+Mat2x2Type NCU<Mat2x2Type>::matrixSqrt(const Mat2x2Type& U){
+    Mat2x2Type V(U);
+    complex<double> delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
+    complex<double> tau = U(0,0) + U(1,1);
+    complex<double> s = sqrt(delta);
+    complex<double> t = sqrt(tau + 2.0*s);
 
 #ifdef __VERBOSE__
     std::cout << "#############################" << std::endl;
@@ -238,10 +239,10 @@ openqu::TinyMatrix<Type, 2, 2, 32> NCU<Type>::matrixSqrt(const openqu::TinyMatri
  * @param U Unitary matrix to be adjointed
  * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
  */
-template <class Type>
-openqu::TinyMatrix<Type, 2, 2, 32> NCU<Type>::adjointMatrix(const openqu::TinyMatrix<Type, 2, 2, 32>& U){
-    openqu::TinyMatrix<Type, 2, 2, 32> Uadjoint(U);
-    Type tmp;
+template <class Mat2x2Type>
+Mat2x2Type NCU<Mat2x2Type>::adjointMatrix(const Mat2x2Type& U){
+    Mat2x2Type Uadjoint(U);
+    complexi<double> tmp;
     tmp = Uadjoint(0,0);
     Uadjoint(0,0) = Uadjoint(1,1);
     Uadjoint(1,1) = tmp;

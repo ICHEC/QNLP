@@ -20,8 +20,16 @@ set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 project (QNLP)
 
 ################################################################################
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+#set(CMAKE_BUILD_TYPE Release)
+
+
+#Selectively build the test object and binary
+option(ENABLE_TESTS "Enable QNLP tests" OFF)
+if (${ENABLE_TESTS})
+    enable_testing()
+endif()
 
 ################################################################################
 # Include cmake directory for use of custom Find<packagename> commands
@@ -58,20 +66,19 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
-     -DINTELQS_HAS_MPI" 
+     -DINTELQS_HAS_MPI \ 
+     -DVIRTUAL_INTERFACE"
 )
-
 
 ################################################################################
 # Include the directories with sources
 add_subdirectory(third_party)
-message("BASE: ${CMAKE_MODULE_PATH}")
+#message("BASE: ${CMAKE_MODULE_PATH}")
 add_subdirectory(modules)
 
 ################################################################################
 # Include third_party depedencies
 add_library(${PROJECT_NAME} INTERFACE)
-
 
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
@@ -96,7 +103,7 @@ find_package(MPI REQUIRED)
 ################################################################################
 #add_executable(cswap_test ./tests/test_control_swap.cpp)
 
-include_directories("${QHIPSTER_INC}")
+#include_directories("${QHIPSTER_INC}")
 
 ################################################################################
 ADD_LIBRARY(qhipster STATIC IMPORTED)
