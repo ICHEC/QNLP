@@ -47,7 +47,6 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -O3        \
      -lmkl_blacs_intelmpi_ilp64"
 )
 
@@ -58,8 +57,10 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
+     -DNDEBUG  \
      -DINTELQS_HAS_MPI" 
 )
+
 
 
 ################################################################################
