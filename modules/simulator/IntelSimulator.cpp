@@ -78,7 +78,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         qubitRegister.Apply1QubitGate(qubit_idx, U);
     }
 
-
     // 2 qubit
     inline void applyGateSqrtSwap(  std::size_t qubit_idx0, std::size_t qubit_idx1){    
         std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
@@ -86,13 +85,35 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     // 3 qubit
-    inline void applyGateToffoli(){
-        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
-        std::abort();
+    inline void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
+        qubitRegister.ApplyToffoli(ctrl_qubit0, ctrl_qubit1, target_qubit);
     }
-    inline void applyGateFredkin(){
-        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
-        std::abort();
+
+    /*
+     * Controlled swap decomposition taken from arXiV:1301.3727
+     */
+    inline void applyGateCSwap(std::size_t ctrl_qubit, std::size_t qubit_swap0, std::size_t qubit_swap1){
+        //V = sqrt(X)
+        openqu::TinyMatrix<ComplexDP, 2, 2, 32> V;
+        V(0,0) = {0.5,  0.5};
+        V(0,1) = {0.5, -0.5};
+        V(1,0) = {0.5, -0.5};
+        V(1,1) = {0.5,  0.5};
+        
+        openqu::TinyMatrix<ComplexDP, 2, 2, 32> V_dag;
+        V_dag(0,0) = {0.5, -0.5};
+        V_dag(0,1) = {0.5,  0.5};
+        V_dag(1,0) = {0.5,  0.5};
+        V_dag(1,1) = {0.5, -0.5};
+        
+        applyGateCX(qubit_swap1, qubit_swap0);
+        applyGateCU(V, qubit_swap0, qubit_swap1);
+        applyGateCU(V, ctrl_qubit, qubit_swap1);
+        
+        applyGateCX(ctrl_qubit, qubit_swap0);
+        applyGateCU(V_dag, qubit_swap0, qubit_swap1);
+        applyGateCX(qubit_swap1, qubit_swap0);
+        applyGateCX(ctrl_qubit, qubit_swap0);
     }
 
     //#################################################
@@ -164,11 +185,16 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     //3 qubit gates
 
     //Defining Qubit operations
-    inline QubitRegister<ComplexDP>& getQubitRegister() { return this->qubitRegister; }
-    inline const QubitRegister<ComplexDP>& getQubitRegister() const { return this->qubitRegister; };
+    inline QubitRegister<ComplexDP>& getQubitRegister() { 
+        return this->qubitRegister; 
+    }
+    inline const QubitRegister<ComplexDP>& getQubitRegister() const { 
+        return this->qubitRegister; 
+    };
 
-    inline std::size_t getNumQubits() { return numQubits; }
-
+    constexpr std::size_t getNumQubits() { 
+        return numQubits; 
+    }
 
     /**
      * Initialise register to |0....0>
@@ -176,14 +202,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void initRegister(){
         this->qubitRegister.Initialize("base",0);
     }
-
-    /*inline void applyQFT(std::size_t minIdx, std::size_t maxIdx){
-        qft.applyQFT(*this, minIdx, maxIdx);
-        QFT<static_cast<DerivedType&>(*this)>::applyQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
-    }
-    inline void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
-        qft.applyIQFT(*this, minIdx, maxIdx);
-    }*/
 
     private:
     NCU<TMDP, IntelSimulator> ncu;

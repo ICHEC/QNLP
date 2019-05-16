@@ -292,6 +292,12 @@ namespace QNLP{
         }
 
         void applyGateCSwap(std::size_t ctrl_qubit, std::size_t qubit_swap0, std::size_t qubit_swap1){
+            assert( static_cast<DerivedType*>(this)->getNumQubits() > 2 );
+            //The requested qubit indices must be available to use within the register range
+            assert( (ctrl_qubit < getNumQubits() ) && (qubit_swap0 < getNumQubits() ) && (qubit_swap1 < getNumQubits()) );
+            //The qubits must be different from one another
+            assert( ctrl_qubit != qubit_swap0 && ctrl_qubit != qubit_swap1 && qubit_swap0 != qubit_swap1 );
+
             static_cast<DerivedType*>(this)->applyGateCSwap(ctrl_qubit, qubit_swap0, qubit_swap1);
         }
 
@@ -311,6 +317,10 @@ namespace QNLP{
 
         void applyIQFT(std::size_t minIdx, std::size_t maxIdx){
             QFT<decltype(static_cast<DerivedType&>(*this))>::applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
+        }
+
+        void initRegister(){
+            static_cast<DerivedType*>(this)->initRegister(); 
         }
     };
 }
