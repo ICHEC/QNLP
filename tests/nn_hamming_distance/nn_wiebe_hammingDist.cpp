@@ -3,6 +3,8 @@
 #include "QubitCircuit.hpp"
 #include <bitset>
 
+using namespace QNLP;
+
 unsigned int update_left_shift_binary(unsigned int current, bool val){
     return (current << 1) & val;
 }

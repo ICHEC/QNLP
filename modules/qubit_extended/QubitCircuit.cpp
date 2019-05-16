@@ -1,5 +1,18 @@
 #include "QubitCircuit.hpp"
 
+using namespace QNLP;
+
+//#include "util/tinymatrix.hpp"
+
+/**
+ * @brief Checks if the bit'th bit of the integer byte is set
+ * 
+ * @param byte - integer representing a binary string
+ * @param bit - the index of the bit to be checked (beginning
+ * with the least significant bit)
+ */
+#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
+
 // Constructor initialising RNG
 template <class Type>
 QubitCircuit<Type>::QubitCircuit(std::size_t num_qubits_, std::string style, std::size_t base_index): QubitRegister<Type>( num_qubits_,style,base_index) {
@@ -185,5 +198,122 @@ void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::s
     }        
 }
 
+
+template <class Type>
+void QubitCircuit<Type>::EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bin_pattern){
+
+    static bool first_instance = true;
+    int m, len_reg_ancilla;
+    m = bin_patterns.size();
+    len_reg_ancilla = reg_ancilla.size();
+
+    // Require length of ancilla register to have m+2 qubits
+    assert(m + 1 < len_reg_ancilla);
+
+    // Initialise matrices used only on first instance of this operator
+    if(first_instance){
+        cout << "Initialising Encoding" << endl;
+        first_instance = false;
+
+        // Preparation for binary encoding:
+        //
+        // Prepare three matrices S^1,S^2,...,S^3 that are required for the implemented
+        // algorithm to encode these binary strings into a superposition state.
+        //
+        // Note the matrix indexing of the S vector of S^p matrices will be backwards:
+        //      S[0] -> S^p
+        //      S[1] -> S_{p-1}, and so on.
+        //
+        S.reset(new vector<openqu::TinyMatrix<Type, 2, 2, 32>>(m));
+        {
+            int p = m;
+            double diag, off_diag;
+
+            for(int i = 0; i < m; i++){
+                off_diag = 1.0/sqrt((double)(p));
+                diag = off_diag * sqrt((double)(p-1));
+
+                (*S)[i](0,0) = {diag, 0.0};
+                (*S)[i](0,1) = {off_diag, 0.0};
+                (*S)[i](1,0) = {-off_diag, 0.0};
+                (*S)[i](1,1) = {diag, 0.0};
+
+                p--;
+            }
+        }
+
+        // Set up operator for ncontrolled Unitary gate for the binary
+        // decomposition of the chosen state.
+        X.reset(new openqu::TinyMatrix<Type, 2, 2, 32> ());
+        (*X)(0,0) = {0.,  0.};
+        (*X)(0,1) = {1., 0.};
+        (*X)(1,0) = {1., 0.};
+        (*X)(1,1) = {0.,  0.};
+
+        op_nCDecomp.reset(new NCU<ComplexDP>(*X, len_bin_pattern));
+    }
+        
+    // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+    this->ApplyPauliX(reg_ancilla[len_reg_ancilla-1]);
+
+
+    // Begin Encoding
+    for(int i = 0; i < m; i++){
+        // Psi0
+        // Encode inputted binary pattern to pReg
+        for(int j = 0; j < len_bin_pattern; j++){
+            if(IS_SET(bin_patterns[i],j)){
+                this->ApplyPauliX(reg_ancilla[j]);
+            }
+        }
+
+        // Psi1
+        // Encode inputted binary pattern
+        for(int j = 0; j < len_bin_pattern; j++){
+            this->ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+        }
+
+        // Psi2
+        for(int j = 0; j < len_bin_pattern; j++){
+            this->ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
+            this->ApplyPauliX(reg_memory[j]);
+        }
+
+        // Psi3
+        op_nCDecomp->applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], *X, 0, true);
+
+        // Psi4
+        // Step 1.3 - Apply S^i
+        // This flips the second control bit of the new term in the position so
+        // that we get old|11> + new|10>
+        // Break off into larger and smaller chunks
+        this->ApplyControlled1QubitGate(reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1], (*S)[i]);
+
+        // Psi5
+        op_nCDecomp->applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], *X, 0, true);
+
+        // Psi6 
+        for(int j = len_bin_pattern-1; j > -1; j--){
+            this->ApplyPauliX(reg_memory[j]);
+            this->ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
+        }
+
+        // Psi7
+        for(int j = len_bin_pattern-1; j > -1; j--){
+            this->ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+        }
+
+
+        // Reset the p register of the new term to the state |0...0>
+        for(int j = 0; j < len_bin_pattern; j++){
+            // Check current pattern against next pattern
+            if(IS_SET(bin_patterns[i],j)){
+                this->ApplyPauliX(reg_ancilla[j]);
+            }
+
+        }
+    }
+}
+
 template class QubitCircuit<ComplexDP>;
-template class QubitCircuit<ComplexSP>;
+//template class QubitCircuit<ComplexSP>;

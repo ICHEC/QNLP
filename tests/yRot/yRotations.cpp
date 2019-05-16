@@ -3,6 +3,8 @@
 #include "QubitCircuit.hpp"
 #include <bitset>
 
+using namespace QNLP;
+
 /**
  * @brief Demonstrates relationship of state probabilities as qubit's are rotated
  * 
