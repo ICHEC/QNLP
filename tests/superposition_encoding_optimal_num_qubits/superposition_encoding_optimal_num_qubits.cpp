@@ -39,6 +39,38 @@ void print_bits(unsigned int val, int len){
 }
 
 
+/**
+ * @brief Generates the P^i operator required for a given binary string 
+ * that is to be encoded. 
+ * P^i = prod_j(cos(pi/2 p^i_j)*Identity + i*sin(pi/2 p^i_j)*PauliY)
+ * 
+ * @param circ - Quantum circuit
+ * @param bit_pattern - Binary pattern represented as unsigned integer
+ * @param len_bit_pattern - length of binary pattern
+ * @param op_P - A 2x2 matrix which stores the resulting operator
+ */
+template<class Type>
+void generate_operator_P(QubitCircuit<Type>&circ, unsigned bit_pattern, unsigned len_bit_pattern, openqu::TinyMatrix<Type,2,2,32>& op_P){
+
+    assert(len_bit_pattern > 0);
+
+    bool bit, accum;
+    int bool_parity = 1;
+
+    bit = IS_SET(bit_pattern,0);
+    accum = bit;
+    for(int j = 1; j < len_bit_pattern; j++){
+        bit = IS_SET(bit_pattern,j);
+        parity *= -1*(bit & accum) + 1*(!(bit & accum));
+        accum ^= bit;
+    }
+
+    op_P(0,0) = {1.0*parity*(!accum),0.0};
+    op_P(0,1) = {1.0*parity*(accum),0.0};
+    op_P(1,0) = {-1.0*parity*(accum),0.0};
+    op_P(1,1) = {1.0*parity*(!accum),0.0};
+}
+
 // Step 1       - Encode states into a superposition. See Ventura, 2000, Quantum associative memory            
 //              - Let there exist m vectors of binary number, each of length n.
 /**
