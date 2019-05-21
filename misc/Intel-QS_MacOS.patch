@@ -1,0 +1,298 @@
+diff --git a/interface/makefile b/interface/makefile
+index 0704088..eb13ec5 100644
+--- a/interface/makefile
++++ b/interface/makefile
+@@ -16,7 +16,7 @@
+ 
+ include ../make.inc
+ 
+-LDFLAGS =   -L${MKLROOT}/lib/intel64 -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_ilp64 -lpthread
++LDFLAGS =   -L${MKLROOT}/lib -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lpthread
+ 
+ ifeq ($(bigmpi),1)
+  LDFLAGS := ${BIGMPI_LIB} ${LDFLAGS}
+diff --git a/make.inc b/make.inc
+index d80136d..303c59f 100644
+--- a/make.inc
++++ b/make.inc
+@@ -21,23 +21,22 @@ HOST = $(shell hostname)
+ CC = g++
+ CC = CC -mkl -no-ipo
+ CC = mpicxx
+-CC = mpiicpc
+ 
+ OPTS = -g -O3
+ VECS = -qopt-report-phase=vec -qopt-report=2
+-DEFS = -DUSE_MM_MALLOC -DSTANDALONE -DINTELQS_HAS_MPI -DMKL_ILP64
++DEFS = -DUSE_MM_MALLOC -DSTANDALONE -DMKL_ILP64
+ 
+ BIGMPI_LIB = /opt/bigmpi/lib/libbigmpi.a
+ BIGMPI_INC = -I/opt/bigmpi/include
+ 
+ CFLAGS = ${OPTS} ${DEFS} \
+-         -Wall -std=c++11 -qopenmp #-restrict \
++         -Wall -std=c++11 -fopenmp -liomp5 #-restrict \
+ # -fasm-blocks
+ 
+ CFLAGS += ${OPTFLAGS}
+ 
+ #ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+-INC = -I./ -I../
++INC = -I./ -I../ -I${MKLROOT}/include
+ 
+ ifeq ($(bigmpi),1)
+  DEFS := ${DEFS} -DBIGMPI
+diff --git a/makefile.sdk b/makefile.sdk
+index 2a1947c..6e830df 100644
+--- a/makefile.sdk
++++ b/makefile.sdk
+@@ -15,7 +15,7 @@
+ ##------------------------------------------------------------------------------
+ include ./make.inc
+ 
+-LDFLAGS = -L${MKLROOT}/lib/intel64 -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_ilp64 -lpthread
++LDFLAGS = -L${MKLROOT}/lib -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lpthread
+ 
+ ##-----------------------------------------------------------------------------
+ ## Add the source files you wish to target by uncommenting & modifying the SRC=
+diff --git a/qureg/qureg.hpp b/qureg/qureg.hpp
+index d64b77c..c8f7eb3 100644
+--- a/qureg/qureg.hpp
++++ b/qureg/qureg.hpp
+@@ -38,6 +38,7 @@
+ #include <numeric>
+ #include <tuple>
+ #include <vector>
++#include <mkl.h>
+ 
+ #if defined(__ICC) || defined(__INTEL_COMPILER)
+ #include <mkl.h>
+diff --git a/qureg/qureg_applydiag.cpp b/qureg/qureg_applydiag.cpp
+index a2b6b26..e3d95f7 100644
+--- a/qureg/qureg_applydiag.cpp
++++ b/qureg/qureg_applydiag.cpp
+@@ -88,7 +88,7 @@ void QubitRegister<Type>::ApplyDiag(unsigned qubit1_, unsigned qubit2_,  TM4x4<T
+        d22 = m[2][2],
+        d33 = m[3][3];
+   std::size_t src_glb_start = UL(myrank) * LocalSize();
+-  bool controlled = (d00 == 1. && d11 == 1.);
++  bool controlled = (d00 == Type(1.,0.) && d11 == Type(1.,0.));
+ 
+   
+   #if 0
+diff --git a/qureg/qureg_measure.cpp b/qureg/qureg_measure.cpp
+index fdf1136..9b63c07 100644
+--- a/qureg/qureg_measure.cpp
++++ b/qureg/qureg_measure.cpp
+@@ -144,7 +144,7 @@ void QubitRegister<Type>::CollapseQubit(unsigned qubit, bool value)
+ /// Return the probability corresponding to the qubit being in state |1>.
+ /// The state is left unchanged and not collapsed.
+ template <class Type>
+-QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit)
++typename QubitRegister<Type>::BaseType QubitRegister<Type>::GetProbability(unsigned qubit)
+ {
+   unsigned myrank=0, nprocs=1, log2_nprocs=0;
+ #ifdef INTELQS_HAS_MPI
+diff --git a/qureg/qureg_utils.cpp b/qureg/qureg_utils.cpp
+index 54c4a79..d331d93 100644
+--- a/qureg/qureg_utils.cpp
++++ b/qureg/qureg_utils.cpp
+@@ -44,7 +44,7 @@ bool QubitRegister<Type>::operator==(const QubitRegister &rhs)
+ /////////////////////////////////////////////////////////////////////////////////////////
+ /// @brief ???
+ template <class Type>
+-QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, Type sfactor)
++typename QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x, Type sfactor)
+ {
+   assert(LocalSize() == x.LocalSize());
+   BaseType lcl_maxabsdiff = -1.0;
+@@ -75,7 +75,7 @@ QubitRegister<Type>::BaseType QubitRegister<Type>::maxabsdiff(QubitRegister &x,
+ /////////////////////////////////////////////////////////////////////////////////////////
+ /// @brief ???
+ template <class Type>
+-QubitRegister<Type>::BaseType QubitRegister<Type>::maxl2normdiff(QubitRegister &x)
++typename QubitRegister<Type>::BaseType QubitRegister<Type>::maxl2normdiff(QubitRegister &x)
+ {
+   assert(LocalSize() == x.LocalSize());
+   BaseType lcl_diff = 0.0;
+@@ -123,7 +123,7 @@ void QubitRegister<Type>::Normalize()
+ /////////////////////////////////////////////////////////////////////////////////////////
+ /// @brief Compute the norm of the state (L2 norm).
+ template <class Type>
+-QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
++typename QubitRegister<Type>::BaseType QubitRegister<Type>::ComputeNorm()
+ {
+   BaseType local_normsq = 0;
+   std::size_t lcl = LocalSize();
+diff --git a/tests/makefile b/tests/makefile
+index 5ea5be2..94958d3 100644
+--- a/tests/makefile
++++ b/tests/makefile
+@@ -15,7 +15,7 @@
+ ##------------------------------------------------------------------------------
+ include ../make.inc
+ 
+-LDFLAGS =   -L${MKLROOT}/lib/intel64 -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_ilp64 -lpthread
++LDFLAGS =   -L${MKLROOT}/lib -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lpthread
+ 
+ ifdef memcheck
+  LDFLAGS := ${LDFLAGS} /home/msmelyan/valgrind-3.11.0/installed/lib/valgrind/libmpiwrap-amd64-linux.so
+diff --git a/tests/qft_test.cpp b/tests/qft_test.cpp
+index f63d69f..ef174e4 100644
+--- a/tests/qft_test.cpp
++++ b/tests/qft_test.cpp
+@@ -15,6 +15,8 @@
+ //------------------------------------------------------------------------------
+ 
+ #include "../qureg/qureg.hpp"
++#include <mkl.h>
++#include <mkl_cdft.h>
+ 
+ #if (defined(__ICC) || defined(__INTEL_COMPILER))
+ #include <mkl.h>
+@@ -60,56 +62,56 @@ static void cfft(QubitRegister<Type> &x)
+ {
+   
+   int nprocs = openqu::mpi::Environment::size();
+-#if (defined(__ICC) || defined(__INTEL_COMPILER))
+-#ifdef INTELQS_HAS_MPI
+-  MPI_Comm comm = openqu::mpi::Environment::comm();
+-  DFTI_DESCRIPTOR_DM_HANDLE desc;
+-  MKL_LONG v;
+-
+-  // Create descriptor for 1D FFT
+-  MKL_LONG status =
+-      (sizeof(BaseType<Type>) == 8) ? 
+-      DftiCreateDescriptorDM(comm, &desc, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize()) :
+-      DftiCreateDescriptorDM(comm, &desc, DFTI_SINGLE, DFTI_COMPLEX, 1, x.GlobalSize());
+-
+-  // openqu::mpi::barrier(); exit(0);
+-  DftiGetValueDM(desc, CDFT_LOCAL_SIZE, &v);
+-  std::vector <Type> work(v);
+-  DftiSetValueDM(desc, CDFT_WORKSPACE, work.data());
+-
+-  
+-  DftiSetValueDM(desc, DFTI_BACKWARD_SCALE, 1.0 / std::sqrt((BaseType<Type>)x.GlobalSize()));
+-  DftiCommitDescriptorDM(desc);
+-  DftiComputeBackwardDM(desc, &(x[0]));
+-  DftiFreeDescriptorDM(&desc);
+-#else
+-  DFTI_DESCRIPTOR_HANDLE descriptor;
+-  MKL_LONG status;
+-  status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize());  
+-  status = DftiSetValue(descriptor, DFTI_PLACEMENT, DFTI_INPLACE);  
+-  status = DftiSetValue(descriptor, DFTI_BACKWARD_SCALE, 1.0 / sqrt((double)x.size()));
+-  status = DftiCommitDescriptor(descriptor);           // Finalize the descriptor
+-  status = DftiComputeBackward(descriptor, &(x[0]), NULL);  // Compute the Backward FFT
+-  status = DftiFreeDescriptor(&descriptor);            // Free the descriptor
+-#endif
+-#else
+-  assert(nprocs == 1);
+-  std::vector<Type, Alloc> y = x;
+-  TODO(Replace with distributed FFTW)
+-  int N = y.size();
+-  for (int k = 0; k < N; k++)
+-  {
+-    y[k] = {0, 0};
+-    for (int j = 0; j < N; j++)
+-    {
+-      double arg = 2.0 * M_PI * D(j) * D(k) / D(N);
+-      Type e = Type(std::cos(arg), std::sin(arg));
+-      y[k] += x[j] * e;
+-    }
+-    y[k] /= std::sqrt(D(N));
+-  }
+-  x = y;
+-#endif
++//#if (defined(__ICC) || defined(__INTEL_COMPILER))
++    #ifdef INTELQS_HAS_MPI
++      MPI_Comm comm = openqu::mpi::Environment::comm();
++      DFTI_DESCRIPTOR_DM_HANDLE desc;
++      MKL_LONG v;
++
++      // Create descriptor for 1D FFT
++      MKL_LONG status =
++          (sizeof(BaseType<Type>) == 8) ? 
++          DftiCreateDescriptorDM(comm, &desc, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize()) :
++          DftiCreateDescriptorDM(comm, &desc, DFTI_SINGLE, DFTI_COMPLEX, 1, x.GlobalSize());
++
++      // openqu::mpi::barrier(); exit(0);
++      DftiGetValueDM(desc, CDFT_LOCAL_SIZE, &v);
++      std::vector <Type> work(v);
++      DftiSetValueDM(desc, CDFT_WORKSPACE, work.data());
++
++      
++      DftiSetValueDM(desc, DFTI_BACKWARD_SCALE, 1.0 / std::sqrt((BaseType<Type>)x.GlobalSize()));
++      DftiCommitDescriptorDM(desc);
++      DftiComputeBackwardDM(desc, &(x[0]));
++      DftiFreeDescriptorDM(&desc);
++    #else
++      DFTI_DESCRIPTOR_HANDLE descriptor;
++      MKL_LONG status;
++      status = DftiCreateDescriptor(&descriptor, DFTI_DOUBLE, DFTI_COMPLEX, 1, x.GlobalSize());  
++      status = DftiSetValue(descriptor, DFTI_PLACEMENT, DFTI_INPLACE);  
++      status = DftiSetValue(descriptor, DFTI_BACKWARD_SCALE, 1.0 / sqrt((double)x.size()));
++      status = DftiCommitDescriptor(descriptor);           // Finalize the descriptor
++      status = DftiComputeBackward(descriptor, &(x[0]), NULL);  // Compute the Backward FFT
++      status = DftiFreeDescriptor(&descriptor);            // Free the descriptor
++    #endif
++//#else
++//  assert(nprocs == 1);
++//  std::vector<Type, Alloc> y = x;
++//  TODO(Replace with distributed FFTW)
++//  int N = y.size();
++//  for (int k = 0; k < N; k++)
++//  {
++//    y[k] = {0, 0};
++//    for (int j = 0; j < N; j++)
++//    {
++//      double arg = 2.0 * M_PI * D(j) * D(k) / D(N);
++//      Type e = Type(std::cos(arg), std::sin(arg));
++//      y[k] += x[j] * e;
++//    }
++//    y[k] /= std::sqrt(D(N));
++//  }
++//  x = y;
++//#endif
+ }
+ 
+ 
+diff --git a/util/tests/makefile b/util/tests/makefile
+index af4b7e7..d6c9339 100644
+--- a/util/tests/makefile
++++ b/util/tests/makefile
+@@ -16,7 +16,7 @@
+ 
+ include ../../make.inc
+ 
+-LDFLAGS =   -L${MKLROOT}/lib/intel64 -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_ilp64 -lpthread -lirc
++LDFLAGS =   -L${MKLROOT}/lib -lmkl_cdft_core -lmkl_intel_ilp64 -lmkl_core -lmkl_intel_thread -lpthread
+ 
+ ifdef VECTORIZATION_REPORT
+ OPTS:=-qopt-report3 -qopt-report-phase=loop,vec
+diff --git a/util/tests/mpi_exception_test.cpp b/util/tests/mpi_exception_test.cpp
+index b19ece5..64a156d 100644
+--- a/util/tests/mpi_exception_test.cpp
++++ b/util/tests/mpi_exception_test.cpp
+@@ -35,7 +35,7 @@ int main(int argc, char** argv)
+     try {
+ 
+         // Set the error handler for C++ framework calls through the MPI_COMM_WORLD communicator.
+-        QH_MPI_STATUS_CHECK(MPI_Errhandler_set(MPI_COMM_WORLD,MPI_ERRORS_RETURN));
++        QH_MPI_STATUS_CHECK(MPI_Comm_set_errhandler(MPI_COMM_WORLD,MPI_ERRORS_RETURN));
+ 
+         // do something dumb.
+         QH_MPI_STATUS_CHECK((MPI_Bsend(&argc, 1, MPI_INT, 600, 0, MPI_COMM_WORLD)));
+diff --git a/util/tests/omp_integral_base.cpp b/util/tests/omp_integral_base.cpp
+index e09a007..a73a906 100644
+--- a/util/tests/omp_integral_base.cpp
++++ b/util/tests/omp_integral_base.cpp
+@@ -24,7 +24,7 @@
+ #include "openmp_affinity_noomp.hpp"
+ #include "openmp_affinity_corei7.hpp"
+ #include <stdio.h>
+-#include <malloc.h>
++#include <malloc/malloc.h>
+ #include <math.h>
+ #include <stdexcept>
+ #include <chrono>
