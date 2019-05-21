@@ -234,7 +234,7 @@ namespace QNLP{
          * @param qubit_idx Index of qubit to rotate about X-axis
          * @param angle_rad Rotation angle
          */
-        void applyGateRotX(std::size_t qubit_idx, double v){
+        void applyGateRotX(std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateRotX(qubit_idx, angle_rad);
         }
         /**

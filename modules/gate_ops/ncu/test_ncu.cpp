@@ -63,7 +63,7 @@ TEST_CASE("Test n-controlled unitary simulator methods","[ncu]"){
                             sim.applyGateX(ctrl_qubit);
                         }
                     }
-                    sim.applyGateNCU<decltype(sim.getGateX())>(sim.getGateX(), c_start, c_end, target, 0, true);
+                    sim.applyGateNCU<decltype(sim.getGateX())>(sim.getGateX(), c_start, c_end, target);
                     if(pattern_idx != pattern_total-1){
                         REQUIRE(sim.getQubitRegister().GetProbability( target )  == Approx(0.0).margin(1e-12));
                     }
