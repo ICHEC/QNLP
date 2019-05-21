@@ -68,7 +68,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
     inline void applyGatePhaseShift(std::size_t qubit_idx, double angle){
         //Phase gate is identity with 1,1 index modulated by angle
-        openqu::TinyMatrix<ComplexDP, 2, 2, 32> U(gates[3]);
+        TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
         qubitRegister.Apply1QubitGate(qubit_idx, U);
     }
@@ -121,7 +121,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateSqrtX(CST qubitIndex){
         qubitRegister.ApplyPauliSqrtX(qubitIndex);
     };
-
     inline void applyGateRotX(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationX(qubitIndex, angle);
     };
@@ -138,9 +137,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline TMDP getGateI(){ return gates[3]; }
     inline TMDP getGateH(){ return gates[4]; }
 
-    //2 qubit gates
-    //template<>
-    //inline void applyGateCU<TMDP>(TMDP& U, CST control, CST target){
     inline void applyGateCU(const TMDP& U, CST control, CST target){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
     }
@@ -177,9 +173,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         qubitRegister.ApplySwap(q1, q2);
     }
 
-    //3 qubit gates
-
-    //Defining Qubit operations
     inline QubitRegister<ComplexDP>& getQubitRegister() { 
         return this->qubitRegister; 
     }
@@ -191,9 +184,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return numQubits; 
     }
 
-    /**
-     * Initialise register to |0....0>
-     */
     inline void initRegister(){
         this->qubitRegister.Initialize("base",0);
     }
