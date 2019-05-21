@@ -15,7 +15,6 @@ target_include_directories(qnlp_ncu INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_
 
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_ncu OBJECT test_ncu.cpp)
-    add_library(qhipster STATIC IMPORTED)
-    set_target_properties(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
     target_link_libraries(test_ncu Catch2::Catch2 qnlp_simulator qhipster)
+    target_include_directories(test_ncu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
 endif()

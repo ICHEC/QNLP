@@ -181,7 +181,7 @@ namespace QNLP{
         //##############################################################################
 
         void applyGateX(std::size_t qubit_idx){ 
-            static_cast<DerivedType&>(*this).getNumQubits();//applyGateX(qubit_idx); 
+            static_cast<DerivedType&>(*this).applyGateX(qubit_idx); 
         };
         void applyGateY(std::size_t qubit_idx){
             static_cast<DerivedType&>(*this).applyGateY(qubit_idx);

@@ -41,7 +41,6 @@ set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
 set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE) 
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
 
-
 ################################################################################
 set(CMAKE_CXX_FLAGS 
      "-lmkl_rt \
@@ -69,6 +68,10 @@ add_definitions(
      -DVIRTUAL_INTERFACE"
 )
 
+################################################################################
+# Add Intel-QS library as target
+ADD_LIBRARY(qhipster STATIC IMPORTED)
+SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 
 ################################################################################
 # Include the directories with sources
@@ -106,10 +109,6 @@ find_package(MPI REQUIRED)
 #include_directories("${QHIPSTER_INC}")
 
 ################################################################################
-ADD_LIBRARY(qhipster STATIC IMPORTED)
-SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
-
-
 add_subdirectory(tests)
 
 ################################################################################
