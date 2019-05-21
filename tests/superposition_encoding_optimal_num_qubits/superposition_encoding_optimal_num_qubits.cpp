@@ -40,6 +40,42 @@ void print_bits(unsigned int val, int len){
 
 
 /**
+ * @brief Generates the U^i_j operator required for a given bit
+ * that is to be encoded. 
+ * U^i_j = (cos(pi/2 p^i_j)*Identity + i*sin(pi/2 p^i_j)*PauliY)
+ * 
+ * @param bit_pattern - Bit value being encoded
+ * @param op_U - A 2x2 matrix which stores the resulting operator
+ */
+template<class Type>
+void generate_operator_U(bool bit, openqu::TinyMatrix<Type,2,2,32>& op_U){
+    op_U(0,0) = {1.0*(bit),0.0};
+    op_U(0,1) = {1.0*(!bit),0.0};
+    op_U(1,0) = {-1.0*(!bit),0.0};
+    op_U(1,1) = {1.0*(bit),0.0};
+}
+
+/**
+ * @brief Generates the inverse U^i_j operator required for a given bit
+ * that is to be encoded. 
+ * (U^i_j)^-1 = (cos(pi/2 p^i_j)*Identity + i*sin(pi/2 p^i_j)*PauliY)^-1
+ * 
+ * @param bit_pattern - Bit value being encoded
+ * @param op_U_inv - A 2x2 matrix which stores the resulting operator
+ */
+template<class Type>
+void generate_operator_U_inv(bool bit, openqu::TinyMatrix<Type,2,2,32>& op_U_inv){
+    op_U_inv(0,0) = {1.0*(bit),0.0};
+    op_U_inv(0,1) = {-1.0*(!bit),0.0};
+    op_U_inv(1,0) = {1.0*(!bit),0.0};
+    op_U_inv(1,1) = {1.0*(bit),0.0};
+}
+
+
+
+
+
+/**
  * @brief Generates the P^i operator required for a given binary string 
  * that is to be encoded. 
  * P^i = prod_j(cos(pi/2 p^i_j)*Identity + i*sin(pi/2 p^i_j)*PauliY)
@@ -82,77 +118,49 @@ void generate_operator_P(QubitCircuit<Type>&circ, unsigned bit_pattern, unsigned
  * @param qRegCirc - Instance of class containing indices for each register int eh circuit 
  * @param S - Matrices required for the encoding algorithm (one for each input)
  * @param op_nCDecomp - Method defining the operator for nCU
+ * s
+ * M
  * @param X - The unitary matrix U of the nCU operation (in this case Pauli-X matrix)
  */
 template < class Type >
-void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& circ, myRegisters& qRegCirc, vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
+void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned int>& pattern,  vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, int m, int n){
+//NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
 
     // Encode
-    int m,n;
-    m = qRegCirc.get_numTrainStrings();
-    n = qRegCirc.get_lenTrainStrings();
 
-    // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+    // Prepare state in |0...0>|10> of lengths n,2
     circ.ApplyPauliX(qRegCirc.get_cReg(1));
 
+    openqu::TinyMatrix<Type,2,2,32> op_U; 
 
     for(int i = 0; i < m; i++){
-        // Psi0
-        // Encode inputted binary pattern to pReg
+
         for(int j = 0; j < n; j++){
-            if(IS_SET(pattern[i],j)){
-                circ.ApplyPauliX(qRegCirc.get_pReg(j));
-            }
+            // Generates U^i operator in op_U for this bit
+            generate_operator_U(IS_SET(pattern[i],j), op_U);
+            // Apply U^i to j with control u2
+            circ.ApplyControlled1QubitGate(reg_ancilla[1], reg_memory[j], op_U);
         }
 
-        // Psi1
-        // Encode inputted binary pattern
-        for(int j = 0; j < n; j++){
-            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
-        }
+        circ.ApplyCPauliX(reg_ancilla[1],reg_ancilla[0]);
 
-        // Psi2
-        for(int j = 0; j < n; j++){
-            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
-            circ.ApplyPauliX(qRegCirc.get_mReg(j));
-        }
 
-        // Psi3
-        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
-
-        // Psi4
         // Step 1.3 - Apply S^i
         // This flips the second control bit of the new term in the position so
         // that we get old|11> + new|10>
         // Break off into larger and smaller chunks
-        circ.ApplyControlled1QubitGate(qRegCirc.get_cReg(0), qRegCirc.get_cReg(1), S[i]);
+        circ.ApplyControlled1QubitGate(reg_ancilla[0], reg_ancilla[1], S[i]);
 
-        // Psi5
-        op_nCDecomp.applyNQubitControl(circ, qRegCirc.get_mReg(0), qRegCirc.get_mReg(n-1), qRegCirc.get_cReg(0), X, 0, true);
+        circ.ApplyPauliX(reg_ancilla[0]);
 
-        // Psi6 
+
+        // Reset the memory register of the new term to the state |0...0>
         for(int j = n-1; j > -1; j--){
-            circ.ApplyPauliX(qRegCirc.get_mReg(j));
-            circ.ApplyCPauliX(qRegCirc.get_pReg(j), qRegCirc.get_mReg(j));
+            // Generates (U^i)^-1 operator in op_U for this bit
+            generate_operator_U_inv(IS_SET(pattern[i],j), op_U);
+            // Apply (U^i)^-1 to j with control u2
+            circ.ApplyControlled1QubitGate(reg_ancilla[1], reg_memory[j], op_U);
         }
-
-        // Psi7
-        for(int j = n-1; j > -1; j--){
-            circ.ApplyToffoli(qRegCirc.get_pReg(j), qRegCirc.get_cReg(1), qRegCirc.get_mReg(j));
-        }
-
-        // Reset the p register of the new term to the state |0...0>
-        for(int j = 0; j < n; j++){
-            // Check current pattern against next pattern
-            bool p1, p2;
-            p1 = IS_SET(pattern[i],j);
-            if(p1){
-                circ.ApplyPauliX(qRegCirc.get_pReg(j));
-            }
-
-        }
-
-
     }
 }
 
@@ -173,7 +181,7 @@ int main(int argc, char **argv){
     n = 6;
     num_exps = 500;
 
-    total_qubits = 2*n + 2;
+    total_qubits = n + 2;
 
     // To store initial patterns 
     vector<unsigned int> pattern(m);
@@ -190,13 +198,46 @@ int main(int argc, char **argv){
     // Define Memory and ancilla registers by setting their indices
     // into a corresponding vector
     vector<unsigned> reg_memory(n);
-    vector<unsigned> reg_ancilla(n+2);
+    vector<unsigned> reg_ancilla(2);
     for(int j = 0; j < n; j++){
         reg_memory[j] = j;
     }
-    for(int j = 0; j < n+2; j++){
+    for(int j = 0; j < 2; j++){
         reg_ancilla[j] = j + n;
     }
+
+
+    // Preparation for binary encoding:
+    //
+    // Prepare three matrices S^1,S^2,...,S^3 that are required for the implemented
+    // algorithm to encode these binary strings into a superposition state.
+    //
+    // Note the matrix indexing of the S vector of S^p matrices will be backwards:
+    //      S[0] -> S^p
+    //      S[1] -> S_{p-1}, and so on.
+    //
+    vector<openqu::TinyMatrix<ComplexDP, 2, 2, 32>> S(m);
+    {
+        int p = m;
+        double diag, off_diag;
+
+        for(int i = 0; i < m; i++){
+            off_diag = 1.0/sqrt((double)(p));
+            diag = off_diag * sqrt((double)(p-1));
+
+            S[i](0,0) = {diag, 0.0};
+            S[i](0,1) = {off_diag, 0.0};
+            S[i](1,0) = {-off_diag, 0.0};
+            S[i](1,1) = {diag, 0.0};
+
+            p--;
+        }
+    }
+
+
+
+
+
 
     vector<double> count(m);
     vector<double> prob_dist(m);
@@ -219,8 +260,7 @@ int main(int argc, char **argv){
 
 
         // Encode input binary patterns into superposition in registers for x.
-        //encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
-        circ.EncodeBinInToSuperposition(reg_memory, reg_ancilla, pattern, n);
+        encode_binarystrings<ComplexDP>(circ, reg_memory, reg_ancilla, pattern, S, m, n);
 
         // Collapse qubits to state randomly selectd in class register
         for(int j = 0; j < n; j++){
@@ -302,151 +342,6 @@ int main(int argc, char **argv){
 using namespace QNLP;
 
 double EPSILON = 1e-6;
-
-
-/**
- * @brief Application which 
- *      - encodes a set of binary strings into a superposition state
- */
-
-
-/**
- * @brief Class to Update and store the global circuit indices for each register
- */
-class myRegisters{
-    private:
-        unsigned m, n;
-        // Use vectors to store indices of appropriate registers in circuit 
-        vector<unsigned> pReg;
-        vector<unsigned> mReg;
-        vector<unsigned> cReg;
-        
-    public:
-        myRegisters(int m_, int n_) : m(m_), n(n_), pReg(n), mReg(n), cReg(2){
-            
-            for(int i = 0; i < n; i++){
-                pReg[i] = i;
-            }
-            for(int i = 0; i < n; i++){
-                mReg[i] = i + n;
-            }
-            cReg[0] = 2*n;
-            cReg[1] = 2*n+1;
-        }
-
-        unsigned get_numTrainStrings(){
-            return m;
-        }
-        unsigned get_lenTrainStrings(){
-            return n;
-        }
-
-        unsigned get_pReg(unsigned i){
-            assert(i < n);
-            return pReg[i];
-        }
-        unsigned get_mReg(unsigned i){
-            assert(i < n);
-            return mReg[i];
-        }
-        unsigned get_cReg(unsigned i){
-            assert(i < 2);
-            return cReg[i];
-        }
-};
-
-
-
-/**
- * @brief Checks if the bit'th bit of the integer byte is set
- * 
- * @param byte - integer representing a binary string
- * @param bit - the index of the bit to be checked (beginning
- * with the least significant bit)
- */
-#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
-
-
-/**
- * @brief Print binary representation of input value of length len
- * 
- * @param val - positive integer input
- * @param len - length of the binary string to be printed beginning at LSB.
- */
-void print_bits(unsigned int val, int len){
-    for (int i = len-1; i > -1; i--){
-        std::cout << ((val >> i) & 1UL);
-    }
-}
-
-
-int main(int argc, char **argv){
-
-    openqu::mpi::Environment env(argc, argv);
-    if(env.is_usefull_rank() == false) return 0;
-
-    int rank = env.rank();
-
-    unsigned m, n, total_qubits, num_exps;
-    unsigned num_classes, numQubits_class;
-
-    m = 4;
-    n = 6;
-    num_exps = 500;
-
-    total_qubits = 2*n + 2;
-
-    // To store initial patterns 
-    vector<unsigned int> pattern(m);
-    vector<unsigned int> input_pattern(1);
-
-    pattern[0] = 63;
-    pattern[1] = 32;
-    pattern[2] = 56;
-    pattern[3] = 7;
-
-    // Declare quantum circuit
-    QubitCircuit<ComplexDP> circ(total_qubits,"base",0);
-
-    // Holds indices of qubits in each register in Circuit
-    myRegisters qRegCirc(m,n);
-
-    vector<double> count(m);
-    vector<double> prob_dist(m);
-
-    double average = 0;
-
-    std::random_device rd;
-    std::mt19937 mt(rd());
-    std::uniform_real_distribution<double> dist(0.0,1.0);
-
-    // Preparation for binary encoding:
-    //
-    // Prepare three matrices S^1,S^2,...,S^3 that are required for the implemented
-    // algorithm to encode these binary strings into a superposition state.
-    //
-    // Note the matrix indexing of the S vector of S^p matrices will be backwards:
-    //      S[0] -> S^p
-    //      S[1] -> S_{p-1}, and so on.
-    //
-    vector<openqu::TinyMatrix<ComplexDP, 2, 2, 32>> S(m);
-    {
-        int p = m;
-        double diag, off_diag;
-
-        for(int i = 0; i < m; i++){
-            off_diag = 1.0/sqrt((double)(p));
-            diag = off_diag * sqrt((double)(p-1));
-
-            S[i](0,0) = {diag, 0.0};
-            S[i](0,1) = {off_diag, 0.0};
-            S[i](1,0) = {-off_diag, 0.0};
-            S[i](1,1) = {diag, 0.0};
-
-            p--;
-        }
-    }
-
     openqu::TinyMatrix<ComplexDP, 2, 2, 32> X;
     X(0,0) = {0.,  0.};
     X(0,1) = {1., 0.};
