@@ -9,7 +9,7 @@ set(QNLP_MODULES_SUBDIRS      hamming_distance;
                             nn_hamming_distance;
                             superposition_encoding;
                             superposition_encoding_optimal_num_qubits;
-                            nn_superposition_encoding;
+#                            nn_superposition_encoding;
 #                            db_tests;
                             installation_tests;
 #                            nn_hamming_distance_Schuld;

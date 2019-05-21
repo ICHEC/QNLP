@@ -129,7 +129,7 @@ void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory
     // Encode
 
     // Prepare state in |0...0>|10> of lengths n,2
-    circ.ApplyPauliX(qRegCirc.get_cReg(1));
+    circ.ApplyPauliX(reg_ancilla[1]);
 
     openqu::TinyMatrix<Type,2,2,32> op_U; 
 
