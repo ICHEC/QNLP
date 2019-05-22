@@ -1,7 +1,10 @@
-# Building on MacOS
+# Building Intel-QS on MacOS
 While Intel-QS is not officially supported on MacOS, it can be beneficial to have
 an offline (i.e. no-cluster) build environment. The following steps allowed for
-the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x)
+the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x).
+
+It should be possible to build the QNLP project against this library. If not, I will
+continue to update this guide.
 
 # Install development headers
 MacOS Mojave for some reason does not give you a `/usr/include`, and all associated headers. The following command 
