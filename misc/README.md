@@ -38,7 +38,7 @@ For this, we build the MPI libraries using our previously built GCC:
 curl -O https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.1.tar.gz
 tar xvf ./openmpi-4.0.1.tar.gz
 cd openmpi-4.0.1
-./configure --prefix=/opt/gcc/gcc91 CC=/opt/gcc/gcc91/bin/gcc CXX=/opt/gcc/gcc91/bin/g++ --enable-mpi-cxx
+./configure --prefix=/opt/gcc/gcc91 CC=/opt/gcc/gcc91/bin/gcc CXX=/opt/gcc/gcc91/bin/g++ --enable-mpi-cxx --disable-mpi-fortran
 make -j8 && make install
 ```
 where we have installed the libraries into the same directory as the compiler.
