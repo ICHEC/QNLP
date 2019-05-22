@@ -7,6 +7,7 @@ the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x)
 MacOS Mojave for some reason does not give you a `/usr/include`, and all associated headers. The following command 
 requires that you have XCode installed, and should fix the issue:
 ```bash
+xcode-select --install
 sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
 ```
 
