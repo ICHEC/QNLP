@@ -58,8 +58,8 @@ edits are necessary to ensure Intel-QS builds correctly. These edits are include
 `Intel-QS_MacOS.patch` (located in this directory).
 
 ```bash
-cd intel-qs
-git checkout consistent_naming
+cd Intel-QS
+git checkout consistent-naming
 git apply <PATH_TO_QNLP>/misc/Intel-QS_MacOS.patch
 export MKLROOT=${CONDA_PREFIX}
 PATH=/opt/gcc/gcc91/bin:$PATH \
