@@ -3,6 +3,13 @@ While Intel-QS is not officially supported on MacOS, it can be beneficial to hav
 an offline (i.e. no-cluster) build environment. The following steps allowed for
 the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x)
 
+# Install development headers
+MacOS Mojave for some reason does not give you a `/usr/include`, and all associated headers. The following command 
+requires that you have XCode installed, and should fix the issue:
+```bash
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
+
 # Install GCC 
 Firstly, as some of the Intel-QS code has GCC specific support (and nothing is mentioned
 for clang), we opted to install the latest GCC compiler (GCC 9.1 as of now). This was 
