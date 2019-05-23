@@ -70,3 +70,22 @@ make
 
 The above paths are overridden to ensure we are using the correct compiler and library directories. The library
 should be built as `qureg/qHiPSTER.a` if all things went well.
+
+
+# Using Environment Modules to set Intel-QS environment
+The TCL script `intel_qs-1.0` provided can be used to set the Intel-QS environment variables. For this to work, it is assumed that Environment Modules is installed on your local system. This can be easily installed using Spack (installation detailed here: https://spack.readthedocs.io/en/latest/getting_started.html) under the Environment Modules heading (also loacated in previous link) or by installing from source or another package manager.
+
+The user can decide where the module file will be placed, however for ease of use it was placed in the path `/opt/modulefiles/libraries`. `intel_qs-1.0` must now be specified for your installation of the above software. Thus, the local variable 'topdir' should be set to the path `<path-to-Intel-QS>/Intel-QS`. From the above instructions, it is assumed that the CC and CXX compilers are located in the path `/opt/gcc/gcc91/bin/`. If this is not the case, each of the respective paths should be set as desired.
+
+The `/opt/modulefiles` directory must now be made visible to Environment Modules. This can be done using
+```bash
+module use /opt/modulefiles/
+```
+This command can also be added to your `.bash_rc` so that you do not need to re-run this command each time you want to load a module you created.
+
+The Intel-QS environment variables `QHIPSTER_DIR`, `QHIPSTER_DIR_LIB`, `QHIPSTER_DIR_INC` and the `CC` and `CXX` compilers can now be set using;
+```bash
+module load libraries/intel_qs-1.0
+```
+
+
