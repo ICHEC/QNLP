@@ -37,24 +37,27 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
 
-set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE) 
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE) 
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE) 
+set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
+set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
+set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
-set(CMAKE_CXX_FLAGS 
-     "-lmkl_rt \
+set(CMAKE_CXX_FLAGS
+    "-L/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/lib \
+     -L/opt/gcc/gcc91/lib \
+     -lmkl_rt \
      -lpthread \
      -ldl \
+     -fopenmp \
      -liomp5 \
      -lm \
-     -qopenmp \
      -Wall \
      -lmkl_cdft_core \
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -lmkl_blacs_intelmpi_ilp64"
+     -I/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/include \
+     -lmpi"
 )
 
 ################################################################################
@@ -64,7 +67,6 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \
-     -DINTELQS_HAS_MPI \ 
      -DVIRTUAL_INTERFACE"
 )
 
@@ -93,15 +95,15 @@ if(CLANG_TIDY_EXE)
 endif()
 
 ################################################################################
-find_package(OpenMP)
-if (OPENMP_FOUND)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
+find_package(OPENMP REQUIRED)
+#if (OPENMP_FOUND)
+#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
 
 ################################################################################
-find_package(MPI REQUIRED)
+find_package(MPI)
 
 ################################################################################
 #add_executable(cswap_test ./tests/test_control_swap.cpp)
