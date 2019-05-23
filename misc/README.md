@@ -1,7 +1,18 @@
-# Building on MacOS
+# Building Intel-QS on MacOS
 While Intel-QS is not officially supported on MacOS, it can be beneficial to have
 an offline (i.e. no-cluster) build environment. The following steps allowed for
-the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x)
+the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x).
+
+It should be possible to build the QNLP project against this library. If not, I will
+continue to update this guide.
+
+# Install development headers
+MacOS Mojave for some reason does not give you a `/usr/include`, and all associated headers. The following command 
+requires that you have XCode installed, and should fix the issue:
+```bash
+xcode-select --install
+sudo installer -pkg /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg -target /
+```
 
 # Install GCC 
 Firstly, as some of the Intel-QS code has GCC specific support (and nothing is mentioned
@@ -27,7 +38,7 @@ For this, we build the MPI libraries using our previously built GCC:
 curl -O https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.1.tar.gz
 tar xvf ./openmpi-4.0.1.tar.gz
 cd openmpi-4.0.1
-./configure --prefix=/opt/gcc/gcc91 CC=/opt/gcc/gcc91/bin/gcc CXX=/opt/gcc/gcc91/bin/g++ --enable-mpi-cxx
+./configure --prefix=/opt/gcc/gcc91 CC=/opt/gcc/gcc91/bin/gcc CXX=/opt/gcc/gcc91/bin/g++ --enable-mpi-cxx --disable-mpi-fortran
 make -j8 && make install
 ```
 where we have installed the libraries into the same directory as the compiler.
@@ -47,8 +58,8 @@ edits are necessary to ensure Intel-QS builds correctly. These edits are include
 `Intel-QS_MacOS.patch` (located in this directory).
 
 ```bash
-cd intel-qs
-git checkout consistent_naming
+cd Intel-QS
+git checkout consistent-naming
 git apply <PATH_TO_QNLP>/misc/Intel-QS_MacOS.patch
 export MKLROOT=${CONDA_PREFIX}
 PATH=/opt/gcc/gcc91/bin:$PATH \
