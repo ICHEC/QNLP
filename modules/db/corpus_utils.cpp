@@ -72,6 +72,6 @@ void CorpusUtils::clearData(){
     this->name_to_bin.clear();
 }
 
-DBHelper::DBHelper& CorpusUtils::getDBHelper(){
+DBHelper& CorpusUtils::getDBHelper(){
     return this->db_helper;
 }
