@@ -73,9 +73,9 @@ should be built as `qureg/qHiPSTER.a` if all things went well.
 
 
 # Using Environment Modules to set Intel-QS environment
-The TCL script `intel_qs-1.0` provided can be used to set the Intel-QS environment variables. For this to work, it is assumed that Environment Modules is installed on your local system. This can be easily installed using Spack (installation detailed here: https://spack.readthedocs.io/en/latest/getting_started.html) under the Environment Modules heading (also loacated in previous link) or by installing from source or another package manager.
+The TCL script `intel_qs-1.0` provided can be used as an Environments Module file to set the Intel-QS environment variables. For this to work, it is assumed that Environment Modules is installed on your local system. This can be easily installed using Spack (installation detailed here: https://spack.readthedocs.io/en/latest/getting_started.html) under the Environment Modules heading (also loacated in previous link) or by installing from source or another package manager.
 
-The user can decide where the module file will be placed, however for ease of use it was placed in the path `/opt/modulefiles/libraries`. `intel_qs-1.0` must now be specified for your installation of the above software. Thus, the local variable 'topdir' should be set to the path `<path-to-Intel-QS>/Intel-QS`. From the above instructions, it is assumed that the CC and CXX compilers are located in the path `/opt/gcc/gcc91/bin/`. If this is not the case, each of the respective paths should be set as desired.
+The user can decide where the module file will be placed, however for ease of use it was placed in the path `/opt/modulefiles/libraries`. `intel_qs-1.0` must now be specified for your installation of the above software. Thus, the local variable 'topdir' should be set to the path `<path-to-Intel-QS>/Intel-QS`. From the above instructions, it is assumed that the CC and CXX compilers are located in the path `/opt/gcc/gcc91/bin/`. If this is not the case, each of the respective paths should be set appropriately.
 
 The `/opt/modulefiles` directory must now be made visible to Environment Modules. This can be done using
 ```bash
