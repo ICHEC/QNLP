@@ -29,9 +29,6 @@ class QubitCircuit: public QubitRegister<Type>{
     public:
         QubitCircuit(std::size_t num_qubits_, std::string style = "", std::size_t base_index = 0);
         ~QubitCircuit(){
-//            delete []S;
- //           delete []X;
-   //         delete []op_nCDecomp;
         }
 
         void ApplyMeasurement(std::size_t qubit, bool normalize=true);

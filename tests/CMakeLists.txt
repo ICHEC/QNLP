@@ -5,6 +5,7 @@ project(qnlp_modules LANGUAGES CXX)
 # Include all nested sources directories
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS
+                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;
 #                            superposition_encoding_optimal_num_qubits;
