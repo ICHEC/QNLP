@@ -5,6 +5,42 @@ import os
 from typing import Dict, Tuple
 import process_corpus as pc
 import numpy as np
+from qnlp_db import qnlp_db
+
+###############################################################################
+
+#Use mixin to modify the insert statements and modify the structure of database
+class qdb_mixin(qnlp_db):
+    def db_insert_custom(self, values: Dict, data_type="noun", table_name="qnlp"):
+        """
+        Insert the tag to binary encoding mapping into the DB.
+
+        values      -- Dict mapping string to binary value, and binary value to string.
+        data_type   -- String to indicate the type of data to be stored
+        table_name  -- Name of table to store in DB
+        """
+
+        #Proposed modification; weight set to 0 currently
+        '''
+        The DB insert operation below assumes the value field of a key in DB is a tuple,
+        containing (binary_id, weight of occurrence), where weight of occurrence cant be
+        determined by the proximity of the word to other words; essentially a count in the 
+        simplest case. The mapping checks to see if the index is convertible to a numeric
+        type. If so, this will imply the reverse mapping (ie qubit result to string val), 
+        and is indicated by -1. Otherwise, this will be a forward mapping, and given by 1.
+        '''
+        conn = super(qdb_mixin, self).connect_db()
+        c = conn.cursor()
+        super(qdb_mixin, self).create_table(table_name)
+        
+        for k,v in values.items():
+            if not str(k).isnumeric():
+                c.execute('''INSERT INTO {} 
+                    (type, name, bin_id, weight ) VALUES(?,?,?,?)'''.format(table_name), 
+                    (data_type, k, int(v,2), 0 )
+                )
+                print (data_type, k, int(v,2), 0 )
+        conn.commit()
 
 ###############################################################################
 
@@ -22,6 +58,8 @@ class DisCoCat:
     def tokenise_corpus(self, corpus_text):
         return pc.tokenize_corpus(corpus_text)
 
+###############################################################################
+
     def word_occurrence(self, corpus_list : list):
         """
         Counts word occurrence in a given corpus, presented as a tokenised word list.
@@ -34,6 +72,8 @@ class DisCoCat:
             else:
                 word_dict[word] = 1
         return word_dict
+
+###############################################################################
 
     def define_basis_words(self, word_dict : dict, max_words : int):
         """
@@ -53,6 +93,8 @@ class DisCoCat:
 
         return res_list
 
+###############################################################################
+
     def map_to_basis(self, corpus_list : list, basis : list, basis_dist_cutoff=10, distance_func=None):
         """
         Maps the words from the corpus into the chosen basis.         
@@ -68,7 +110,7 @@ class DisCoCat:
 
         """
         if distance_func == None:
-            distance_func = lambda x : 1.0/x
+            distance_func = lambda x : [1.0/i for i in x]
 
         d_map = {}
 
@@ -94,10 +136,9 @@ class DisCoCat:
                         word_map.update({m[0] : update_val })
                     else:
                         word_map.update({m[0] : {m[1] : m[2]} })
-
-            #word_map.get(word)
-
         return word_map
+
+###############################################################################
 
     def map_to_bitstring(self, basis : list):
         upper_bound_bitstrings = int(np.ceil(np.log2(len(basis))))
@@ -107,6 +148,41 @@ class DisCoCat:
             bitstring += 1
             bit_map.update({k: bitstring})
         return (upper_bound_bitstrings, bit_map)
+
+###############################################################################
+
+    def latex_states(self, bit_map, dat_map):
+        with open("state.tex", "w") as f:
+            f.write("\\documentclass{article} \n \\begin{document} \n")
+            #print(r"""\documentclass{standalone}
+                #\begin{document}""")
+            tex_string_format_bit = r'\vert {:0%db} \rangle'%(bit_map[0])
+            for k,v in dat_map.items():
+                coeffs = []
+                mapped_tex = []
+                for kk,vv in v.items():
+                    coeffs.append(np.sum([1.0/(ii+1) for ii in vv]))
+                    mapped_tex.append(tex_string_format_bit.format(bit_map[1][kk]))
+                norm_coeff = np.linalg.norm(coeffs)
+                f.write(r"\begin{equation}\vert \textrm{" + k + r"} \rangle =" )
+                #print(r"$\vert \textrm{" + k + r"} \rangle =" )
+                out_str_tex = r"""\begin{array}{c}"""
+                out_str_tex += "\n"
+                for i in range(len(mapped_tex)):
+                    out_str_tex += str(coeffs[i]/norm_coeff)
+    #                out_str_tex += r" & "
+                    out_str_tex += mapped_tex[i]
+                    out_str_tex += " \\\\ \n"
+                    if i != len(mapped_tex)-1:
+                        out_str_tex += "+ \\\\ \n"
+                out_str_tex += r"""\end{array}\end{equation}"""
+                out_str_tex += "\\noindent\\rule{\\textwidth}{1pt} \n"
+                f.write(out_str_tex + "\n")
+                #print(out_str_tex + "\n")
+            f.write(r"\end{document}")
+            #print(r"\end{document}")
+
+###############################################################################
 
 if __name__ == "__main__":
     CorpusFile = os.sys.argv[1]
@@ -131,17 +207,6 @@ if __name__ == "__main__":
     verb_map = dcc.map_to_basis(tokens['tk_words'], basis_v)
     noun_map = dcc.map_to_basis(tokens['tk_words'], basis_n)
 
-    string_format_bit = '|{:0%db}>'%(bit_map_v[0])
-    for k,v in verb_map.items():
-        print (k,"-> ", end='')
-        coeffs = []
-        mapped = []
-        for kk,vv in v.items():
-            coeffs.append(np.sum([1.0/(ii+1) for ii in vv]))
-            mapped.append(string_format_bit.format(bit_map_v[1][kk]))
-        norm_coeff = np.linalg.norm(coeffs)
-        for i in range(len(mapped)):
-            print(coeffs[i]/norm_coeff, mapped[i], " ", end="")
-        print("")
+    dcc.latex_states(bit_map_n, noun_map)
 
-#
+###############################################################################
