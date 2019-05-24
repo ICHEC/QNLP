@@ -49,8 +49,8 @@ class DisCoCat:
     Implements precomputation for the DisCo(Cat) model to represent sentence meanings
     using category theory methods. See <PAPERS> for details.
     """
-    def __init__(self,):
-        pass
+    def __init__(self, fd = lambda x : [1.0/(i+1) for i in x]):
+        self.distance_func = fd
 
     def load_corpus(self, corpus_path):
         return pc.load_corpus(corpus_path)
@@ -151,11 +151,37 @@ class DisCoCat:
 
 ###############################################################################
 
+    def generate_state_mapping(self, bit_map, dat_map):
+        """
+        Takes the basis bitstring map, and the token-to-basis relationship, and returns a normalised set of states, with coefficients determined by the distance_func lambda, given the distance between the token and the resulting basis element.
+        """
+        num_states = bit_map[0]
+
+        # Mapping token to array of tuples, first index the basis state coefficient and second the integer representation of the bitstring state
+        state_encoding = {}
+        for token, basis_dist_map in dat_map.items():
+            local_coeffs = []
+            local_states = []
+            for basis_token, distance_list in basis_dist_map.items():
+                # If more than one occurrence for the same word, apply the distance relation function then sum the results for that basis work coefficient
+                local_coeffs.append( np.sum( self.distance_func(distance_list) ) )
+                local_states.append( bit_map[1][basis_token] )
+
+            # Calc normalisation factor over all the respective basis states for a given token
+            norm_factor = np.linalg.norm(local_coeffs)
+            for state_idx in range( len(local_states) ):
+                # Normalise the coefficient
+                local_coeffs[state_idx] /= norm_factor
+                current = state_encoding.get(token)
+                if current != None:
+                    current.append( (local_coeffs[state_idx], local_states[state_idx],) )
+                else:
+                    state_encoding.update({token : [(local_coeffs[state_idx], local_states[state_idx],)] })
+        return state_encoding
+
     def latex_states(self, bit_map, dat_map):
         with open("state.tex", "w") as f:
             f.write("\\documentclass{article} \n \\begin{document} \n")
-            #print(r"""\documentclass{standalone}
-                #\begin{document}""")
             tex_string_format_bit = r'\vert {:0%db} \rangle'%(bit_map[0])
             for k,v in dat_map.items():
                 coeffs = []
@@ -165,12 +191,10 @@ class DisCoCat:
                     mapped_tex.append(tex_string_format_bit.format(bit_map[1][kk]))
                 norm_coeff = np.linalg.norm(coeffs)
                 f.write(r"\begin{equation}\vert \textrm{" + k + r"} \rangle =" )
-                #print(r"$\vert \textrm{" + k + r"} \rangle =" )
                 out_str_tex = r"""\begin{array}{c}"""
                 out_str_tex += "\n"
                 for i in range(len(mapped_tex)):
                     out_str_tex += str(coeffs[i]/norm_coeff)
-    #                out_str_tex += r" & "
                     out_str_tex += mapped_tex[i]
                     out_str_tex += " \\\\ \n"
                     if i != len(mapped_tex)-1:
@@ -178,9 +202,7 @@ class DisCoCat:
                 out_str_tex += r"""\end{array}\end{equation}"""
                 out_str_tex += "\\noindent\\rule{\\textwidth}{1pt} \n"
                 f.write(out_str_tex + "\n")
-                #print(out_str_tex + "\n")
             f.write(r"\end{document}")
-            #print(r"\end{document}")
 
 ###############################################################################
 
@@ -206,7 +228,8 @@ if __name__ == "__main__":
 
     verb_map = dcc.map_to_basis(tokens['tk_words'], basis_v)
     noun_map = dcc.map_to_basis(tokens['tk_words'], basis_n)
-
+    dcc.generate_state_mapping(bit_map_n, noun_map)
+    exit(0)
     dcc.latex_states(bit_map_n, noun_map)
 
 ###############################################################################
