@@ -179,8 +179,8 @@ class DisCoCat:
                     state_encoding.update({token : [(local_coeffs[state_idx], local_states[state_idx],)] })
         return state_encoding
 
-    def latex_states(self, bit_map, dat_map):
-        with open("state.tex", "w") as f:
+    def latex_states(self, bit_map, dat_map, file_name = "state"):
+        with open(file_name + ".tex", "w") as f:
             f.write("\\documentclass{article} \n \\begin{document} \n")
             tex_string_format_bit = r'\vert {:0%db} \rangle'%(bit_map[0])
             for k,v in dat_map.items():
@@ -215,8 +215,8 @@ if __name__ == "__main__":
     corpus_text = dcc.load_corpus(CorpusFile)
     tokens = dcc.tokenise_corpus(corpus_text)
 
-    basis_v = dcc.define_basis_words(tokens['verbs'], 10)
-    basis_n = dcc.define_basis_words(tokens['nouns'], 10)
+    basis_v = dcc.define_basis_words(tokens['verbs'], 40)
+    basis_n = dcc.define_basis_words(tokens['nouns'], 40)
 
     bit_map_v = dcc.map_to_bitstring(basis_v)
     bit_map_n = dcc.map_to_bitstring(basis_n)
@@ -228,8 +228,11 @@ if __name__ == "__main__":
 
     verb_map = dcc.map_to_basis(tokens['tk_words'], basis_v)
     noun_map = dcc.map_to_basis(tokens['tk_words'], basis_n)
-    dcc.generate_state_mapping(bit_map_n, noun_map)
-    exit(0)
-    dcc.latex_states(bit_map_n, noun_map)
+
+    n_states = dcc.generate_state_mapping(bit_map_n, noun_map)
+    v_states = dcc.generate_state_mapping(bit_map_n, noun_map)
+
+    dcc.latex_states(bit_map_n, noun_map, "nouns")
+    dcc.latex_states(bit_map_v, verb_map, "verbs")
 
 ###############################################################################
