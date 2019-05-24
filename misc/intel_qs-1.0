@@ -13,9 +13,9 @@ proc ModulesHelp { } {
 module-whatis   "Sets the Environment for using intel-qs-1.0 (Intel Quantum Simulator) library"
 
 # for Tcl script use only
-set     topdir          <PATH-TO-INTEL-QS>/Intel-QNLP/Intel-QS
-set     version         1.0
-set     sys             macOS-10.14_X86-64
+set             topdir              <PATH-TO-INTEL-QS>/Intel-QNLP/Intel-QS
+set             version             1.0
+set             sys                 macOS-10.14_X86-64
 
 setenv          CXX                 /opt/gcc/gcc91/bin/mpicxx
 setenv          CC                  /opt/gcc/gcc91/bin/mpicc
