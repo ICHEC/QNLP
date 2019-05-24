@@ -7,8 +7,8 @@ project(qnlp_modules LANGUAGES CXX)
 set(QNLP_MODULES_SUBDIRS    db;
                             gate_ops;
                             py;
-                            qubit_extended;
                             simulator;
+                            #qubit_extended;
                             #util;
                             test
 )

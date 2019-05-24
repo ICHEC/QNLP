@@ -137,6 +137,7 @@ find_package(MPI)
 
 ################################################################################
 add_subdirectory(tests)
+add_subdirectory(demos)
 
 ################################################################################
 #target_link_libraries(cswap_test qhipster)

@@ -6,5 +6,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_BUILD_TYPE "Release")
 
 add_library(qnlp_qubit_extended STATIC QubitCircuit.hpp QubitCircuit.cpp ${QHIPSTER_INC})
-target_include_directories(qnlp_qubit_extended PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
-target_link_libraries(qnlp_qubit_extended qnlp_ncu qhipster ) 
+target_include_directories(qnlp_qubit_extended PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC} qnlp_simulator)
+target_link_libraries(qnlp_qubit_extended qnlp_ncu qhipster qnlp_simulator)

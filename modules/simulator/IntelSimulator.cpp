@@ -51,6 +51,16 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         double coeff = (1./sqrt(2.));
         gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
+
+
+        // Set up random number generator for randomly collapsing qubit to 0 or 1
+        //
+        //  RACE CONDITION - REQUIRES FIXING
+        //
+        std::mt19937 mt_(rd()); 
+        std::uniform_real_distribution<double> dist_(0.0,1.0);
+        mt = mt_;
+        dist = dist_;
     }
     ~IntelSimulator(){ }
 
@@ -188,10 +198,35 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         this->qubitRegister.Initialize("base",0);
     }
 
+    // Measurement methods
+    inline void collapseQubit(CST target, bool collapseValue){
+        this->qubitRegister.CollapseQubit(target, collapseValue);
+    }
+
+    inline double getStateProbability(CST target){
+        return this->qubitRegister.GetProbability(target);
+    }
+
+    inline void applyAmplitudeNorm(){
+        this->qubitRegister.Normalize();
+    }
+
+    // Apply measurement to single qubit
+    inline void applyMeasurement(CST target, bool normalize=true){
+        this->collapseQubit(target,(dist(mt) < this->getStateProbability(target)));
+        if(normalize){
+            this->applyAmplitudeNorm();
+        }
+    }
+
     private:
     std::size_t numQubits = 0;
     QRDP qubitRegister;
     std::vector<TMDP> gates;
+
+    std::random_device rd; 
+    std::mt19937 mt;
+    std::uniform_real_distribution<double> dist;
 };
 
 };

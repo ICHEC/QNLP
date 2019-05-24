@@ -1,10 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
-project(qnlp_modules LANGUAGES CXX)
+project(iqnlp_demos LANGUAGES CXX)
 
 ###############################################################################
 # Include all nested sources directories
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS
+                            nqubit_ControlledU;
 #                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;
@@ -18,7 +19,6 @@ set(QNLP_MODULES_SUBDIRS
 #                            test_arithmetic;
 #                            decomposition_tests;
 #                            measurement;
-#                            nqubit_ControlledU;
 #                            test_qft;
 #                            entanglement_test;
 #                            measure_probs;
