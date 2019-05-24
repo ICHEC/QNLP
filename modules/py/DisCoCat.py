@@ -180,28 +180,31 @@ class DisCoCat:
         return state_encoding
 
     def latex_states(self, bit_map, dat_map, file_name = "state"):
+        """
+        LaTeX file outputter for state generation. Given the above data structures, file_name.tex is generated. Beware, as output may need to replace '_' with '\_' for non-math-mode usage.
+        """
+
+        mapping = self.generate_state_mapping(bit_map, dat_map)
+
         with open(file_name + ".tex", "w") as f:
-            f.write("\\documentclass{article} \n \\begin{document} \n")
+            f.write("\\documentclass{article} \n \\usepackage{amsmath} \n \\begin{document} \n")
             tex_string_format_bit = r'\vert {:0%db} \rangle'%(bit_map[0])
-            for k,v in dat_map.items():
-                coeffs = []
-                mapped_tex = []
-                for kk,vv in v.items():
-                    coeffs.append(np.sum([1.0/(ii+1) for ii in vv]))
-                    mapped_tex.append(tex_string_format_bit.format(bit_map[1][kk]))
-                norm_coeff = np.linalg.norm(coeffs)
-                f.write(r"\begin{equation}\vert \textrm{" + k + r"} \rangle =" )
-                out_str_tex = r"""\begin{array}{c}"""
-                out_str_tex += "\n"
-                for i in range(len(mapped_tex)):
-                    out_str_tex += str(coeffs[i]/norm_coeff)
-                    out_str_tex += mapped_tex[i]
-                    out_str_tex += " \\\\ \n"
-                    if i != len(mapped_tex)-1:
-                        out_str_tex += "+ \\\\ \n"
-                out_str_tex += r"""\end{array}\end{equation}"""
-                out_str_tex += "\\noindent\\rule{\\textwidth}{1pt} \n"
-                f.write(out_str_tex + "\n")
+
+            for token, basis_map in mapping.items():
+                f.write(r"\begin{align}\vert \textrm{" + token + "} \\rangle &= \\\\ \n &" )
+                for i,b in enumerate(basis_map):
+                    if( i != 0 ):
+                        if(i%3 == 0):
+                            f.write(r" \\ & ")
+
+                    f.write("{0:.3f}".format(round(b[0],3)))
+                    f.write(tex_string_format_bit.format(b[1]) )
+
+                    if(i != len(basis_map) - 1):
+                        f.write(r"+")
+                    f.write(" \\nonumber ")
+                f.write(r"""\end{align}""")
+                f.write("\\noindent\\rule{\\textwidth}{1pt} \n")
             f.write(r"\end{document}")
 
 ###############################################################################
@@ -215,8 +218,8 @@ if __name__ == "__main__":
     corpus_text = dcc.load_corpus(CorpusFile)
     tokens = dcc.tokenise_corpus(corpus_text)
 
-    basis_v = dcc.define_basis_words(tokens['verbs'], 40)
-    basis_n = dcc.define_basis_words(tokens['nouns'], 40)
+    basis_v = dcc.define_basis_words(tokens['verbs'], 30)
+    basis_n = dcc.define_basis_words(tokens['nouns'], 30)
 
     bit_map_v = dcc.map_to_bitstring(basis_v)
     bit_map_n = dcc.map_to_bitstring(basis_n)
