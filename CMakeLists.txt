@@ -24,7 +24,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_BUILD_TYPE Release)
 
-
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
 if (${ENABLE_TESTS})
@@ -42,13 +41,30 @@ set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
 set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
+
+# Set CMAKE_CXX_FLAGS specific for OS
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    set(CMAKE_CXX_FLAGS
+        "-L/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/lib \
+        -L/opt/gcc/gcc91/lib \
+        -fopenmp \
+        -I/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/include \
+        -lmpi  \
+        "
+    )
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    set(CMAKE_CXX_FLAGS
+        "-qopenmp \
+        -lmkl_blacs_intelmpi_ilp64    \
+        "
+    )
+endif ()
+
 set(CMAKE_CXX_FLAGS
-    "-L/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/lib \
-     -L/opt/gcc/gcc91/lib \
+    "${CMAKE_CXX_FLAGS} \
      -lmkl_rt \
-     -lpthread \
+      -lpthread \
      -ldl \
-     -fopenmp \
      -liomp5 \
      -lm \
      -Wall \
@@ -56,11 +72,20 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
-     -I/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/include \
-     -lmpi"
+     "
 )
 
 ################################################################################
+
+# Add OS specific definitions
+#if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+#elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    add_definitions(
+        "-DINTELQS_HAS_MPI")
+endif ()
+
+
 add_definitions(
     "-DUSE_MM_MALLOC \
      -DMKL_ILP64 \
