@@ -4,23 +4,24 @@ project(qnlp_modules LANGUAGES CXX)
 ###############################################################################
 # Include all nested sources directories
 ###############################################################################
-set(QNLP_MODULES_SUBDIRS      hamming_distance;
+set(QNLP_MODULES_SUBDIRS
+#                            hamming_distance;
 #                            corpus_encoding;
-                            nn_hamming_distance;
-                            superposition_encoding;
-                            superposition_encoding_optimal_num_qubits;
+#                            superposition_encoding_optimal_num_qubits;
+#                            nn_hamming_distance;
+#                            superposition_encoding;
 #                            nn_superposition_encoding;
 #                            db_tests;
-                            installation_tests;
+#                            installation_tests;
 #                            nn_hamming_distance_Schuld;
 #                            test_arithmetic;
-                            decomposition_tests;
-                            measurement;
-                            nqubit_ControlledU;
+#                            decomposition_tests;
+#                            measurement;
+#                            nqubit_ControlledU;
 #                            test_qft;
 #                            entanglement_test;
 #                            measure_probs;
-                            yRot
+#                            yRot
 )
 
 foreach(MOD ${QNLP_MODULES_SUBDIRS})

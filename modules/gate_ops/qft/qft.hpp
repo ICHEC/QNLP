@@ -8,36 +8,48 @@
  * @copyright Copyright (c) 2019
  * 
  */
-#include "qureg/qureg.hpp"
+#ifndef QNLP_QFT
+#define QNLP_QFT
+
+#include <cmath>
 
 namespace QNLP{
+    template <class SimulatorType>
     class QFT{
         public:
-            /**
-             * @brief Applies the forward QFT on the given register
-             * 
-             * @param qReg The qubit register
-             * @param minIdx the lower-bounded index in the register to transform
-             * @param maxIdx the upper-bounded index in the register to transform
-             */
-            static void applyQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx);
-            /**
-             * @brief Applies the inverse QFT on the given register
-             * 
-             * @param qReg The qubit register
-             * @param minIdx the lower-bounded index in the register to transform
-             * @param maxIdx the upper-bounded index in the register to transform
-             */
-            static void applyIQFT(QubitRegister<ComplexDP>& qReg, const unsigned int minIdx, const unsigned int maxIdx);
+        /**
+         * @brief Applies the forward QFT on the given register
+         * 
+         * @param qSim The qubit register
+         * @param minIdx the lower-bounded index in the register to transform
+         * @param maxIdx the upper-bounded index in the register to transform
+         */
+        static void applyQFT(SimulatorType& qSim, const unsigned int minIdx, const unsigned int maxIdx){
+            for(std::size_t i = maxIdx; i > minIdx; i--){
+                qSim.applyGateH(i-1);
+                for(std::size_t j = i-1; j > minIdx; j--){
+                // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
+                    qSim.applyGateCPhaseShift(2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+                }
+            }
+        }
 
-            /**
-             * @brief Apply the phase gate, shifting the |1> qubit phase by the given angle.
-             * 
-             * @param angle \exp(i\theta), angle of phase shift
-             * @param control index of the control qubit
-             * @param target index of the target qubit
-             */
-            static void ApplyCPhaseGate(QubitRegister<ComplexDP>& qReg, const double angle, const unsigned int control, const unsigned int target);
+        /**
+         * @brief Applies the inverse QFT on the given register
+         * 
+         * @param qSim The qubit register
+         * @param minIdx the lower-bounded index in the register to transform
+         * @param maxIdx the upper-bounded index in the register to transform
+         */
+        static void applyIQFT(SimulatorType& qSim, const unsigned int minIdx, const unsigned int maxIdx){
+            for(std::size_t i = minIdx+1; i < maxIdx+1; i++){
+                for(std::size_t j = minIdx+1; j < i; j++){
+                    // Note:  1<<(1 + (i-j)) is 2^{i-j+1}, the respective phase term divisor
+                    qSim.applyGateCPhaseShift(-2.0*M_PI / (1<<(1 + (i-j))), j-1, i-1);
+                }
+                qSim.applyGateH(i-1);
+            }
+        }
     };
-
 }
+#endif

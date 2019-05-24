@@ -9,7 +9,7 @@
  * 
  */
 
-#define CATCH_CONFIG_MAIN
+//#define CATCH_CONFIG_RUNNER
 
 //For DB file access paths
 #include <fstream>

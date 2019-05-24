@@ -1,6 +1,8 @@
 #pragma once
-#include "qureg/qureg.hpp"
-#include "ncu.hpp"
+//#include "qureg/qureg.hpp"
+//#include "ncu.hpp"
+#include "Simulator.hpp"
+#include "IntelSimulator.cpp"
 #include <memory>
 //#include "util/tinymatrix.hpp"
 
@@ -12,7 +14,7 @@ namespace QNLP{
  *      
  * @tparam ComplexDP or ComplexSP or double or single precision qubit amplitudes respectively 
  */
-template <class Type = ComplexDP>
+template <class Type = >
 class QubitCircuit: public QubitRegister<Type>{
     private:
         std::random_device rd;

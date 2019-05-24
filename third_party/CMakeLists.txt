@@ -13,5 +13,3 @@ endforeach()
 ###############################################################################
 set(CLI11_SINGLE_FILE ON)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/Catch2/contrib)
-message("3rd PARTY: ${CMAKE_MODULE_PATH}")
-#target_link_libraries(tp_test.cpp Catch2::Catch2 CLI11::CLI11)

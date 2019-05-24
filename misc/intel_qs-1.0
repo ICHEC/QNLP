@@ -1,0 +1,25 @@
+#%Module1.0#####################################################################
+##
+## modules libraries/intel-qs-1.0
+##
+## modulefiles/libraries/intel-qs-1.0.  Written by Myles Doyle
+##
+proc ModulesHelp { } {
+        global version modroot
+
+        puts stderr "libraries/intel-qs-1.0 - sets the Environment for Intel Quantum Simulator in my home directory"
+}
+
+module-whatis   "Sets the Environment for using intel-qs-1.0 (Intel Quantum Simulator) library"
+
+# for Tcl script use only
+set             topdir              <PATH-TO-INTEL-QS>/Intel-QNLP/Intel-QS
+set             version             1.0
+set             sys                 macOS-10.14_X86-64
+
+setenv          CXX                 /opt/gcc/gcc91/bin/mpicxx
+setenv          CC                  /opt/gcc/gcc91/bin/mpicc
+
+setenv          QHIPSTER_DIR        $topdir
+setenv          QHIPSTER_DIR_LIB    $topdir/qureg
+setenv          QHIPSTER_DIR_INC    $topdir
