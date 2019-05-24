@@ -24,11 +24,6 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #set(CMAKE_BUILD_TYPE Release)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    message("################ CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
-endif ()
-
-
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
 if (${ENABLE_TESTS})
