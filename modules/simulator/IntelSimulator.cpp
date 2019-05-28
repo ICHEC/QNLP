@@ -212,6 +212,11 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         }
     }
 
+    inline void EncodeBinInToSuperposition(vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned>& bin_patterns, unsigned len_bit_pattern){
+
+
+    }
+
     private:
     std::size_t numQubits = 0;
     QRDP qubitRegister;
