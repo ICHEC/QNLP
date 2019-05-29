@@ -10,9 +10,10 @@
 #define QNLP_BINENCODE
 
 //#include "Simulator.hpp"
-#include <complex>
+//#include <complex>
 #include <cassert>
 #include <utility>
+#include <memory>
 
 namespace QNLP{
 
@@ -34,16 +35,16 @@ namespace QNLP{
             Mat2x2Type pX;
             std::unique_ptr< std::vector<Mat2x2Type> > S;
 
-            unsigned m, len_reg_ancilla, len_bit_pattern;
+            unsigned m, len_reg_ancilla, len_bin_pattern;
     
 
 
         public:
             EncodeBinIntoSuperpos(){};
 
-            EncodeBinIntoSuperpos(const std::size_t num_bin_patterns, const std::size_t len_bit_pattern_){
+            EncodeBinIntoSuperpos(const std::size_t num_bin_patterns, const std::size_t len_bin_pattern_){
                 m = num_bin_patterns;
-                len_bit_pattern = len_bit_pattern_;
+                len_bin_pattern = len_bin_pattern_;
 
                 initialiseMats();
             };
@@ -71,7 +72,7 @@ namespace QNLP{
                 // Note the matrix indexing of the S vector of S^p matrices will be backwards:
                 //      S[0] -> S^p
                 //      S[1] -> S_{p-1}, and so on.
-                S = new std::vector<Mat2x2Type> (m, Mat2x2Type);
+                S = new std::vector<Mat2x2Type> (m);
                 {
                     int p = m;
                     double diag, off_diag;

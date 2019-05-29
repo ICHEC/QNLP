@@ -18,6 +18,7 @@
 #define QNLP_SIMULATOR_INTERFACE_H
 #include <cstddef>
 #include <utility> //std::declval
+#include <vector>
 
 // Include all additional modules to be used within simulator
 #include "ncu.hpp"

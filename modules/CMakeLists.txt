@@ -6,7 +6,7 @@ project(qnlp_modules LANGUAGES CXX)
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS    db;
                             gate_ops;
-                            bin_into_superpos;
+                            encoding;
                             py;
                             simulator;
                             #qubit_extended;
