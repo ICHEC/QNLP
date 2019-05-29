@@ -42,36 +42,54 @@ set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
 
+
+################################################################################
+find_package(OPENMP REQUIRED)
+#if (OPENMP_FOUND)
+#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+#endif()
+
+################################################################################
+
+find_package(MPI REQUIRED)
+#include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+#target_link_libraries(my_mpi_target ${MPI_C_LIBRARIES})
+################################################################################
+
+
+
+
 # Set CMAKE_CXX_FLAGS specific for OS
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     set(CMAKE_CXX_FLAGS
         "-L/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/lib \
-        -L/opt/gcc/gcc91/lib \
-        -fopenmp \
-        -I/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/include \
-        -lmpi  \
+        -fopenmp                \
+        -I/${CMAKE_CURRENT_SOURCE_DIR}/third_party/install/intel-qnlp_conda/envs/intel-qnlp/include                 \
+        -lmpi                   \
         "
     )
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     set(CMAKE_CXX_FLAGS
-        "-qopenmp \
-        -lmkl_blacs_intelmpi_ilp64    \
+        "-qopenmp                       \
+        -lmkl_blacs_intelmpi_ilp64      \
         "
     )
 endif ()
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} \
-     -lmkl_rt \
-      -lpthread \
-     -ldl \
-     -liomp5 \
-     -lm \
-     -Wall \
-     -lmkl_cdft_core \
-     -lmkl_intel_ilp64 \
-     -lmkl_core \
-     -lmkl_intel_thread \
+    "${CMAKE_CXX_FLAGS}     \
+     -lmkl_rt               \
+      -lpthread             \
+     -ldl                   \
+     -liomp5                \
+     -lm                    \
+     -Wall                  \
+     -lmkl_cdft_core        \
+     -lmkl_intel_ilp64      \
+     -lmkl_core             \
+     -lmkl_intel_thread     \
      "
 )
 
@@ -80,11 +98,11 @@ set(CMAKE_CXX_FLAGS
 # Add OS specific definitions
 #if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 #elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     add_definitions(
-        "-DINTELQS_HAS_MPI")
+        "-DINTELQS_HAS_MPI"
+    )
 endif ()
-
 
 add_definitions(
     "-DUSE_MM_MALLOC \
@@ -99,6 +117,7 @@ add_definitions(
 # Add Intel-QS library as target
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
+target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
 
 ################################################################################
 # Include the directories with sources
@@ -118,22 +137,6 @@ add_library(${PROJECT_NAME} INTERFACE)
 if(CLANG_TIDY_EXE)
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
 endif()
-
-################################################################################
-find_package(OPENMP REQUIRED)
-#if (OPENMP_FOUND)
-#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-#endif()
-
-################################################################################
-find_package(MPI)
-
-################################################################################
-#add_executable(cswap_test ./tests/test_control_swap.cpp)
-
-#include_directories("${QHIPSTER_INC}")
 
 ################################################################################
 add_subdirectory(tests)
