@@ -22,6 +22,7 @@
 // Include all additional modules to be used within simulator
 #include "ncu.hpp"
 #include "qft.hpp"
+#include "bin_into_superpos.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
@@ -443,6 +444,15 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, U, 0, false);
         }
 
+        template<class Mat2x2Type>
+        void encodeBinToSuperpos(const std::vector<unsigned>& reg_memory,
+                const std::vector<unsigned>& reg_ancilla,
+                const std::vector<unsigned>& bin_patterns,
+                const std::size_t len_bin_pattern){
+            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
+            encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+                
         /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
          * 
