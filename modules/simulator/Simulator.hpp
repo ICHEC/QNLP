@@ -450,6 +450,10 @@ namespace QNLP{
         void initRegister(){
             static_cast<DerivedType*>(this)->initRegister(); 
         }
+
+
+
+
     };
 }
 #endif
