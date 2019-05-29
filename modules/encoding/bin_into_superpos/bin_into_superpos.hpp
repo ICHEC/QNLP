@@ -99,73 +99,17 @@ namespace QNLP{
             }
 
             /**
-             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Requires the control register qubits to be adjacent. 
+             * @brief Encodes each element of inputted vector as a binary string in a superpostiion of states.
              * 
-             * @tparam Type ComplexDP or ComplexSP 
              * @param qReg Qubit register
-             * @param qControlStart First index of control qubits. 
-             * @param qControlEnd Last index of control qubits. 
-             * @param qTarget Target qubit for the unitary matrix U
-             * @param U Unitary matrix, U
-             * @param depth Depth of recursion.
-             * @param isPauliX To indicate if the unitary is a PauliX matrix.
+             * @param reg_memory A vector containing the indices of the qubits of the memory register. 
+             * @param reg_ancilla A vector containing the indices of the qubits of the ancilla register. 
+             * @param Vector of non-negative integers which represent the inputted binary patters that are to be encoded.
              */
-            void applyNQubitControl(SimulatorType& qSim, 
-                    const unsigned int qControlStart,
-                    const unsigned int qControlEnd,
-                    const unsigned int qTarget,
-                    const Mat2x2Type& U, 
-                    const unsigned int depth, const bool isPauliX)
-            {
-                //Some safety checks
-                assert (qControlStart <= qControlEnd);
-                assert (qSim.getNumQubits() >= qControlEnd);
-                assert (qSim.getNumQubits() >= qTarget);
-                assert (qControlEnd != qTarget);
-
-                int local_depth = depth + 1;
-                if(sqrtMatricesU.size() == 0){
-                    initialiseMaps(U, qControlEnd - qControlStart +1);
-                }
-
-                //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
-                std::size_t cOps = qControlEnd - qControlStart + 1;
-
-                if (cOps >= 2){
-                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
-                    if ( ! isPauliX ){
-                        //Apply single qubit gate ops, and decompose higher order controls further
-                        qSim.applyGateCU( sqrtMatricesU[local_depth], qControlEnd, qTarget );
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
-
-                        qSim.applyGateCU(sqrtMatricesU[-local_depth], qControlEnd, qTarget);
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
-
-                        Mat2x2Type sqrt_U(matrixSqrt(U));
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qTarget, sqrt_U, local_depth, false );
-                    }
-                    else {
-                        //Apply single qubit gate ops, and decompose higher order controls further
-                        qSim.applyGateCU(sqrtMatricesX[local_depth], qControlEnd, qTarget);
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
-
-                        qSim.applyGateCU(sqrtMatricesX[-local_depth], qControlEnd, qTarget);
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
-
-                        Mat2x2Type sqrt_U(matrixSqrt(U));
-                        applyNQubitControl(qSim, qControlStart, qControlEnd-1, qTarget, sqrt_U, local_depth, false );
-                    }
-                }
-
-                //If the number of control qubits is less than 2, assume we have decomposed sufficiently
-                else{
-                    qSim.applyGateCU(U, qControlEnd, qTarget); //The first decomposed matrix value is used here
-                }
-            }
-
-
-
-            void encodeBinInToSuperpos(SimulatorType& qSim, const std::vector<unsigned>& reg_memory, const std::vector<unsigned>& reg_ancilla, const std::vector<unsigned>& bin_patterns){
+            void encodeBinInToSuperpos(SimulatorType& qSim, 
+                    const std::vector<unsigned>& reg_memory,
+                    const std::vector<unsigned>& reg_ancilla, 
+                    const std::vector<unsigned>& bin_patterns){
 
                 int len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
@@ -175,7 +119,7 @@ namespace QNLP{
 
 
                 // Prepare state in |0...>|0...0>|10> of lengths n,n,2
-                qSim.ApplyPauliX(reg_ancilla[len_reg_ancilla-1]);
+                qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
 
                 // Begin Encoding
                 for(int i = 0; i < m; i++){
@@ -183,51 +127,51 @@ namespace QNLP{
                     // Encode inputted binary pattern to pReg
                     for(int j = 0; j < len_bin_pattern; j++){
                         if(IS_SET(bin_patterns[i],j)){
-                            qSim.ApplyPauliX(reg_ancilla[j]);
+                            qSim.applyGateX(reg_ancilla[j]);
                         }
                     }
 
                     // Psi1
                     // Encode inputted binary pattern
                     for(int j = 0; j < len_bin_pattern; j++){
-                        qSim.ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+                        qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi2
                     for(int j = 0; j < len_bin_pattern; j++){
-                        qSim.ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
-                        qSim.ApplyPauliX(reg_memory[j]);
+                        qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
+                        qSim.applyGateX(reg_memory[j]);
                     }
 
                     // Psi3
-                    op_nCDecomp->applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], *X, 0, true);
+                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi4
                     // Step 1.3 - Apply S^i
                     // This flips the second control bit of the new term in the position so
                     // that we get old|11> + new|10>
                     // Break off into larger and smaller chunks
-                    qSim.ApplyControlled1QubitGate(reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1], (*S)[i]);
+                    qSim.applyGateCU((*S)[i], reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1]);
 
                     // Psi5
-                    op_nCDecomp->applyNQubitControl(*this, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2], *X, 0, true);
+                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
                     for(int j = len_bin_pattern-1; j > -1; j--){
-                        qSim.ApplyPauliX(reg_memory[j]);
-                        qSim.ApplyCPauliX(reg_ancilla[j], reg_memory[j]);
+                        qSim.applyGateX(reg_memory[j]);
+                        qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                     }
 
                     // Psi7
                     for(int j = len_bin_pattern-1; j > -1; j--){
-                        qSim.ApplyToffoli(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+                        qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Reset the p register of the new term to the state |0...0>
                     for(int j = 0; j < len_bin_pattern; j++){
                         // Check current pattern against next pattern
                         if(IS_SET(bin_patterns[i],j)){
-                            qSim.ApplyPauliX(reg_ancilla[j]);
+                            qSim.applyGateX(reg_ancilla[j]);
                         }
 
                     }
