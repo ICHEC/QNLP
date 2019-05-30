@@ -156,8 +156,6 @@ namespace QNLP{
                 //must be a way to vectorise these; TinyMatrix have a scale/shift option?
                 V(0,0) += s;
                 V(1,1) += s;
-
-
                 std::complex<double> scale_factor(1.,0.);
                 scale_factor/=t;
                 V(0,0) *= scale_factor; //(std::complex<double>(1.,0.)/t);
