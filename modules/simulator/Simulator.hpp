@@ -445,6 +445,15 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, U, 0, false);
         }
 
+        /**
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states.
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
+         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
+         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
+         * @param len_bin_pattern The length of the binary patterns being encoded
+         */
         template<class Mat2x2Type>
         void encodeBinToSuperpos(const std::vector<unsigned>& reg_memory,
                 const std::vector<unsigned>& reg_ancilla,
@@ -452,6 +461,11 @@ namespace QNLP{
                 const std::size_t len_bin_pattern){
             EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
             encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+
+        template<class Mat2x2Type>
+        std::size_t applyMeasurement(std::size_t target, bool normalize=true){
+            return static_cast<DerivedType*>(this)->applyMeasurement(target, normalize);
         }
                 
         /**
