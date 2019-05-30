@@ -12,6 +12,6 @@ add_library(qnlp_binencode INTERFACE)
 target_include_directories(qnlp_binencode INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
 if(${CMAKE_TESTING_ENABLED})
-    #add_library(test_binencode OBJECT test_encode_binary.cpp)
-    #target_link_libraries(test_binencode Catch2::Catch2 qnlp_binencode qnlp_simulator)
+    add_library(test_binencode OBJECT test_bin_into_superpos.cpp)
+    target_link_libraries(test_binencode Catch2::Catch2 qnlp_binencode qnlp_simulator)
 endif()

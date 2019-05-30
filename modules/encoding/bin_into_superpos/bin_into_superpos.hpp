@@ -14,6 +14,9 @@
 #include <cassert>
 #include <utility>
 #include <memory>
+#include <cmath>
+#include<vector>
+#include<complex>
 
 namespace QNLP{
 
@@ -35,7 +38,7 @@ namespace QNLP{
             Mat2x2Type pX;
             std::unique_ptr< std::vector<Mat2x2Type> > S;
 
-            unsigned m, len_reg_ancilla, len_bin_pattern;
+            std::size_t m, len_reg_ancilla, len_bin_pattern;
     
 
 
@@ -72,12 +75,12 @@ namespace QNLP{
                 // Note the matrix indexing of the S vector of S^p matrices will be backwards:
                 //      S[0] -> S^p
                 //      S[1] -> S_{p-1}, and so on.
-                S = new std::vector<Mat2x2Type> (m);
+                S.reset(new std::vector<Mat2x2Type> (m));
                 {
                     int p = m;
                     double diag, off_diag;
 
-                    for(int i = 0; i < m; i++){
+                    for(std::size_t i = 0; i < m; i++){
                         off_diag = 1.0/sqrt((double)(p));
                         diag = off_diag * sqrt((double)(p-1));
 
@@ -96,7 +99,8 @@ namespace QNLP{
              * 
              */
             void clearMats(){
-                S.clear();
+                delete  S;
+                //S.clear();
             }
 
             /**
@@ -108,11 +112,11 @@ namespace QNLP{
              * @param Vector of non-negative integers which represent the inputted binary patters that are to be encoded.
              */
             void encodeBinInToSuperpos(SimulatorType& qSim, 
-                    const std::vector<unsigned>& reg_memory,
-                    const std::vector<unsigned>& reg_ancilla, 
-                    const std::vector<unsigned>& bin_patterns){
+                    const std::vector<std::size_t>& reg_memory,
+                    const std::vector<std::size_t>& reg_ancilla, 
+                    const std::vector<std::size_t>& bin_patterns){
 
-                int len_reg_ancilla;
+                std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
 
                 // Require length of ancilla register to have n+2 qubits
@@ -123,10 +127,10 @@ namespace QNLP{
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
 
                 // Begin Encoding
-                for(int i = 0; i < m; i++){
+                for(std::size_t i = 0; i < m; i++){
                     // Psi0
                     // Encode inputted binary pattern to pReg
-                    for(int j = 0; j < len_bin_pattern; j++){
+                    for(std::size_t j = 0; j < len_bin_pattern; j++){
                         if(IS_SET(bin_patterns[i],j)){
                             qSim.applyGateX(reg_ancilla[j]);
                         }
@@ -134,12 +138,12 @@ namespace QNLP{
 
                     // Psi1
                     // Encode inputted binary pattern
-                    for(int j = 0; j < len_bin_pattern; j++){
+                    for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi2
-                    for(int j = 0; j < len_bin_pattern; j++){
+                    for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                         qSim.applyGateX(reg_memory[j]);
                     }
@@ -158,18 +162,18 @@ namespace QNLP{
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
-                    for(int j = len_bin_pattern-1; j > -1; j--){
+                    for(std::size_t j = len_bin_pattern-1; j >= 0; j--){
                         qSim.applyGateX(reg_memory[j]);
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                     }
 
                     // Psi7
-                    for(int j = len_bin_pattern-1; j > -1; j--){
+                    for(std::size_t j = len_bin_pattern-1; j >= 0; j--){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Reset the p register of the new term to the state |0...0>
-                    for(int j = 0; j < len_bin_pattern; j++){
+                    for(std::size_t j = 0; j < len_bin_pattern; j++){
                         // Check current pattern against next pattern
                         if(IS_SET(bin_patterns[i],j)){
                             qSim.applyGateX(reg_ancilla[j]);
