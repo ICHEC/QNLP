@@ -490,7 +490,7 @@ namespace QNLP{
             // Store current state of training register in it's integer format
             std::size_t val = 0;  
             for(std::size_t j = len_bin_pattern-1; j > -1; j--){
-                val |= (static_cast<DerivedType*>(this)->applyMeasurement(target, normalize) << j);
+                val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
             } 
             return val;
         }
