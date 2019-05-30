@@ -463,9 +463,36 @@ namespace QNLP{
             encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
         }
 
+        /**
+         * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @return bool Value that qubit is randomly collapsed to according to amplitude
+         * @param target The index of the qubit being collapsed
+         * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+         */
         template<class Mat2x2Type>
-        std::size_t applyMeasurement(std::size_t target, bool normalize=true){
+        bool applyMeasurement(std::size_t target, bool normalize=true){
             return static_cast<DerivedType*>(this)->applyMeasurement(target, normalize);
+        }
+
+        /**
+         * @brief Apply measurement to a set of target qubits, randomly collapsing the qubits proportional to the amplitude and returns the bit string of the qubits in the order they are represented in the vector of indexes, in the form of an unsigned integer.
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @return std::size_t Integer representing the binary string of the collapsed qubits, ordered by least significant digit corresponding to first qubit in target vector of indices
+         * @param target_qubits Vector of indices of qubits being collapsed
+         * @param len_bin_pattern The length of the binary patterns being measured
+         * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+         */
+        template<class Mat2x2Type>
+        std::size_t applyMeasurement(std::vector<std::size_t> target_qubits, std::size_t len_bin_pattern, bool normalize=true){
+            // Store current state of training register in it's integer format
+            std::size_t val = 0;  
+            for(std::size_t j = len_bin_pattern-1; j > -1; j--){
+                val |= (static_cast<DerivedType*>(this)->applyMeasurement(target, normalize) << j);
+            } 
+            return val;
         }
                 
         /**
