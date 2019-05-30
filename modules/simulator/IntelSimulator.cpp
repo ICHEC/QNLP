@@ -207,27 +207,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     // Apply measurement to single qubit
     inline void applyMeasurement(CST target, bool normalize=true){
         CST bit_val;
-        collapseQubit(target,(dist(mt) < getStateProbability(target)));
+        collapseQubit(target,(bit_val = (dist(mt) < getStateProbability(target)));
         if(normalize){
             applyAmplitudeNorm();
         }
+        return bit_val;
     }
-
- // Store current state of training register in it's integer format
-    int val = 0;  
-    for(int j = n-1; j > -1; j--){
-        val |= ((unsigned int)circ.GetProbability(qRegCirc.get_mReg(j)) << j);
-    } 
- 
-  // Increase the count of the training pattern measured
-    bool flag = false;
-    for(int i = 0; i < m; i++){   
-        if(pattern[i] == val){
-            count[i]++;   
-            flag = true;  
-        } 
-    }
-
 
     private:
     std::size_t numQubits = 0;
