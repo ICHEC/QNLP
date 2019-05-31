@@ -479,13 +479,12 @@ namespace QNLP{
          * 
          * @return std::size_t Integer representing the binary string of the collapsed qubits, ordered by least significant digit corresponding to first qubit in target vector of indices
          * @param target_qubits Vector of indices of qubits being collapsed
-         * @param len_bin_pattern The length of the binary patterns being measured
          * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
          */
-        std::size_t applyMeasurementToRegister(std::vector<std::size_t> target_qubits, std::size_t len_bin_pattern, bool normalize=true){
+        std::size_t applyMeasurementToRegister(std::vector<std::size_t> target_qubits, bool normalize=true){
             // Store current state of training register in it's integer format
             std::size_t val = 0; 
-            for(std::size_t j = len_bin_pattern-1; j > -1; j--){
+            for(std::size_t j = target_qubits.size() - 1; j > -1; j--){
                 val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
             } 
             return val;

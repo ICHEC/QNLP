@@ -49,7 +49,7 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
         encoder.encodeBinInToSuperpos(sim, reg_memory, reg_ancilla, vec_to_encode);
 
         // Measure
-        val = sim.applyMeasurementToRegister(reg_memory, len_reg_memory);
+        val = sim.applyMeasurementToRegister(reg_memory);
 
         CHECK_THAT(vec_to_encode, VectorContains(val));
     }
