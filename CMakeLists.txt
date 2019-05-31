@@ -91,8 +91,8 @@ add_definitions(
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DOPENQU_HAVE_MPI \
-     -DVIRTUAL_INTERFACE"
+     -DOPENQU_HAVE_MPI" 
+    # -DVIRTUAL_INTERFACE"
 )
 
 ################################################################################

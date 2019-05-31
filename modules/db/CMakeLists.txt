@@ -12,6 +12,8 @@ if (SQLITE3_FOUND)
     add_library(qnlp_db STATIC ${QNLP_DB_FILES})
     include_directories(${SQLITE3_INCLUDE_DIRS})
     target_link_libraries (qnlp_db ${SQLITE3_LIBRARIES})
+    target_include_directories(qnlp_db PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
 else()
     message( SEND_ERROR "SQLite3 required for database access. libqnlp_db will not be built" )
 endif ()

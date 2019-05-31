@@ -5,6 +5,7 @@ project(iqnlp_demos LANGUAGES CXX)
 # Include all nested sources directories
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS
+                            isc_2019;
                             nqubit_ControlledU;
 #                            superposition_encoding;
 #                            hamming_distance;
