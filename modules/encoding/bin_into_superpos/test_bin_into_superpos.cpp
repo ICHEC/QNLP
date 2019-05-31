@@ -8,6 +8,7 @@
 #include <bitset>
 
 using namespace QNLP;
+using namespace Catch::Matchers;
 
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
@@ -15,43 +16,45 @@ typedef ComplexDP Type;
 template class EncodeBinIntoSuperpos<IntelSimulator>;
 
 
-
 TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
-    std::size_t num_qubits = 3, num_bin_pattern = 5, num_exps = 100;
-    std::size_t len_bin_pattern = num_qubits;
+    SECTION("Testing qubit encoding"){
+        std::size_t num_qubits = 10;
 
-    IntelSimulator sim(num_qubits);
-    REQUIRE(sim.getNumQubits() == num_qubits);
+        std::size_t len_reg_memory = (num_qubits - 2) / 2;
+        std::size_t len_reg_ancilla = len_reg_memory + 2;
+        std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
-    // Set up registers
-    std::vector<std::size_t> reg_memory(num_qubits);
-    for(std::size_t i = 0; i < len_bin_pattern; i++){
-        reg_memory[i] = i;
-    }
-    std::vector<std::size_t> reg_ancilla(len_bin_pattern + 2);
-    for(std::size_t i = 0; i < len_bin_pattern + 2; i++){
-        reg_ancilla[i] = i + len_bin_pattern;
-    }
+        IntelSimulator sim(num_qubits);
+        REQUIRE(sim.getNumQubits() == num_qubits);
 
-    // Init data to encode
-    std::vector<std::size_t> vec_to_encode(num_bin_pattern);
-    for(std::size_t i = 0; i < num_bin_pattern; i++){
-        vec_to_encode[i] = i;
-    }
+        // Set up registers to store indices
+        std::vector<std::size_t> reg_memory(len_reg_memory);
+        for(std::size_t i = 0; i < len_reg_memory; i++){
+            reg_memory[i] = i;
+        }
+        std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
+        for(std::size_t i = 0; i < len_reg_ancilla; i++){
+            reg_ancilla[i] = i + len_reg_memory;
+        }
 
-    std::size_t val;
-    for(size_t exp = 0; exp < num_exps; exp++){
+        // Init data to encode
+        std::vector<std::size_t> vec_to_encode(num_bin_pattern);
+        for(std::size_t i = 0; i < num_bin_pattern; i++){
+            vec_to_encode[i] = i;
+        }
+
+        std::size_t val;
         // Encode
-        EncodeBinIntoSuperpos<decltype(sim)> encoder(num_bin_pattern, len_bin_pattern);
+        EncodeBinIntoSuperpos<decltype(sim)> encoder(num_bin_pattern, len_reg_memory);
         encoder.encodeBinInToSuperpos(sim, reg_memory, reg_ancilla, vec_to_encode);
 
         // Measure
-        val = sim.applyMeasurementToRegister(reg_memory, len_bin_pattern);
+        val = sim.applyMeasurementToRegister(reg_memory, len_reg_memory);
 
-        //CHECK_THAT(val, Catch::VectorContains(vec_to_encode))
-
+        CHECK_THAT(vec_to_encode, VectorContains(val));
     }
 }
+
 
 /*
 TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){

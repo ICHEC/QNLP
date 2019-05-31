@@ -99,7 +99,7 @@ namespace QNLP{
              * 
              */
             void clearMats(){
-                delete  S;
+                //delete  [] S;
                 //S.clear();
             }
 
@@ -120,12 +120,11 @@ namespace QNLP{
                 len_reg_ancilla = reg_ancilla.size();
 
                 // Require length of ancilla register to have n+2 qubits
-                assert(m + 1 < len_reg_ancilla);
+                assert(reg_memory.size() + 1 < len_reg_ancilla);
 
 
                 // Prepare state in |0...>|0...0>|10> of lengths n,n,2
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
-
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
@@ -151,6 +150,7 @@ namespace QNLP{
                     // Psi3
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
+
                     // Psi4
                     // Step 1.3 - Apply S^i
                     // This flips the second control bit of the new term in the position so
@@ -162,13 +162,13 @@ namespace QNLP{
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
-                    for(std::size_t j = len_bin_pattern-1; j >= 0; j--){
+                    for(int j = len_bin_pattern-1; j > -1; j--){
                         qSim.applyGateX(reg_memory[j]);
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                     }
 
                     // Psi7
-                    for(std::size_t j = len_bin_pattern-1; j >= 0; j--){
+                    for(int j = len_bin_pattern-1; j > -1; j--){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
