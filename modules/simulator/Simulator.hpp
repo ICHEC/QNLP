@@ -20,6 +20,8 @@
 #include <utility> //std::declval
 #include <vector>
 
+#include <iostream>
+
 // Include all additional modules to be used within simulator
 #include "ncu.hpp"
 #include "qft.hpp"
@@ -454,7 +456,7 @@ namespace QNLP{
          * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
          * @param len_bin_pattern The length of the binary patterns being encoded
          */
-        template<class Mat2x2Type>
+        //template<class Mat2x2Type>
         void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
@@ -486,7 +488,9 @@ namespace QNLP{
             std::size_t val = 0; 
             for(std::size_t j = target_qubits.size() - 1; j > -1; j--){
                 val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
+                std::cout << val << " ";
             } 
+            std::cout << std::endl;
             return val;
         }
                 
