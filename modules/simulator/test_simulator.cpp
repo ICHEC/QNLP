@@ -77,6 +77,7 @@ TEST_CASE("Pauli operators"){
     }
 }
 
+
 /**
  *  Consider using virtual for non-standard functions, and CRTP for everything else.
  *  Default functions should be as fast as possible, with the others being only
@@ -110,6 +111,42 @@ TEST_CASE("Simulator interface"){
         REQUIRE(s5->getNumQubits() == 8);
     }
 }
+
+
+TEST_CASE("Measurement of qubits"){
+    std::size_t num_qubits = 3;
+    SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
+
+    SECTION("Measure single qubit"){
+        SECTION("State |0>"){
+            REQUIRE(sim->applyMeasurement(0) == 0 );
+        }
+        SECTION("State |1>"){
+            sim.applyGateX(0);
+            REQUIRE(sim->applyMeasurement(0) == 1 );
+        }
+    }
+
+    SECTION("Measure multiple qubits"){
+        std::vector<std::size_t> reg(num_qubits);
+        for(std::size_t i = 0; i < num_qubits; i++){
+            reg[i] = i;
+        }
+        for(std::size_t i = 0; i < num_qubits; i++){
+            DYNAMIC_SECTION("Encoded " << i){ 
+
+                for(std::size_t j = 0; j < i; j++){
+                    sim.applyGateX(reg[i]);
+                }
+                SECTION("Measuring binary of " << i){
+                    REQUIRE(sim->applyMeasurementToRegister(reg) == i );
+                }
+            }
+        }
+    }
+}
+
+
 
 /**
  * @brief User defined main required for this instance, as openqu::mpi::Environment destructor calls MPI_Finalize.
