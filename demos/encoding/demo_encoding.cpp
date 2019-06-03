@@ -33,6 +33,13 @@ void print_bits(unsigned int val, int len){
 
 int main(int argc, char **argv){
 
+    bool verbose = false;
+
+    if(argc > 1){
+        verbose = atoi(argv[1]);
+    }
+    std::size_t num_exps = 100;
+
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
 
@@ -41,7 +48,7 @@ int main(int argc, char **argv){
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
-    SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(n);
+    SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
     // Set up registers to store indices
     std::vector<std::size_t> reg_memory(len_reg_memory);
@@ -80,26 +87,27 @@ int main(int argc, char **argv){
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);
 
-        count[val]++;
-
-
+        //count[val].second() = count[val].second() + 1;
+        //
         if(verbose){
             // Output resulting state for this experiment
             cout << val << "\t";
             cout << "|";
             print_bits(val, len_reg_memory);
-            cout << ">";
+            cout << ">" << endl;
         }
     }
             
     cout << "Measure:" << endl;
-   // for(std::size_t i = 0; i < num_bin_pattern; i++){
-    for(map<std::size_t, std::size_t> it = count.begin(); it !=count.end(); ++it){
+    int i = 0;
+    for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
+        cout << vec_to_encode[i] << "\t";
         cout << it->first << "\t";
         cout << "|";
         print_bits(it->first, len_reg_memory);
         cout << ">\t";
-        cout << it->second << "\t" << (double) it->second / (double)num_exps << endl;
+        cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
+        i++;
     }
 
     return 0;

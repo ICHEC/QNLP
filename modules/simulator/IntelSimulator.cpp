@@ -205,8 +205,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     // Apply measurement to single qubit
-    inline std::size_t applyMeasurement(CST target, bool normalize=true){
-        std::size_t bit_val;
+    inline bool applyMeasurement(CST target, bool normalize=true){
+        bool bit_val;
         collapseQubit(target,(bit_val = (dist(mt) < getStateProbability(target))));
         if(normalize){
             applyAmplitudeNorm();
