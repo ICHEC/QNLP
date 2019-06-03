@@ -19,7 +19,8 @@ int main(int argc, char **argv){
     int empty_int = 0;
     openqu::mpi::Environment env(empty_int, empty);
 
-    // Cannot understand why this exists, and is necessary... Commented as it prevents anything working
+    // Cannot understand why this exists, and is necessary... 
+    // Commented as it prevents anything working
     //if (env.is_usefull_rank() == false) return 0;
     int rank = env.rank();
 
@@ -29,6 +30,7 @@ int main(int argc, char **argv){
     IntelSimulator sim(8);
     CorpusUtils cu(filepath);
     cu.loadData("noun");
+    cu.loadData("verb");
 
     auto& ntb = cu.getNameToBin();
 
@@ -36,6 +38,14 @@ int main(int argc, char **argv){
     for (const auto&[key, value] : ntb["noun"]) {
         std::cout << "Key = " << key << "   Value = " << value << std::endl;
     }
-
+    for (const auto&[key, value] : ntb["verb"]) {
+        std::cout << "Key = " << key << "   Value = " << value << std::endl;
+    }
     std::cout << "File size: " << cu.getNameToBin().size() << std::endl;
+
+    std::vector<std::size_t> reg_mem;
+    std::vector<std::size_t> reg_anc;
+    std::vector<std::size_t> bin_patterns;
+    
+    //sim.encodeBinToSuperpos(std::vector<std::size_t>{0,1,2,3}, );
 }
