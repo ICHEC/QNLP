@@ -115,32 +115,41 @@ TEST_CASE("Simulator interface"){
 
 TEST_CASE("Measurement of qubits"){
     std::size_t num_qubits = 3;
-    SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
     SECTION("Measure single qubit"){
+
+        SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
+
         SECTION("State |0>"){
             REQUIRE(sim->applyMeasurement(0) == 0 );
         }
         SECTION("State |1>"){
-            sim.applyGateX(0);
+            sim->applyGateX(0);
             REQUIRE(sim->applyMeasurement(0) == 1 );
         }
     }
 
+    // Only one encoded state so there is a 100% certainty
+    // of the measured output.
     SECTION("Measure multiple qubits"){
+
+        std::size_t test_val = 0;
+
         std::vector<std::size_t> reg(num_qubits);
         for(std::size_t i = 0; i < num_qubits; i++){
             reg[i] = i;
         }
-        for(std::size_t i = 0; i < num_qubits; i++){
+        for(std::size_t i = 0; i < num_qubits + 1; i++){
             DYNAMIC_SECTION("Encoded " << i){ 
+                SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
                 for(std::size_t j = 0; j < i; j++){
-                    sim.applyGateX(reg[i]);
+                    sim->applyGateX(reg[j]);
+
+                    test_val = (test_val << 1) | 1;
                 }
-                SECTION("Measuring binary of " << i){
-                    REQUIRE(sim->applyMeasurementToRegister(reg) == i );
-                }
+
+                REQUIRE(sim->applyMeasurementToRegister(reg) == test_val);
             }
         }
     }
