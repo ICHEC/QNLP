@@ -159,7 +159,7 @@ TEST_CASE("Measurement of qubits"){
 
 TEST_CASE("Encoding: Binary"){
     std::size_t max_num_qubits_mem = 6;
-    std::size_t num_exp = 10;
+    std::size_t num_exp = 500;
 
     // Repeat test for varying numbers of qubits
     for( std::size_t num_qubits_mem = 3; num_qubits_mem < max_num_qubits_mem; num_qubits_mem++){
@@ -180,10 +180,10 @@ TEST_CASE("Encoding: Binary"){
             std::size_t num_bin_patterns = 4; 
 
             std::vector<std::size_t> bin_patterns(num_bin_patterns);
-            bin_patterns[0] = pow(2,num_qubits_mem-1);
+            bin_patterns[0] = pow(2,num_qubits_mem)-1;
             bin_patterns[1] = 0;
-            bin_patterns[2] = (std::size_t)pow(2,num_qubits_mem-1) >> num_qubits_mem;
-            bin_patterns[3] = ((std::size_t)pow(2,num_qubits_mem-1) >> num_qubits_mem) << (num_qubits_mem + (num_qubits_mem%2));
+            bin_patterns[2] = (std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2);
+            bin_patterns[3] = ((std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2)) << (num_qubits_mem / 2);
 
             std::map<std::size_t, std::size_t> count_bin_pattern = {{bin_patterns[0], 0}, {bin_patterns[1], 0}, {bin_patterns[2], 0},{bin_patterns[3], 0}};
 
@@ -194,9 +194,21 @@ TEST_CASE("Encoding: Binary"){
                 sim->initRegister();
                 sim->encodeBinToSuperpos(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
                 result = sim->applyMeasurementToRegister(reg_mem);
+
+                // Check measured result is valid
                 CHECK_THAT(bin_patterns, Catch::Matchers::VectorContains(result));
+
+                // Update distributions of the results
                 count_bin_pattern[result]++;
             }
+
+            // Check resulting distribution of results lies within an acceptable limit.
+            // For smaller sample sizes ~500, 30% epsilon value is qualitatively said to be an acceptable limit.
+            Approx target = Approx(num_exp / num_bin_patterns).epsilon(0.30);
+            for(std::map<std::size_t,std::size_t>::iterator it = count_bin_pattern.begin(); it != count_bin_pattern.end(); it++){
+                CHECK( target == (double) it->second);
+            }
+            
         }
     }
 }
