@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(iqnlp_demos LANGUAGES CXX)
+project(qnlp_demos LANGUAGES CXX)
 
 ###############################################################################
 # Include all nested sources directories
