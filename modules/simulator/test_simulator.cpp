@@ -18,6 +18,8 @@
 
 using namespace QNLP;
 
+
+
 /**
  * @brief Tests creating a simulator (in this case, the Intel-QS), for a variety of different qubit counts, up to a max limit.
  * 
@@ -150,6 +152,50 @@ TEST_CASE("Measurement of qubits"){
                 }
 
                 REQUIRE(sim->applyMeasurementToRegister(reg) == test_val);
+            }
+        }
+    }
+}
+
+TEST_CASE("Encoding: Binary"){
+    std::size_t max_num_qubits_mem = 6;
+    std::size_t num_exp = 10;
+
+    // Repeat test for varying numbers of qubits
+    for( std::size_t num_qubits_mem = 3; num_qubits_mem < max_num_qubits_mem; num_qubits_mem++){
+        DYNAMIC_SECTION("Encoding " << num_qubits_mem << " qubits"){
+
+            std::size_t measurement = 0;
+            std::size_t result;
+
+            std::vector<std::size_t> reg_mem(num_qubits_mem);
+            for(std::size_t i = 0; i < num_qubits_mem; i++){
+                reg_mem[i] = i;
+            }
+            std::vector<std::size_t> reg_ancilla(num_qubits_mem+2);
+            for(std::size_t i = 0; i < num_qubits_mem + 2; i++){
+                reg_ancilla[i] = i + num_qubits_mem;
+            }
+
+            std::size_t num_bin_patterns = 4; 
+
+            std::vector<std::size_t> bin_patterns(num_bin_patterns);
+            bin_patterns[0] = pow(2,num_qubits_mem-1);
+            bin_patterns[1] = 0;
+            bin_patterns[2] = (std::size_t)pow(2,num_qubits_mem-1) >> num_qubits_mem;
+            bin_patterns[3] = ((std::size_t)pow(2,num_qubits_mem-1) >> num_qubits_mem) << (num_qubits_mem + (num_qubits_mem%2));
+
+            std::map<std::size_t, std::size_t> count_bin_pattern = {{bin_patterns[0], 0}, {bin_patterns[1], 0}, {bin_patterns[2], 0},{bin_patterns[3], 0}};
+
+            SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(2*num_qubits_mem + 2);
+
+            for(std::size_t exp = 0; exp < num_exp; exp++){
+                
+                sim->initRegister();
+                sim->encodeBinToSuperpos(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
+                result = sim->applyMeasurementToRegister(reg_mem);
+                CHECK_THAT(bin_patterns, Catch::Matchers::VectorContains(result));
+                count_bin_pattern[result]++;
             }
         }
     }
