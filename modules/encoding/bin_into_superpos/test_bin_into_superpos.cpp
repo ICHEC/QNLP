@@ -18,11 +18,12 @@ template class EncodeBinIntoSuperpos<IntelSimulator>;
 
 TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
     SECTION("Testing qubit encoding"){
+
         std::size_t num_qubits = 10;
 
         std::size_t len_reg_memory = (num_qubits - 2) / 2;
         std::size_t len_reg_ancilla = len_reg_memory + 2;
-        std::size_t num_bin_pattern = pow(2,len_reg_memory);
+        std::size_t num_bin_pattern = pow(2,len_reg_memory) - 2;
 
         IntelSimulator sim(num_qubits);
         REQUIRE(sim.getNumQubits() == num_qubits);
@@ -39,8 +40,8 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
 
         // Init data to encode
         std::vector<std::size_t> vec_to_encode(num_bin_pattern);
-        for(std::size_t i = 0; i < num_bin_pattern; i++){
-            vec_to_encode[i] = i;
+        for(std::size_t i = 2; i < num_bin_pattern; i++){
+            vec_to_encode[i-2] = i;
         }
 
         std::size_t val;
