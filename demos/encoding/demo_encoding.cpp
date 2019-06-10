@@ -38,14 +38,14 @@ int main(int argc, char **argv){
     if(argc > 1){
         verbose = atoi(argv[1]);
     }
-    std::size_t num_exps = 100;
+    std::size_t num_exps = 1000;
 
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
 
-    std::size_t num_qubits = 10;
-    std::size_t len_reg_memory = (num_qubits - 2) / 2;
+    std::size_t len_reg_memory = 4;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
+    std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
@@ -87,8 +87,7 @@ int main(int argc, char **argv){
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);
 
-        //count[val].second() = count[val].second() + 1;
-        //
+        count[val] += 1;
         if(verbose){
             // Output resulting state for this experiment
             cout << val << "\t";
@@ -98,6 +97,7 @@ int main(int argc, char **argv){
         }
     }
             
+    cout << "Expected results for an even distribution: " << 1.0/ (double)num_bin_pattern << endl; 
     cout << "Measure:" << endl;
     int i = 0;
     for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
