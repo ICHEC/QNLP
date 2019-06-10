@@ -27,7 +27,7 @@ int main(int argc, char **argv){
     /*
         Load data from pre-process corpus database
     */
-    IntelSimulator sim(8);
+    IntelSimulator sim(10);
     CorpusUtils cu(filepath);
     cu.loadData("noun");
     cu.loadData("verb");
@@ -43,9 +43,19 @@ int main(int argc, char **argv){
     }
     std::cout << "File size: " << cu.getNameToBin().size() << std::endl;
 
-    std::vector<std::size_t> reg_mem;
-    std::vector<std::size_t> reg_anc;
+    std::vector<std::size_t> reg_mem {0,1,2,3};
+    std::vector<std::size_t> reg_anc {4,5,6,7,8,9};
     std::vector<std::size_t> bin_patterns;
+
+    for (const auto&[key, value] : ntb["verb"]) {
+        bin_patterns.push_back(value);
+
+        std::cout << "Key = " << key << "   BACK = " << bin_patterns.back() << std::endl;
+        
+    }
     
-    //sim.encodeBinToSuperpos(std::vector<std::size_t>{0,1,2,3}, );
+    sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 4); 
+    auto result = sim.applyMeasurementToRegister(reg_mem);
+    std::cout << result << std::endl;
+
 }
