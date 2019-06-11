@@ -18,6 +18,8 @@
 
 using namespace QNLP;
 
+
+
 /**
  * @brief Tests creating a simulator (in this case, the Intel-QS), for a variety of different qubit counts, up to a max limit.
  * 
@@ -77,6 +79,7 @@ TEST_CASE("Pauli operators"){
     }
 }
 
+
 /**
  *  Consider using virtual for non-standard functions, and CRTP for everything else.
  *  Default functions should be as fast as possible, with the others being only
@@ -109,6 +112,181 @@ TEST_CASE("Simulator interface"){
         REQUIRE(s5->getNumQubits() == 8);
         REQUIRE(s5->getNumQubits() == 8);
     }
+}
+
+
+TEST_CASE("Measurement of qubits"){
+    std::size_t num_qubits = 3;
+
+    SECTION("Measure single qubit"){
+
+        SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
+
+        SECTION("State |0>"){
+            REQUIRE(sim->applyMeasurement(0) == 0 );
+        }
+        SECTION("State |1>"){
+            sim->applyGateX(0);
+            REQUIRE(sim->applyMeasurement(0) == 1 );
+        }
+    }
+
+    // Only one encoded state so there is a 100% certainty
+    // of the measured output.
+    SECTION("Measure multiple qubits"){
+
+        std::size_t test_val = 0;
+
+        std::vector<std::size_t> reg(num_qubits);
+        for(std::size_t i = 0; i < num_qubits; i++){
+            reg[i] = i;
+        }
+        for(std::size_t i = 0; i < num_qubits + 1; i++){
+            DYNAMIC_SECTION("Encoded " << i){ 
+                SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
+
+                for(std::size_t j = 0; j < i; j++){
+                    sim->applyGateX(reg[j]);
+
+                    test_val = (test_val << 1) | 1;
+                }
+
+                REQUIRE(sim->applyMeasurementToRegister(reg) == test_val);
+            }
+        }
+    }
+}
+
+TEST_CASE("Encoding even distribution: Binary"){
+    std::size_t max_num_qubits_mem = 6;
+    std::size_t num_exp = 500;
+
+    std::size_t result;
+
+    // Repeat test for varying numbers of qubits
+    for( std::size_t num_qubits_mem = 3; num_qubits_mem < max_num_qubits_mem; num_qubits_mem++){
+        DYNAMIC_SECTION("Encoding " << num_qubits_mem << " qubits"){
+
+            std::vector<std::size_t> reg_mem(num_qubits_mem);
+            for(std::size_t i = 0; i < num_qubits_mem; i++){
+                reg_mem[i] = i;
+            }
+            std::vector<std::size_t> reg_ancilla(num_qubits_mem+2);
+            for(std::size_t i = 0; i < num_qubits_mem + 2; i++){
+                reg_ancilla[i] = i + num_qubits_mem;
+            }
+
+            std::size_t num_bin_patterns = 4; 
+
+            std::vector<std::size_t> bin_patterns(num_bin_patterns);
+            bin_patterns[0] = pow(2,num_qubits_mem)-1;
+            bin_patterns[1] = 1;
+            bin_patterns[2] = (std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2);
+            bin_patterns[3] = ((std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2)) << (num_qubits_mem / 2);
+
+            std::map<std::size_t, std::size_t> count_bin_pattern;
+            for(std::size_t i = 0; i < num_bin_patterns; i++){
+                count_bin_pattern.insert(std::pair<std::size_t,std::size_t>(bin_patterns[i],0));
+            }
+
+
+
+            SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(2*num_qubits_mem + 2);
+
+            for(std::size_t exp = 0; exp < num_exp; exp++){
+                
+                sim->initRegister();
+                sim->encodeBinToSuperpos(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
+                result = sim->applyMeasurementToRegister(reg_mem);
+
+                // Check measured result is valid
+                CHECK_THAT(bin_patterns, Catch::Matchers::VectorContains(result));
+
+                // Update distributions of the results
+                count_bin_pattern[result]++;
+            }
+
+            // Check resulting distribution of results lies within an acceptable limit.
+            // For smaller sample sizes ~500, 30% epsilon value is qualitatively said to be an acceptable limit.
+            Approx target = Approx(num_exp / num_bin_patterns).epsilon(0.30);
+            for(std::map<std::size_t,std::size_t>::iterator it = count_bin_pattern.begin(); it != count_bin_pattern.end(); it++){
+                CHECK( target == (double) it->second);
+            }
+            
+        }
+
+    }
+
+}
+
+TEST_CASE("Encoding uneven distribution: Binary"){
+    std::size_t max_num_qubits_mem = 6;
+    std::size_t num_exp = 500;
+
+    std::size_t result;
+
+    // Repeat test for varying numbers of qubits
+    for( std::size_t num_qubits_mem = 3; num_qubits_mem < max_num_qubits_mem; num_qubits_mem++){
+        DYNAMIC_SECTION("Encoding " << num_qubits_mem << " qubits"){
+
+
+            std::vector<std::size_t> reg_mem(num_qubits_mem);
+            for(std::size_t i = 0; i < num_qubits_mem; i++){
+                reg_mem[i] = i;
+            }
+            std::vector<std::size_t> reg_ancilla(num_qubits_mem+2);
+            for(std::size_t i = 0; i < num_qubits_mem + 2; i++){
+                reg_ancilla[i] = i + num_qubits_mem;
+            }
+
+            std::size_t num_bin_patterns = 5; 
+            std::size_t num_identical_patterns = 3;
+            std::size_t identical_bin_val = (std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2);  
+
+            std::vector<std::size_t> bin_patterns(num_bin_patterns);
+            bin_patterns[0] = pow(2,num_qubits_mem)-1;
+            bin_patterns[1] = identical_bin_val;
+            bin_patterns[2] = ((std::size_t)pow(2,num_qubits_mem)-1 >> (num_qubits_mem / 2)) << (num_qubits_mem / 2);
+            bin_patterns[3] = identical_bin_val+1;
+            bin_patterns[4] = identical_bin_val+3;
+
+            std::map<std::size_t, std::size_t> count_bin_pattern;
+            for(std::size_t i = 0; i < num_bin_patterns; i++){
+                count_bin_pattern.insert(std::pair<std::size_t,std::size_t>(bin_patterns[i],0));
+            }
+
+            SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(2*num_qubits_mem + 2);
+
+            for(std::size_t exp = 0; exp < num_exp; exp++){
+                
+                sim->initRegister();
+                sim->encodeBinToSuperpos(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
+                result = sim->applyMeasurementToRegister(reg_mem);
+
+                // Check measured result is valid
+                CHECK_THAT(bin_patterns, Catch::Matchers::VectorContains(result));
+
+                // Update distributions of the results
+                count_bin_pattern[result]++;
+            }
+
+            // Check resulting distribution of results lies within an acceptable limit.
+            // For smaller sample sizes ~500, 30% epsilon value is qualitatively said to be an acceptable limit.
+            Approx target_identical = Approx(num_identical_patterns * num_exp / num_bin_patterns).epsilon(0.30);
+            Approx target = Approx(num_exp / num_bin_patterns).epsilon(0.30);
+            for(std::map<std::size_t,std::size_t>::iterator it = count_bin_pattern.begin(); it != count_bin_pattern.end(); it++){
+                if(it->first == identical_bin_val){
+                    CHECK( target_identical == (double) it->second);
+                }
+                else{
+                    CHECK( target == (double) it->second);
+                }
+            }
+            
+        }
+
+    }
+
 }
 
 /**

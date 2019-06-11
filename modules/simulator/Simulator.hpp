@@ -486,11 +486,9 @@ namespace QNLP{
         std::size_t applyMeasurementToRegister(std::vector<std::size_t> target_qubits, bool normalize=true){
             // Store current state of training register in it's integer format
             std::size_t val = 0; 
-            for(std::size_t j = target_qubits.size() - 1; j > -1; j--){
+            for(int j = target_qubits.size() - 1; j > -1; j--){
                 val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
-                std::cout << val << " ";
             } 
-            std::cout << std::endl;
             return val;
         }
                 
