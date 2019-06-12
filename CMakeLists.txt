@@ -22,7 +22,7 @@ project (QNLP)
 ################################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
