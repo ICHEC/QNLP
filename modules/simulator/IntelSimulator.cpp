@@ -188,6 +188,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline QubitRegister<ComplexDP>& getQubitRegister() { 
         return this->qubitRegister; 
     }
+
     inline const QubitRegister<ComplexDP>& getQubitRegister() const { 
         return this->qubitRegister; 
     };
