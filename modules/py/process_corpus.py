@@ -50,7 +50,7 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
         elif proc_mode == 'l':
             wnl = nltk.WordNetLemmatizer()
             token_words = [wnl.lemmatize(t) for t in token_words]
-
+    #from IPython import embed; embed()
     tags = nltk.pos_tag(token_words)
     nouns = [i[0] for i in tags if tg.matchables(tg.Noun, i[1])]
     verbs = [i[0] for i in tags if tg.matchables(tg.Verb, i[1])]

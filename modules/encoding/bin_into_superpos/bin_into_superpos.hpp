@@ -17,6 +17,7 @@
 #include <cmath>
 #include<vector>
 #include<complex>
+#include<iostream>
 
 namespace QNLP{
 
@@ -116,8 +117,7 @@ namespace QNLP{
                     const std::vector<std::size_t>& reg_ancilla, 
                     const std::vector<std::size_t>& bin_patterns){
 
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
+                std::size_t len_reg_ancilla = reg_ancilla.size();
 
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
@@ -131,23 +131,39 @@ namespace QNLP{
                     // Encode inputted binary pattern to pReg
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         if(IS_SET(bin_patterns[i],j)){
+                            auto bp = bin_patterns[i];
+                            auto raj = reg_ancilla[j];
+
                             qSim.applyGateX(reg_ancilla[j]);
                         }
                     }
-
+                    for( auto &a : reg_ancilla){
+                        //std::cout << a << std::endl;
+                        a;
+                    }
                     // Psi1
                     // Encode inputted binary pattern
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
+                        unsigned int raj = static_cast<unsigned int>(reg_ancilla[j]);
+
+                        unsigned int  ral1 = static_cast<unsigned int>(reg_ancilla[len_reg_ancilla-1]);
+                        unsigned int  rmj = static_cast<unsigned int>(reg_memory[j]);
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi2
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
+                        auto raj = reg_ancilla[j];
+                        auto rmj = reg_memory[j];
+
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                         qSim.applyGateX(reg_memory[j]);
                     }
 
                     // Psi3
+                    auto rm0 = reg_memory[0];
+                    auto rml1 = reg_memory[len_bin_pattern-1];
+                    auto ral2 = reg_ancilla[len_reg_ancilla-2];
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
 
@@ -156,6 +172,8 @@ namespace QNLP{
                     // This flips the second control bit of the new term in the position so
                     // that we get old|11> + new|10>
                     // Break off into larger and smaller chunks
+                    auto s = (*S)[i];
+                    auto ral1 = reg_ancilla[len_reg_ancilla-1];
                     qSim.applyGateCU((*S)[i], reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1]);
 
                     // Psi5
@@ -163,12 +181,19 @@ namespace QNLP{
 
                     // Psi6 
                     for(int j = len_bin_pattern-1; j > -1; j--){
+                        auto rmj = reg_memory[j];
+                        auto raj = reg_ancilla[j];
+
                         qSim.applyGateX(reg_memory[j]);
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                     }
 
                     // Psi7
                     for(int j = len_bin_pattern-1; j > -1; j--){
+                        auto raj = reg_ancilla[j];
+                        auto ral1 = reg_ancilla[len_reg_ancilla-1];
+                        auto rmj = reg_memory[j];
+
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
@@ -176,6 +201,8 @@ namespace QNLP{
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         // Check current pattern against next pattern
                         if(IS_SET(bin_patterns[i],j)){
+                            auto bpi = bin_patterns[i];
+                            auto raj = reg_ancilla[j];
                             qSim.applyGateX(reg_ancilla[j]);
                         }
 
