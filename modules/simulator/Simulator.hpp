@@ -448,7 +448,37 @@ namespace QNLP{
         }
 
         /**
-         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states.
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
+         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
+         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
+         * @param len_bin_pattern The length of the binary patterns being encoded
+         */
+        //template<class Mat2x2Type>
+        void encodeBinToSuperpos_unique(const std::vector<std::size_t>& reg_memory,
+                const std::vector<std::size_t>& reg_ancilla,
+                const std::vector<std::size_t>& bin_patterns,
+                const std::size_t len_bin_pattern){
+
+#ifndef NDEBUG
+            // Ensure that each binary pattern passed into the encoding is unique.
+            // This slow exhaustive search should be updated to a sort and smart search to improve large scale performance
+            std::size_t tmp;
+            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
+                for(std::vector<std::size_t>::const_iterator it_tmp = it+1; it_tmp != bin_patterns.end(); ++it_tmp){
+                    assert((*it) != (*it_tmp));
+                }
+            }
+#endif
+
+            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
+            encoder.encodeBinInToSuperpos_unique(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+
+        /**
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation DOES allow for multiple instances of the same input pattern. There is a restriction that the binary string consisting of all zeroes cannot be inputted for encoding.
          * 
          * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
          * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
@@ -461,9 +491,17 @@ namespace QNLP{
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
                 const std::size_t len_bin_pattern){
+
+#ifndef NDEBUG
+            // Ensure zero is not passed in to be encoded
+            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
+                assert((*it) != 0);
+            }
+#endif
             EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
             encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
         }
+
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
