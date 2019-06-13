@@ -27,7 +27,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     using QRDP = QubitRegister<ComplexDP>;
     using CST = const std::size_t;
 
-    IntelSimulator(int numQubits) : SimulatorGeneral<IntelSimulator>(), 
+    IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
                                     gates(5){
@@ -63,6 +63,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         std::uniform_real_distribution<double> dist_(0.0,1.0);
         mt = mt_;
         dist = dist_;
+        if(useFusion == true)
+            qubitRegister.TurnOnFusion();
     }
     ~IntelSimulator(){ }
 

@@ -29,7 +29,7 @@ int main(int argc, char **argv){
     /*
        Load data from pre-process corpus database
      */
-    IntelSimulator sim(18);
+    IntelSimulator sim(18, true);
     CorpusUtils cu(filepath);
     cu.loadData("noun");
     cu.loadData("verb");
