@@ -30,6 +30,8 @@
 
 namespace QNLP{
 
+#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
+
 #ifdef VIRTUAL_INTERFACE
     /**
     * @class	The abstract interface for implementing the QNLP-quantum 
@@ -505,6 +507,20 @@ namespace QNLP{
             encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
         }
 
+        /**
+         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register
+         *
+         * @param target_pattern The binary pattern that is to be encoded
+         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit)
+         * @param Length of the binary pattern to be encoded
+         */
+        void encodeToRegister(std::size_t target_pattern, const std::vector<std::size_t> target_register, std::size_t len_bin_pattern){
+            for(std::size_t i = 0; i < len_bin_pattern; i++){
+                if(IS_SET(target_pattern,i)){
+                    applyGateX(target_register[i]);
+                }
+            }
+        }
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
