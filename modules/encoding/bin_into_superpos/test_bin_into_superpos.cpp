@@ -47,7 +47,7 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
         std::size_t val;
         // Encode
         EncodeBinIntoSuperpos<decltype(sim)> encoder(num_bin_pattern, len_reg_memory);
-        encoder.encodeBinInToSuperpos(sim, reg_memory, reg_ancilla, vec_to_encode);
+        encoder.encodeBinInToSuperpos_unique(sim, reg_memory, reg_ancilla, vec_to_encode);
 
         // Measure
         val = sim.applyMeasurementToRegister(reg_memory);

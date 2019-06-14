@@ -491,6 +491,9 @@ namespace QNLP{
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
                 const std::size_t len_bin_pattern){
+             
+            std::cerr << "NOT YET IMPLEMENTED" << std::endl;
+            std::abort();
 
 #ifndef NDEBUG
             // Ensure zero is not passed in to be encoded

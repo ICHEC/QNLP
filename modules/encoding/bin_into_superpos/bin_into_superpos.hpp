@@ -17,6 +17,7 @@
 #include <cmath>
 #include<vector>
 #include<complex>
+#include <iostream>
 
 namespace QNLP{
 
@@ -116,6 +117,8 @@ namespace QNLP{
                     const std::vector<std::size_t>& reg_ancilla, 
                     const std::vector<std::size_t>& bin_patterns){
 
+                std::cerr << "NOT YET IMPLEMENTED CORRECTLY" << std::endl;
+                std::abort();
                 
                 std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
@@ -165,7 +168,8 @@ namespace QNLP{
                     // Psi6 
                     for(int j = len_bin_pattern-1; j > -1; j--){
                         qSim.applyGateX(reg_memory[j]);
-                        qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
+                        qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
+                        //qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi7
