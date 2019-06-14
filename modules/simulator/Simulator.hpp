@@ -508,10 +508,10 @@ namespace QNLP{
         }
 
         /**
-         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register
+         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
          *
          * @param target_pattern The binary pattern that is to be encoded
-         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit)
+         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
          * @param Length of the binary pattern to be encoded
          */
         void encodeToRegister(std::size_t target_pattern, const std::vector<std::size_t> target_register, std::size_t len_bin_pattern){
