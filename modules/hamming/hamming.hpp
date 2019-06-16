@@ -81,8 +81,6 @@ namespace QNLP{
              * 
              */
             void clearMats(){
-                //delete  [] S;
-                //S.clear();
             }
 
             /**
@@ -110,7 +108,7 @@ namespace QNLP{
                 qSim.encodeToRegister(target_pattern, reg_ancilla, len_bin_pattern);
 
 
-                qSim.applyHadamard(reg_ancilla[len_reg_ancilla-2]);
+                qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                     qSim.applyGateX(reg_memory[i]);
