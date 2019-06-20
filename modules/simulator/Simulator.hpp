@@ -26,6 +26,7 @@
 #include "ncu.hpp"
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
+#include "hamming.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
@@ -521,6 +522,30 @@ namespace QNLP{
                 }
             }
         }
+
+
+        /**
+         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the ampitude of the corresponding state..
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distancei
+         * @param reg_mem Vector containing the indices of the register qubits that  contain the training patterns.
+         * @param len_bin_pattern Length of the binary patterns
+         */v
+        void applyHammingDistance(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vecotr<std::size_t> reg_ancilla,  
+                std::size_t len_bin_pattern){
+
+            encodeToRegister(test_pattern, reg_mem, len_bin_pattern);
+
+            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
+            hamming_operator.computeHammingDistance(static_cast(*this), reg_memory, reg_ancilla, len_bin_pattern);
+
+        }
+
+
+
+
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
