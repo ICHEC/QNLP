@@ -538,6 +538,7 @@ namespace QNLP{
                 const std::vector<std::size_t> reg_ancilla,  
                 std::size_t len_bin_pattern){
 
+            assert(len_bin_pattern < reg_ancilla.size()-1);
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
             HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
