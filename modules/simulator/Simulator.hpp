@@ -462,6 +462,7 @@ namespace QNLP{
                 std::size_t len_bin_pattern){
 
             for(std::size_t i = 0; i < len_bin_pattern; i++){
+            //for(int i = len_bin_pattern-1; i > -1; i--){
                 if(IS_SET(target_pattern,i)){
                     applyGateX(target_register[i]);
                 }
