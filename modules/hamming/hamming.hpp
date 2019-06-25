@@ -86,15 +86,15 @@ namespace QNLP{
             /**
              * @brief Encodes each element of inputted vector as a binary string in a superpostiion of states.
              * 
-             * @param qReg Qubit register
+             * @param qSim Quantum simulator instance.
              * @param reg_memory A vector containing the indices of the qubits of the memory register. 
              * @param reg_ancilla A vector containing the indices of the qubits of the ancilla register. 
-             * @param Vector of non-negative integers which represent the inputted binary patters that are to be encoded.
+             * @param len_bin_pattern length of binary pattern ie length of memory register.
              */
             void computeHammingDistance(SimulatorType& qSim, 
                     const std::vector<std::size_t>& reg_memory,
                     const std::vector<std::size_t>& reg_ancilla, 
-                    const std::size_t target_pattern, std::size_t len_bin_pattern){
+                    std::size_t len_bin_pattern){
 
  
                 std::size_t len_reg_ancilla;
@@ -103,10 +103,8 @@ namespace QNLP{
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
-
                 // Encode target pattern into quantum register
-                qSim.encodeToRegister(target_pattern, reg_ancilla, len_bin_pattern);
-
+                //qSim.encodeToRegister(target_pattern, reg_ancilla, len_bin_pattern);
 
                 qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
                 for(std::size_t i = 0; i < len_bin_pattern; i++){

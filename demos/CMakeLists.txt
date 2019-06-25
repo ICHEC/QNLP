@@ -7,6 +7,7 @@ project(iqnlp_demos LANGUAGES CXX)
 set(QNLP_MODULES_SUBDIRS
                             nqubit_ControlledU;
                             encoding;
+                            hamming;
 #                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;

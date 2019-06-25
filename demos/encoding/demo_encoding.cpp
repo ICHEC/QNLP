@@ -82,7 +82,7 @@ int main(int argc, char **argv){
 
 
         // Encode
-        sim->encodeBinToSuperpos(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+        sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
 
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);

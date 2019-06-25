@@ -451,6 +451,24 @@ namespace QNLP{
         }
 
         /**
+         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         *
+         * @param target_pattern The binary pattern that is to be encoded
+         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
+         * @param Length of the binary pattern to be encoded
+         */
+        void encodeToRegister(std::size_t target_pattern, 
+                const std::vector<std::size_t> target_register, 
+                std::size_t len_bin_pattern){
+
+            for(std::size_t i = 0; i < len_bin_pattern; i++){
+                if(IS_SET(target_pattern,i)){
+                    applyGateX(target_register[i]);
+                }
+            }
+        }
+
+        /**
          * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
          * 
          * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
@@ -483,13 +501,11 @@ namespace QNLP{
         /**
          * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation DOES allow for multiple instances of the same input pattern. There is a restriction that the binary string consisting of all zeroes cannot be inputted for encoding.
          * 
-         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
          * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
          * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
          * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
          * @param len_bin_pattern The length of the binary patterns being encoded
          */
-        //template<class Mat2x2Type>
         void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
@@ -509,26 +525,11 @@ namespace QNLP{
         }
 
         /**
-         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state.
          *
-         * @param target_pattern The binary pattern that is to be encoded
-         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
-         * @param Length of the binary pattern to be encoded
-         */
-        void encodeToRegister(std::size_t target_pattern, const std::vector<std::size_t> target_register, std::size_t len_bin_pattern){
-            for(std::size_t i = 0; i < len_bin_pattern; i++){
-                if(IS_SET(target_pattern,i)){
-                    applyGateX(target_register[i]);
-                }
-            }
-        }
-
-
-        /**
-         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the ampitude of the corresponding state..
-         *
-         * @param test_pattern The binary pattern used as the the basis for the Hamming Distancei
-         * @param reg_mem Vector containing the indices of the register qubits that  contain the training patterns.
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
          * @param len_bin_pattern Length of the binary patterns
          */
         void applyHammingDistance(std::size_t test_pattern, 
@@ -536,16 +537,11 @@ namespace QNLP{
                 const std::vector<std::size_t> reg_ancilla,  
                 std::size_t len_bin_pattern){
 
-            encodeToRegister(test_pattern, reg_mem, len_bin_pattern);
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
             HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
-
         }
-
-
-
-
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
