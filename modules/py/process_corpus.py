@@ -50,7 +50,7 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
         elif proc_mode == 'l':
             wnl = nltk.WordNetLemmatizer()
             token_words = [wnl.lemmatize(t) for t in token_words]
-    #from IPython import embed; embed()
+
     tags = nltk.pos_tag(token_words)
     nouns = [i[0] for i in tags if tg.matchables(tg.Noun, i[1])]
     verbs = [i[0] for i in tags if tg.matchables(tg.Verb, i[1])]
@@ -62,13 +62,16 @@ def tokenize_corpus(corpus, proc_mode=0, stop_words=True):
 
 ###################################
 
-def process(corpus_path, proc_mode=0):
-    """Load and tokenize the corpus from disk."""
+def load_corpus(corpus_path, proc_mode=0):
+    """Load the corpus from disk."""
     corpus_text=""
-
     with open(corpus_path, 'r') as corpusFile:
         corpus_text=corpusFile.read()
-    words = tokenize_corpus(corpus_text, proc_mode=proc_mode)
+    return corpus_text
+
+def process(corpus_path, proc_mode=0):
+    """Tokenize the corpus data."""
+    words = tokenize_corpus(load_corpus(corpus_path), proc_mode=proc_mode)
     return words
 
 ###################################
