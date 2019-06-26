@@ -6,7 +6,15 @@ import qnlp_db
 import itertools
 import sys
 
-db = qnlp_db.qnlp_db("qnlp_tagged_corpus",".")
+import os
+
+db = None
+
+if len(sys.argv) > 2:
+    db_file = os.sys.argv[2]
+    db = qnlp_db.qnlp_db( os.path.basename(db_file), os.path.dirname(db_file) )
+else:
+    db = qnlp_db.qnlp_db("qnlp_tagged_corpus", ".")
 
 basis_nouns = db.db_load("noun", "basis")
 basis_verbs = db.db_load("verb", "basis")

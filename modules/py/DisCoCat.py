@@ -264,6 +264,7 @@ class DisCoCat:
 
 if __name__ == "__main__":
     CorpusFile = os.sys.argv[1]
+    basis_length = int(os.sys.argv[2])
 
     dcc = DisCoCat()
     db = qdb_mixin(os.path.basename(CorpusFile),'.')
@@ -272,8 +273,8 @@ if __name__ == "__main__":
     corpus_text = dcc.load_corpus(CorpusFile)
     tokens = dcc.tokenise_corpus(corpus_text)
 
-    basis_v = dcc.define_basis_words(tokens['verbs'], 10)
-    basis_n = dcc.define_basis_words(tokens['nouns'], 10)
+    basis_v = dcc.define_basis_words(tokens['verbs'], basis_length)
+    basis_n = dcc.define_basis_words(tokens['nouns'], basis_length)
 
     bit_map_v = dcc.map_to_bitstring(basis_v)
     bit_map_n = dcc.map_to_bitstring(basis_n)
