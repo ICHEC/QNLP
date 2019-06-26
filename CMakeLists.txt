@@ -66,13 +66,13 @@ set(CMAKE_CXX_FLAGS
      -lpthread \
      -ldl \
      -liomp5 \
-     -lm \
      -Wall \
      -lmkl_cdft_core \
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
      -g \
+     -O3 \
      "
 )
 

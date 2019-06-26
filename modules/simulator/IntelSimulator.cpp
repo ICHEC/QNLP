@@ -195,7 +195,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return this->qubitRegister; 
     };
 
-    constexpr std::size_t getNumQubits() { 
+    std::size_t getNumQubits() { 
         return numQubits; 
     }
 

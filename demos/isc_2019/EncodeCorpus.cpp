@@ -7,6 +7,7 @@
 #include "CLI/CLI.hpp"
 
 #include<bitset>
+#include <omp.h>
 
 using namespace QNLP;
 
@@ -21,15 +22,25 @@ int main(int argc, char **argv){
     int empty_int = 0;
     openqu::mpi::Environment env(empty_int, empty);
 
+
     // Cannot understand why this exists, and is necessary... 
     // Commented as it prevents anything working
     //if (env.is_usefull_rank() == false) return 0;
     int rank = env.rank();
-
+    //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
+    //std::cout << "MPI RANKS= " << rank  << std::endl;
     /*
        Load data from pre-process corpus database
      */
     IntelSimulator sim(18, true);
+
+    sim.getQubitRegister().TurnOnSpecialize();
+//    sim.getQubitRegister().EnableStatistics();
+
+    omp_set_dynamic(1);       // Explicitly disable dynamic teams.
+    omp_set_num_threads(20);
+
+
     CorpusUtils cu(filepath);
     cu.loadData("noun");
     cu.loadData("verb");
@@ -84,6 +95,7 @@ int main(int argc, char **argv){
     for(int sample=0; sample < num_samples; ++sample){
         bin_patterns.clear();
         sim.initRegister();
+        
 
         for (const auto&[key_no, value_no] : ntb["noun"]) {
             for (const auto&[key_v, value_v] : ntb["verb"]) {
@@ -107,7 +119,11 @@ int main(int argc, char **argv){
                 }
             }
         }
+//        #pragma omp parallel 
+//        {
+        std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
         sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
+//        }
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
 
