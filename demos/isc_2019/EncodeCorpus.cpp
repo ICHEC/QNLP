@@ -29,7 +29,7 @@ int main(int argc, char **argv){
     /*
        Load data from pre-process corpus database
      */
-    IntelSimulator sim(18);
+    IntelSimulator sim(18, true);
     CorpusUtils cu(filepath);
     cu.loadData("noun");
     cu.loadData("verb");
@@ -79,7 +79,7 @@ int main(int argc, char **argv){
     corpus_no.push_back("muffins");
     corpus_no.push_back("home");
 
-    int num_samples=100;
+    int num_samples=1;
     int result=-1;
     for(int sample=0; sample < num_samples; ++sample){
         bin_patterns.clear();
@@ -107,7 +107,7 @@ int main(int argc, char **argv){
                 }
             }
         }
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 6); 
+        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
 

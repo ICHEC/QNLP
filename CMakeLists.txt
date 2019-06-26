@@ -22,7 +22,7 @@ project (QNLP)
 ################################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
@@ -63,7 +63,7 @@ endif ()
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} \
      -lmkl_rt \
-      -lpthread \
+     -lpthread \
      -ldl \
      -liomp5 \
      -lm \
@@ -72,6 +72,7 @@ set(CMAKE_CXX_FLAGS
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
+     -g \
      "
 )
 
