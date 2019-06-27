@@ -31,14 +31,14 @@ int main(int argc, char **argv){
     //std::cout << "MPI RANKS= " << rank  << std::endl;
     /*
        Load data from pre-process corpus database
-     */
-    IntelSimulator sim(18, true);
+       */
+    IntelSimulator sim(16, true);
 
     sim.getQubitRegister().TurnOnSpecialize();
-//    sim.getQubitRegister().EnableStatistics();
+    //    sim.getQubitRegister().EnableStatistics();
 
-    omp_set_dynamic(1);       // Explicitly disable dynamic teams.
-    omp_set_num_threads(20);
+    //omp_set_dynamic(1);       // Explicitly disable dynamic teams.
+    //omp_set_num_threads(8);
 
 
     CorpusUtils cu(filepath);
@@ -56,14 +56,14 @@ int main(int argc, char **argv){
     }
     std::cout << "File size: " << cu.getNameToBin().size() << std::endl;
 
-    std::vector<std::size_t> reg_mem {0, 1, 2, 3, 4, 5, 6, 7};
-    std::vector<std::size_t> reg_anc {8, 9,10,11,12,13,14,15,16,17};
+    std::vector<std::size_t> reg_mem {0, 1, 2, /**/ 3, 4, /**/ 5, 6};
+    std::vector<std::size_t> reg_anc {7, 8, 9, 10, 11, 12, 13, 14 ,15};
     std::vector<std::size_t> bin_patterns;
 
     std::size_t num_nouns = ntb["noun"].size();
     std::size_t num_verbs = ntb["verb"].size();
     std::cout << "Num_nouns = " << num_nouns << "   Num_verbs=" << num_verbs << std::endl;
-    
+
     std::cout << "NOUNS" << std::endl;
     for (const auto&[key_ns, value_ns] : ntb["noun"]) {
         std::cout << key_ns << ":=" << value_ns << std::endl;
@@ -73,80 +73,62 @@ int main(int argc, char **argv){
         std::cout << key_ns << ":=" << value_ns << std::endl;
     }
 
-    std::vector<std::string> corpus_ns, corpus_no, corpus_v;
-
-    corpus_ns.push_back("dogs");
-    corpus_ns.push_back("cats");
-    corpus_ns.push_back("jack");
-    corpus_ns.push_back("chef");
-
-    corpus_v.push_back("eat");
-    corpus_v.push_back("hate");
-    corpus_v.push_back("baked");
-    corpus_v.push_back("walked");
-
-    corpus_no.push_back("food");
-    corpus_no.push_back("dogs");
-    corpus_no.push_back("muffins");
-    corpus_no.push_back("home");
-
     int num_samples=1;
     int result=-1;
     for(int sample=0; sample < num_samples; ++sample){
         bin_patterns.clear();
         sim.initRegister();
-        
 
+        unsigned int num_no = 0, num_v = 0, num_ns = 0;
         for (const auto&[key_no, value_no] : ntb["noun"]) {
+            if (num_no >= 8){ continue; }
+            num_no++;
+            num_v = 0;
             for (const auto&[key_v, value_v] : ntb["verb"]) {
+                if (num_v >= 4){ break; }
+                num_v++;
+                num_ns = 0;
                 for (const auto&[key_ns, value_ns] : ntb["noun"]) {
+                    if (num_ns >= 4){ break; }
+                    num_ns++;
                     unsigned int pattern = 0;
-/* 
-                    std::cout << "NO=" << std::bitset<8>(value_no) << "     ";
-                    std::cout << "V=" << std::bitset<8>(value_v) << "       ";
-                    std::cout << "NS=" << std::bitset<8>(value_ns) << "     ";
-                    */
-                    pattern = value_no | (value_v << (int) ceil(log2(num_nouns))) | (value_ns << (int) (ceil(log2(num_verbs)) + ceil(log2(num_nouns)))); 
-/*
-                    std::cout << "PATTERN=" << std::bitset<8>(pattern) << "     ";
-                    std::cout << "Shifts=" << (int) ceil( log2( num_nouns)) << "," << (int) (ceil(log2(num_verbs)) + ceil(log2(num_nouns))) << std::endl;
-*/
+                    //pattern = value_no | (value_v << (int) ceil(log2(num_nouns))) | (value_ns << (int) (ceil(log2(num_verbs)) + ceil(log2(num_nouns)))); 
+                    pattern = num_ns | (num_v << 3 | (num_no << 5)); 
                     bin_patterns.push_back(pattern);
 
-                    //std::cout << "Keys[" << key_ns <<"," << key_v << "," << key_no << "]   VALUE = " << bin_patterns.back() << std::endl;
-                    if(result == -1) //first time only                
+                    if(result == -1){         
                         std::cout << key_ns <<"," << key_v << "," << key_no << "=" << bin_patterns.back() << std::endl;
+                    }
                 }
             }
         }
-//        #pragma omp parallel 
-//        {
-        std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
-//        }
+
+        //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
+        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 7);
+        //        }
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
 
         result = 0;
-    }
+}
 
-    /*sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 6); 
-    result = sim.applyMeasurementToRegister(reg_mem);
-    std::cout << result << std::endl;
-*/
-    /*int num_samples=10000;
-    int result = -1;
-    for(int sample=0; sample < num_samples; ++sample){
-        bin_patterns.clear();
-        sim.initRegister();
-        bin_patterns.push_back(2);
-        bin_patterns.push_back(1);
-        bin_patterns.push_back(1);
-        //bin_patterns.push_back(4);
-        //bin_patterns.push_back(5);
-        //bin_patterns.push_back(3);
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 2); 
-        result = sim.applyMeasurementToRegister(reg_mem);
-        std::cout << result << std::endl;
-    }*/
+/*sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 6); 
+  result = sim.applyMeasurementToRegister(reg_mem);
+  std::cout << result << std::endl;
+  */
+/*int num_samples=10000;
+  int result = -1;
+  for(int sample=0; sample < num_samples; ++sample){
+  bin_patterns.clear();
+  sim.initRegister();
+  bin_patterns.push_back(2);
+  bin_patterns.push_back(1);
+  bin_patterns.push_back(1);
+//bin_patterns.push_back(4);
+//bin_patterns.push_back(5);
+//bin_patterns.push_back(3);
+sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 2); 
+result = sim.applyMeasurementToRegister(reg_mem);
+std::cout << result << std::endl;
+}*/
 }
