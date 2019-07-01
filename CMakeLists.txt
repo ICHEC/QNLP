@@ -76,6 +76,16 @@ set(CMAKE_CXX_FLAGS
      "
 )
 
+option(ENABLE_AVX512 "Enable Skylake AVX512 build tuning" OFF)
+if(${ENABLE_AVX512})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -march=skylake-avx512 \
+        "
+    )
+endif()
+
+
 ################################################################################
 
 # Add OS specific definitions

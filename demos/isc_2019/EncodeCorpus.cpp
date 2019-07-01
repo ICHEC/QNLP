@@ -32,7 +32,7 @@ int main(int argc, char **argv){
     /*
        Load data from pre-process corpus database
        */
-    IntelSimulator sim(16, true);
+    IntelSimulator sim(18, true);
 
     sim.getQubitRegister().TurnOnSpecialize();
     //    sim.getQubitRegister().EnableStatistics();
@@ -56,8 +56,8 @@ int main(int argc, char **argv){
     }
     std::cout << "File size: " << cu.getNameToBin().size() << std::endl;
 
-    std::vector<std::size_t> reg_mem {0, 1, 2, /**/ 3, 4, /**/ 5, 6};
-    std::vector<std::size_t> reg_anc {7, 8, 9, 10, 11, 12, 13, 14 ,15};
+    std::vector<std::size_t> reg_mem {0, 1,  2, /**/ 3,  4, /**/  5,  6,  7};
+    std::vector<std::size_t> reg_anc {8, 9, 10,/**/ 11, 12, /**/ 13, 14, 15, /**/ 16, 17};
     std::vector<std::size_t> bin_patterns;
 
     std::size_t num_nouns = ntb["noun"].size();
@@ -81,15 +81,15 @@ int main(int argc, char **argv){
 
         unsigned int num_no = 0, num_v = 0, num_ns = 0;
         for (const auto&[key_no, value_no] : ntb["noun"]) {
-            if (num_no >= 8){ continue; }
+            if (num_no >= 8-1){ continue; }
             num_no++;
             num_v = 0;
             for (const auto&[key_v, value_v] : ntb["verb"]) {
-                if (num_v >= 4){ break; }
+                if (num_v >= 4-1){ break; }
                 num_v++;
                 num_ns = 0;
                 for (const auto&[key_ns, value_ns] : ntb["noun"]) {
-                    if (num_ns >= 4){ break; }
+                    if (num_ns >= 8-1){ break; }
                     num_ns++;
                     unsigned int pattern = 0;
                     //pattern = value_no | (value_v << (int) ceil(log2(num_nouns))) | (value_ns << (int) (ceil(log2(num_verbs)) + ceil(log2(num_nouns)))); 
@@ -104,7 +104,7 @@ int main(int argc, char **argv){
         }
 
         //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 7);
+        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
         //        }
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
