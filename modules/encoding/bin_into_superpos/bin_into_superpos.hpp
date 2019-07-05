@@ -17,7 +17,7 @@
 #include <cmath>
 #include<vector>
 #include<complex>
-#include <iostream>
+#include<iostream>
 
 namespace QNLP{
 
@@ -206,6 +206,18 @@ namespace QNLP{
                 
                 std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
+
+                // Require length of ancilla register to have n+2 qubits
+                assert(reg_memory.size() + 1 < len_reg_ancilla);
+
+
+                // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+                qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
+                // Begin Encoding
+                for(std::size_t i = 0; i < m; i++){
+                    // Psi0
+                    // Encode inputted binary pattern to pReg
+                    for(std::size_t j = 0; j < len_bin_pattern; j++){
 
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);

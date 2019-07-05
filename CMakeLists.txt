@@ -22,7 +22,7 @@ project (QNLP)
 ################################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
@@ -63,17 +63,57 @@ endif ()
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} \
      -lmkl_rt \
-      -lpthread \
+     -lpthread \
      -ldl \
      -liomp5 \
-     -lm \
      -Wall \
      -lmkl_cdft_core \
      -lmkl_intel_ilp64 \
      -lmkl_core \
      -lmkl_intel_thread \
+     -g \
+     -O3 \
      "
 )
+
+option(ENABLE_AVX512 "Enable Skylake AVX512 build tuning" OFF)
+if(${ENABLE_AVX512})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -march=skylake-avx512 \
+        "
+    )
+endif()
+
+option(ENABLE_AVX512_ZMM "Enable Skylake AVX512 ZMM high usage" OFF)
+if(${ENABLE_AVX512_ZMM})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -qopt-zmm-usage=high \
+        "
+    )
+endif()
+
+option(ENABLE_IPO "Enable inter-procedural optimisations" OFF)
+if(${ENABLE_IPO})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -ipo \
+        "
+    )
+endif()
+
+option(ENABLE_IPO "Enable fast math" OFF)
+if(${ENABLE_FAST_MATH})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -fp-model fast=${ENABLE_FAST_MATH} \
+        "
+    )
+endif()
+
+
+
 
 ################################################################################
 
@@ -91,7 +131,7 @@ add_definitions(
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DOPENQU_HAVE_MPI \
+     -DOPENQU_HAVE_MPI \ 
      -DVIRTUAL_INTERFACE"
 )
 
@@ -120,7 +160,7 @@ if(CLANG_TIDY_EXE)
 endif()
 
 ################################################################################
-find_package(OPENMP REQUIRED)
+find_package(OpenMP REQUIRED)
 #if (OPENMP_FOUND)
 #    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 #    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")

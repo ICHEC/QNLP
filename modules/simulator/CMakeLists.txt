@@ -4,7 +4,6 @@ project(qnlp_simulator)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Debug)
 
 #set(QNLP_SIMULATOR_FILES IntelSimulator.cpp sim_factory.cpp Simulator.hpp CACHE INTERNAL "" FORCE)
 set(QNLP_SIMULATOR_FILES IntelSimulator.cpp Simulator.hpp CACHE INTERNAL "" FORCE)
