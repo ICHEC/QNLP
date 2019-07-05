@@ -85,6 +85,35 @@ if(${ENABLE_AVX512})
     )
 endif()
 
+option(ENABLE_AVX512_ZMM "Enable Skylake AVX512 ZMM high usage" OFF)
+if(${ENABLE_AVX512_ZMM})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -qopt-zmm-usage=high \
+        "
+    )
+endif()
+
+option(ENABLE_IPO "Enable inter-procedural optimisations" OFF)
+if(${ENABLE_IPO})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -ipo \
+        "
+    )
+endif()
+
+option(ENABLE_IPO "Enable fast math" OFF)
+if(${ENABLE_FAST_MATH})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -fp-model fast=${ENABLE_FAST_MATH} \
+        "
+    )
+endif()
+
+
+
 
 ################################################################################
 
