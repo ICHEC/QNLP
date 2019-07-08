@@ -27,7 +27,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     using QRDP = QubitRegister<ComplexDP>;
     using CST = const std::size_t;
 
-    IntelSimulator(int numQubits) : SimulatorGeneral<IntelSimulator>(), 
+    IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
                                     gates(5){
@@ -51,6 +51,20 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         double coeff = (1./sqrt(2.));
         gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
+
+
+        // Set up random number generator for randomly collapsing qubit to 0 or 1
+        //
+        //  RACE CONDITION - not thread safe
+        //  Currently not an issue due to only MPI master rank using the rnadom numbers,
+        //  however this would be a problem if this changes 
+        //
+        std::mt19937 mt_(rd()); 
+        std::uniform_real_distribution<double> dist_(0.0,1.0);
+        mt = mt_;
+        dist = dist_;
+        if(useFusion == true)
+            qubitRegister.TurnOnFusion();
     }
     ~IntelSimulator(){ }
 
@@ -176,11 +190,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline QubitRegister<ComplexDP>& getQubitRegister() { 
         return this->qubitRegister; 
     }
+
     inline const QubitRegister<ComplexDP>& getQubitRegister() const { 
         return this->qubitRegister; 
     };
 
-    constexpr std::size_t getNumQubits() { 
+    std::size_t getNumQubits() { 
         return numQubits; 
     }
 
@@ -188,10 +203,42 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         this->qubitRegister.Initialize("base",0);
     }
 
+    inline void applyAmplitudeNorm(){
+        this->qubitRegister.Normalize();
+    }
+
+    // Apply measurement to single qubit
+    inline bool applyMeasurement(CST target, bool normalize=true){
+        bool bit_val;
+        collapseQubit(target,(bit_val = (dist(mt) < getStateProbability(target))));
+        if(normalize){
+            applyAmplitudeNorm();
+        }
+        return bit_val;
+    }
+
     private:
     std::size_t numQubits = 0;
     QRDP qubitRegister;
     std::vector<TMDP> gates;
+
+    //  RACE CONDITION - not thread safe
+    //  Currently not an issue due to only MPI master rank using the rnadom numbers,
+    //  however this would be a problem if this changes 
+    std::random_device rd; 
+    std::mt19937 mt;
+    std::uniform_real_distribution<double> dist;
+
+    // Measurement methods
+    inline void collapseQubit(CST target, bool collapseValue){
+        qubitRegister.CollapseQubit(target, collapseValue);
+    }
+
+    inline double getStateProbability(CST target){
+        return qubitRegister.GetProbability(target);
+    }
+
+
 };
 
 };

@@ -18,10 +18,14 @@
 #define QNLP_SIMULATOR_INTERFACE_H
 #include <cstddef>
 #include <utility> //std::declval
+#include <vector>
+
+#include <iostream>
 
 // Include all additional modules to be used within simulator
 #include "ncu.hpp"
 #include "qft.hpp"
+#include "bin_into_superpos.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
@@ -444,12 +448,61 @@ namespace QNLP{
         }
 
         /**
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states.
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
+         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
+         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
+         * @param len_bin_pattern The length of the binary patterns being encoded
+         */
+        //template<class Mat2x2Type>
+        void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
+                const std::vector<std::size_t>& reg_ancilla,
+                const std::vector<std::size_t>& bin_patterns,
+                const std::size_t len_bin_pattern){
+            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
+            encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+
+        /**
+         * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
+         * 
+         * @return bool Value that qubit is randomly collapsed to according to amplitude
+         * @param target The index of the qubit being collapsed
+         * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+         */
+        bool applyMeasurement(std::size_t target, bool normalize=true){
+            return static_cast<DerivedType*>(this)->applyMeasurement(target, normalize);
+        }
+
+        /**
+         * @brief Apply measurement to a set of target qubits, randomly collapsing the qubits proportional to the amplitude and returns the bit string of the qubits in the order they are represented in the vector of indexes, in the form of an unsigned integer.
+         * 
+         * @return std::size_t Integer representing the binary string of the collapsed qubits, ordered by least significant digit corresponding to first qubit in target vector of indices
+         * @param target_qubits Vector of indices of qubits being collapsed
+         * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+         */
+        std::size_t applyMeasurementToRegister(std::vector<std::size_t> target_qubits, bool normalize=true){
+            // Store current state of training register in it's integer format
+            std::size_t val = 0; 
+            for(int j = target_qubits.size() - 1; j > -1; j--){
+                val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
+            } 
+            return val;
+        }
+                
+        /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
          * 
          */
         void initRegister(){
             static_cast<DerivedType*>(this)->initRegister(); 
         }
+
+
+
+
     };
 }
 #endif
