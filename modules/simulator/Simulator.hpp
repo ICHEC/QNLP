@@ -437,7 +437,7 @@ namespace QNLP{
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
-         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
          * @param U 2x2 unitary matrix
          * @param minIdx Lowest index of the control lines expected for nCU
          * @param maxIdx Highest index of the control lines expected for the nCU

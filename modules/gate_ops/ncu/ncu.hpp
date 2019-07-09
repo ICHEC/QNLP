@@ -156,8 +156,6 @@ namespace QNLP{
                 //must be a way to vectorise these; TinyMatrix have a scale/shift option?
                 V(0,0) += s;
                 V(1,1) += s;
-
-
                 std::complex<double> scale_factor(1.,0.);
                 scale_factor/=t;
                 V(0,0) *= scale_factor; //(std::complex<double>(1.,0.)/t);
@@ -178,9 +176,9 @@ namespace QNLP{
             Mat2x2Type adjointMatrix(const Mat2x2Type& U){
                 Mat2x2Type Uadjoint(U);
                 std::complex<double> tmp;
-                tmp = Uadjoint(0,0);
-                Uadjoint(0,0) = Uadjoint(1,1);
-                Uadjoint(1,1) = tmp;
+                tmp = Uadjoint(0,1);
+                Uadjoint(0,1) = Uadjoint(1,0);
+                Uadjoint(1,0) = tmp;
                 Uadjoint(0,0) = std::conj(Uadjoint(0,0));
                 Uadjoint(0,1) = std::conj(Uadjoint(0,1));
                 Uadjoint(1,0) = std::conj(Uadjoint(1,0));
