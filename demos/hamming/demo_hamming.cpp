@@ -44,10 +44,10 @@ int main(int argc, char **argv){
     int rank = env.rank();
 
 
-    std::size_t len_reg_memory = 4;
+    std::size_t len_reg_memory = 2;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
-    std::size_t num_bin_pattern = pow(2,len_reg_memory)-2;
+    std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
     std::size_t test_pattern = 7;
 
@@ -91,14 +91,22 @@ int main(int argc, char **argv){
 
         sim->initRegister();
 
+        sim->PrintStates("Before encoding: ");
+
         // Encode
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+
+        sim->PrintStates("After encoding: ");
 
         // Compute Hamming distance between test pattern and encoded patterns
         sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
+        sim->PrintStates("After Hamming: ");
+
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);
+
+        sim->PrintStates("After Measurement: ");
 
         count[val] += 1;
         if(verbose){

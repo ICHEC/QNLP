@@ -122,9 +122,10 @@ namespace QNLP{
                     qSim.applyGateU(U_PauliZ_tilda, reg_memory[i]);
                 }
 
+                /************!!!!****/
                 for(int i = len_bin_pattern-1; i > -1; i--){
-                    qSim.applyGateX(reg_memory[i]);
-                    qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
+//                    qSim.applyGateX(reg_memory[i]);
+  //                  qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                 }
             }
 

@@ -580,8 +580,9 @@ namespace QNLP{
             static_cast<DerivedType*>(this)->initRegister(); 
         }
 
-
-
+        void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
+            static_cast<DerivedType*>(this)->PrintStates(x, qubits);
+        }
 
     };
 }
