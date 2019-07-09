@@ -9,7 +9,6 @@
 #ifndef QNLP_NCU
 #define QNLP_NCU
 
-//#include "Simulator.hpp"
 #include <unordered_map>
 #include <complex>
 #include <cassert>
@@ -61,7 +60,6 @@ namespace QNLP{
                     sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1]);
                     sqrtMatricesU[-ncl] = adjointMatrix(sqrtMatricesU[ncl]);
                 }
-
             }
 
             /**
@@ -176,9 +174,9 @@ namespace QNLP{
             Mat2x2Type adjointMatrix(const Mat2x2Type& U){
                 Mat2x2Type Uadjoint(U);
                 std::complex<double> tmp;
-                tmp = Uadjoint(0,0);
-                Uadjoint(0,0) = Uadjoint(1,1);
-                Uadjoint(1,1) = tmp;
+                tmp = Uadjoint(0,1);
+                Uadjoint(0,1) = Uadjoint(1,0);
+                Uadjoint(1,0) = tmp;
                 Uadjoint(0,0) = std::conj(Uadjoint(0,0));
                 Uadjoint(0,1) = std::conj(Uadjoint(0,1));
                 Uadjoint(1,0) = std::conj(Uadjoint(1,0));
