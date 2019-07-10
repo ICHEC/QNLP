@@ -15,7 +15,7 @@ typedef ComplexDP Type;
 template class NCU<IntelSimulator>;
 
 TEST_CASE("Test n-controlled unitary module","[ncu]"){
-    for(std::size_t num_qubits=3; num_qubits <=8; num_qubits++){
+    for(std::size_t num_qubits=4; num_qubits <=4; num_qubits++){
         std::size_t c_start = 0, c_end = num_qubits-2, target = num_qubits-1;
         DYNAMIC_SECTION("Testing " << num_qubits << " qubits"){
             IntelSimulator sim(num_qubits);
@@ -41,13 +41,11 @@ TEST_CASE("Test n-controlled unitary module","[ncu]"){
                     }
                 }
             }
-
         }
-
     }
 }
-
-TEST_CASE("Test n-controlled unitary simulator methods","[ncu]"){
+/*
+TEST_CASE("Test n-controlled unitary simulator methods with Pauli-X","[ncu]"){
     for(std::size_t num_qubits=3; num_qubits <=8; num_qubits++){
         std::size_t c_start = 0, c_end = num_qubits-2, target = num_qubits-1;
         DYNAMIC_SECTION("Testing " << num_qubits << " qubits"){
@@ -72,18 +70,27 @@ TEST_CASE("Test n-controlled unitary simulator methods","[ncu]"){
                     }
                 }
             }
-
         }
-
     }
-}
+}*/
+/* 
+TEST_CASE("Test n-controlled unitary simulator methods with Pauli-Z","[ncu]"){
+    int num_qubits = 5;
+    IntelSimulator sim(num_qubits);
+    auto &r = sim.getQubitRegister();
 
-/*
-int main( int argc, char* argv[] ) {
-    openqu::mpi::Environment env(argc, argv);
+    sim.applyGateX(0);
+    sim.applyGateX(1);
+    sim.applyGateX(2);
+    sim.applyGateX(3);
 
-    int result = Catch::Session().run( argc, argv );
+    sim.applyGateX(4);
 
-    return result;
+    CAPTURE(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[12],r[13],r[14],r[15],r[16],r[17],r[18],r[19],r[20],r[21],r[22],r[23],r[24],r[25],r[26],r[27],r[28],r[29],r[30],r[31],"");
+
+    sim.applyGateNCU<decltype(sim.getGateZ())>(sim.getGateZ(), 0, 3, 4);
+
+    CAPTURE(r[0],r[1],r[2],r[3],r[4],r[5],r[6],r[7],r[8],r[9],r[10],r[11],r[12],r[13],r[14],r[15],r[16],r[17],r[18],r[19],r[20],r[21],r[22],r[23],r[24],r[25],r[26],r[27],r[28],r[29],r[30],r[31],"");
+    REQUIRE(1 == 0);
 }
 */

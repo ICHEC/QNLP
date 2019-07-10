@@ -28,6 +28,7 @@ int main(int argc, char **argv){
     rank = env.rank();
     num_procs = openqu::mpi::Environment::size();
     if (env.is_useful_rank() == false) return 0;
+    MPI_Comm comm = openqu::mpi::Environment::comm();
     //std::cout << "MPI RANKS= " << rank  << std::endl;
 #endif
 
@@ -36,7 +37,6 @@ int main(int argc, char **argv){
        Load data from pre-process corpus database
      */
     
-    MPI_Comm comm = openqu::mpi::Environment::comm();
 
     IntelSimulator sim(18, true);
     sim.getQubitRegister().TurnOnSpecialize();

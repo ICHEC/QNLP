@@ -9,10 +9,15 @@
 #ifndef QNLP_NCU
 #define QNLP_NCU
 
+//#include "Simulator.hpp"
 #include <unordered_map>
 #include <complex>
 #include <cassert>
 #include <utility>
+#ifdef LATEX_OUTPUT
+    #include <iostream>
+    #include <fstream>
+#endif
 
 namespace QNLP{
     template <class SimulatorType>
@@ -23,15 +28,23 @@ namespace QNLP{
             // Maintains a table of pre-calculated matrices to avoid repeated work. Absolute value of the key gives the depth of the sqrt ( U^{1/2^n} ), and the sign indicates if it is the adjoint (negative).
             std::unordered_map<int, Mat2x2Type> sqrtMatricesU {};
             std::unordered_map<int, Mat2x2Type> sqrtMatricesX {};
+            static std::size_t num_gate_ops;
+            #ifdef LATEX_OUTPUT
+            std::ofstream latex_csv_out;
+            #endif
 
         public:
-            NCU(){};
+            NCU(){
+                latex_csv_out.open ("ncu.csv");
+            };
             NCU(const Mat2x2Type& U, const std::size_t num_ctrl_gates){
                 initialiseMaps(U, num_ctrl_gates);
+                latex_csv_out.open ("ncu.csv");
             };
 
             ~NCU(){
-                clearMaps();    
+                clearMaps();   
+                latex_csv_out.close(); 
             };
 
             /**
@@ -60,6 +73,14 @@ namespace QNLP{
                     sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1]);
                     sqrtMatricesU[-ncl] = adjointMatrix(sqrtMatricesU[ncl]);
                 }
+
+                std::cout << "U" << std::endl;
+                for(auto& a: sqrtMatricesU)
+                    std::cout << a.first << "   " << a.second.tostr() << std::endl;
+                std::cout << "X" << std::endl;
+                for(auto& a: sqrtMatricesX)
+                    std::cout << a.first << "   " << a.second.tostr() << std::endl;
+
             }
 
             /**
@@ -110,9 +131,15 @@ namespace QNLP{
                     if ( ! isPauliX ){
                         //Apply single qubit gate ops, and decompose higher order controls further
                         qSim.applyGateCU( sqrtMatricesU[local_depth], qControlEnd, qTarget );
+                        #ifdef LATEX_OUTPUT    
+                            latex_csv_out << "U[" << local_depth << "]," << qControlEnd << "," << qTarget << "," << sqrtMatricesU[local_depth].tostr() << std::endl;
+                        #endif
                         applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
                         qSim.applyGateCU(sqrtMatricesU[-local_depth], qControlEnd, qTarget);
+                        #ifdef LATEX_OUTPUT    
+                            latex_csv_out << "U[-" << local_depth << "]," << qControlEnd << "," << qTarget << "," << sqrtMatricesU[-local_depth].tostr() << std::endl;
+                        #endif
                         applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
                         Mat2x2Type sqrt_U(matrixSqrt(U));
@@ -121,9 +148,15 @@ namespace QNLP{
                     else {
                         //Apply single qubit gate ops, and decompose higher order controls further
                         qSim.applyGateCU(sqrtMatricesX[local_depth], qControlEnd, qTarget);
+                        #ifdef LATEX_OUTPUT
+                            latex_csv_out << "X[" << local_depth << "]," << qControlEnd << "," << qTarget << "," <<  sqrtMatricesX[local_depth].tostr() << std::endl;
+                        #endif
                         applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
                         qSim.applyGateCU(sqrtMatricesX[-local_depth], qControlEnd, qTarget);
+                        #ifdef LATEX_OUTPUT
+                            latex_csv_out << "X[-" << local_depth << "]," << qControlEnd << "," << qTarget << "," << sqrtMatricesX[-local_depth].tostr() << std::endl;
+                        #endif
                         applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0, true );
 
                         Mat2x2Type sqrt_U(matrixSqrt(U));
@@ -134,6 +167,18 @@ namespace QNLP{
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
                     qSim.applyGateCU(U, qControlEnd, qTarget); //The first decomposed matrix value is used here
+                    #ifdef LATEX_OUTPUT
+                        std::string gate_name;
+
+                        //Check for Pauli-X and label as such in diagram
+                        if( U == qSim.getGateX() ){
+                            gate_name = "X";
+                        }
+                        else{
+                            gate_name = "U";
+                        }
+                        latex_csv_out << gate_name << "[" << depth << "]," << qControlEnd << "," << qTarget << ","  << U.tostr() << std::endl;
+                    #endif
                 }
             }
 
@@ -183,7 +228,6 @@ namespace QNLP{
                 Uadjoint(1,1) = std::conj(Uadjoint(1,1));
                 return Uadjoint;
             }
-
     };
 
 };

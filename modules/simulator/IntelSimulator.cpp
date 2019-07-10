@@ -41,7 +41,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
         //Define Pauli Z
         gates[2](0,0) = ComplexDP(1.,0.);       gates[2](0,1) = ComplexDP(0.,0.);
-        gates[2](1,0) = ComplexDP(0.,0.);       gates[2](1,1) = -ComplexDP(1.,0.);
+        gates[2](1,0) = ComplexDP(0.,0.);       gates[2](1,1) = ComplexDP(-1.,0.);
 
         //Define I
         gates[3](0,0) = ComplexDP(1.,0.);       gates[3](0,1) = ComplexDP(0.,0.);

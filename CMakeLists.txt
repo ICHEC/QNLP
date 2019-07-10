@@ -148,7 +148,8 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DOPENQU_HAVE_MPI \ 
-     -DVIRTUAL_INTERFACE"
+     -DVIRTUAL_INTERFACE \
+     -DLATEX_OUTPUT"
 )
 
 ################################################################################

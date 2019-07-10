@@ -8,6 +8,7 @@ set(QNLP_MODULES_SUBDIRS    #arithmetic;
                             diffusion;
                             ncu;
                             qft;
+                            oracle;
 )
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
     add_subdirectory(${MOD})
