@@ -91,33 +91,38 @@ int main(int argc, char **argv){
 
         sim->initRegister();
 
-        sim->PrintStates("Before encoding: ");
-
         // Encode
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
 
-        sim->PrintStates("After encoding: ");
+        if(verbose){
+            sim->PrintStates("After encoding: ");
+        }
 
         // Compute Hamming distance between test pattern and encoded patterns
         sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
-        sim->PrintStates("After Hamming: ");
+        if(verbose){
+            sim->PrintStates("After Hamming: ");
+        }
 
         // Measure
         sim->applyMeasurement(reg_ancilla[len_reg_ancilla-2]);
         val = sim->applyMeasurementToRegister(reg_memory);
 
-        sim->PrintStates("After Measurement: ");
 
         count[val] += 1;
         if(verbose){
+
+            sim->PrintStates("After Measurement: ");
             // Output resulting state for this experiment
-            cout << val << "\t";
-            cout << "|";
-            print_bits(val, len_reg_memory);
-            cout << ">" << endl;
+            //cout << val << "\t";
+            //cout << "|";
+            //print_bits(val, len_reg_memory);
+            //cout << ">" << endl;
         }
     }
+
+    sim->PrintStates("Fnal Measurement: ", reg_memory);
             
     cout << "Measure:" << endl;
     int i = 0;
@@ -131,7 +136,6 @@ int main(int argc, char **argv){
         i++;
     }
 
-    sim->PrintStates("Fnal Measurement: ", reg_memory);
 
     return 0;
 }
