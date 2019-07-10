@@ -104,6 +104,7 @@ int main(int argc, char **argv){
         sim->PrintStates("After Hamming: ");
 
         // Measure
+        sim->applyMeasurement(reg_ancilla[len_reg_ancilla-2]);
         val = sim->applyMeasurementToRegister(reg_memory);
 
         sim->PrintStates("After Measurement: ");
@@ -118,7 +119,6 @@ int main(int argc, char **argv){
         }
     }
             
-    cout << "Expected results for an even distribution: " << 1.0/ (double)num_bin_pattern << endl; 
     cout << "Measure:" << endl;
     int i = 0;
     for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
@@ -130,6 +130,8 @@ int main(int argc, char **argv){
         cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
         i++;
     }
+
+    sim->PrintStates("Fnal Measurement: ", reg_memory);
 
     return 0;
 }
