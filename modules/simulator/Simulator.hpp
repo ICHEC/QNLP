@@ -541,8 +541,12 @@ namespace QNLP{
             assert(len_bin_pattern < reg_ancilla.size()-1);
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
+            PrintStates("Encoded test pattern");
+
             HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
+
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
         /**
