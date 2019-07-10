@@ -122,7 +122,9 @@ int main(int argc, char **argv){
         }
     }
 
-    sim->PrintStates("Fnal Measurement: ", reg_memory);
+    if(verbose){
+        sim->PrintStates("Fnal Measurement: ", reg_memory);
+    }
             
     cout << "Measure:" << endl;
     int i = 0;
