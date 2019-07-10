@@ -1,0 +1,75 @@
+/**
+ * @file oracle.hpp
+ * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
+ * @brief Functions for applying black-box like functions to select appropriate qubits matching given patterns
+ * @version 0.1
+ * @date 2019-07-08
+ */
+
+#ifndef QNLP_ORACLE
+#define QNLP_ORACLE
+
+#include <complex>
+#include <cassert>
+#include <vector>
+#include <iostream>
+
+namespace QNLP{
+    template <class SimulatorType>
+    class Oracle{
+        private:
+        //Take the 2x2 matrix type from the template SimulatorType
+        using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
+
+        public:
+        Oracle(){};
+        Oracle(const std::size_t num_ctrl_gates, const std::vector<std::size_t> ctrl_indices){
+            // Only allow control lines that are adjacent and monotonically increasing; 
+            // require shifting qubits temporarily otherwise (not fully implemented)
+            std::size_t inc_val = ctrl_indices[0];
+            for(auto &idx_val: ctrl_indices){
+                assert(inc_val == idx_val);
+                inc_val++;
+            }
+        };
+        ~Oracle(){};
+
+        /**
+         * @brief If the qubits in the control lines are not adjacent, temporarily move them to allow NCU. Consider moving this to NCU class and handle non adjacent control lines there.
+         * 
+         * @param qubitIdx0 
+         * @param qubitIdx1 
+         */
+        void moveQubits(SimulatorType& s, std::size_t qubitIdx0, std::size_t qubitIdx1){
+
+        }
+
+        /**
+         * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
+         * 
+         * @param s 
+         * @param bitstring 
+         * @param ctrl_indices 
+         * @param U Unitary matrix to apply 
+         * @return decltype(auto) 
+         */
+        void bitStringNCU(SimulatorType& s, std::size_t bitstring, std::vector<std::size_t> ctrl_indices, std::size_t target, const Mat2x2Type& U){
+            std::size_t bitmask = 0b1;
+            std::vector<std::size_t> reverse_pattern;
+            for(int i = 0; i < ctrl_indices.size(); ++i){
+                //If the bitstring contains a 1 at desired index, will be true;
+                //We wish to apply X to any state that is false, then undo
+                if( ! (bitstring & (bitmask<<i) ) ){
+                    reverse_pattern.push_back(i);
+                    s.applyGateX(ctrl_indices[i]);
+                }
+            }
+            s.applyGateNCU(U, ctrl_indices.front(), ctrl_indices.back(), target);
+            //Undo PauliX ops
+            for(auto& revIdx : reverse_pattern){
+                s.applyGateX(ctrl_indices[revIdx]);
+            }
+        }
+    };
+};
+#endif
