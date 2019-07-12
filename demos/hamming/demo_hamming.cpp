@@ -38,13 +38,13 @@ int main(int argc, char **argv){
     if(argc > 1){
         verbose = atoi(argv[1]);
     }
-    std::size_t num_exps = 1000;
+    std::size_t num_exps = 100;
 
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
 
 
-    std::size_t len_reg_memory = 2;
+    std::size_t len_reg_memory = 4;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
