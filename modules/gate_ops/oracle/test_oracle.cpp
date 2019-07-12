@@ -176,6 +176,15 @@ TEST_CASE("8 qubit oracles","[oracle]"){
                     r[240], r[241], r[242], r[243], r[244], r[245], r[246], r[247], 
                     r[248], r[249], r[250], r[251], r[252], r[253], r[254], r[255], ""); */
 
+    /* #Small python script for generation of above formatted access to register
+    num_qubits=4
+    columns = 8            
+    for i in range(0, 2**num_qubits, 1): 
+        if(i % columns == 0): 
+            print("") 
+            print("r[{}]".format(i), end =", ")
+    */
+
             for(std::size_t j = 0; j < bit_patterns.size(); j++){
                 if(j==i)
                     REQUIRE(r[j + (0b1<<(num_qubits-1))].real() <= 10*mach_eps  ) ; //Not safest way to test for negation of the required bit
