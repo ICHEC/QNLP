@@ -444,7 +444,13 @@ namespace QNLP{
         void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target){
             NCU<DerivedType> n;
             //NCU<decltype(static_cast<DerivedType&>(*this))> n;
-            n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, U, 0, false);
+            std::string matrixLabel = "";
+            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
+                matrixLabel = "X";
+            }
+            else
+                matrixLabel = "U";
+            n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
         /**

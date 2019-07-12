@@ -9,9 +9,8 @@ from qnlp_db import qnlp_db
 
 ###############################################################################
 
-#Use mixin to modify the insert statements and modify the structure of database
+#Use mixin to modify the insert statements and the structure of database
 class qdb_mixin(qnlp_db):
-
     def create_table_discocat(self, table_name="qnlp"):
         """
         Create the database table for tagging the required data. The DB has columns
@@ -156,10 +155,9 @@ class DisCoCat:
         distance_func       --  Function accepting distance between basis and token, and
                                 returning the resulting scaling. If 'None', defaults to 
                                 1/coeff for scaling param
-
         """
         if distance_func == None:
-            distance_func = lambda x : [1.0/i for i in x]
+            distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
 
         d_map = {}
         
@@ -214,6 +212,7 @@ class DisCoCat:
             local_states = []
             for basis_token, distance_list in basis_dist_map.items():
                 # If more than one occurrence for the same word, apply the distance relation function then sum the results for that basis work coefficient
+                from IPython import embed; embed()
                 local_coeffs.append( np.sum( self.distance_func(distance_list) ) )
                 local_states.append( bit_map[1][basis_token] )
 
@@ -266,7 +265,7 @@ if __name__ == "__main__":
     CorpusFile = os.sys.argv[1]
     basis_length = int(os.sys.argv[2])
 
-    dcc = DisCoCat()
+    dcc = DisCoCat(fd = lambda x : [1.0 for i in x])
     db = qdb_mixin(os.path.basename(CorpusFile),'.')
 
     # Load the corpus
@@ -284,8 +283,8 @@ if __name__ == "__main__":
 
 #    word_oc_v = dcc.word_occurrence(tokens['tk_words'])
 
-    verb_map = dcc.map_to_basis(tokens['tk_words'], basis_v)
-    noun_map = dcc.map_to_basis(tokens['tk_words'], basis_n)
+    verb_map = dcc.map_to_basis(tokens['tk_words'], basis_v, 10, distance_func = lambda x : [1.0 for i in x])
+    noun_map = dcc.map_to_basis(tokens['tk_words'], basis_n, 10, distance_func = lambda x : [1.0 for i in x])
 
     n_states = dcc.generate_state_mapping(bit_map_n, noun_map)
     v_states = dcc.generate_state_mapping(bit_map_n, noun_map)
