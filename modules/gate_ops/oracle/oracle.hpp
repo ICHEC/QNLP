@@ -6,6 +6,8 @@
  * @date 2019-07-08
  */
 
+ //# Phase oracle acts on n, boolean oracle acts on n+1; https://arxiv.org/pdf/1703.10535.pdf for examples
+
 #ifndef QNLP_ORACLE
 #define QNLP_ORACLE
 
@@ -41,7 +43,7 @@ namespace QNLP{
          * @param qubitIdx1 
          */
         void moveQubits(SimulatorType& s, std::size_t qubitIdx0, std::size_t qubitIdx1){
-
+            //To be implemented
         }
 
         /**
@@ -53,23 +55,52 @@ namespace QNLP{
          * @param U Unitary matrix to apply 
          * @return decltype(auto) 
          */
-        void bitStringNCU(SimulatorType& s, std::size_t bitstring, std::vector<std::size_t> ctrl_indices, std::size_t target, const Mat2x2Type& U){
+        void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U){
             std::size_t bitmask = 0b1;
             std::vector<std::size_t> reverse_pattern;
-            for(int i = 0; i < ctrl_indices.size(); ++i){
+            for(int i = 0; i < ctrl_indices.size() + 1; ++i){
+                std::cout << "CONTROL=" << i << "   BITSTRING=" << bitstring << "   BITMASK=" << (bitmask<<i) << "  BITSTRING & BITMASK=" << (bitstring & (bitmask<<i) ) <<std::endl;
                 //If the bitstring contains a 1 at desired index, will be true;
                 //We wish to apply X to any state that is false, then undo
                 if( ! (bitstring & (bitmask<<i) ) ){
                     reverse_pattern.push_back(i);
-                    s.applyGateX(ctrl_indices[i]);
+                    if( i < ctrl_indices.size())
+                        s.applyGateX(ctrl_indices[i]);
+                    else
+                        s.applyGateX(target);
                 }
             }
             s.applyGateNCU(U, ctrl_indices.front(), ctrl_indices.back(), target);
             //Undo PauliX ops
             for(auto& revIdx : reverse_pattern){
-                s.applyGateX(ctrl_indices[revIdx]);
+                if( revIdx < ctrl_indices.size()){
+                    s.applyGateX(ctrl_indices[revIdx]);
+                }
+                else{
+                    s.applyGateX(target);
+                }
             }
         }
+
+        /**
+         * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
+         * 
+         * @param s 
+         * @param bitstring 
+         * @param ctrl_indices 
+         * @param U Unitary matrix to apply 
+         * @return decltype(auto) 
+         */
+        void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring){
+            std::size_t num_qubits = s.getNumQubits();
+            assert ( (1<<num_qubits) < bitstring );
+            std::vector<std::size_t> ctrl_indices;
+            for(std::size_t i = 0; i < num_qubits-1; ++i){
+                ctrl_indices.push_back(i);
+            }
+            bitStringNCU(s, bitstring, ctrl_indices, num_qubits-1, s.getGateZ());
+        }
+    
     };
 };
 #endif
