@@ -24,6 +24,7 @@
 
 // Include all additional modules to be used within simulator
 #include "ncu.hpp"
+#include "oracle.hpp"
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
 //#include "arithmetic.hpp"
@@ -451,6 +452,24 @@ namespace QNLP{
             else
                 matrixLabel = "U";
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
+        }
+
+        /**
+         * @brief Apply oracle to match given binary index
+         * 
+         * @param U 2x2 unitary matrix to apply
+         * @param minIdx Lowest index of the control lines expected for oracle
+         * @param maxIdx Highest index of the control lines expected for oracle
+         * @param target Target qubit index to apply U on
+         */
+        template<class Mat2x2Type>
+        void applyOracle(std::size_t bit_pattern, std::size_t minIdx, std::size_t maxIdx, std::size_t target, const Mat2x2Type& U ){
+            std::vector<std::size_t> control_indices;
+            for(std::size_t i = minIdx; i <= maxIdx; i++){
+                control_indices.push_back( i );
+            }
+            Oracle<DerivedType> oracle(static_cast<DerivedType*>(this)->getNumQubits()-1, control_indices);
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, control_indices, target, U);
         }
 
         /**
