@@ -8,13 +8,15 @@
  * @copyright Copyright (c) 2019
  * 
  */
-#include "ncu.hpp"
-
+//#include "ncu.hpp"
+#include <cstddef>
 //WIP
 namespace QNLP{
     template <class SimulatorType>
     class Diffusion{
     public:
+        Diffusion() {};
+        ~Diffusion() {};
 
         /**
          * @brief Application of the Grover diffusion operator to already marked register.
@@ -23,24 +25,16 @@ namespace QNLP{
          * @param minIdx The starting qubit index of the register to consider.
          * @param maxIdx The ending qubit index of the register to consider.
          */
-        void applyOpDiffusion(SimulatorType& sim, const unsigned int minIdx, const unsigned int maxIdx){
+        void applyOpDiffusion( SimulatorType& sim, const std::size_t ctrl_minIdx, const std::size_t ctrl_maxIdx, const std::size_t target){
             //For n-controlled not
-            for(unsigned int i = minIdx; i <= maxIdx; i++){
+            for(std::size_t i = ctrl_minIdx; i <= target; i++){
                 sim.applyGateH(i);
-            }
-            for(unsigned int i = minIdx; i <= maxIdx; i++){
                 sim.applyGateX(i);
             }
-            sim.applyGateH(maxIdx);
+            sim.applyGateNCU(sim.getGateZ(), ctrl_minIdx, ctrl_maxIdx, target);
 
-            NCU<decltype(sim.getGateX()), decltype(sim)> nCtrlX(sim.getGateX(), (maxIdx-minIdx)-1);
-            NCU.applyNQubitControl(sim, minIdx, maxIdx-1, maxIdx, s.getGateX(), 0, true);
-
-            sim.applyGateH(maxIdx);
-            for(unsigned int i = minIdx; i <= maxIdx; i++){
+            for(std::size_t i = ctrl_minIdx; i <= target; i++){
                 sim.applyGateX(i);
-            }
-            for(unsigned int i = minIdx; i <= maxIdx; i++){
                 sim.applyGateH(i);
             }
         }
