@@ -63,23 +63,34 @@ namespace QNLP{
              */
             //template <class Type>
             void initialiseMaps(std::string U_label, const Mat2x2Type& U, const std::size_t num_ctrl_lines){
-                Mat2x2Type px;
+                Mat2x2Type px, phase_test;
                 px(0, 0) = std::complex<double>( 0., 0. );
                 px(0, 1) = std::complex<double>( 1., 0. );
                 px(1, 0) = std::complex<double>( 1., 0. );
                 px(1, 1) = std::complex<double>( 0., 0. );
 
+                phase_test(0, 0) = std::complex<double>( 1., 0. );
+                phase_test(0, 1) = std::complex<double>( 0., 0. );
+                phase_test(1, 0) = std::complex<double>( 0., 0. );
+                phase_test(1, 1) = std::complex<double>( -1., 0. );
+
                 sqrtMatricesX[0] = std::make_pair("X", px);
-                //sqrtMatricesX[1] = matrixSqrt("X", px);
-                //sqrtMatricesX[-1] = std::make_pair("X", adjointMatrix(sqrtMatricesX[1].second) );
                 sqrtMatricesU[0] = std::make_pair(U_label, U);
 
                 for(std::size_t ncl = 1; ncl < num_ctrl_lines; ncl++){
                     sqrtMatricesX[ncl] = matrixSqrt(sqrtMatricesX[ncl-1].first, sqrtMatricesX[ncl-1].second);
                     sqrtMatricesX[-ncl] = std::make_pair(sqrtMatricesX[ncl].first, adjointMatrix(sqrtMatricesX[ncl].second));
 
-                    sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1].first, sqrtMatricesU[ncl-1].second);
-                    sqrtMatricesU[-ncl] = std::make_pair(sqrtMatricesU[ncl].first, adjointMatrix(sqrtMatricesU[ncl].second) );
+                    //If the input matrix U is a Pauli Z, use phase rotation to define gates
+                    if( phase_test == U ){
+                        phase_test(1,1) = exp( std::complex<double>(0,1.) * (M_PI/(0b1<<ncl)));
+                        sqrtMatricesU[ncl] = std::make_pair(U_label, phase_test);
+                        sqrtMatricesU[-ncl] = std::make_pair(U_label, adjointMatrix(phase_test));
+                    }
+                    else{
+                        sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1].first, sqrtMatricesU[ncl-1].second);
+                        sqrtMatricesU[-ncl] = std::make_pair(sqrtMatricesU[ncl].first, adjointMatrix(sqrtMatricesU[ncl].second) );
+                    }
                 }
                 #ifdef LATEX_OUTPUT
                     matrix_val_out << U_label << std::endl;
@@ -126,7 +137,7 @@ namespace QNLP{
                 assert (qSim.getNumQubits() >= qControlEnd);
                 assert (qSim.getNumQubits() >= qTarget);
                 assert (qControlEnd != qTarget);
-
+                std::string label = "";
                 int local_depth = depth + 1;
                 if(sqrtMatricesU.size() == 0){
                     initialiseMaps(U.first, U.second, qControlEnd - qControlStart +1);
@@ -145,17 +156,23 @@ namespace QNLP{
                     else {
                         map_ptr = &sqrtMatricesX;
                     }
+
                     //Apply single qubit gate ops, and decompose higher order controls further
-                    qSim.applyGateCU( (*map_ptr)[local_depth].second, qControlEnd, qTarget );
+                    label = U.first + "[" + std::to_string(local_depth) + "]" ;
+                    qSim.applyGateCU( (*map_ptr)[local_depth].second, qControlEnd, qTarget,  label);
+
                     #ifdef LATEX_OUTPUT
                         latex_csv_out << U.first << "[" << local_depth << "]," << qControlEnd << "," << qTarget << "," << (*map_ptr)[local_depth].second.tostr() << std::endl;
                     #endif
+
                     applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0 );
 
-                    qSim.applyGateCU( (*map_ptr)[-local_depth].second, qControlEnd, qTarget);
+                    label = U.first + "[" + std::to_string(-local_depth) + "]";
+                    qSim.applyGateCU( (*map_ptr)[-local_depth].second, qControlEnd, qTarget, label);
                     #ifdef LATEX_OUTPUT
                         latex_csv_out << U.first << "[" << -local_depth << "]," << qControlEnd << "," << qTarget << "," << (*map_ptr)[-local_depth].second.tostr() << std::endl;
                     #endif
+
                     applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0 );
 
                     decltype(auto) sqrt_U(matrixSqrt(U.first, U.second));
@@ -167,7 +184,8 @@ namespace QNLP{
 
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
-                    qSim.applyGateCU(U.second, qControlEnd, qTarget); //The first decomposed matrix value is used here
+                    label = U.first + "[" + std::to_string(depth) + "]";
+                    qSim.applyGateCU(U.second, qControlEnd, qTarget, label); //The first decomposed matrix value is used here
                     #ifdef LATEX_OUTPUT
                         latex_csv_out << U.first << "[" << depth << "]," << qControlEnd << "," << qTarget << ","  << U.second.tostr() << std::endl;
                     #endif

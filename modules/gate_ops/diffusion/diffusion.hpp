@@ -10,6 +10,8 @@
  */
 //#include "ncu.hpp"
 #include <cstddef>
+#include<cmath>
+#include<complex>
 //WIP
 namespace QNLP{
     template <class SimulatorType>
@@ -19,7 +21,7 @@ namespace QNLP{
         ~Diffusion() {};
 
         /**
-         * @brief Application of the Grover diffusion operator to already marked register.
+         * @brief Application of the Grover diffusion operator to already marked register. Follows the Q = -A S_0 A structure as defined in https://arxiv.org/pdf/quant-ph/0005055.pdf
          * 
          * @param qReg The quantum register to apply the operator.
          * @param minIdx The starting qubit index of the register to consider.

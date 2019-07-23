@@ -45,19 +45,21 @@ TEST_CASE("4 qubit diffusion ","[diffusion]"){
                     sim.applyGateH(j);
                 }
 
-                // Mark state: convert matching state pattern to |11...1>
-                // apply nCZ, and undo conversion; negates the matched pattern phase
-                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                // sqrt(N) iterations optimal 
+                for(int ii = 1 ; ii < sqrt( (0b1<<num_qubits) ); ii++){
+                    // Mark state: convert matching state pattern to |11...1>
+                    // apply nCZ, and undo conversion; negates the matched pattern phase
+                    oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
 
-                CAPTURE( reg[i], i );
-                //REQUIRE( reg[i].real() < 0.);
-                reg.Print("PRE-DIFF");
+                    CAPTURE( reg[i], i );
+                    //REQUIRE( reg[i].real() < 0.);
+                    reg.Print("PRE-DIFF iteration=" + std::to_string(ii));
 
-                diffusion.applyOpDiffusion( sim, 0, 2, 3);
-                CAPTURE( reg[i], i );
+                    diffusion.applyOpDiffusion( sim, 0, 2, 3);
+                    CAPTURE( reg[i], i );
 
-                reg.Print("POST-DIFF");
-
+                    reg.Print("POST-DIFF iteration=" + std::to_string(ii));
+                }
             }
         }
     }
