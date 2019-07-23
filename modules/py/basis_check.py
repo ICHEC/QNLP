@@ -6,7 +6,15 @@ import qnlp_db
 import itertools
 import sys
 
-db = qnlp_db.qnlp_db("qnlp_tagged_corpus",".")
+import os
+
+db = None
+
+if len(sys.argv) > 2:
+    db_file = os.sys.argv[2]
+    db = qnlp_db.qnlp_db( os.path.basename(db_file), os.path.dirname(db_file) )
+else:
+    db = qnlp_db.qnlp_db("qnlp_tagged_corpus", ".")
 
 basis_nouns = db.db_load("noun", "basis")
 basis_verbs = db.db_load("verb", "basis")
@@ -18,14 +26,14 @@ corpus_nouns = db.db_load("noun", "corpus")
 corpus_verbs = db.db_load("verb", "corpus")
 
 #As names aren't currently recognised, read in a list of known names, if matched -> noun::person
-names = []
+#names = []
 
 #All names return type person
-with open("../corpus/names.dat", 'r') as namesFile:
-    names=namesFile.read().splitlines()
+#with open("../corpus/names.dat", 'r') as namesFile:
+#    names=namesFile.read().splitlines()
 
 #Skip the header of the file
-names = names[17:]
+#names = names[17:]
 db.close_db()
 
 #print("NOUNS:\n", basis_nouns)
@@ -52,8 +60,6 @@ def match_syn(word, basis_dat, pos_type=None, deep_search=False):
             for s1,s2 in itertools.product(syn, b_syn):
                 sim.append((b, wn.wup_similarity(s1,s2)))
         sim.sort(reverse=True, key=lambda x:x[1])
-        if len(sim) == 0:
-            from IPython import embed; embed()
         basis_set.add(basis_dat[sim[0][0]][0])
     return basis_set
 
