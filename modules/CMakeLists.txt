@@ -12,6 +12,7 @@ set(QNLP_MODULES_SUBDIRS    db;
                             #qubit_extended;
                             #util;
                             test
+                            io;
 )
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
     add_subdirectory(${MOD})
