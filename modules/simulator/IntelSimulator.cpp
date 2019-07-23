@@ -15,6 +15,7 @@
 //##############################################################################
 
 #include "Simulator.hpp"
+#include "GateWriter.hpp"
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
 #include <cstdlib>
@@ -127,22 +128,70 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     //#################################################
 
-    inline void applyGateX(CST qubitIndex){ qubitRegister.ApplyPauliX(qubitIndex);      }
-    inline void applyGateY(CST qubitIndex){ qubitRegister.ApplyPauliY(qubitIndex);      }
-    inline void applyGateZ(CST qubitIndex){ qubitRegister.ApplyPauliZ(qubitIndex);      }
-    inline void applyGateH(CST qubitIndex){ qubitRegister.ApplyHadamard(qubitIndex);    }
+    inline void applyGateX(CST qubitIndex){ 
+        qubitRegister.ApplyPauliX(qubitIndex);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("X", getGateX().tostr(), qubitIndex);
+        #endif
+    }
+    inline void applyGateY(CST qubitIndex){ 
+        qubitRegister.ApplyPauliY(qubitIndex);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("Y", getGateY().tostr(), qubitIndex);
+        #endif
+    }
+    inline void applyGateZ(CST qubitIndex){ 
+        qubitRegister.ApplyPauliZ(qubitIndex);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("Z", getGateZ().tostr(), qubitIndex);
+        #endif
+    }
+    inline void applyGateH(CST qubitIndex){ 
+        qubitRegister.ApplyHadamard(qubitIndex);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("H", getGateH().tostr(), qubitIndex);
+        #endif
+    }
 
     inline void applyGateSqrtX(CST qubitIndex){
         qubitRegister.ApplyPauliSqrtX(qubitIndex);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall(
+            "\\sqrt[2]{X}", 
+            matrixSqrt<decltype(getGateX())>(getGateX()).tostr(), 
+            qubitIndex
+        );
+        #endif
     };
     inline void applyGateRotX(CST qubitIndex, double angle) {
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall(
+            "R_X(\\theta=" + std::to_string(angle) + ")", 
+            getGateI().tostr(), 
+            qubitIndex
+        );
+        #endif
         qubitRegister.ApplyRotationX(qubitIndex, angle);
     };
     inline void applyGateRotY(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationY(qubitIndex, angle);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall(
+            "R_Y(\\theta=" + std::to_string(angle) + ")", 
+            getGateI().tostr(), 
+            qubitIndex
+        );
+        #endif
     };
     inline void applyGateRotZ(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationZ(qubitIndex, angle);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall(
+            "R_Z(\\theta=" + std::to_string(angle) + ")", 
+            getGateI().tostr(), 
+            qubitIndex
+        );
+        #endif
     };
 
     inline TMDP getGateX(){ return gates[0]; }
@@ -151,40 +200,70 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline TMDP getGateI(){ return gates[3]; }
     inline TMDP getGateH(){ return gates[4]; }
 
-    inline void applyGateCU(const TMDP& U, CST control, CST target){
+    inline void applyGateCU(const TMDP& U, CST control, CST target, std::string U_label="CU"){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( U_label, U.tostr(), control, target );
+        #endif
     }
     inline void applyGateCX(CST control, CST target){
         qubitRegister.ApplyCPauliX(control, target);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CX", getGateX().tostr(), control, target );
+        #endif
     }
     inline void applyGateCY(CST control, CST target){
         qubitRegister.ApplyCPauliY(control, target);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CY", getGateY().tostr(), control, target );
+        #endif
     }
     inline void applyGateCZ(CST control, CST target){
         qubitRegister.ApplyCPauliZ(control, target);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CZ", getGateZ().tostr(), control, target );
+        #endif
     }
     inline void applyGateCH(CST control, CST target){
         qubitRegister.ApplyCHadamard(control, target);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CH", getGateH().tostr(), control, target );
+        #endif
     }
 
     inline void applyGateCPhaseShift(double angle, unsigned int control, unsigned int target){
         openqu::TinyMatrix<ComplexDP, 2, 2, 32> U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CPhase", U.tostr(), control, target );
+        #endif
     }
 
     inline void applyGateCRotX(CST control, CST target, const double theta){
         qubitRegister.ApplyCRotationX(control, target, theta);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CR_X", getGateI().tostr(), control, target );
+        #endif
     }
     inline void applyGateCRotY(CST control, CST target, CST theta){
         qubitRegister.ApplyCRotationY(control, target, theta);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CR_Y", getGateI().tostr(), control, target );
+        #endif
     }
     inline void applyGateCRotZ(CST control, CST target, const double theta){
         qubitRegister.ApplyCRotationZ(control, target, theta);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "CR_Z", getGateI().tostr(), control, target );
+        #endif
     }
 
     inline void applyGateSwap(CST q1, CST q2){
         qubitRegister.ApplySwap(q1, q2);
+        #ifdef GATE_LOGGING
+        writer.twoQubitGateCall( "SWAP", getGateI().tostr(), q1, q2 );
+        #endif
     }
 
     inline QubitRegister<ComplexDP>& getQubitRegister() { 

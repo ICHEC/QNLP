@@ -23,6 +23,7 @@
 #include <iostream>
 
 // Include all additional modules to be used within simulator
+#include "GateWriter.hpp"
 #include "ncu.hpp"
 #include "oracle.hpp"
 #include "qft.hpp"
@@ -165,17 +166,19 @@ namespace QNLP{
      * @tparam DerivedType CRTP derived class simulator type
      */
     template <class DerivedType>//<class QubitRegisterType, class GateType>
-#ifdef VIRTUAL_INTERFACE
+    #ifdef VIRTUAL_INTERFACE
     class SimulatorGeneral : virtual public ISimulator {
-#else
+    #else
     class SimulatorGeneral {
-#endif
-    //private:
-    //    template class NCU<DerivedType>;
-    //    NCU<DerivedType> ncu;
+    #endif
+    
+    protected:
+    #ifdef GATE_LOGGING
+    GateWriter writer;
+    #endif
 
     public:
-
+        //using Mat2x2Type = decltype(std::declval<DerivedType>().getGateX());
         virtual ~SimulatorGeneral(){ }
 
         DerivedType* createSimulator(std::size_t num_qubits){
@@ -191,7 +194,10 @@ namespace QNLP{
          * @param qubit_idx 
          */
         void applyGateX(std::size_t qubit_idx){ 
-            static_cast<DerivedType&>(*this).applyGateX(qubit_idx); 
+            //#ifdef GATE_LOGGING
+            writer.oneQubitGateCall("X", static_cast<DerivedType&>(*this).getGateX().tostr(), qubit_idx);
+            //#endif
+            static_cast<DerivedType&>(*this).applyGateX(qubit_idx);
         };
         /**
          * @brief Apply the Pauli Y gate to the given qubit
@@ -223,7 +229,7 @@ namespace QNLP{
          * @param qubit_idx 
          */
         void applyGateH(std::size_t qubit_idx){
-            static_cast<DerivedType&>(*this).applyGateH(qubit_idx); 
+            static_cast<DerivedType&>(*this).applyGateH(qubit_idx);
         }
         /**
          * @brief Apply the Sqrt{Pauli X} gate to the given qubit
@@ -231,7 +237,7 @@ namespace QNLP{
          * @param qubit_idx 
          */
         void applyGateSqrtX(std::size_t qubit_idx){
-            static_cast<DerivedType&>(*this).applyGateSqrtX(qubit_idx); 
+            static_cast<DerivedType&>(*this).applyGateSqrtX(qubit_idx);
         }
         /**
          * @brief Apply the given Rotation about X-axis to the given qubit
@@ -258,6 +264,10 @@ namespace QNLP{
          * @param angle_rad Rotation angle
          */
         void applyGateRotZ(std::size_t qubit_idx, double angle_rad){
+            #ifdef GATE_LOGGING
+            const std::string label {"R_Z(\\theta=" + std::to_string(angle_rad) + ")"};
+            writer.oneQubitGateCall( label, static_cast<DerivedType&>(*this).getGateI().tostr(), qubit_idx );
+            #endif
             static_cast<DerivedType&>(*this).applyGateRotZ(qubit_idx, angle_rad);
         }
 
@@ -321,8 +331,8 @@ namespace QNLP{
          * @param target Qubit index acting as target
          */
         template<class Mat2x2Type>
-        void applyGateCU(const Mat2x2Type &U, std::size_t control, std::size_t target){
-            static_cast<DerivedType*>(this)->applyGateCU(U, control, target);
+        void applyGateCU(const Mat2x2Type &U, std::size_t control, std::size_t target, std::string label="CU"){
+            static_cast<DerivedType*>(this)->applyGateCU(U, control, target, label);
         }
 
         /**
@@ -332,7 +342,7 @@ namespace QNLP{
          * @param qubit_idx1 Index of qubit 1 to swap &(1 -> 0)
          */
         void applyGateSwap(std::size_t qubit_idx0, std::size_t qubit_idx1){
-            return static_cast<DerivedType*>(this)->applyGateSwap(qubit_idx0,qubit_idx1);
+            static_cast<DerivedType*>(this)->applyGateSwap(qubit_idx0,qubit_idx1);
         }
 
         /**
@@ -342,7 +352,7 @@ namespace QNLP{
          * @param qubit_idx1 Qubit index 1
          */
         void applyGateSqrtSwap(std::size_t qubit_idx0, std::size_t qubit_idx1){
-            return static_cast<DerivedType*>(this)->applyGateSqrtSwap(qubit_idx0,qubit_idx1);
+            static_cast<DerivedType*>(this)->applyGateSqrtSwap(qubit_idx0,qubit_idx1);
         }
         
         /**
@@ -390,7 +400,6 @@ namespace QNLP{
             assert( (ctrl_qubit < getNumQubits() ) && (qubit_swap0 < getNumQubits() ) && (qubit_swap1 < getNumQubits()) );
             //The qubits must be different from one another
             assert( ctrl_qubit != qubit_swap0 && ctrl_qubit != qubit_swap1 && qubit_swap0 != qubit_swap1 );
-
             static_cast<DerivedType*>(this)->applyGateCSwap(ctrl_qubit, qubit_swap0, qubit_swap1);
         }
 
@@ -525,9 +534,54 @@ namespace QNLP{
             static_cast<DerivedType*>(this)->initRegister(); 
         }
 
+        /**
+         * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
+         * 
+         * @tparam Type ComplexDP or ComplexSP
+         * @param U Unitary matrix to be rooted
+         * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
+         */
+        template<class Mat2x2Type>
+        Mat2x2Type matrixSqrt(const Mat2x2Type& U){
+            Mat2x2Type V(U);
+            std::complex<double> delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
+            std::complex<double> tau = U(0,0) + U(1,1);
+            std::complex<double> s = sqrt(delta);
+            std::complex<double> t = sqrt(tau + 2.0*s);
 
+            //must be a way to vectorise these; TinyMatrix have a scale/shift option?
+            V(0,0) += s;
+            V(1,1) += s;
+            std::complex<double> scale_factor(1.,0.);
+            scale_factor/=t;
+            V(0,0) *= scale_factor; //(std::complex<double>(1.,0.)/t);
+            V(0,1) *= scale_factor; //(1/t);
+            V(1,0) *= scale_factor; //(1/t);
+            V(1,1) *= scale_factor; //(1/t);
 
+            return V;
+        }
 
+        /**
+         * @brief Function to calculate the adjoint of an input matrix
+         * 
+         * @tparam Type ComplexDP or ComplexSP
+         * @param U Unitary matrix to be adjointed
+         * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
+         */
+        template<class Mat2x2Type>
+        Mat2x2Type adjointMatrix(const Mat2x2Type& U){
+            Mat2x2Type Uadjoint(U);
+            std::complex<double> tmp;
+            tmp = Uadjoint(0,1);
+            Uadjoint(0,1) = Uadjoint(1,0);
+            Uadjoint(1,0) = tmp;
+            Uadjoint(0,0) = std::conj(Uadjoint(0,0));
+            Uadjoint(0,1) = std::conj(Uadjoint(0,1));
+            Uadjoint(1,0) = std::conj(Uadjoint(1,0));
+            Uadjoint(1,1) = std::conj(Uadjoint(1,1));
+            return Uadjoint;
+        }
     };
 }
 #endif
