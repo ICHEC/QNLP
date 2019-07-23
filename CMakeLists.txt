@@ -22,7 +22,7 @@ project (QNLP)
 ################################################################################
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
 #Selectively build the test object and binary
 option(ENABLE_TESTS "Enable QNLP tests" OFF)
@@ -127,8 +127,14 @@ if(${ENABLE_FAST_MATH})
     )
 endif()
 
-
-
+option(ENABLE_LOGGING "Enable gate call logging" ON)
+if(${ENABLE_LOGGING})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -DGATE_LOGGING=1 \
+        "
+    )
+endif()
 
 ################################################################################
 
