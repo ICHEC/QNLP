@@ -8,7 +8,10 @@
  * @copyright Copyright (c) 2019
  * 
  */
-//#include "ncu.hpp"
+
+#ifndef QNLP_DIFFUSION
+#define QNLP_DIFFUSION
+
 #include <cstddef>
 #include<cmath>
 #include<complex>
@@ -42,3 +45,5 @@ namespace QNLP{
         }
     };
 }
+#endif
+

@@ -26,6 +26,7 @@
 #include "GateWriter.hpp"
 #include "ncu.hpp"
 #include "oracle.hpp"
+#include "diffusion.hpp"
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
 //#include "arithmetic.hpp"
@@ -479,6 +480,18 @@ namespace QNLP{
             }
             Oracle<DerivedType> oracle(static_cast<DerivedType*>(this)->getNumQubits()-1, control_indices);
             oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, control_indices, target, U);
+        }
+
+        /**
+         * @brief Apply diffusion operator on marked state. Assumes states linearly ordered: minIdx=0 < maxIdx=num_qubits-2, target=num_qubits-1
+         * 
+         * @param minIdx Lowest index of the control lines expected for oracle calls
+         * @param maxIdx Highest index of the control lines expected for oracle calls
+         * @param target Target qubit index to apply Ctrl-Z upon. 
+         */
+        void applyDiffusion(std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+            Diffusion<DerivedType> diffusion;
+            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), minIdx, maxIdx, target);
         }
 
         /**
