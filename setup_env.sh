@@ -28,6 +28,7 @@ CONDA_PACKAGES=("nltk::anaconda"
                 "numpy" 
                 "scipy"
                 "tabulate"
+                "mkl-include"
                )
 CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
 
