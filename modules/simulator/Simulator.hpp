@@ -590,6 +590,8 @@ namespace QNLP{
 
             HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
+
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
         /**
@@ -627,6 +629,9 @@ namespace QNLP{
             static_cast<DerivedType*>(this)->initRegister(); 
         }
 
+        void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
+            static_cast<DerivedType*>(this)->PrintStates(x, qubits);
+        }
         /**
          * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
          * 

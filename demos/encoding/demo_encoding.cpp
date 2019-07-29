@@ -40,6 +40,11 @@ int main(int argc, char **argv){
     }
     std::size_t num_exps = 1000;
 
+    if(argc > 2){
+        num_exps = atoi(argv[2]);
+    }
+ 
+
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
 
@@ -109,6 +114,7 @@ int main(int argc, char **argv){
         cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
         i++;
     }
+
 
     return 0;
 }

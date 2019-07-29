@@ -38,7 +38,7 @@ int main(int argc, char **argv){
     if(argc > 1){
         verbose = atoi(argv[1]);
     }
-    std::size_t num_exps = 1000;
+    std::size_t num_exps = 100;
 
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
@@ -47,7 +47,7 @@ int main(int argc, char **argv){
     std::size_t len_reg_memory = 4;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
-    std::size_t num_bin_pattern = pow(2,len_reg_memory)-2;
+    std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
     std::size_t test_pattern = 7;
 
@@ -94,23 +94,38 @@ int main(int argc, char **argv){
         // Encode
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
 
+        if(verbose){
+            sim->PrintStates("After encoding: ");
+        }
+
         // Compute Hamming distance between test pattern and encoded patterns
         sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
+        if(verbose){
+            sim->PrintStates("After Hamming: ");
+        }
+
         // Measure
+        sim->applyMeasurement(reg_ancilla[len_reg_ancilla-2]);
         val = sim->applyMeasurementToRegister(reg_memory);
+
 
         count[val] += 1;
         if(verbose){
+
+            sim->PrintStates("After Measurement: ");
             // Output resulting state for this experiment
-            cout << val << "\t";
-            cout << "|";
-            print_bits(val, len_reg_memory);
-            cout << ">" << endl;
+            //cout << val << "\t";
+            //cout << "|";
+            //print_bits(val, len_reg_memory);
+            //cout << ">" << endl;
         }
     }
+
+    if(verbose){
+        sim->PrintStates("Fnal Measurement: ", reg_memory);
+    }
             
-    cout << "Expected results for an even distribution: " << 1.0/ (double)num_bin_pattern << endl; 
     cout << "Measure:" << endl;
     int i = 0;
     for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
@@ -122,6 +137,7 @@ int main(int argc, char **argv){
         cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
         i++;
     }
+
 
     return 0;
 }

@@ -295,6 +295,14 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return bit_val;
     }
 
+
+    // State observation mehtods: not allowed in quantum operations
+    inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
+        qubitRegister.Print(x,qubits);
+    }
+
+
+
     private:
     std::size_t numQubits = 0;
     QRDP qubitRegister;
@@ -315,7 +323,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline double getStateProbability(CST target){
         return qubitRegister.GetProbability(target);
     }
-
 
 };
 
