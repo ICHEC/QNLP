@@ -8,8 +8,14 @@
 
 ## Build environment configuration
 
-'''./setup_env.sh```
+```
+./setup_env.sh
+```
 
 ## Cmake build steps
+```
+cd build
+CC=mpiicc CXX=mpiicpc cmake ..
+```
 
 ## Build from Makefile
