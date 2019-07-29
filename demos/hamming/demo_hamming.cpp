@@ -49,7 +49,7 @@ int main(int argc, char **argv){
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
-    std::size_t test_pattern = 7;
+    std::size_t test_pattern = 3;
 
     if(argc > 2){
         test_pattern = atoi(argv[2]);

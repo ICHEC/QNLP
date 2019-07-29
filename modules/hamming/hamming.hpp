@@ -100,6 +100,7 @@ namespace QNLP{
                     qSim.applyGateX(reg_memory[i]);
                 }
 
+                // Has no effect, however makes the probability after this gate not sum to 1 if this gate is applied.
                 qSim.applyGateU(U_ancilla,reg_ancilla[len_reg_ancilla-2]);
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
