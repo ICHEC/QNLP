@@ -8,6 +8,7 @@ set(QNLP_MODULES_SUBDIRS
                             isc_2019;
                             nqubit_ControlledU;
                             encoding;
+                            hamming;
 #                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;

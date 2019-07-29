@@ -1,6 +1,6 @@
 //#define CATCH_CONFIG_RUNNER
 
-#include "bin_into_superpos.hpp"
+#include "hamming.hpp"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
 #include "catch2/catch.hpp"
@@ -13,13 +13,15 @@ using namespace Catch::Matchers;
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class EncodeBinIntoSuperpos<IntelSimulator>;
+template class HammingDistance<IntelSimulator>;
 
 
-TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
-    SECTION("Testing qubit encoding"){
-
+TEST_CASE("Test Hamming distance routine","[Hamming]"){
+    SECTION("Testing distance calc"){
+/*
         std::size_t num_qubits = 10;
+
+        std::size_t test_pattern = 2;
 
         std::size_t len_reg_memory = (num_qubits - 2) / 2;
         std::size_t len_reg_ancilla = len_reg_memory + 2;
@@ -46,13 +48,17 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
 
         std::size_t val;
         // Encode
-        EncodeBinIntoSuperpos<decltype(sim)> encoder(num_bin_pattern, len_reg_memory);
-        encoder.encodeBinInToSuperpos_unique(sim, reg_memory, reg_ancilla, vec_to_encode);
+        sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory);
+
+        // Compute Hamming distance
+        HammingDistance<DerivedType> hamming_operator(len_reg_memory);
+        hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, len_reg_memory);
 
         // Measure
         val = sim.applyMeasurementToRegister(reg_memory);
 
         CHECK_THAT(vec_to_encode, VectorContains(val));
+        */
     }
 }
 

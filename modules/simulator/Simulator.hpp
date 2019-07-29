@@ -29,9 +29,12 @@
 #include "diffusion.hpp"
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
+#include "hamming.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
+
+#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
 
 #ifdef VIRTUAL_INTERFACE
     /**
@@ -495,7 +498,26 @@ namespace QNLP{
         }
 
         /**
-         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states.
+         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         *
+         * @param target_pattern The binary pattern that is to be encoded
+         * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
+         * @param Length of the binary pattern to be encoded
+         */
+        void encodeToRegister(std::size_t target_pattern, 
+                const std::vector<std::size_t> target_register, 
+                std::size_t len_bin_pattern){
+
+            for(std::size_t i = 0; i < len_bin_pattern; i++){
+            //for(int i = len_bin_pattern-1; i > -1; i--){
+                if(IS_SET(target_pattern,i)){
+                    applyGateX(target_register[i]);
+                }
+            }
+        }
+
+        /**
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
          * 
          * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
          * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
@@ -504,12 +526,70 @@ namespace QNLP{
          * @param len_bin_pattern The length of the binary patterns being encoded
          */
         //template<class Mat2x2Type>
+        void encodeBinToSuperpos_unique(const std::vector<std::size_t>& reg_memory,
+                const std::vector<std::size_t>& reg_ancilla,
+                const std::vector<std::size_t>& bin_patterns,
+                const std::size_t len_bin_pattern){
+
+#ifndef NDEBUG
+            // Ensure that each binary pattern passed into the encoding is unique.
+            // This slow exhaustive search should be updated to a sort and smart search to improve large scale performance
+            std::size_t tmp;
+            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
+                for(std::vector<std::size_t>::const_iterator it_tmp = it+1; it_tmp != bin_patterns.end(); ++it_tmp){
+                    assert((*it) != (*it_tmp));
+                }
+            }
+#endif
+
+            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
+            encoder.encodeBinInToSuperpos_unique(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+
+        /**
+         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation DOES allow for multiple instances of the same input pattern. There is a restriction that the binary string consisting of all zeroes cannot be inputted for encoding.
+         * 
+         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
+         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
+         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
+         * @param len_bin_pattern The length of the binary patterns being encoded
+         */
         void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
                 const std::size_t len_bin_pattern){
+             
+            std::cerr << "NOT YET IMPLEMENTED" << std::endl;
+            std::abort();
+
+#ifndef NDEBUG
+            // Ensure zero is not passed in to be encoded
+            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
+                assert((*it) != 0);
+            }
+#endif
             EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
             encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+        }
+
+        /**
+         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state.
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         * @param len_bin_pattern Length of the binary patterns
+         */
+        void applyHammingDistance(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vector<std::size_t> reg_ancilla,  
+                std::size_t len_bin_pattern){
+
+            assert(len_bin_pattern < reg_ancilla.size()-1);
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+
+            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
+            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
         }
 
         /**

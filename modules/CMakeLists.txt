@@ -7,6 +7,7 @@ project(qnlp_modules LANGUAGES CXX)
 set(QNLP_MODULES_SUBDIRS    db;
                             gate_ops;
                             encoding;
+                            hamming;
                             py;
                             simulator;
                             #qubit_extended;

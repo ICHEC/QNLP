@@ -74,8 +74,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     //#################################################
     // 1 qubit
     inline void applyGateU(const TMDP& U, CST qubitIndex){      
-        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
-        std::abort(); 
+        qubitRegister.Apply1QubitGate(qubitIndex, U);
     }
     inline void applyGateI(std::size_t qubitIndex){
         std::cerr << "NOT YET IMPLEMENTED" << std::endl; 

@@ -1,5 +1,5 @@
 /**
- * @brief Apply NCU with input data as control on a target qubit in state 0. The U matrix will be PailiX for simplicity. Outputs the final measured state. Displays proportion of experiments with target qubit set.
+ * @brief Encode a set of unique binary patterns into a superposition, alter their amplitudes according to their similarity with a test binary patter, and get a distribution of the probabilities of these amplitudes.
  *
  */
 
@@ -43,10 +43,21 @@ int main(int argc, char **argv){
     openqu::mpi::Environment env(argc, argv);
     int rank = env.rank();
 
+
     std::size_t len_reg_memory = 4;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
-    std::size_t num_bin_pattern = pow(2,len_reg_memory);
+    std::size_t num_bin_pattern = pow(2,len_reg_memory)-2;
+
+    std::size_t test_pattern = 7;
+
+    if(argc > 2){
+        test_pattern = atoi(argv[2]);
+    }
+
+    if(argc > 3){
+        num_exps = atoi(argv[3]);
+    }
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
@@ -80,9 +91,11 @@ int main(int argc, char **argv){
 
         sim->initRegister();
 
-
         // Encode
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+
+        // Compute Hamming distance between test pattern and encoded patterns
+        sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);
