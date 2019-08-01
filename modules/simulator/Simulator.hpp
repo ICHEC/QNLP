@@ -176,6 +176,10 @@ namespace QNLP{
     class SimulatorGeneral {
     #endif
     
+    private:
+    SimulatorGeneral(){}; 
+    friend DerivedType;
+    
     protected:
     #ifdef GATE_LOGGING
     GateWriter writer;
@@ -680,6 +684,12 @@ namespace QNLP{
             Uadjoint(1,1) = std::conj(Uadjoint(1,1));
             return Uadjoint;
         }
+
+        #ifdef GATE_LOGGING
+        GateWriter& getGateWriter(){
+            return writer;
+        } 
+        #endif
     };
 }
 #endif

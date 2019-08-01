@@ -128,11 +128,19 @@ namespace QNLP{
 
 
                 // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+
+                #ifdef GATE_LOGGING
+                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|10> of lengths n,n,2");
+                #endif
+
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
                     // Encode inputted binary pattern to pReg
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_0 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         if(IS_SET(bin_patterns[i],j)){
                             qSim.applyGateX(reg_ancilla[j]);
@@ -141,17 +149,26 @@ namespace QNLP{
 
                     // Psi1
                     // Encode inputted binary pattern
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_1 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi2
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_2 \\rangle");
+                    #endif                    
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                         qSim.applyGateX(reg_memory[j]);
                     }
 
                     // Psi3
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
+                    #endif
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
 
@@ -160,12 +177,21 @@ namespace QNLP{
                     // This flips the second control bit of the new term in the position so
                     // that we get old|11> + new|10>
                     // Break off into larger and smaller chunks
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_4 \\rangle");
+                    #endif
                     qSim.applyGateCU((*S)[i], reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1]);
 
                     // Psi5
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_5 \\rangle");
+                    #endif
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_6 \\rangle");
+                    #endif
                     for(int j = len_bin_pattern-1; j > -1; j--){
                         qSim.applyGateX(reg_memory[j]);
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
@@ -173,11 +199,17 @@ namespace QNLP{
                     }
 
                     // Psi7
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_7 \\rangle");
+                    #endif
                     for(int j = len_bin_pattern-1; j > -1; j--){
                        qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Reset the p register of the new term to the state |0...0>
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("Reset p to | 00\\ldots 0 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         // Check current pattern against next pattern
                         if(IS_SET(bin_patterns[i],j)){
@@ -211,11 +243,17 @@ namespace QNLP{
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
                 // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+                #ifdef GATE_LOGGING
+                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|10> of lengths n,n,2");
+                #endif
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
                     // Encode inputted binary pattern to pReg
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_0 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         if(IS_SET(bin_patterns[i],j)){
                             qSim.applyGateX(reg_ancilla[j]);
@@ -224,17 +262,26 @@ namespace QNLP{
 
                     // Psi1
                     // Encode inputted binary pattern
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_1 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Psi2
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_2 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                         qSim.applyGateX(reg_memory[j]);
                     }
 
                     // Psi3
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
+                    #endif
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
 
@@ -243,23 +290,38 @@ namespace QNLP{
                     // This flips the second control bit of the new term in the position so
                     // that we get old|11> + new|10>
                     // Break off into larger and smaller chunks
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_4 \\rangle");
+                    #endif
                     qSim.applyGateCU((*S)[i], reg_ancilla[len_reg_ancilla-2], reg_ancilla[len_reg_ancilla-1]);
 
                     // Psi5
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_5 \\rangle");
+                    #endif
                     qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_6 \\rangle");
+                    #endif
                     for(int j = len_bin_pattern-1; j > -1; j--){
                         qSim.applyGateX(reg_memory[j]);
                         qSim.applyGateCX(reg_ancilla[j], reg_memory[j]);
                     }
 
                     // Psi7
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("| \\Psi_7 \\rangle");
+                    #endif
                     for(int j = len_bin_pattern-1; j > -1; j--){
                        qSim.applyGateCCX(reg_ancilla[j], reg_ancilla[len_reg_ancilla-1], reg_memory[j]);
                     }
 
                     // Reset the p register of the new term to the state |0...0>
+                    #ifdef GATE_LOGGING
+                    qSim.getGateWriter().segmentMarkerOut("Reset p to | 00\\ldots 0 \\rangle");
+                    #endif
                     for(std::size_t j = 0; j < len_bin_pattern; j++){
                         // Check current pattern against next pattern
                         if(IS_SET(bin_patterns[i],j)){

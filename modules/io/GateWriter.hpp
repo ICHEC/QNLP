@@ -25,8 +25,8 @@ namespace QNLP{
                 latex_csv_out << "gate_label,gate_ctrl,gate_tgt,gate_value" << std::endl;
         }
         ~GateWriter(){
-            latex_csv_out  << std::endl;
-            matrix_val_out << std::endl;
+            latex_csv_out  << "\n" << std::endl;
+            matrix_val_out << "\n" << std::endl;
 
             latex_csv_out.close();
             matrix_val_out.close();
@@ -42,6 +42,15 @@ namespace QNLP{
                 matrix_val_out << gateLabel << "," << matrixVals << std::endl;
                 gates.insert(gateLabel);
             }
+        }
+
+        /**
+         * @brief Marks the output file with a string pattern to allow easy of parsing for gates to algorithm operations.
+         * 
+         * @param segmentString The name of the segment to print into the file.
+         */
+        void segmentMarkerOut(std::string segmentString){
+            latex_csv_out << "#!#{" << segmentString << "}#!#" << std::endl;
         }
 
         /**

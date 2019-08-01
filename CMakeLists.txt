@@ -127,7 +127,7 @@ if(${ENABLE_FAST_MATH})
     )
 endif()
 
-option(ENABLE_LOGGING "Enable gate call logging" ON)
+option(ENABLE_LOGGING "Enable gate call logging" OFF)
 if(${ENABLE_LOGGING})
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} \
@@ -153,8 +153,8 @@ add_definitions(
      -DMKL_ILP64 \
      -DCOLLECT_TIME \
      -DSTANDALONE \
-     -DOPENQU_HAVE_MPI \ 
      -DVIRTUAL_INTERFACE \
+     -DOPENQU_HAVE_MPI \ 
      -DLATEX_OUTPUT"
 )
 

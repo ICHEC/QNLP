@@ -44,7 +44,7 @@ int main(int argc, char **argv){
     int rank = env.rank();
 
 
-    std::size_t len_reg_memory = 4;
+    std::size_t len_reg_memory = 2;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
@@ -85,13 +85,13 @@ int main(int argc, char **argv){
         count.insert(pair<std::size_t, std::size_t>(vec_to_encode[i],0));
     }
 
-
     // Repeated shots of experiment
     for(int exp = 0; exp < num_exps; exp++){
 
         sim->initRegister();
 
         // Encode
+        sim->getGateWriter().segmentMarkerOut("Encode");
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
 
         if(verbose){
@@ -99,6 +99,7 @@ int main(int argc, char **argv){
         }
 
         // Compute Hamming distance between test pattern and encoded patterns
+        sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
         if(verbose){
