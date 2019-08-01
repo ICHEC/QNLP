@@ -607,15 +607,15 @@ namespace QNLP{
          * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
          * @param len_bin_pattern Length of the binary patterns
          */
-        void applyYRotHammingDistance(std::size_t test_pattern, 
+        void applyHammingDistanceRotY(std::size_t test_pattern, 
                 const std::vector<std::size_t> reg_mem, 
                 const std::vector<std::size_t> reg_ancilla,  
-                std::size_t len_bin_pattern){
+                std::size_t len_bin_pattern, std::size_t num_bin_patterns){
 
             assert(len_bin_pattern < reg_ancilla.size()-1);
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
-            YRotHammingDistance<DerivedType> hamming_operator(len_bin_pattern);
+            HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
 
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
