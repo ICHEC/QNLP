@@ -8,6 +8,7 @@ set(QNLP_MODULES_SUBDIRS    db;
                             gate_ops;
                             encoding;
                             hamming;
+                            hamming_yrot;
                             py;
                             simulator;
                             #qubit_extended;

@@ -598,6 +598,30 @@ namespace QNLP{
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
+
+        /**
+         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         * @param len_bin_pattern Length of the binary patterns
+         */
+        void applyYRotHammingDistance(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vector<std::size_t> reg_ancilla,  
+                std::size_t len_bin_pattern){
+
+            assert(len_bin_pattern < reg_ancilla.size()-1);
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+
+            YRotHammingDistance<DerivedType> hamming_operator(len_bin_pattern);
+            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
+
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+        }
+
+
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
          * 
