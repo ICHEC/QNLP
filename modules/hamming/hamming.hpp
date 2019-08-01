@@ -25,8 +25,9 @@ namespace QNLP{
             //Take the 2x2 matrix type from the template SimulatorType
             using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
 
-            Mat2x2Type U_ancilla;
-            Mat2x2Type U_memory;
+            Mat2x2Type U_identity;
+            Mat2x2Type U_PauliZ;
+            Mat2x2Type U_PauliZ_tilda;
 
             std::size_t len_bin_pattern;
 
@@ -55,16 +56,24 @@ namespace QNLP{
                 cos_term = cos(pi_term);
                 sin_term = sin(pi_term);
 
-                // U for simulating Hamiltonian
-                U_ancilla(0, 0) = std::complex<double>( cos_term,     0.0);
-                U_ancilla(0, 1) = std::complex<double>( 0.0,          0.0 );
-                U_ancilla(1, 0) = std::complex<double>( 0.0,          0.0 );
-                U_ancilla(1, 1) = std::complex<double>( cos_term,     0.0);
+                // U for H = identity
+                U_identity(0, 0) = std::complex<double>( cos_term,    -sin_term );
+                U_identity(0, 1) = std::complex<double>( 0.0,          0.0 );
+                U_identity(1, 0) = std::complex<double>( 0.0,          0.0 );
+                U_identity(1, 1) = std::complex<double>( cos_term,    -sin_term );
 
-                U_memory(0, 0) = std::complex<double>( cos_term,     sin_term );
-                U_memory(0, 1) = std::complex<double>( 0.0,          0.0 );
-                U_memory(1, 0) = std::complex<double>( 0.0,          0.0 );
-                U_memory(1, 1) = std::complex<double>( cos_term,    -sin_term );
+                // U for H = PauliX
+                U_PauliZ(0, 0) = std::complex<double>( cos_term,    -sin_term );
+                U_PauliZ(0, 1) = std::complex<double>( 0.0,          0.0 );
+                U_PauliZ(1, 0) = std::complex<double>( 0.0,          0.0 );
+                U_PauliZ(1, 1) = std::complex<double>( cos_term,    sin_term );
+
+                // U for H = PauliX
+                pi_term *= 0.5;
+                U_PauliZ_tilda(0, 0) = std::complex<double>( 2.0*cos_term*cos_term - 1.0,    -2.0*cos_term*sin_term );
+                U_PauliZ_tilda(0, 1) = std::complex<double>( 0.0,          0.0 );
+                U_PauliZ_tilda(1, 0) = std::complex<double>( 0.0,          0.0 );
+                U_PauliZ_tilda(1, 1) = std::complex<double>( 0.0,          0.0 );
             }
 
             /**
@@ -94,17 +103,23 @@ namespace QNLP{
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
+                // Encode target pattern into quantum register
+                //qSim.encodeToRegister(target_pattern, reg_ancilla, len_bin_pattern);
+
                 qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                     qSim.applyGateX(reg_memory[i]);
                 }
 
-                // Has no effect, however makes the probability after this gate not sum to 1 if this gate is applied.
-                qSim.applyGateU(U_ancilla,reg_ancilla[len_reg_ancilla-2]);
+                for(std::size_t i = 0; i < len_bin_pattern; i++){
+                    qSim.applyGateU(U_identity, reg_ancilla[i]);
+                }
+
+                qSim.applyGateU(U_PauliZ,reg_ancilla[len_reg_ancilla-2]);
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateU(U_memory, reg_memory[i]);
+                    qSim.applyGateU(U_PauliZ_tilda, reg_memory[i]);
                 }
 
                 /************!!!!****/

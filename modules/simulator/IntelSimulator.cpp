@@ -73,18 +73,23 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     //   TO IMPLEMENT
     //#################################################
     // 1 qubit
-    inline void applyGateU(const TMDP& U, CST qubitIndex){      
+    inline void applyGateU(const TMDP& U, CST qubitIndex, std::string label="U"){      
         qubitRegister.Apply1QubitGate(qubitIndex, U);
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall(label, U.tostr(), qubitIndex);
+        #endif
     }
+
     inline void applyGateI(std::size_t qubitIndex){
-        std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
-        std::abort();
+        applyGateU(getGateI(), qubitIndex, "I");
     }
+
     inline void applyGatePhaseShift(std::size_t qubit_idx, double angle){
         //Phase gate is identity with 1,1 index modulated by angle
         TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
-        qubitRegister.Apply1QubitGate(qubit_idx, U);
+        //qubitRegister.Apply1QubitGate(qubit_idx, U);
+        applyGateU(U, qubit_idx, "Phase:=" + std::to_string(angle));
     }
 
     // 2 qubit
@@ -95,7 +100,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     // 3 qubit
     inline void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
-        qubitRegister.ApplyToffoli(ctrl_qubit0, ctrl_qubit1, target_qubit);
+        this->applyGateNCU(this->getGateX(), ctrl_qubit0, ctrl_qubit1, target_qubit);
+        //qubitRegister.ApplyToffoli(ctrl_qubit0, ctrl_qubit1, target_qubit);
     }
 
     /*
@@ -208,25 +214,25 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateCX(CST control, CST target){
         qubitRegister.ApplyCPauliX(control, target);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( "CX", getGateX().tostr(), control, target );
+        writer.twoQubitGateCall( "X", getGateX().tostr(), control, target );
         #endif
     }
     inline void applyGateCY(CST control, CST target){
         qubitRegister.ApplyCPauliY(control, target);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( "CY", getGateY().tostr(), control, target );
+        writer.twoQubitGateCall( "Y", getGateY().tostr(), control, target );
         #endif
     }
     inline void applyGateCZ(CST control, CST target){
         qubitRegister.ApplyCPauliZ(control, target);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( "CZ", getGateZ().tostr(), control, target );
+        writer.twoQubitGateCall( "Z", getGateZ().tostr(), control, target );
         #endif
     }
     inline void applyGateCH(CST control, CST target){
         qubitRegister.ApplyCHadamard(control, target);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( "CH", getGateH().tostr(), control, target );
+        writer.twoQubitGateCall( "H", getGateH().tostr(), control, target );
         #endif
     }
 
@@ -301,7 +307,11 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         qubitRegister.Print(x,qubits);
     }
 
-
+    #ifdef GATE_LOGGING
+    GateWriter& getGateWriter(){
+        return writer;
+    } 
+    #endif
 
     private:
     std::size_t numQubits = 0;
