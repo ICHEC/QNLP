@@ -6,6 +6,7 @@ project(qnlp_third_party LANGUAGES CXX)
 ###############################################################################
 set(QNLP_THIRD_PARTY_SUBDIRS    CLI11;
                                 Catch2;
+                                pybind11;
 )
 foreach(MOD ${QNLP_THIRD_PARTY_SUBDIRS})
     add_subdirectory(${MOD})
