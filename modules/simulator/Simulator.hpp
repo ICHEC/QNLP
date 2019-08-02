@@ -412,6 +412,40 @@ namespace QNLP{
         }
 
         /**
+         * @brief Apply the given Controlled Rotation about X-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about X-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotX(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotX(ctrl_qubit, qubit_idx, angle_rad);
+        }
+        /**
+         * @brief Apply the given Controlled Rotation about Y-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about Y-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotY(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotY(ctrl_qubit, qubit_idx, angle_rad);
+        }
+        /**
+         * @brief Apply the given Controlled Rotation about Z-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about Z-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotZ(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotZ(ctrl_qubit, qubit_idx, angle_rad);
+        }
+
+
+
+
+        /**
          * @brief Get the underlying qubit register object
          * 
          * @return decltype(auto) the underlying bound qubit register
