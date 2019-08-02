@@ -104,7 +104,7 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         #endif
-        sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
+        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
 
         if(verbose){
             sim->PrintStates("After Hamming: ");

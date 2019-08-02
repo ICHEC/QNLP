@@ -84,8 +84,7 @@ namespace QNLP{
             }
 
             /**
-             * @brief Encodes each element of inputted vector as a binary string in a superpostiion of states.
-             * 
+             * @brief Adjusts each state's ampitude proportional to the Hamming distance between the state's training pattern and the test pattern using Trugenberger's proposed algorithm.             * 
              * @param qSim Quantum simulator instance.
              * @param reg_memory A vector containing the indices of the qubits of the memory register. 
              * @param reg_ancilla A vector containing the indices of the qubits of the ancilla register. 
@@ -102,9 +101,6 @@ namespace QNLP{
 
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
-
-                // Encode target pattern into quantum register
-                //qSim.encodeToRegister(target_pattern, reg_ancilla, len_bin_pattern);
 
                 qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
                 for(std::size_t i = 0; i < len_bin_pattern; i++){

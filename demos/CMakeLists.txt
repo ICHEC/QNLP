@@ -9,6 +9,7 @@ set(QNLP_MODULES_SUBDIRS
                             nqubit_ControlledU;
                             encoding;
                             hamming;
+                            hamming_RotY;
 #                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;
