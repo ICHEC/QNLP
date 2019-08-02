@@ -499,6 +499,29 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
+
+        /**
+         * @brief Apply n-control unitary gate to the given qubit target
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
+         * @param U 2x2 unitary matrix
+         * @param minIdx Lowest index of the control lines expected for nCU
+         * @param maxIdx Highest index of the control lines expected for the nCU
+         * @param target Target qubit index to apply nCU
+         */
+        template<class Mat2x2Type>
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
+            NCU<DerivedType> n;
+            std::string matrixLabel = "";
+            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
+                matrixLabel = "X";
+            }
+            else
+                matrixLabel = "U";
+            n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
+        }
+
+
         /**
          * @brief Apply oracle to match given binary index
          * 
