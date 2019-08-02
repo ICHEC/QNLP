@@ -1,13 +1,13 @@
 /**
- * @file hamming.hpp
+ * @file hamming_RotY_amplification.hpp
  * @author Myles Doyle (myles.doyle@ichec.ie)
- * @brief Functions to compute the Hamming distance between a test pattern and the states in memory.
+ * @brief Functions to compute the Hamming distance between a test pattern and the states in memory using y rotations for each similar qubit.
  * @version 0.1
- * @date 2019-14-06
+ * @date 2019-02-08
  */
 
-#ifndef QNLP_HAMMING
-#define QNLP_HAMMING
+#ifndef QNLP_HAMMING_ROTY
+#define QNLP_HAMMING_ROTY
 
 //#include "Simulator.hpp"
 //#include <complex>
@@ -28,7 +28,7 @@ namespace QNLP{
             std::size_t len_bin_pattern;
 
         public:
-            HammingDistanceRotY(){};
+            HammingDistanceRotY() = delete;
 
             HammingDistanceRotY(const std::size_t len_bin_pattern_){
                 len_bin_pattern = len_bin_pattern_;

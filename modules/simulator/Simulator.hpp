@@ -30,6 +30,7 @@
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
 #include "hamming.hpp"
+#include "hamming_RotY_amplification.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
@@ -637,13 +638,14 @@ namespace QNLP{
         void applyHammingDistanceRotY(std::size_t test_pattern, 
                 const std::vector<std::size_t> reg_mem, 
                 const std::vector<std::size_t> reg_ancilla,  
-                std::size_t len_bin_pattern, std::size_t num_bin_patterns){
+                std::size_t len_bin_pattern, 
+                std::size_t num_bin_patterns){
 
             assert(len_bin_pattern < reg_ancilla.size()-1);
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
             HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
-            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
+            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern, num_bin_patterns);
 
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
