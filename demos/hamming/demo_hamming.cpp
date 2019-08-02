@@ -91,7 +91,9 @@ int main(int argc, char **argv){
         sim->initRegister();
 
         // Encode
+        #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Encode");
+        #endif
         sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
 
         if(verbose){
@@ -99,7 +101,9 @@ int main(int argc, char **argv){
         }
 
         // Compute Hamming distance between test pattern and encoded patterns
+        #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
+        #endif
         sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
         if(verbose){

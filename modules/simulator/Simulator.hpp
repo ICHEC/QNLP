@@ -202,9 +202,6 @@ namespace QNLP{
          * @param qubit_idx 
          */
         void applyGateX(std::size_t qubit_idx){ 
-            //#ifdef GATE_LOGGING
-            writer.oneQubitGateCall("X", static_cast<DerivedType&>(*this).getGateX().tostr(), qubit_idx);
-            //#endif
             static_cast<DerivedType&>(*this).applyGateX(qubit_idx);
         };
         /**
@@ -272,10 +269,6 @@ namespace QNLP{
          * @param angle_rad Rotation angle
          */
         void applyGateRotZ(std::size_t qubit_idx, double angle_rad){
-            #ifdef GATE_LOGGING
-            const std::string label {"R_Z(\\theta=" + std::to_string(angle_rad) + ")"};
-            writer.oneQubitGateCall( label, static_cast<DerivedType&>(*this).getGateI().tostr(), qubit_idx );
-            #endif
             static_cast<DerivedType&>(*this).applyGateRotZ(qubit_idx, angle_rad);
         }
 
