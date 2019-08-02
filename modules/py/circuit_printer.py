@@ -1,6 +1,7 @@
 """
-The CircuitPrinter class creates a quantum circuit .tex file for viewing the nCU decomposition output.
-Assumes the availability of the quantikz LaTeX package when compiling.
+The CircuitPrinter class creates a quantum circuit .tex file for viewing the circuit output.
+Assumes the availability of the quantikz LaTeX package when compiling. Preferably use lualatex
+to ensure sufficient memory access.
 """
 
 class CircuitPrinter:
@@ -23,7 +24,7 @@ class CircuitPrinter:
         The number of qubits specifies the length of the column.
         """
 
-        column = ["\qw & "]*column_length
+        column = [r"\qw & "]*column_length
         column[tgt] = r"\gate{{{}}} & ".format(gate_name)
         column[ctrl] = r"\ctrl{{{}}} & ".format(tgt - ctrl)
         return column
@@ -48,7 +49,6 @@ class CircuitPrinter:
             slice_name = "${}$".format(slice_name)
         column[0] = r"\qw\slice{{{}}} & ".format(slice_name)
         return column
-
 
     def load_data_csv(self, csv_file):
         """
@@ -80,6 +80,7 @@ class CircuitPrinter:
                     else:
                         #Single qubit value; max value here indicates that the output value for the ctrl line was 2^64, hence non-existent
                         curr_col = self.single_qubit_line_column(row[0], int(row[2]), self.num_qubits)
+                        #Attempt to merge non interfering gates to the same column to reduce visual circuit size
                         '''if (len(cct_local) > 0) and (prev_was_ctrl == False):
                             prev_col = cct_local[-1]
 
@@ -122,7 +123,6 @@ class CircuitPrinter:
                     # Continue this later... seems incredibly inefficient
 
 
-
     def latex_cct(self, data_file, file_name="cct", max_depth=16):
         """
         LaTeX file outputter for quantum circuit generation.
@@ -150,7 +150,7 @@ class CircuitPrinter:
                     box_labels.append(local_label)
                     f.write(r"\newsavebox{{{}}}".format(local_label))
                     f.write(r"\savebox{{{}}}{{".format(local_label))
-                    #f.write(r"\begin{tikzpicture}\node[scale=0.5] {")
+
                     f.write("\\begin{quantikz}[row sep={0.5cm,between origins}, column sep={0.75cm,between origins}, slice label style={inner sep=1pt,anchor=south west,rotate=40}]")
                     #Transposes the data so that q rows of length n exist, rather than n cols of length q
                     if(i + max_depth < depth):
@@ -165,13 +165,11 @@ class CircuitPrinter:
                         f.write(out_str)
                     f.write(" \\end{quantikz}\n}\n")
                     f.write("\n")
-                #f.write("\\begin{tabular}{c}\n")
+
                 for idx,l in enumerate(box_labels):
                     f.write(r"\usebox{{{}}} \\".format(l))
                     f.write("\n \\vspace{2em}")
-                    #if(idx % 4 == 0):
-                    #    f.write(r"\pagebreak \\".format(l))
-                #f.write("\\end{tabular}\n")
+
                 f.write(r"\end{document}")
 
 if __name__== "__main__":
@@ -180,5 +178,5 @@ if __name__== "__main__":
     if len(args) < 2:
         print("Please specify the file to load, and output filename to save: python cct.py <CSV> <>")
         exit()
-    CCT = CircuitPrinter(num_qubits=10)
+    CCT = CircuitPrinter(num_qubits=6)
     CCT.latex_cct(args[1], args[2], max_depth=12)
