@@ -487,15 +487,14 @@ namespace QNLP{
          * @param target Target qubit index to apply nCU
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
             NCU<DerivedType> n;
-            //NCU<decltype(static_cast<DerivedType&>(*this))> n;
             std::string matrixLabel = "";
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
             else
-                matrixLabel = "U";
+                matrixLabel = label;
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
@@ -510,14 +509,14 @@ namespace QNLP{
          * @param target Target qubit index to apply nCU
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = "U"){
             NCU<DerivedType> n;
             std::string matrixLabel = "";
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
             else
-                matrixLabel = "U";
+                matrixLabel = label;
             n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
         }
 

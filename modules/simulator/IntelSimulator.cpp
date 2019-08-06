@@ -100,7 +100,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     // 3 qubit
     inline void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
-        this->applyGateNCU(this->getGateX(), ctrl_qubit0, ctrl_qubit1, target_qubit);
+        //const std::vector<std::size_t> {ctrl_qubit0, ctrl_qubit1};
+        //this->applyGateNCU(this->getGateX(), ctrl, target_qubit);
+        this->applyGateNCU(this->getGateX(), std::vector<std::size_t> {ctrl_qubit0, ctrl_qubit1}, target_qubit);
         //qubitRegister.ApplyToffoli(ctrl_qubit0, ctrl_qubit1, target_qubit);
     }
 
