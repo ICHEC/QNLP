@@ -117,13 +117,7 @@ int main(int argc, char **argv){
 
         count[val] += 1;
         if(verbose){
-
             sim->PrintStates("After Measurement: ");
-            // Output resulting state for this experiment
-            //cout << val << "\t";
-            //cout << "|";
-            //print_bits(val, len_reg_memory);
-            //cout << ">" << endl;
         }
     }
 
