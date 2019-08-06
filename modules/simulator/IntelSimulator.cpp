@@ -303,6 +303,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return bit_val;
     }
 
+    // Measurement methods
+    inline void collapseToBasisZ(CST target, bool collapseValue){
+        collapseQubit(target, collapseValue);
+        applyAmplitudeNorm();
+    }
+
+
 
     // State observation mehtods: not allowed in quantum operations
     inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
@@ -331,6 +338,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void collapseQubit(CST target, bool collapseValue){
         qubitRegister.CollapseQubit(target, collapseValue);
     }
+
+
 
     inline double getStateProbability(CST target){
         return qubitRegister.GetProbability(target);

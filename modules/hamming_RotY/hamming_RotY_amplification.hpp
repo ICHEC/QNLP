@@ -50,7 +50,7 @@ namespace QNLP{
                     const std::vector<std::size_t>& reg_ancilla, 
                     std::size_t len_bin_pattern, std::size_t num_bin_patterns){
 
-                double theta = M_PI / (double) num_bin_patterns; 
+                double theta = 2.0 * M_PI / (double) num_bin_patterns; 
 
                 std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
@@ -58,15 +58,16 @@ namespace QNLP{
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
-                qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
+ //               qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                     qSim.applyGateX(reg_memory[i]);
+ 
                 }
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCRotY(reg_ancilla[i],reg_ancilla[len_reg_ancilla-2],theta);
+                    qSim.applyGateCRotY(reg_memory[i],reg_ancilla[len_reg_ancilla-2],theta);
                 }
 
                 for(int i = len_bin_pattern-1; i > -1; i--){

@@ -107,24 +107,23 @@ int main(int argc, char **argv){
         sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
 
         if(verbose){
-            sim->PrintStates("After Hamming: ");
+            sim->PrintStates("After Hamming Rot_Y: ");
         }
 
         // Measure
-        sim->applyMeasurement(reg_ancilla[len_reg_ancilla-2]);
+        sim->collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+        if(verbose){
+            sim->PrintStates("After Collapse to Basis z: ");
+        }
+
         val = sim->applyMeasurementToRegister(reg_memory);
-
-
-        count[val] += 1;
         if(verbose){
             sim->PrintStates("After Measurement: ");
         }
+
+        count[val] += 1;
     }
 
-    if(verbose){
-        sim->PrintStates("Fnal Measurement: ", reg_memory);
-    }
-            
     cout << "Measure:" << endl;
     int i = 0;
     for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
