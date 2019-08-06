@@ -699,6 +699,18 @@ namespace QNLP{
             } 
             return val;
         }
+
+        /**
+         * @brief Apply measurement to a target qubit with respect to the z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
+         * 
+         * @param target The index of the qubit being collapsed
+         * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
+         */
+        void collapseToBasisZ(std::size_t target, bool collapseValue){
+            static_cast<DerivedType*>(this)->collapseToBasisZ(target, collapseValue);
+        }
+
+
                 
         /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
