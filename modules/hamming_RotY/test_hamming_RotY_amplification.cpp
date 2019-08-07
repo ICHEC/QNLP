@@ -15,25 +15,31 @@ typedef ComplexDP Type;
 
 template class HammingDistanceRotY<IntelSimulator>;
 
+//using namespace Catch::Detail;
 
 TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingroty]"){
-    const std::size_t max_qubits = 5;
+    const std::size_t max_qubits = 3;
     double mach_eps = 7./3. - 4./3. -1.;
 
-    std::size_t len_reg_memory;
+    std::size_t num_qubits;
     std::size_t len_reg_ancilla;
     std::size_t num_bin_pattern;
+    std::size_t val;
 
-    std::size_t test_pattern = 3;
+    std::size_t test_pattern = 2;
 
-    for(std::size_t num_qubits = 2; num_qubits < max_qubits; num_qubits++){
-        DYNAMIC_SECTION("Testing " << num_qubits << " qubits"){
+    //Catch::literals::Approx approx_zero = Catch::literals::Approx(0.).margin(1e-12);
+
+    for(std::size_t len_reg_memory = 2; len_reg_memory < max_qubits; len_reg_memory++){
+        DYNAMIC_SECTION("Testing " << len_reg_memory << " memory qubits"){
+
+            // Experiment set-up
+            num_qubits = 2*len_reg_memory + 2;
+            len_reg_ancilla = len_reg_memory + 2;
+            num_bin_pattern = pow(2,len_reg_memory);
 
             IntelSimulator sim(num_qubits);
-
-            len_reg_memory = (num_qubits - 2) / 2;
-            len_reg_ancilla = len_reg_memory + 2;
-            num_bin_pattern = pow(2,len_reg_memory) - 2;
+            auto &r = sim.getQubitRegister();
 
             // Set up registers to store indices
             std::vector<std::size_t> reg_memory(len_reg_memory);
@@ -47,10 +53,9 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
 
             // Init data to encode
             std::vector<std::size_t> vec_to_encode(num_bin_pattern);
-            for(std::size_t i = 2; i < num_bin_pattern; i++){
-                vec_to_encode[i-2] = i;
+            for(std::size_t i = 0; i < num_bin_pattern; i++){
+                vec_to_encode[i] = i;
             }
-
 
             // Encode
             sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory);
@@ -58,10 +63,37 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
             // Compute Hamming distance
             sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
 
-            sim.PrintStates("After encoding: ");  
 
+            sim.PrintStates("After Hamming: ");  
 
-            REQUIRE(1 == 1);
+            for(int i = 0; i < num_bin_pattern; i++){
+                cout << i << "\t" << r[i] << endl;
+            }
+cout << "------------" << endl;
+            for(int i = num_bin_pattern; i < pow(2,2*len_reg_memory); i++){
+                cout << i << "\t" << r[i] << endl;
+                REQUIRE(r[i].real() + 10*mach_eps == Approx(0.).margin(1e-12));
+                REQUIRE(r[i].imag() + 10*mach_eps == Approx(0.).margin(1e-12) );
+            }
+ cout << "------------" << endl;
+            for(int i = pow(2,2*len_reg_memory); i < pow(2,2*len_reg_memory) + num_bin_pattern; i++){
+                cout << i << "\t" << r[i] << endl;
+            }
+  cout << "------------" << endl;
+            for(int i = pow(2,2*len_reg_memory) + num_bin_pattern; i < pow(2,num_qubits); i++){
+                cout << i << "\t" << r[i] << endl;
+                REQUIRE(r[i].real() + 10*mach_eps == Approx(0.).margin(1e-12));
+                REQUIRE(r[i].imag() + 10*mach_eps == Approx(0.).margin(1e-12) );
+
+            }
+        
+
+            sim.collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+            val = sim.applyMeasurementToRegister(reg_memory);
+
+//            sim.PrintStates("After Measurement: ");  
+
+            CHECK_THAT(vec_to_encode, VectorContains(val));
 
         }
     }
