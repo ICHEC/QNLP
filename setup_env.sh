@@ -143,12 +143,14 @@ function fetchPackages(){
         for s in $(seq 0 $(( ${#GITHUB_REPOS[@]} -1 )) ); do
             echo ${GITHUB_REPOS[${s}]}
             PC=${GITHUB_REPOS[${s}]} #Package::channel
-            git clone https://github.com/${PC%*::} 
  
-            if [[ "${PC%*::}" =~ "::" ]]; then
+            if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
+                git clone https://github.com/${PC%*::} 
                 cd ${PC%*/}
                 git checkout ${PC#*::}
                 cd -
+            else
+                git clone https://github.com/${GITHUB_REPOS[${s}]} 
             fi
 
         done
