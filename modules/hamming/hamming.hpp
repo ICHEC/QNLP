@@ -124,10 +124,7 @@ namespace QNLP{
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                 }
             }
-
-
     };
-
 };
 #endif
 
