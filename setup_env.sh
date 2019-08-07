@@ -146,7 +146,8 @@ function fetchPackages(){
  
             if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
                 git clone https://github.com/${PC%*::} 
-                cd ${PC%*/}
+                PCC=${PC#*/}
+                cd ${PCC%*::}
                 git checkout ${PC#*::}
                 cd -
             else
