@@ -1,6 +1,6 @@
 //#define CATCH_CONFIG_RUNNER
 
-#include "hamming.hpp"
+#include "hamming_RotY_amplification.hpp"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
 #include "catch2/catch.hpp"
@@ -16,7 +16,7 @@ typedef ComplexDP Type;
 template class HammingDistanceRotY<IntelSimulator>;
 
 
-TEST_CASE("Test Hamming distance with Roatation about y axis routine","[HammingRotY]"){
+TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingroty]"){
     const std::size_t max_qubits = 5;
     double mach_eps = 7./3. - 4./3. -1.;
 
