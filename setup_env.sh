@@ -145,9 +145,9 @@ function fetchPackages(){
             PC=${GITHUB_REPOS[${s}]} #Package::channel
  
             if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
-                git clone https://github.com/${PC%*::} 
+                git clone https://github.com/${PC%::*} 
                 PCC=${PC#*/}
-                cd ${PCC%*::}
+                cd ${PCC%::*}
                 git checkout ${PC#*::}
                 cd -
             else
