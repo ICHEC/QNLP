@@ -142,11 +142,11 @@ function fetchPackages(){
         cd $QNLP_ROOT/third_party
         for s in $(seq 0 $(( ${#GITHUB_REPOS[@]} -1 )) ); do
             echo ${GITHUB_REPOS[${s}]}
-            git clone https://github.com/${GITHUB_REPOS[${s}]} 
+            PC=${GITHUB_REPOS[${s}]} #Package::channel
+            git clone https://github.com/${PC%*::} 
  
-            if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
-                PC=${GITHUB_REPOS[${s}]} #Package::channel
-                cd ${PC#*/}
+            if [[ "${PC%*::}" =~ "::" ]]; then
+                cd ${PC%*/}
                 git checkout ${PC#*::}
                 cd -
             fi
