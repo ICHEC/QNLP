@@ -66,7 +66,6 @@ class CircuitPrinter:
             for idx,row in enumerate(data[1:]):
                 #Check for break in circuit runs, empty data, and single run datasets (ie currently empty output)
                 prev_was_ctrl = False
-                #from IPython import embed; embed()
                 if (row != "\n") and (row != [])  and (row != data[-1]):
                     if row[0][0:4] == "#!#{":
                         slice_label = row[0].rsplit("}")[0].rsplit("{")[-1]
@@ -175,8 +174,8 @@ class CircuitPrinter:
 if __name__== "__main__":
     import os
     args = os.sys.argv
-    if len(args) < 2:
-        print("Please specify the file to load, and output filename to save: python cct.py <CSV> <>")
+    if len(args) < 3:
+        print("Please specify the file to load and number of qubits in sim, and output filename to save: python cct.py <CSV> <>")
         exit()
-    CCT = CircuitPrinter(num_qubits=6)
-    CCT.latex_cct(args[1], args[2], max_depth=12)
+    CCT = CircuitPrinter(num_qubits=int(args[3]))
+    CCT.latex_cct(args[1], args[2], max_depth=8)
