@@ -10,6 +10,7 @@ set(QNLP_MODULES_SUBDIRS
                             encoding;
                             hamming;
                             hamming_RotY;
+                            hamming_similarity_example;
 #                            superposition_encoding;
 #                            hamming_distance;
 #                            corpus_encoding;
