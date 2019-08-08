@@ -49,7 +49,7 @@ int main(int argc, char **argv){
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
-    std::size_t test_pattern = 1;
+    std::size_t test_pattern = 3;
 
     if(argc > 2){
         test_pattern = atoi(argv[2]);
@@ -104,33 +104,26 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         #endif
-        sim->applyHammingDistance(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
+        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
 
         if(verbose){
-            sim->PrintStates("After Hamming: ");
+            sim->PrintStates("After Hamming Rot_Y: ");
         }
 
         // Measure
-        sim->applyMeasurement(reg_ancilla[len_reg_ancilla-2]);
-        val = sim->applyMeasurementToRegister(reg_memory);
+        sim->collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+        if(verbose){
+            sim->PrintStates("After Collapse to Basis z: ");
+        }
 
+        val = sim->applyMeasurementToRegister(reg_memory);
+        if(verbose){
+            sim->PrintStates("After Measurement: ");
+        }
 
         count[val] += 1;
-        if(verbose){
-
-            sim->PrintStates("After Measurement: ");
-            // Output resulting state for this experiment
-            //cout << val << "\t";
-            //cout << "|";
-            //print_bits(val, len_reg_memory);
-            //cout << ">" << endl;
-        }
     }
 
-    if(verbose){
-        sim->PrintStates("Fnal Measurement: ", reg_memory);
-    }
-            
     cout << "Measure:" << endl;
     int i = 0;
     for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){

@@ -30,6 +30,7 @@
 #include "qft.hpp"
 #include "bin_into_superpos.hpp"
 #include "hamming.hpp"
+#include "hamming_RotY_amplification.hpp"
 //#include "arithmetic.hpp"
 
 namespace QNLP{
@@ -202,9 +203,6 @@ namespace QNLP{
          * @param qubit_idx 
          */
         void applyGateX(std::size_t qubit_idx){ 
-            //#ifdef GATE_LOGGING
-            writer.oneQubitGateCall("X", static_cast<DerivedType&>(*this).getGateX().tostr(), qubit_idx);
-            //#endif
             static_cast<DerivedType&>(*this).applyGateX(qubit_idx);
         };
         /**
@@ -272,10 +270,6 @@ namespace QNLP{
          * @param angle_rad Rotation angle
          */
         void applyGateRotZ(std::size_t qubit_idx, double angle_rad){
-            #ifdef GATE_LOGGING
-            const std::string label {"R_Z(\\theta=" + std::to_string(angle_rad) + ")"};
-            writer.oneQubitGateCall( label, static_cast<DerivedType&>(*this).getGateI().tostr(), qubit_idx );
-            #endif
             static_cast<DerivedType&>(*this).applyGateRotZ(qubit_idx, angle_rad);
         }
 
@@ -412,6 +406,40 @@ namespace QNLP{
         }
 
         /**
+         * @brief Apply the given Controlled Rotation about X-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about X-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotX(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotX(ctrl_qubit, qubit_idx, angle_rad);
+        }
+        /**
+         * @brief Apply the given Controlled Rotation about Y-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about Y-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotY(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotY(ctrl_qubit, qubit_idx, angle_rad);
+        }
+        /**
+         * @brief Apply the given Controlled Rotation about Z-axis to the given qubit
+         * 
+         * @param ctrl_qubit Control qubit
+         * @param qubit_idx Index of qubit to rotate about Z-axis
+         * @param angle_rad Rotation angle
+         */
+        void applyGateCRotZ(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
+            static_cast<DerivedType&>(*this).applyGateCRotZ(ctrl_qubit, qubit_idx, angle_rad);
+        }
+
+
+
+
+        /**
          * @brief Get the underlying qubit register object
          * 
          * @return decltype(auto) the underlying bound qubit register
@@ -459,17 +487,39 @@ namespace QNLP{
          * @param target Target qubit index to apply nCU
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
             NCU<DerivedType> n;
-            //NCU<decltype(static_cast<DerivedType&>(*this))> n;
             std::string matrixLabel = "";
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
             else
-                matrixLabel = "U";
+                matrixLabel = label;
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
+
+
+        /**
+         * @brief Apply n-control unitary gate to the given qubit target
+         * 
+         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
+         * @param U 2x2 unitary matrix
+         * @param minIdx Lowest index of the control lines expected for nCU
+         * @param maxIdx Highest index of the control lines expected for the nCU
+         * @param target Target qubit index to apply nCU
+         */
+        template<class Mat2x2Type>
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = "U"){
+            NCU<DerivedType> n;
+            std::string matrixLabel = "";
+            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
+                matrixLabel = "X";
+            }
+            else
+                matrixLabel = label;
+            n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
+        }
+
 
         /**
          * @brief Apply oracle to match given binary index
@@ -598,6 +648,31 @@ namespace QNLP{
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
+
+        /**
+         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         * @param len_bin_pattern Length of the binary patterns
+         */
+        void applyHammingDistanceRotY(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vector<std::size_t> reg_ancilla,  
+                std::size_t len_bin_pattern, 
+                std::size_t num_bin_patterns){
+
+            assert(len_bin_pattern < reg_ancilla.size()-1);
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+
+            HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
+            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern, num_bin_patterns);
+
+            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+        }
+
+
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
          * 
@@ -624,6 +699,18 @@ namespace QNLP{
             } 
             return val;
         }
+
+        /**
+         * @brief Apply measurement to a target qubit with respect to the z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
+         * 
+         * @param target The index of the qubit being collapsed
+         * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
+         */
+        void collapseToBasisZ(std::size_t target, bool collapseValue){
+            static_cast<DerivedType*>(this)->collapseToBasisZ(target, collapseValue);
+        }
+
+
                 
         /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
