@@ -369,7 +369,6 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
-
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
@@ -390,7 +389,6 @@ namespace QNLP{
                 matrixLabel = label;
             n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
         }
-
 
         /**
          * @brief Apply oracle to match given binary index
