@@ -49,8 +49,31 @@ namespace QNLP{
                     const std::vector<std::size_t>& reg_memory,
                     const std::vector<std::size_t>& reg_ancilla, 
                     std::size_t len_bin_pattern, std::size_t num_bin_patterns){
+                
+                double theta = M_PI / (double) len_bin_pattern; 
+                auto Ry = qSim.getGateI();
 
-                double theta = 2.0 * M_PI / (double) num_bin_patterns; 
+                Ry(0,0) = std::complex<double>( cos(theta/2), 0.);
+                Ry(0,1) = std::complex<double>(-sin(theta/2), 0.);
+                Ry(1,0) = std::complex<double>( sin(theta/2), 0.);
+                Ry(1,1) = std::complex<double>( cos(theta/2), 0.);
+
+                std::size_t len_reg_ancilla;
+                len_reg_ancilla = reg_ancilla.size();
+
+                // Require length of ancilla register to have n+2 qubits
+                assert(reg_memory.size() + 1 < len_reg_ancilla);
+
+                for(std::size_t i = 0; i < len_bin_pattern; i++){
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateX(reg_memory[i]);
+                    qSim.applyGateX(reg_ancilla[i]);
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateX(reg_memory[i]);
+                    qSim.applyGateX(reg_ancilla[i]);
+                }
+                /* 
+                double theta = 2 * M_PI / (double) len_bin_pattern; 
 
                 std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
@@ -59,21 +82,27 @@ namespace QNLP{
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
  //               qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
-
+                #ifdef GATE_LOGGING
+                qSim.getGateWriter().segmentMarkerOut("PreCX_X");
+                #endif
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                     qSim.applyGateX(reg_memory[i]);
- 
-                }
 
+                }
+                #ifdef GATE_LOGGING
+                qSim.getGateWriter().segmentMarkerOut("PreCRY");
+                #endif
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCRotY(reg_memory[i],reg_ancilla[len_reg_ancilla-2],theta);
+                    qSim.applyGateCRotY(reg_memory[i], reg_ancilla[len_reg_ancilla-2], theta);
                 }
-
+                #ifdef GATE_LOGGING
+                qSim.getGateWriter().segmentMarkerOut("PREX_CX");
+                #endif
                 for(int i = len_bin_pattern-1; i > -1; i--){
                     qSim.applyGateX(reg_memory[i]);
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
-                }
+                }*/
             }
 
 
