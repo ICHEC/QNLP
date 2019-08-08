@@ -4,8 +4,7 @@ project(qnlp_modules LANGUAGES CXX)
 ###############################################################################
 # Include all nested sources directories
 ###############################################################################
-set(QNLP_MODULES_SUBDIRS    db;
-                            gate_ops;
+set(QNLP_MODULES_SUBDIRS    gate_ops;
                             encoding;
                             hamming;
                             hamming_RotY;
