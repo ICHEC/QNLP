@@ -64,24 +64,24 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
             sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
 
 
-            sim.PrintStates("After Hamming: ");  
+//            sim.PrintStates("After Hamming: ");  
 
             for(int i = 0; i < num_bin_pattern; i++){
-                cout << i << "\t" << r[i] << endl;
+                //cout << i << "\t" << r[i] << endl;
             }
-cout << "------------" << endl;
+//cout << "------------" << endl;
             for(int i = num_bin_pattern; i < pow(2,2*len_reg_memory); i++){
-                cout << i << "\t" << r[i] << endl;
+                //cout << i << "\t" << r[i] << endl;
                 REQUIRE(r[i].real() + 10*mach_eps == Approx(0.).margin(1e-12));
                 REQUIRE(r[i].imag() + 10*mach_eps == Approx(0.).margin(1e-12) );
             }
- cout << "------------" << endl;
+ //cout << "------------" << endl;
             for(int i = pow(2,2*len_reg_memory); i < pow(2,2*len_reg_memory) + num_bin_pattern; i++){
-                cout << i << "\t" << r[i] << endl;
+                //cout << i << "\t" << r[i] << endl;
             }
-  cout << "------------" << endl;
+  //cout << "------------" << endl;
             for(int i = pow(2,2*len_reg_memory) + num_bin_pattern; i < pow(2,num_qubits); i++){
-                cout << i << "\t" << r[i] << endl;
+                //cout << i << "\t" << r[i] << endl;
                 REQUIRE(r[i].real() + 10*mach_eps == Approx(0.).margin(1e-12));
                 REQUIRE(r[i].imag() + 10*mach_eps == Approx(0.).margin(1e-12) );
 
