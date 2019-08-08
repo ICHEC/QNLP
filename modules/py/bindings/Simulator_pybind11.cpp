@@ -13,29 +13,48 @@ void intel_simulator_binding(py::module &m){
     //IntelSimulator sim(8);
     py::class_<SimulatorType>(m, "IntelSimulator")
         .def(py::init<const std::size_t &>())
-        .def("getGateX", &SimulatorType::getGateX);
+        .def("getGateX", &SimulatorType::getGateX)
+        .def("getGateY", &SimulatorType::getGateY)
+        .def("getGateZ", &SimulatorType::getGateZ)
+        .def("getGateI", &SimulatorType::getGateI)
+        .def("getGateH", &SimulatorType::getGateH)
+        .def("applyGateX", &SimulatorType::applyGateX)
+        .def("applyGateY", &SimulatorType::applyGateY)
+        .def("applyGateZ", &SimulatorType::applyGateZ)
+        .def("applyGateH", &SimulatorType::applyGateH)
+        .def("printStates", &SimulatorType::PrintStates);
 
     //TinyMatrix
     py::class_<DCM>(m, "DCMatrix")
         .def(py::init<>())
-        .def("__getitem__", [](const DCM &s, std::size_t i, std::size_t j) {
-            if (i >= 2 || j >= 2) throw py::index_error();
+        .def("__getitem__", 
+            [](const DCM &s, std::size_t i, std::size_t j) {
+                if (i >= 2 || j >= 2) 
+                    throw py::index_error();
                 return s(i,j);
             });
-
+            /* 
+    py::class_<DCM>(m, "DCMatrixNP"py::buffer_protocol())
+        .def_buffer([](DCM &s) -> py::buffer_info {
+            return py::buffer_info(
+                s.data()
+            );
+        });
+*/
 
     /** NumPy buffer interface
       py::class_<openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>>(m, "Matrix", py::buffer_protocol())
       .def_buffer([](openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u> &m) -> py::buffer_info {
-      return py::buffer_info(
-      m.data(),                               // Pointer to buffer
-      sizeof(float),                          // Size of one scalar 
-      py::format_descriptor<float>::format(), // Python struct-style format descriptor 
-      2,                                      // Number of dimensions 
-      { m.rows(), m.cols() },                 // Buffer dimensions 
-      { sizeof(float) * m.rows(),             // Strides (in bytes) for each index 
-      sizeof(float) }
-      );
+        return py::buffer_info(
+            m.data(),                               // Pointer to buffer
+            sizeof(float),                          // Size of one scalar 
+            py::format_descriptor<float>::format(), // Python struct-style format descriptor 
+            2,                                      // Number of dimensions 
+            { m.rows(), m.cols() },                 // Buffer dimensions 
+            {   sizeof(float) * m.rows(),             // Strides (in bytes) for each index 
+                sizeof(float) 
+            }
+        );
       });
      */
 }
