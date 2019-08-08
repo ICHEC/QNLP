@@ -21,6 +21,7 @@ declare -a PYTHON_CMDS
 GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0" 
                 "catchorg/Clara" 
                 "CLIUtils/CLI11"
+                "pybind/pybind11"
              )
 PIP_PACKAGES=()
 CONDA_PACKAGES=("nltk::anaconda" 
