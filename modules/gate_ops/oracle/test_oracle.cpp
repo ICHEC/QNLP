@@ -120,7 +120,7 @@ TEST_CASE("8 qubit Oracle ","[oracle]"){
     SECTION("2^8 bit patterns (256)"){
         // Testing patterns 000 001 010 011, etc.
         std::vector<std::size_t> bit_patterns;
-        for (std::size_t s = 0; s < (0b1 << num_qubits); s++){
+        for (std::size_t s = 0; s < (std::size_t) (0b1 << num_qubits); s++){
             bit_patterns.push_back(s);
         }
 

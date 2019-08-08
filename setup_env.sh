@@ -18,7 +18,7 @@ declare -a PIP_PACKAGES
 declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
-GITHUB_REPOS=(  "catchorg/Catch2" 
+GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0" 
                 "catchorg/Clara" 
                 "CLIUtils/CLI11"
              )
@@ -142,7 +142,18 @@ function fetchPackages(){
         cd $QNLP_ROOT/third_party
         for s in $(seq 0 $(( ${#GITHUB_REPOS[@]} -1 )) ); do
             echo ${GITHUB_REPOS[${s}]}
-            git clone https://github.com/${GITHUB_REPOS[${s}]} 
+            PC=${GITHUB_REPOS[${s}]} #Package::channel
+ 
+            if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
+                git clone https://github.com/${PC%::*} 
+                PCC=${PC#*/}
+                cd ${PCC%::*}
+                git checkout ${PC#*::}
+                cd -
+            else
+                git clone https://github.com/${GITHUB_REPOS[${s}]} 
+            fi
+
         done
         popd &> /dev/null
     fi

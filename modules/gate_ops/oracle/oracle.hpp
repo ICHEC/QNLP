@@ -58,7 +58,7 @@ namespace QNLP{
         void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U){
             std::size_t bitmask = 0b1;
             std::vector<std::size_t> reverse_pattern;
-            for(int i = 0; i < ctrl_indices.size() + 1; ++i){
+            for(std::size_t i = 0; i < ctrl_indices.size() + 1; ++i){
                 //std::cout << "CONTROL=" << i << "   BITSTRING=" << bitstring << "   BITMASK=" << (bitmask<<i) << "  BITSTRING & BITMASK=" << (bitstring & (bitmask<<i) ) <<std::endl;
                 //If the bitstring contains a 1 at desired index, will be true;
                 //We wish to apply X to any state that is false, then undo
