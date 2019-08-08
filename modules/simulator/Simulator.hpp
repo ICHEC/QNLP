@@ -14,12 +14,11 @@
  */
 //##############################################################################
 
-#ifndef QNLP_SIMULATOR_INTERFACE_H
-#define QNLP_SIMULATOR_INTERFACE_H
+#ifndef QNLP_SIMULATOR_H
+#define QNLP_SIMULATOR_H
 #include <cstddef>
 #include <utility> //std::declval
 #include <vector>
-
 #include <iostream>
 
 // Include all additional modules to be used within simulator
@@ -31,139 +30,14 @@
 #include "bin_into_superpos.hpp"
 #include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
-//#include "arithmetic.hpp"
+
+#ifdef VIRTUAL_INTERFACE
+#include "ISimulator.hpp"
+#endif
 
 namespace QNLP{
 
 #define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
-
-#ifdef VIRTUAL_INTERFACE
-    /**
-    * @class	The abstract interface for implementing the QNLP-quantum 
-    * simulator connector. Currently exists for the purpose of later implementing 
-    * dynamic polymorphism.
-    */
-    class ISimulator{
-    public:
-        //##############################################################################
-        //                                  1 qubit gates
-        //##############################################################################
-
-        /**
-         * @brief Apply Pauli-X gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateX(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Pauli-Y gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateY(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Pauli-Z gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateZ(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Identity to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateI(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Hadamard gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateH(std::size_t qubit_idx) = 0;
-
-        /**
-         * @brief Apply \sqrt{Pauli-X} gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateSqrtX(std::size_t qubit_idx) = 0;
-
-        /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotX(std::size_t qubit_idx, double angle_rad) = 0;
-
-        /**
-         * @brief Arbitrary rotation around Y axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotY(std::size_t qubit_idx, double angle_rad) = 0;
-
-        /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotZ(std::size_t qubit_idx, double angle_rad) = 0;
-
-        //##############################################################################
-        //                                  2 qubit gates
-        //##############################################################################
-
-        /**
-         * @brief Apply Controlled Pauli-X (CNOT) on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCX(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Pauli-Y on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCY(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Pauli-Z on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */        
-        virtual void applyGateCZ(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Hadamard on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
-
-        virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
-
-        virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
-
-        virtual std::size_t getNumQubits() = 0;
-
-        //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);
-    };
-#endif
-
-    //##############################################################################
-    //##############################################################################
-
 
     /**
      * @brief CRTP defined class for simulator implementations. 
@@ -435,9 +309,6 @@ namespace QNLP{
         void applyGateCRotZ(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateCRotZ(ctrl_qubit, qubit_idx, angle_rad);
         }
-
-
-
 
         /**
          * @brief Get the underlying qubit register object
