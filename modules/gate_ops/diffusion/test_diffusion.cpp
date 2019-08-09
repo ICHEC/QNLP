@@ -56,7 +56,7 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
                     //REQUIRE( reg[i].real() < 0.);
                     //reg.Print("PRE-DIFF iteration=" + std::to_string(iteration));
 
-                    diffusion.applyOpDiffusion( sim, 0, num_qubits-2, num_qubits-1);
+                    diffusion.applyOpDiffusion( sim, ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         REQUIRE( abs(reg[i])*abs(reg[i]) > abs(reg[0])*abs(reg[0]) );
@@ -117,7 +117,7 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
                     //REQUIRE( reg[i].real() < 0.);
                     //reg.Print("PRE-DIFF iteration=" + std::to_string(iteration));
 
-                    diffusion.applyOpDiffusion( sim, 0, num_qubits-2, num_qubits-1);
+                    diffusion.applyOpDiffusion( sim, ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         REQUIRE( abs(reg[i])*abs(reg[i]) > abs(reg[0])*abs(reg[0]) );
@@ -169,7 +169,7 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
                     sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ() );
 
                     CAPTURE( reg[i], i );
-                    sim.applyDiffusion(ctrl_indices.front(), ctrl_indices.back(), num_qubits-1);
+                    sim.applyDiffusion(ctrl_indices, num_qubits-1);
 
                     CAPTURE( reg[i], i );
                     if(i>0){
@@ -224,7 +224,7 @@ TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
 
                     CAPTURE( reg[i], i );
 
-                    sim.applyDiffusion(ctrl_indices.front(), ctrl_indices.back(), num_qubits-1);
+                    sim.applyDiffusion(ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         

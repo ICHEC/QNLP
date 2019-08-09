@@ -418,13 +418,12 @@ namespace QNLP{
         /**
          * @brief Apply diffusion operator on marked state. Assumes states linearly ordered: minIdx=0 < maxIdx=num_qubits-2, target=num_qubits-1
          * 
-         * @param minIdx Lowest index of the control lines expected for oracle calls
-         * @param maxIdx Highest index of the control lines expected for oracle calls
+         * @param ctrlIndices Vector of control line indices 
          * @param target Target qubit index to apply Ctrl-Z upon. 
          */
-        void applyDiffusion(std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+        void applyDiffusion(std::vector<std::size_t>& ctrlIndices, std::size_t target){
             Diffusion<DerivedType> diffusion;
-            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), minIdx, maxIdx, target);
+            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), ctrlIndices, target);
         }
 
         /**
