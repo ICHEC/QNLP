@@ -44,7 +44,7 @@ namespace QNLP{
      * 
      * @tparam DerivedType CRTP derived class simulator type
      */
-    template <class DerivedType>//<class QubitRegisterType, class GateType>
+    template <class DerivedType>
     #ifdef VIRTUAL_INTERFACE
     class SimulatorGeneral : virtual public ISimulator {
     #else
@@ -385,8 +385,9 @@ namespace QNLP{
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
-            else
+            else{
                 matrixLabel = label;
+            }
             n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
         }
 

@@ -25,11 +25,11 @@ template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
     py::class_<SimulatorType>(m, "IntelSimulator")
         .def(py::init<const std::size_t &, const bool &>())
-        .def("getGateX", &SimulatorType::getGateX)
-        .def("getGateY", &SimulatorType::getGateY)
-        .def("getGateZ", &SimulatorType::getGateZ)
-        .def("getGateI", &SimulatorType::getGateI)
-        .def("getGateH", &SimulatorType::getGateH)
+        .def("getGateX", &SimulatorType::getGateX, py::return_value_policy::reference)
+        .def("getGateY", &SimulatorType::getGateY, py::return_value_policy::reference)
+        .def("getGateZ", &SimulatorType::getGateZ, py::return_value_policy::reference)
+        .def("getGateI", &SimulatorType::getGateI, py::return_value_policy::reference)
+        .def("getGateH", &SimulatorType::getGateH, py::return_value_policy::reference)
         .def("applyGateX", &SimulatorType::applyGateX)
         .def("applyGateY", &SimulatorType::applyGateY)
         .def("applyGateZ", &SimulatorType::applyGateZ)
@@ -65,11 +65,12 @@ void intel_simulator_binding(py::module &m){
         .def("initRegister", &SimulatorType::initRegister)
         .def("printStates", &SimulatorType::PrintStates)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_linear)
-        .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear);
+        .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear)
+        .def("applyOraclePhase", &SimulatorType::applyOraclePhase);
 /*
         .def("applyGateNCU", py::overload_cast<DCM, std::size_t, std::size_t, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Adjacent control line NCU")
         .def("applyGateNCU", py::overload_cast<DCM, std::vector<std::size_t>, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Non-adjacent control line NCU")
-        .def("applyOracle", &SimulatorType::applyOracle)
+        .def("applyOracleU", &SimulatorType::applyOracleU)
         .def("adjointMatrix", &SimulatorType::adjointMatrix)
         .def("matrixSqrt", &SimulatorType::matrixSqrt)
         .def("getQubitRegister", &SimulatorType::getQubitRegister)        
