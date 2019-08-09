@@ -391,7 +391,7 @@ namespace QNLP{
         }
 
         /**
-         * @brief Apply oracle to match given binary index
+         * @brief Apply oracle to match given binary index with non adjacent controls
          * 
          * @param U 2x2 unitary matrix to apply
          * @param minIdx Lowest index of the control lines expected for oracle
@@ -399,13 +399,20 @@ namespace QNLP{
          * @param target Target qubit index to apply U on
          */
         template<class Mat2x2Type>
-        void applyOracle(std::size_t bit_pattern, std::size_t minIdx, std::size_t maxIdx, std::size_t target, const Mat2x2Type& U ){
-            std::vector<std::size_t> control_indices;
-            for(std::size_t i = minIdx; i <= maxIdx; i++){
-                control_indices.push_back( i );
-            }
-            Oracle<DerivedType> oracle(static_cast<DerivedType*>(this)->getNumQubits()-1, control_indices);
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, control_indices, target, U);
+        void applyOracleU(std::size_t bit_pattern, std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U ){
+            Oracle<DerivedType> oracle;
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U);
+        }
+
+        /**
+         * @brief Apply oracle to match given binary index with linearly adjacent controls
+         * 
+         * @param bit_pattern Oracle pattern in binary
+         * @param ctrlIndices Control lines for oracle
+         * @param target Target qubit index to apply Z gate upon
+         */
+        void applyOraclePhase(std::size_t bit_pattern, std::vector<std::size_t>& ctrlIndices, std::size_t target){
+            applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
         }
 
         /**

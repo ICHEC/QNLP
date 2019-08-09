@@ -10,8 +10,8 @@ using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
 
 class IntelSimMixin : public IntelSimulator{
     public:
-    SimMixin(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
-    ~SimMixin(){}
+    IntelSimMixin(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
+    ~IntelSimMixin(){}
 
     void applyGateNCU_linear(const DCM& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
         this->applyGateNCU(U, minIdx, maxIdx, target, label);
@@ -24,7 +24,7 @@ class IntelSimMixin : public IntelSimulator{
 template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
     py::class_<SimulatorType>(m, "IntelSimulator")
-        .def(py::init<const std::size_t &>())
+        .def(py::init<const std::size_t &, const bool &>())
         .def("getGateX", &SimulatorType::getGateX)
         .def("getGateY", &SimulatorType::getGateY)
         .def("getGateZ", &SimulatorType::getGateZ)
@@ -84,16 +84,8 @@ void intel_simulator_binding(py::module &m){
                     throw py::index_error();
                 return s(i,j);
             });
-            /* 
-    py::class_<DCM>(m, "DCMatrixNP"py::buffer_protocol())
-        .def_buffer([](DCM &s) -> py::buffer_info {
-            return py::buffer_info(
-                s.data()
-            );
-        });
-*/
 
-    /** NumPy buffer interface
+    /** WIP: NumPy buffer interface fo data access
       py::class_<openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>>(m, "Matrix", py::buffer_protocol())
       .def_buffer([](openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u> &m) -> py::buffer_info {
         return py::buffer_info(
