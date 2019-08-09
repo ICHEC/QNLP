@@ -8,9 +8,21 @@ namespace py = pybind11;
 using namespace QNLP;
 using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
 
+class IntelSimMixin : public IntelSimulator{
+    public:
+    SimMixin(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
+    ~SimMixin(){}
+
+    void applyGateNCU_linear(const DCM& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
+        this->applyGateNCU(U, minIdx, maxIdx, target, label);
+    }
+    void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
+        this->applyGateNCU(U, ctrl_indices, target, label);
+    }
+};
+
 template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
-    //IntelSimulator sim(8);
     py::class_<SimulatorType>(m, "IntelSimulator")
         .def(py::init<const std::size_t &>())
         .def("getGateX", &SimulatorType::getGateX)
@@ -51,7 +63,9 @@ void intel_simulator_binding(py::module &m){
         .def("applyMeasurementToRegister", &SimulatorType::applyMeasurementToRegister)
         .def("collapseToBasisZ", &SimulatorType::collapseToBasisZ)
         .def("initRegister", &SimulatorType::initRegister)
-        .def("printStates", &SimulatorType::PrintStates);
+        .def("printStates", &SimulatorType::PrintStates)
+        .def("applyGateNCU", &SimulatorType::applyGateNCU_linear)
+        .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear);
 /*
         .def("applyGateNCU", py::overload_cast<DCM, std::size_t, std::size_t, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Adjacent control line NCU")
         .def("applyGateNCU", py::overload_cast<DCM, std::vector<std::size_t>, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Non-adjacent control line NCU")
@@ -59,7 +73,6 @@ void intel_simulator_binding(py::module &m){
         .def("adjointMatrix", &SimulatorType::adjointMatrix)
         .def("matrixSqrt", &SimulatorType::matrixSqrt)
         .def("getQubitRegister", &SimulatorType::getQubitRegister)        
-
 */
 
     //TinyMatrix
@@ -98,5 +111,5 @@ void intel_simulator_binding(py::module &m){
 }
 
 PYBIND11_MODULE(PythonSimulator, m){
-    intel_simulator_binding<IntelSimulator>(m);
+    intel_simulator_binding<IntelSimMixin>(m);
 }
