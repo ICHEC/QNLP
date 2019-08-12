@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{Images/}}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{todonotes}
+\usepackage[linesnumbered,algoruled,boxed,lined]{algorithm2e}
+\usepackage[a4paper, margin=2.5cm]{geometry}
+\usepackage{geometry}
+\usepackage[title,toc,page]{appendix}
+% \usepackage{fullpage}
+%\usepackage{fancyhdr}
+%\pagestyle{fancy}
+
+\begin{document}
+\begin{titlepage}
+\newcommand{\HRule}{\rule{\linewidth}{0.1mm}} 
+\center % Center everything on the page
+ 
+%---------------------------------------------------------------------------------
+%	HEADING SECTIONS
+%---------------------------------------------------------------------------------
+\vfill
+\textsc{\LARGE Quantum Natural Language Processing}
+\vfill
+%---------------------------------------------------------------------------------
+%	TITLE SECTION
+%---------------------------------------------------------------------------------
+\HRule \\[0.4cm]
+{ \Large \bfseries D2.1} \\[0.3cm]
+{ \Large \bfseries Implementation, Testing and Evalutation of DisCo Algorithms \\[0.1cm]using Representative Corpora}\\[0.1cm]
+\HRule \\[1.5cm]
+ 
+%---------------------------------------------------------------------------------
+%	AUTHOR SECTION 
+%---------------------------------------------------------------------------------
+\vfill
+\begin{center} \large
+\emph{Authors}\\[0.5cm]
+Lee J.~\textsc{O'Riordan}, ICHEC\\[0.2cm]
+Myles \textsc{Doyle}, ICHEC\\[0.2cm]
+Venkatesh \textsc{Kannan}, ICHEC
+\end{center}
+\vfill
+{\large August 30, 2019}\\[1cm] 
+\vfill
+\hfill
+\begin{minipage}{0.4\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.3]{ichec_logo.jpeg}
+  \end{center}
+\end{minipage}
+\hfill
+\begin{minipage}{0.4\textwidth}
+  \begin{center}
+    \includegraphics[scale=0.3]{intel_logo.png}
+  \end{center}
+\end{minipage}
+\vfill
+\includegraphics[scale=0.3]{ei_logo.JPG}
+\vfill
+\end{titlepage}
+
+%---------------------------------------------------------------------------------
+%	AUTHOR SECTION 
+%---------------------------------------------------------------------------------
+\section*{Executive Summary}
+TBC
+
+\newpage
+\tableofcontents
+\newpage
+\listoffigures
+\listoftables
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{01_Introduction.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{02_Implementation_of_DisCo_Algorithms.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{03_Testing_and_Evaluation_of_DisCo_Algorithms.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{04_Discussions_and_Summary.tex}
+
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+\newpage
+\input{Appendix.tex}
+
+%---------------------------------------------------------------------------------
+\newpage
+%---------------------------------------------------------------------------------
+%---------------------------------------------------------------------------------
+%\bibliographystyle{plain}
+\bibliographystyle{unsrt}
+\bibliography{Bibliography.bib}
+
+\end{document}
