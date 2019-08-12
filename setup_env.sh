@@ -211,9 +211,9 @@ fi
 cat > ${QNLP_ROOT}/load_env.sh << EOL
 #!/bin/bash
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
-PATH="${QNLP_ROOT}/install":"\${PATH}"
-NLTK_DATA="${NLTK_DATA}"
-QNLP_ROOT="${QNLP_ROOT}"
+export PATH="${QNLP_ROOT}/install":"\${PATH}"
+export NLTK_DATA="${NLTK_DATA}"
+export QNLP_ROOT="${QNLP_ROOT}"
 conda activate intel-qnlp 
 
 EOL

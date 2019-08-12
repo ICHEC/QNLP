@@ -23,7 +23,7 @@ class IntelSimMixin : public IntelSimulator{
 
 template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
-    py::class_<SimulatorType>(m, "IntelSimulator")
+    py::class_<SimulatorType>(m, "PyQNLPSimulator")
         .def(py::init<const std::size_t &, const bool &>())
         .def("getGateX", &SimulatorType::getGateX, py::return_value_policy::reference)
         .def("getGateY", &SimulatorType::getGateY, py::return_value_policy::reference)
@@ -103,6 +103,6 @@ void intel_simulator_binding(py::module &m){
      */
 }
 
-PYBIND11_MODULE(PythonSimulator, m){
+PYBIND11_MODULE(_PyQNLPSimulator, m){
     intel_simulator_binding<IntelSimMixin>(m);
 }
