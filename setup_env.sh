@@ -192,6 +192,14 @@ function fetchPackages(){
 }
 
 ###############################################################################
+#Update conda environment and all installed packages
+###############################################################################
+function condaUpdateAll(){
+    source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
+    conda update --all -y
+}
+
+###############################################################################
 #                                   main
 ###############################################################################
 
@@ -200,6 +208,7 @@ setupDirs > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &
 fetchConda > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
 condaEnvSetup > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
 fetchPackages > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
+condaUpdateAll > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
 
 if [ $? -ne 0 ]; then
     echo "Installation failed. Please check logs for further information." > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
