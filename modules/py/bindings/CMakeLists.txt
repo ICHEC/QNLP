@@ -10,7 +10,6 @@ foreach(MOD ${QNLP_PYTHON_SUBDIRS})
     add_subdirectory(${MOD})
 endforeach()
 
-
 # Install the bound module into the QNLP Python environment
 configure_file(setup.py ${CMAKE_CURRENT_BINARY_DIR}/setup.py )
 

@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(qnlp_python_module)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(PYBIND11_CPP_STANDARD -std=c++1z)
+set(PYBIND11_CPP_STANDARD -std=c++14)
 
 SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -faligned-new")
 
