@@ -19,9 +19,9 @@ declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
 GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0" 
-                "catchorg/Clara" 
                 "CLIUtils/CLI11"
                 "pybind/pybind11"
+                "mpi4py/mpi4py"
              )
 PIP_PACKAGES=()
 CONDA_PACKAGES=("nltk::anaconda" 
