@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
+if(${ENABLE_PYTHON})
 project(qnlp_python_module)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -17,3 +18,4 @@ set_target_properties(_PyQNLPSimulator PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX
 
 #Ensure the Python module init and install files are copied to build directory
 configure_file(__init__.py ${CMAKE_CURRENT_BINARY_DIR}/__init__.py)
+endif()

@@ -91,6 +91,10 @@ set(CMAKE_CXX_FLAGS
      "
 )
 
+################################################################################
+# Selective build options
+################################################################################
+
 option(ENABLE_AVX512 "Enable Skylake AVX512 build tuning" OFF)
 if(${ENABLE_AVX512})
     set(CMAKE_CXX_FLAGS
@@ -135,6 +139,8 @@ if(${ENABLE_LOGGING})
         "
     )
 endif()
+
+option(ENABLE_PYTHON "Enable build of Python bindings" OFF)
 
 ################################################################################
 
