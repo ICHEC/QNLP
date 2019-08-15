@@ -145,14 +145,11 @@ option(ENABLE_PYTHON "Enable build of Python bindings" OFF)
 ################################################################################
 
 # Add OS specific definitions
-#if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-#elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
     add_definitions(
         "-DINTELQS_HAS_MPI"
     )
 endif ()
-
 
 add_definitions(
     "-DUSE_MM_MALLOC \
@@ -166,6 +163,7 @@ add_definitions(
 
 ################################################################################
 # Add Intel-QS library as target
+
 ADD_LIBRARY(qhipster STATIC IMPORTED)
 SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
 target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
@@ -173,7 +171,6 @@ target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
 ################################################################################
 # Include the directories with sources
 add_subdirectory(third_party)
-#message("BASE: ${CMAKE_MODULE_PATH}")
 add_subdirectory(modules)
 
 ################################################################################
@@ -183,33 +180,20 @@ add_library(${PROJECT_NAME} INTERFACE)
 ################################################################################
 # Select options taken from https://cliutils.gitlab.io/modern-cmake
 ################################################################################
-#find_program(CLANG_TIDY_EXE NAMES "clang-tidy" DOC "Path to clang-tidy executable" )
 
 if(CLANG_TIDY_EXE)
     set(CMAKE_CXX_CLANG_TIDY "${CLANG_TIDY_EXE}")
 endif()
 
 ################################################################################
-find_package(OpenMP REQUIRED)
-#if (OPENMP_FOUND)
-#    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-#endif()
 
-################################################################################
+find_package(OpenMP REQUIRED)
 find_package(MPI)
 
 ################################################################################
-#add_executable(cswap_test ./tests/test_control_swap.cpp)
 
-#include_directories("${QHIPSTER_INC}")
-
-################################################################################
 add_subdirectory(tests)
 add_subdirectory(demos)
 
 ################################################################################
-#target_link_libraries(cswap_test qhipster)
-#target_link_libraries(cswap_test qhipster Catch2::Catch2 CLI11::CLI11)
 
