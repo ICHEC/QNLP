@@ -38,7 +38,7 @@ namespace QNLP{
             };
 
             /**
-             * @brief Adjusts each state's ampitude proportional to the Hamming distanc ebetween the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
+             * @brief Adjusts each state's amplitude proportional to the Hamming distance between the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
              *
              * @param qSim Quantum simulator instance.
              * @param reg_memory A vector containing the indices of the qubits of the memory register. 
@@ -104,8 +104,6 @@ namespace QNLP{
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                 }*/
             }
-
-
     };
 
 };
