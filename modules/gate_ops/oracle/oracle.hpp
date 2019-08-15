@@ -25,15 +25,6 @@ namespace QNLP{
 
         public:
         Oracle(){};
-        Oracle(const std::size_t num_ctrl_gates, const std::vector<std::size_t> ctrl_indices){
-            // Only allow control lines that are adjacent and monotonically increasing; 
-            // require shifting qubits temporarily otherwise (not fully implemented)
-            std::size_t inc_val = ctrl_indices[0];
-            for(auto &idx_val: ctrl_indices){
-                assert(inc_val == idx_val);
-                inc_val++;
-            }
-        };
         ~Oracle(){};
 
         /**
@@ -85,20 +76,16 @@ namespace QNLP{
         /**
          * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
          * 
-         * @param s 
+         * @param s Simulator object
          * @param bitstring 
-         * @param ctrl_indices 
-         * @param U Unitary matrix to apply 
+         * @param ctrlIndices 
+         * @param target 
          * @return decltype(auto) 
          */
-        void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring){
+        void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>&ctrlIndices, std::size_t target ){
             std::size_t num_qubits = s.getNumQubits();
             assert ( (1<<num_qubits) < bitstring );
-            std::vector<std::size_t> ctrl_indices;
-            for(std::size_t i = 0; i < num_qubits-1; ++i){
-                ctrl_indices.push_back(i);
-            }
-            bitStringNCU(s, bitstring, ctrl_indices, num_qubits-1, s.getGateZ());
+            bitStringNCU(s, bitstring, ctrlIndices, target, s.getGateZ());
         }
     
     };

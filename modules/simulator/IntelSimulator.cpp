@@ -306,8 +306,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         applyAmplitudeNorm();
     }
 
-
-
     // State observation mehtods: not allowed in quantum operations
     inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
         qubitRegister.Print(x,qubits);
@@ -336,12 +334,15 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         qubitRegister.CollapseQubit(target, collapseValue);
     }
 
-
-
     inline double getStateProbability(CST target){
         return qubitRegister.GetProbability(target);
     }
-
 };
+
+// Generate templated classes/methods
+//template class Oracle<IntelSimulator>;
+//template void SimulatorGeneral<IntelSimulator>::applyGateNCU<IntelSimulator::TMDP>(const IntelSimulator::TMDP& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label);
+
+//template void SimulatorGeneral<IntelSimulator>::applyGateNCU<IntelSimulator::TMDP>(const IntelSimulator::TMDP& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label);
 
 };

@@ -44,7 +44,7 @@ namespace QNLP{
      * 
      * @tparam DerivedType CRTP derived class simulator type
      */
-    template <class DerivedType>//<class QubitRegisterType, class GateType>
+    template <class DerivedType>
     #ifdef VIRTUAL_INTERFACE
     class SimulatorGeneral : virtual public ISimulator {
     #else
@@ -369,7 +369,6 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
-
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
@@ -386,14 +385,14 @@ namespace QNLP{
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
-            else
+            else{
                 matrixLabel = label;
+            }
             n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
         }
 
-
         /**
-         * @brief Apply oracle to match given binary index
+         * @brief Apply oracle to match given binary index with non adjacent controls
          * 
          * @param U 2x2 unitary matrix to apply
          * @param minIdx Lowest index of the control lines expected for oracle
@@ -401,29 +400,35 @@ namespace QNLP{
          * @param target Target qubit index to apply U on
          */
         template<class Mat2x2Type>
-        void applyOracle(std::size_t bit_pattern, std::size_t minIdx, std::size_t maxIdx, std::size_t target, const Mat2x2Type& U ){
-            std::vector<std::size_t> control_indices;
-            for(std::size_t i = minIdx; i <= maxIdx; i++){
-                control_indices.push_back( i );
-            }
-            Oracle<DerivedType> oracle(static_cast<DerivedType*>(this)->getNumQubits()-1, control_indices);
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, control_indices, target, U);
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U ){
+            Oracle<DerivedType> oracle;
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U);
         }
 
         /**
-         * @brief Apply diffusion operator on marked state. Assumes states linearly ordered: minIdx=0 < maxIdx=num_qubits-2, target=num_qubits-1
+         * @brief Apply oracle to match given binary index with linearly adjacent controls
          * 
-         * @param minIdx Lowest index of the control lines expected for oracle calls
-         * @param maxIdx Highest index of the control lines expected for oracle calls
+         * @param bit_pattern Oracle pattern in binary
+         * @param ctrlIndices Control lines for oracle
+         * @param target Target qubit index to apply Z gate upon
+         */
+        void applyOraclePhase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
+            applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+        }
+
+        /**
+         * @brief Apply diffusion operator on marked state. 
+         * 
+         * @param ctrlIndices Vector of control line indices 
          * @param target Target qubit index to apply Ctrl-Z upon. 
          */
-        void applyDiffusion(std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+        void applyDiffusion(const std::vector<std::size_t>& ctrlIndices, std::size_t target){
             Diffusion<DerivedType> diffusion;
-            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), minIdx, maxIdx, target);
+            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), ctrlIndices, target);
         }
 
         /**
-         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         * @brief Directly encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
          *
          * @param target_pattern The binary pattern that is to be encoded
          * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
@@ -519,7 +524,6 @@ namespace QNLP{
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
-
         /**
          * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
          *
@@ -542,7 +546,6 @@ namespace QNLP{
 
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
-
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
@@ -580,8 +583,6 @@ namespace QNLP{
         void collapseToBasisZ(std::size_t target, bool collapseValue){
             static_cast<DerivedType*>(this)->collapseToBasisZ(target, collapseValue);
         }
-
-
                 
         /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)

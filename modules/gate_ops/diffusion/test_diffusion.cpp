@@ -33,7 +33,7 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
         }
 
         //Create oracle object with num_ctrl_gates and indices
-        Oracle<decltype(sim)> oracle(num_qubits-1, ctrl_indices);
+        Oracle<decltype(sim)> oracle;
 
         Diffusion<decltype(sim)> diffusion;
 
@@ -56,7 +56,7 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
                     //REQUIRE( reg[i].real() < 0.);
                     //reg.Print("PRE-DIFF iteration=" + std::to_string(iteration));
 
-                    diffusion.applyOpDiffusion( sim, 0, num_qubits-2, num_qubits-1);
+                    diffusion.applyOpDiffusion( sim, ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         REQUIRE( abs(reg[i])*abs(reg[i]) > abs(reg[0])*abs(reg[0]) );
@@ -93,7 +93,7 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
         }
 
         //Create oracle object with num_ctrl_gates and indices
-        Oracle<decltype(sim)> oracle(num_qubits-1, ctrl_indices);
+        Oracle<decltype(sim)> oracle;
 
         Diffusion<decltype(sim)> diffusion;
 
@@ -117,7 +117,7 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
                     //REQUIRE( reg[i].real() < 0.);
                     //reg.Print("PRE-DIFF iteration=" + std::to_string(iteration));
 
-                    diffusion.applyOpDiffusion( sim, 0, num_qubits-2, num_qubits-1);
+                    diffusion.applyOpDiffusion( sim, ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         REQUIRE( abs(reg[i])*abs(reg[i]) > abs(reg[0])*abs(reg[0]) );
@@ -166,10 +166,10 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    sim.applyOracle(i, ctrl_indices.front(), ctrl_indices.back(), num_qubits-1, sim.getGateZ() );
+                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ() );
 
                     CAPTURE( reg[i], i );
-                    sim.applyDiffusion(ctrl_indices.front(), ctrl_indices.back(), num_qubits-1);
+                    sim.applyDiffusion(ctrl_indices, num_qubits-1);
 
                     CAPTURE( reg[i], i );
                     if(i>0){
@@ -185,7 +185,6 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
         }
     }
 }
-
 
 TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
     std::size_t num_qubits = 8;
@@ -220,11 +219,11 @@ TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    sim.applyOracle(i, ctrl_indices.front(), ctrl_indices.back(), num_qubits-1, sim.getGateZ() );
+                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ() );
 
                     CAPTURE( reg[i], i );
 
-                    sim.applyDiffusion(ctrl_indices.front(), ctrl_indices.back(), num_qubits-1);
+                    sim.applyDiffusion(ctrl_indices, num_qubits-1);
                     CAPTURE( reg[i], i );
                     if(i>0){
                         
