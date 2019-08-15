@@ -5,11 +5,13 @@ import numpy as np
 from collections import Counter
 from nltk.corpus import stopwords
 
-from tagging.word_types import Noun
-from tagging.word_types import Verb
-from tagging.word_types import Sentence
+from QNLP.tagging.word_types import Noun
+from QNLP.tagging.word_types import Verb
+from QNLP.tagging.word_types import Sentence
 
-__all__ = ["word_types"]
+import QNLP.tagging.tag_file
+
+__all__ = ["word_types","tag_file"]
 
 """
 Reduces the nltk types to simplified types defined above

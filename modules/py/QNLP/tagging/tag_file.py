@@ -1,4 +1,4 @@
-import tagging.word_types as t
+import QNLP.tagging.word_types as t
 import nltk
 import sys
 import numpy as np

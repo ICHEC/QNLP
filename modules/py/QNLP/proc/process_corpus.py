@@ -1,6 +1,6 @@
 # Convert corpus to non-zero state coefficients for quantum encoding
 
-import tagging as tg
+import QNLP.tagging as tg
 import os
 
 import nltk
@@ -8,7 +8,7 @@ import sys
 import numpy as np
 
 # DB for exporting data to be read into C++
-import qnlp_db as qdb
+import QNLP.io.qnlp_db as qdb
 
 from collections import Counter
 from nltk.corpus import stopwords
