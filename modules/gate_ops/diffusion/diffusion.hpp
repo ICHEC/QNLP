@@ -13,9 +13,10 @@
 #define QNLP_DIFFUSION
 
 #include <cstddef>
-#include<cmath>
-#include<complex>
-//WIP
+#include <cmath>
+#include <complex>
+#include <vector>
+
 namespace QNLP{
     template <class SimulatorType>
     class Diffusion{
@@ -26,19 +27,25 @@ namespace QNLP{
         /**
          * @brief Application of the Grover diffusion operator to already marked register. Follows the Q = -A S_0 A structure as defined in https://arxiv.org/pdf/quant-ph/0005055.pdf
          * 
-         * @param qReg The quantum register to apply the operator.
-         * @param minIdx The starting qubit index of the register to consider.
-         * @param maxIdx The ending qubit index of the register to consider.
+         * @param sim The quantum simulator object to apply the operator.
+         * @param ctrlIndices Vector of qubit indices on ctrl lines (non NCU target)
+         * @param target Target for application of the nCZ op
          */
-        void applyOpDiffusion( SimulatorType& sim, const std::size_t ctrl_minIdx, const std::size_t ctrl_maxIdx, const std::size_t target){
+        void applyOpDiffusion( SimulatorType& sim, const std::vector<std::size_t> &ctrlIndices, const std::size_t target){
             //For n-controlled not
-            for(std::size_t i = ctrl_minIdx; i <= target; i++){
+            for(auto& i : ctrlIndices){
                 sim.applyGateH(i);
                 sim.applyGateX(i);
             }
-            sim.applyGateNCU(sim.getGateZ(), ctrl_minIdx, ctrl_maxIdx, target);
+            sim.applyGateH(target);
+            sim.applyGateX(target);
+            
+            sim.applyGateNCU(sim.getGateZ(), ctrlIndices, target);
 
-            for(std::size_t i = ctrl_minIdx; i <= target; i++){
+            sim.applyGateX(target);
+            sim.applyGateH(target);
+
+            for(auto& i : ctrlIndices){
                 sim.applyGateX(i);
                 sim.applyGateH(i);
             }
