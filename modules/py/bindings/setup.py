@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="PyQNLPSimulator",
-    version="0.0.1",
+    version="0.1",
     author="Lee J. O\'Riordan, Myles Doyle",
     author_email="lee.oriordan@ichec.ie, myles.doyle@ichec.ie",
     description="Quantum NLP package",

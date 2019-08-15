@@ -3,9 +3,9 @@
 import sqlite3
 import os
 from typing import Dict, Tuple
-import process_corpus as pc
+import QNLP.proc.process_corpus as pc
 import numpy as np
-from qnlp_db import qnlp_db
+from QNLP.io.qnlp_db import qnlp_db as qnlp_db
 
 ###############################################################################
 
