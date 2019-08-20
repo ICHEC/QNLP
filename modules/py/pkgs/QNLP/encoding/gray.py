@@ -2,7 +2,7 @@ import ctypes
 """
 Adapated from example on https://en.wikipedia.org/wiki/Gray_code
 """
-class GrayCode:
+class GrayEncoder:
     def __init__(self):
         pass
 

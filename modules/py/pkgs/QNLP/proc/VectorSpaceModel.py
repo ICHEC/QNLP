@@ -1,5 +1,8 @@
 import QNLP.proc.process_corpus as pc
+import QNLP.encoding.gray as gr
 from os import path
+import numpy as np
+import networkx as nx
 
 class VSM_pc:
     def __init__(self):
@@ -31,25 +34,22 @@ class VSM_pc:
                 token_words = [wnl.lemmatize(t) for t in token_words]
 
         tagged_tokens = self.pc.nltk.pos_tag(token_words)
-        ## Consider creating method for the following lines
-        d = {}
-        # This awful line tracks the positions where a tagged element is found in the tokenised corpus list. Useful for comparing distances
-        # If the key doesn't initially exist, it adds a list with a single element. Otherwise, extends the list with the new token position value.
-        # d.update( { i[0]: d.get(i[0]).extend(pos) if d.get(i[0]) != None else [pos] for pos,i in enumerate(tagged_tokens) if pc.tg.matchables(pc.tg.Noun, i[1])})
 
         nouns = self._get_token_position(tagged_tokens, self.pc.tg.Noun)
         verbs = self._get_token_position(tagged_tokens, self.pc.tg.Verb)
 
-        # nouns = [i[0] for i in tagged_tokens if self.pc.tg.matchables(self.pc.tg.Noun, i[1])]
-        # verbs = [i[0] for i in tagged_tokens if self.pc.tg.matchables(self.pc.tg.Verb, i[1])]
-
-        count_nouns = { k:len(v) for k,v in nouns.items()}
-        count_verbs = { k:len(v) for k,v in verbs.items()}
-        ##
+        count_nouns = { k:(len(v),v) for k,v in nouns.items()}
+        count_verbs = { k:(len(v),v) for k,v in verbs.items()}
 
         return {'verbs':count_verbs, 'nouns':count_nouns, 'tk_sentence':token_sents, 'tk_words':token_words}
 
     def _get_token_position(self, tagged_tokens, token_type):
+        """ Tracks the positions where a tagged element is found in 
+        the tokenised corpus list. Useful for comparing distances.
+        If the key doesn't initially exist, it adds a list with a 
+        single element. Otherwise, extends the list with the new 
+        token position value.
+        """
         token_dict = {}
         for pos, token in enumerate(tagged_tokens):
             if pc.tg.matchables(token_type, token[1]):
@@ -59,6 +59,8 @@ class VSM_pc:
                     token_dict.update( { token[0] : [pos]} )
         return token_dict
 
+###############################################################################
+###############################################################################
 
 class VectorSpaceModel:
     """
@@ -78,6 +80,11 @@ class VectorSpaceModel:
     def __init__(self, corpus_path="", mode=0, stop_words=True):
         self.pc = VSM_pc()
         self.tokens = self.load_tokens(corpus_path, mode, stop_words)
+        self.encoder = gr.GrayEncoder()
+        self.distance_dictionary = None
+
+###############################################################################
+###############################################################################
 
     def load_tokens(self, corpus_path, mode=0, stop_words=True):
         " 1. Wraps the calls from process_corpus.py to tokenize. Returns None if path is "
@@ -85,7 +92,10 @@ class VectorSpaceModel:
             return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words)
         else:
             return None
-    
+
+###############################################################################
+###############################################################################
+
     def sort_basis_helper(self, token_type, num_elems):
         basis_dict = {token_type : {} }
         #consider Counter.most_common(num_elems)
@@ -94,6 +104,9 @@ class VectorSpaceModel:
                 break
             basis_dict[token_type].update({elem[0] : elem[1]})
         return basis_dict
+
+###############################################################################
+###############################################################################
 
     def define_basis(self, num_basis = {"verbs": 8, "nouns":8}):
         """ 2. Specify the number of basis elements in each space. 
@@ -106,10 +119,93 @@ class VectorSpaceModel:
             basis.update( self.sort_basis_helper(t, num_basis[t]) )
         return basis
 
-    def calc_token_dist(self, tokens, dist_metric):
-        " 3. & 4."
-        pass
+###############################################################################
+###############################################################################
 
-    def assign_indexing(self, tokens):
+    def sort_tokens_by_dist(self, tokens_type, dist_metric = lambda x,y : np.abs(x - y) ):
+        " 3. & 4."
+        tk_list = list(self.tokens[tokens_type].keys())
+        dist_dict = {}
+        # pairwise distance calc
+        for c0,k0 in enumerate(tk_list[0:-1]):
+            for k1 in tk_list[c0:]:
+                if k0 != k1:
+                    from IPython import embed; embed()
+                    dist_dict[(k0,k1)] = sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
+
+        self.distance_dictionary = dist_dict
+        
+        """ Maps the tokens into a fully connected digraph, where each token 
+        is a node, and the weighted edge between them holds their 
+        respective distance. In the event of multiple distances between 
+        two node, assumes the minimum of the list.
+        """
+        token_graph = self._create_token_graph(dist_dict, nx.DiGraph)
+        """ Using the token graph, a Hamiltonian path (cycle if [0] 
+        connected to [-1]) is found for the graph, wherein the ordering gives
+        the shortest path connecting each node, visited once. This gives a 
+        sufficiently ordered list for the encoding values.
+        """
+        ordered_tokens = self._get_ordered_tokens(token_graph)
+        return ordered_tokens
+
+###############################################################################
+
+    def _create_token_graph(self, token_dist_pairs, graph_type=nx.DiGraph):
+        """
+        Creates graph using the (basis) tokens as nodes, and the pairwise 
+        distances between them as weighted edges. Used to determine optimal 
+        ordering of token adjacency for later encoding.
+        """
+        # Following: https://www.datacamp.com/community/tutorials/networkx-python-graph-tutorial
+
+        assert( callable(graph_type) )
+
+        token_graph = graph_type()
+
+        for tokens_tuple, distances in token_dist_pairs.items():
+            # Prevent multiple adds. Should be no prob in any case
+            if not token_graph.has_node(tokens_tuple[0]):
+                token_graph.add_node(tokens_tuple[0])
+            if not token_graph.has_node(tokens_tuple[1]):
+                token_graph.add_node(tokens_tuple[1])
+            
+            # If multigraph allowed, add multiple edges between nodes. 
+            # If not, use the min distance.
+            if graph_type == nx.MultiGraph:
+                if len(distances) > 1:
+                    for d in distances:
+                        token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': d, 'weight': d})
+                else:
+                    token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': distances, 'weight': distances})               
+            else:
+                d_val = np.min(distances) if len(distances)>1 else distances
+                token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': d_val, 'weight': d_val})
+                if graph_type == nx.DiGraph:
+                    token_graph.add_edge(tokens_tuple[1], tokens_tuple[0], attr_dict={'distance': d_val, 'weight': d_val})
+
+        return token_graph            
+
+###############################################################################
+
+    def _get_ordered_tokens(self, token_graph : nx.DiGraph):
+        #Must be a directed graph
+        assert( isinstance(token_graph, nx.DiGraph) )
+        #Must be fully connected
+        assert( nx.tournament.is_strongly_connected(token_graph) )
+
+        return nx.tournament.hamiltonian_path(token_graph)
+
+    def _calc_token_order_distance(self, token_order_list):
+
+
+###############################################################################
+###############################################################################
+
+    def assign_indexing(self, ordered_tokens):
         " 5. "
-        pass
+        for idx,token in enumerate(ordered_tokens):
+            print(idx, token)
+
+###############################################################################
+###############################################################################
