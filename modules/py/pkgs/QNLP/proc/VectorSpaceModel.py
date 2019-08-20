@@ -1,3 +1,15 @@
+###############################################################################
+###############################################################################
+"""Example usage:
+
+from QNLP import *
+vsm_verbs = VectorSpaceModel.VectorSpaceModel("file.txt")
+vsm_verbs.sort_tokens_by_dist("verbs")
+vsm_verbs.assign_indexing()
+"""
+###############################################################################
+###############################################################################
+
 import QNLP.proc.process_corpus as pc
 import QNLP.encoding.gray as gr
 from os import path
@@ -82,6 +94,7 @@ class VectorSpaceModel:
         self.tokens = self.load_tokens(corpus_path, mode, stop_words)
         self.encoder = gr.GrayEncoder()
         self.distance_dictionary = None
+        self.encoded_tokens = None
 
 ###############################################################################
 ###############################################################################
@@ -130,11 +143,10 @@ class VectorSpaceModel:
         for c0,k0 in enumerate(tk_list[0:-1]):
             for k1 in tk_list[c0:]:
                 if k0 != k1:
-                    from IPython import embed; embed()
                     dist_dict[(k0,k1)] = sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
 
         self.distance_dictionary = dist_dict
-        
+
         """ Maps the tokens into a fully connected digraph, where each token 
         is a node, and the weighted edge between them holds their 
         respective distance. In the event of multiple distances between 
@@ -147,6 +159,7 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
         ordered_tokens = self._get_ordered_tokens(token_graph)
+        self.encoded_tokens = {i:-1 for i in ordered_tokens}
         return ordered_tokens
 
 ###############################################################################
@@ -196,16 +209,32 @@ class VectorSpaceModel:
 
         return nx.tournament.hamiltonian_path(token_graph)
 
+###############################################################################
+
     def _calc_token_order_distance(self, token_order_list):
+        sum_total = []
+        for idx in range(1, len(token_order_list)):
+            # May be ordered either way
+            v0 = self.distance_dictionary.get( ( token_order_list[idx-1], token_order_list[idx] ) )
+            v1 = self.distance_dictionary.get( ( token_order_list[idx], token_order_list[idx-1] ) )
+            if v0 == None:
+                sum_total.append( np.min(v1) )
+            else:
+                sum_total.append( np.min(v0) )
 
+        return (np.sum(sum_total), sum_total)
 
 ###############################################################################
 ###############################################################################
 
-    def assign_indexing(self, ordered_tokens):
-        " 5. "
-        for idx,token in enumerate(ordered_tokens):
-            print(idx, token)
+    def assign_indexing(self):
+        """ 5. Encode the ordered tokens using a Gray code based on indexed 
+        location. Values close together will have fewer bit flips.
+        """
+        tk = {}
+        for idx,token in enumerate(self.encoded_tokens.keys()):
+            self.encoded_tokens.update({token : self.encoder.binToGray(idx) })
+        return self.encoded_tokens
 
 ###############################################################################
 ###############################################################################
