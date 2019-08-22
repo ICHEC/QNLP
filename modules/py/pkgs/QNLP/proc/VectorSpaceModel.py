@@ -96,6 +96,7 @@ class VectorSpaceModel:
         self.encoder = gr.GrayEncoder()
         self.distance_dictionary = None
         self.encoded_tokens = None
+        self.ordered_tokens = None
 
 ###############################################################################
 ###############################################################################
@@ -166,9 +167,8 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        ordered_tokens = self._get_ordered_tokens(token_graph)
-        self.encoded_tokens = {i:-1 for i in ordered_tokens}
-        return ordered_tokens
+        self.ordered_tokens = self._get_ordered_tokens(token_graph)
+        return self.ordered_tokens
 
     def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16):
         " 3. & 4."
@@ -199,9 +199,8 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        ordered_tokens = self._get_ordered_tokens(token_graph)
-        self.encoded_tokens = {i:-1 for i in ordered_tokens}
-        return ordered_tokens
+        self.ordered_tokens = self._get_ordered_tokens(token_graph)
+        return self.ordered_tokens
 
 ###############################################################################
 
@@ -277,8 +276,8 @@ class VectorSpaceModel:
         """ 5. Encode the ordered tokens using a Gray code based on indexed 
         location. Values close together will have fewer bit flips.
         """
-        tk = {}
-        for idx,token in enumerate(self.encoded_tokens.keys()):
+        self.encoded_tokens = {}
+        for idx,token in enumerate(self.ordered_tokens):
             self.encoded_tokens.update({token : self.encoder.binToGray(idx) })
         return self.encoded_tokens
 
@@ -286,21 +285,20 @@ class VectorSpaceModel:
 ###############################################################################
 
     def calc_diff_matrix(self):
+        "WIP"
         X = np.zeros([len(a.tokens['verbs'])]*2)
 
         # Add forward and inverse mapping in dictionary
         tup_map_f = {k:i for i, k in enumerate(self.tokens['verbs'].keys()) }
         tup_map_i = {i:k for i, k in enumerate(self.tokens['verbs'].keys()) }
-        
+
+
     def getPathLength(self):
         "Calculate cumulative path length of resulting basis ordering"
-
-        order_vals = list(self.encoded_tokens.values())
-        order_keys = list(self.encoded_tokens.keys())
         total = 0
-        for i in range(len(order_keys)-1):
+        for i in range(len(self.ordered_tokens)-1):
             try:
-                total += self.distance_dictionary[( order_keys[ order_vals[i] ], order_keys[ order_vals[i+1] ])]
+                total += self.distance_dictionary[( self.ordered_tokens[ i ], self.ordered_tokens[ i+1 ])]
             except:
-                total += self.distance_dictionary[( order_keys[order_vals[i+1] ] , order_keys[ order_vals[i] ])]
+                total += self.distance_dictionary[( self.ordered_tokens[ i+1 ], self.ordered_tokens[ i ])]
         return total
