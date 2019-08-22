@@ -15,6 +15,7 @@ import QNLP.encoding.gray as gr
 from os import path
 import numpy as np
 import networkx as nx
+import itertools
 
 class VSM_pc:
     def __init__(self):
@@ -112,7 +113,8 @@ class VectorSpaceModel:
     def sort_basis_helper(self, token_type, num_elems):
         basis_dict = {token_type : {} }
         #consider Counter.most_common(num_elems)
-        for counter, elem in enumerate(sorted(self.tokens[token_type].items(), key=lambda x : x[1], reverse = True)):
+
+        for counter, elem in enumerate(sorted(self.tokens[token_type].items(), key=lambda x : x[1][0], reverse = True)):
             if counter == num_elems:
                 break
             basis_dict[token_type].update({elem[0] : elem[1]})
@@ -135,6 +137,7 @@ class VectorSpaceModel:
 ###############################################################################
 ###############################################################################
 
+    # Use entire token list; very expensive
     def sort_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y) ):
         " 3. & 4."
         tk_list = list(self.tokens[tokens_type].keys())
@@ -145,8 +148,8 @@ class VectorSpaceModel:
                 if k0 != k1:
                     a = self.tokens[tokens_type][k0][1]
                     b = self.tokens[tokens_type][k1][1]
-                    from IPython import embed; embed()
-                    dist_dict[(k0,k1)] = list(map(np.unique, dist_metric(a,b)))[0]
+
+                    dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
                     #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
 
         self.distance_dictionary = dist_dict
@@ -162,6 +165,40 @@ class VectorSpaceModel:
         the shortest path connecting each node, visited once. This gives a 
         sufficiently ordered list for the encoding values.
         """
+
+        ordered_tokens = self._get_ordered_tokens(token_graph)
+        self.encoded_tokens = {i:-1 for i in ordered_tokens}
+        return ordered_tokens
+
+    def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16):
+        " 3. & 4."
+        basis_tk_list = list(self.define_basis(num_basis={"verbs":num_basis, "nouns" : num_basis})[tokens_type].keys())
+
+        basis_dist_dict = {}
+        # pairwise distance calc
+        for c0,k0 in enumerate(basis_tk_list[0:-1]):
+            for k1 in basis_tk_list[c0:]:
+                if k0 != k1:
+                    a = self.tokens[tokens_type][k0][1]
+                    b = self.tokens[tokens_type][k1][1]
+
+                    basis_dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
+                    #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
+
+        self.distance_dictionary = basis_dist_dict
+
+        """ Maps the tokens into a fully connected digraph, where each token 
+        is a node, and the weighted edge between them holds their 
+        respective distance. In the event of multiple distances between 
+        two node, assumes the minimum of the list.
+        """
+        token_graph = self._create_token_graph(basis_dist_dict, graph_type)
+        """ Using the token graph, a Hamiltonian path (cycle if [0] 
+        connected to [-1]) is found for the graph, wherein the ordering gives
+        the shortest path connecting each node, visited once. This gives a 
+        sufficiently ordered list for the encoding values.
+        """
+
         ordered_tokens = self._get_ordered_tokens(token_graph)
         self.encoded_tokens = {i:-1 for i in ordered_tokens}
         return ordered_tokens
@@ -190,25 +227,30 @@ class VectorSpaceModel:
             # If multigraph allowed, add multiple edges between nodes. 
             # If not, use the min distance.
             if graph_type == nx.MultiGraph:
-                if len(distances) > 1:
-                    for d in distances:
-                        token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': d, 'weight': d})
-                else:
-                    token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': distances, 'weight': distances})               
-            else:
-                d_val = np.min(distances) if len(distances)>1 else distances
-                token_graph.add_edge(tokens_tuple[0], tokens_tuple[1], attr_dict={'distance': d_val, 'weight': d_val})
-                if graph_type == nx.DiGraph:
-                    token_graph.add_edge(tokens_tuple[1], tokens_tuple[0], attr_dict={'distance': d_val, 'weight': d_val})
 
-        return token_graph            
+                if not isinstance(distances, int):
+                    for d in distances:
+                        token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=d )
+                else:
+                    token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=distances ) 
+
+            else:
+                d_val = np.min(distances) if not isinstance(distances, int) else distances
+                token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=d_val )
+
+                if graph_type == nx.DiGraph:
+                    token_graph.add_edge( tokens_tuple[1], tokens_tuple[0], weight=d_val )
+
+        return token_graph     
 
 ###############################################################################
 
     def _get_ordered_tokens(self, token_graph : nx.DiGraph):
+
         #Must be a directed graph
         assert( isinstance(token_graph, nx.DiGraph) )
         #Must be fully connected
+        
         assert( nx.tournament.is_strongly_connected(token_graph) )
 
         return nx.tournament.hamiltonian_path(token_graph)
@@ -242,3 +284,23 @@ class VectorSpaceModel:
 
 ###############################################################################
 ###############################################################################
+
+    def calc_diff_matrix(self):
+        X = np.zeros([len(a.tokens['verbs'])]*2)
+
+        # Add forward and inverse mapping in dictionary
+        tup_map_f = {k:i for i, k in enumerate(self.tokens['verbs'].keys()) }
+        tup_map_i = {i:k for i, k in enumerate(self.tokens['verbs'].keys()) }
+        
+    def getPathLength(self):
+        "Calculate cumulative path length of resulting basis ordering"
+
+        order_vals = list(self.encoded_tokens.values())
+        order_keys = list(self.encoded_tokens.keys())
+        total = 0
+        for i in range(len(order_keys)-1):
+            try:
+                total += self.distance_dictionary[( order_keys[ order_vals[i] ], order_keys[ order_vals[i+1] ])]
+            except:
+                total += self.distance_dictionary[( order_keys[order_vals[i+1] ] , order_keys[ order_vals[i] ])]
+        return total
