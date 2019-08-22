@@ -50,8 +50,8 @@ class VSM_pc:
         nouns = self._get_token_position(tagged_tokens, self.pc.tg.Noun)
         verbs = self._get_token_position(tagged_tokens, self.pc.tg.Verb)
 
-        count_nouns = { k:(len(v),v) for k,v in nouns.items()}
-        count_verbs = { k:(len(v),v) for k,v in verbs.items()}
+        count_nouns = { k:(v.size,v) for k,v in nouns.items()}
+        count_verbs = { k:(v.size,v) for k,v in verbs.items()}
 
         return {'verbs':count_verbs, 'nouns':count_nouns, 'tk_sentence':token_sents, 'tk_words':token_words}
 
@@ -65,10 +65,10 @@ class VSM_pc:
         token_dict = {}
         for pos, token in enumerate(tagged_tokens):
             if pc.tg.matchables(token_type, token[1]):
-                if token_dict.get(token[0]) != None:
-                    token_dict.get(token[0]).append(pos)
+                if isinstance(token_dict.get(token[0]), type(None)):
+                    token_dict.update( { token[0] : np.array([pos])} )
                 else:
-                    token_dict.update( { token[0] : [pos]} )
+                    token_dict.update( { token[0] : np.append(token_dict.get(token[0]), pos) } )
         return token_dict
 
 ###############################################################################
@@ -135,7 +135,7 @@ class VectorSpaceModel:
 ###############################################################################
 ###############################################################################
 
-    def sort_tokens_by_dist(self, tokens_type, dist_metric = lambda x,y : np.abs(x - y) ):
+    def sort_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y) ):
         " 3. & 4."
         tk_list = list(self.tokens[tokens_type].keys())
         dist_dict = {}
@@ -143,7 +143,11 @@ class VectorSpaceModel:
         for c0,k0 in enumerate(tk_list[0:-1]):
             for k1 in tk_list[c0:]:
                 if k0 != k1:
-                    dist_dict[(k0,k1)] = sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
+                    a = self.tokens[tokens_type][k0][1]
+                    b = self.tokens[tokens_type][k1][1]
+                    from IPython import embed; embed()
+                    dist_dict[(k0,k1)] = list(map(np.unique, dist_metric(a,b)))[0]
+                    #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
 
         self.distance_dictionary = dist_dict
 
@@ -152,7 +156,7 @@ class VectorSpaceModel:
         respective distance. In the event of multiple distances between 
         two node, assumes the minimum of the list.
         """
-        token_graph = self._create_token_graph(dist_dict, nx.DiGraph)
+        token_graph = self._create_token_graph(dist_dict, graph_type)
         """ Using the token graph, a Hamiltonian path (cycle if [0] 
         connected to [-1]) is found for the graph, wherein the ordering gives
         the shortest path connecting each node, visited once. This gives a 
