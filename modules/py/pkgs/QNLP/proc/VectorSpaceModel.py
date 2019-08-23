@@ -286,6 +286,7 @@ class VectorSpaceModel:
 
     def calc_diff_matrix(self):
         "WIP"
+        return
         X = np.zeros([len(a.tokens['verbs'])]*2)
 
         # Add forward and inverse mapping in dictionary

@@ -1,3 +1,5 @@
 name = "encoding"
 import QNLP.encoding.gray
-__all__= ["gray"]
+import QNLP.encoding.utils
+
+__all__= ["gray", "utils"]
