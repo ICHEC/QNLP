@@ -94,9 +94,9 @@ class VectorSpaceModel:
         self.pc = VSM_pc()
         self.tokens = self.load_tokens(corpus_path, mode, stop_words)
         self.encoder = gr.GrayEncoder()
-        self.distance_dictionary = None
-        self.encoded_tokens = None
-        self.ordered_tokens = None
+        self.distance_dictionary = {}
+        self.encoded_tokens = {}
+        self.ordered_tokens = {}
 
 ###############################################################################
 ###############################################################################
@@ -153,7 +153,7 @@ class VectorSpaceModel:
                     dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
                     #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
 
-        self.distance_dictionary = dist_dict
+        self.distance_dictionary.update( { tokens_type : dist_dict} )
 
         """ Maps the tokens into a fully connected digraph, where each token 
         is a node, and the weighted edge between them holds their 
@@ -167,7 +167,7 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        self.ordered_tokens = self._get_ordered_tokens(token_graph)
+        self.ordered_tokens.update( { tokens_type : self._get_ordered_tokens(token_graph) } )
         return self.ordered_tokens
 
     def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16):
@@ -185,7 +185,7 @@ class VectorSpaceModel:
                     basis_dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
                     #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
 
-        self.distance_dictionary = basis_dist_dict
+        self.distance_dictionary.update( {tokens_type : basis_dist_dict } )
 
         """ Maps the tokens into a fully connected digraph, where each token 
         is a node, and the weighted edge between them holds their 
@@ -199,7 +199,7 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        self.ordered_tokens = self._get_ordered_tokens(token_graph)
+        self.ordered_tokens.update( {tokens_type : self._get_ordered_tokens(token_graph) } )
         return self.ordered_tokens
 
 ###############################################################################
@@ -256,12 +256,12 @@ class VectorSpaceModel:
 
 ###############################################################################
 
-    def _calc_token_order_distance(self, token_order_list):
+    def _calc_token_order_distance(self, token_order_list, token_type):
         sum_total = []
         for idx in range(1, len(token_order_list)):
             # May be ordered either way
-            v0 = self.distance_dictionary.get( ( token_order_list[idx-1], token_order_list[idx] ) )
-            v1 = self.distance_dictionary.get( ( token_order_list[idx], token_order_list[idx-1] ) )
+            v0 = self.distance_dictionary.get(token_type).get( ( token_order_list[idx-1], token_order_list[idx] ) )
+            v1 = self.distance_dictionary.get(token_type).get( ( token_order_list[idx], token_order_list[idx-1] ) )
             if v0 == None:
                 sum_total.append( np.min(v1) )
             else:
@@ -272,13 +272,17 @@ class VectorSpaceModel:
 ###############################################################################
 ###############################################################################
 
-    def assign_indexing(self):
+    def assign_indexing(self, token_type):
         """ 5. Encode the ordered tokens using a Gray code based on indexed 
         location. Values close together will have fewer bit flips.
         """
-        self.encoded_tokens = {}
-        for idx,token in enumerate(self.ordered_tokens):
-            self.encoded_tokens.update({token : self.encoder.binToGray(idx) })
+        t_dict = {}
+
+        for idx,token in enumerate(self.ordered_tokens[token_type]):
+            t_dict.update({token : self.encoder.binToGray(idx) })
+
+        self.encoded_tokens.update( {token_type : t_dict })
+
         return self.encoded_tokens
 
 ###############################################################################
@@ -293,13 +297,12 @@ class VectorSpaceModel:
         tup_map_f = {k:i for i, k in enumerate(self.tokens['verbs'].keys()) }
         tup_map_i = {i:k for i, k in enumerate(self.tokens['verbs'].keys()) }
 
-
-    def getPathLength(self):
+    def getPathLength(self, token_type):
         "Calculate cumulative path length of resulting basis ordering"
         total = 0
         for i in range(len(self.ordered_tokens)-1):
             try:
-                total += self.distance_dictionary[( self.ordered_tokens[ i ], self.ordered_tokens[ i+1 ])]
+                total += self.distance_dictionary[token_type][( self.ordered_tokens[token_type][ i ], self.ordered_tokens[token_type][ i+1 ])]
             except:
-                total += self.distance_dictionary[( self.ordered_tokens[ i+1 ], self.ordered_tokens[ i ])]
+                total += self.distance_dictionary[token_type][( self.ordered_tokens[token_type][ i+1 ], self.ordered_tokens[token_type][ i ])]
         return total
