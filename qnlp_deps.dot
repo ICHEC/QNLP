@@ -1,0 +1,93 @@
+digraph "GG" {
+//node [ fontsize = "12"];
+//    compound=true;
+    ranksep=1.25;
+
+    node [shape=plaintext, fontsize=16, label="" fontname="Fira Code"];
+
+    bgcolor=white;
+    edge [arrowsize=1, color=black];
+    graph[penwidth=0, labelloc="b"];
+
+
+    "EncodeBinIntoSuperpos" [ label="EncodeBinIntoSuperpos" shape="box" style=filled fillcolor="#ffaaaa"];
+    "Diffusion" [ label="Diffusion" shape="box" style=filled fillcolor="#ffaaaa"];
+    "GateWriter" [ label="GateWriter" shape="box" style=filled fillcolor="#ffaaaa"];
+    "HammingDistanceRotY" [ label="HammingDistanceRotY" shape="box" style=filled fillcolor="#ffaaaa"];
+    "NCU" [ label="NCU" shape="box" style=filled fillcolor="#ffaaaa"];
+    "Oracle" [ label="Oracle" shape="box" style=filled fillcolor="#ffaaaa"];
+    "QFT" [ label="QFT" shape="box" style=filled fillcolor="#ffaaaa"];
+    "IntelSimulator" [ label="IntelSimulator" shape="box" style=filled fillcolor="#ffaaaa"];
+    "SimulatorGeneral" [ label="SimulatorGeneral" shape="box" style=filled fillcolor="#ffaaaa"];
+    "Intel-QS" [ label="Intel-QS" shape="ellipse" style=filled fillcolor="#aaffaa"];
+
+    "PythonEnv" [ label="Python interp." shape="house" style=filled fillcolor="#cccccc"];
+
+    "IntelSimulator" -> "SimulatorGeneral" //SimulatorGeneral -> IntelSimulator
+    "IntelSimulator" -> "Intel-QS" // qnlp_simulator -> qhipster
+    "SimulatorGeneral" -> "EncodeBinIntoSuperpos" // qnlp_simulator -> qnlp_binencode
+    "SimulatorGeneral" -> "Diffusion" // qnlp_simulator -> qnlp_diffusion
+    "SimulatorGeneral" -> "GateWriter" // qnlp_simulator -> qnlp_gatewriter
+    "SimulatorGeneral" -> "HammingDistanceRotY" // qnlp_simulator -> qnlp_hamming_RotY_amplification
+    "SimulatorGeneral" -> "NCU" // qnlp_simulator -> qnlp_ncu
+    "SimulatorGeneral" -> "Oracle" // qnlp_simulator -> qnlp_oracle
+    "SimulatorGeneral" -> "QFT" // qnlp_simulator -> qnlp_qft
+
+    "QNLPModule" [ label="QNLP" shape="box" fillcolor="#aaaaff" style="rounded,filled", shape=diamond];
+    "CircuitPrinterModule" [ label="CircuitPrinter" shape="box" style=filled fillcolor="#aaaaff"];
+    "CircuitPrinterModule" -> "GateWriter" [color="#aaaaff:#ffaaaa", style=dashed]
+
+    "QNLPencoding" [ label="encoding" shape="box" style=filled fillcolor="#aaaaff"];
+    "QNLPio" [ label="io" shape="box" style=filled fillcolor="#aaaaff"];
+    "QNLPproc" [ label="proc" shape="box" style=filled fillcolor="#aaaaff"];
+    "QNLPtagging" [ label="tagging" shape="box" style=filled fillcolor="#aaaaff"];
+
+
+    "QNLPModule" -> "QNLPencoding"
+    "QNLPModule" -> "QNLPio"
+    "QNLPModule" -> "QNLPproc"
+    "QNLPModule" -> "QNLPtagging"
+
+    "GrayEncoder" [ label="GrayEncoder" shape="box" style=filled fillcolor="#aaaaff"];    
+    "qnlp_db" [ label="qnlp_db"  shape="box" style=filled fillcolor="#aaaaff"];
+    "basis_check" [ label="basis_check"  shape="box" style=filled fillcolor="#aaaaff"];
+    "DisCoCat" [ label="DisCoCat"  shape="box" style=filled fillcolor="#aaaaff"];
+    "process_corpus" [ label="process_corpus"  shape="box" style=filled fillcolor="#aaaaff"];
+    "VectorSpaceModel" [ label="VectorSpaceModel"  shape="box" style=filled fillcolor="#aaaaff"];
+
+    "QNLPio" -> "qnlp_db"
+
+    "QNLPproc" -> "QNLPencoding"
+    "QNLPencoding" -> "GrayEncoder"
+
+    "QNLPproc" -> "QNLPio"
+    "QNLPproc" -> "basis_check"
+    "QNLPproc" -> "DisCoCat"
+    "QNLPproc" -> "process_corpus" 
+    "QNLPproc" -> "VectorSpaceModel"
+    "basis_check" -> "QNLPio"
+    "DisCoCat" -> "QNLPio"
+    "process_corpus" -> "QNLPio"
+    "DisCoCat" -> "process_corpus"
+    "VectorSpaceModel" -> "process_corpus"
+    "VectorSpaceModel" -> "QNLPencoding"
+    "process_corpus" -> "QNLPtagging"
+
+    "nltk" [ label="nltk" shape="ellipse" style=filled fillcolor="#aaffaa"];
+    "word_types" [ label="word_types" shape="box" style=filled fillcolor="#aaaaff"];
+    
+
+    "QNLPtagging" -> "nltk"
+    "QNLPtagging" -> "word_types"
+    "process_corpus" -> "nltk"
+
+    "pybind11" [ label="pybind11" shape="ellipse" style=filled fillcolor="#aaffaa"];
+    "Pylib" [ label="PyQNLPSimulator" shape="ellipse" style="rounded,filled", shape=diamond fillcolor="#ffaaaa"];
+    "IntelSimMixin" [ label="IntelSimMixin" shape="box" style=filled fillcolor="#ffaaaa"];
+    "IntelSimMixin" -> "IntelSimulator"
+    "Pylib" -> "IntelSimMixin" 
+    "Pylib" -> "pybind11"
+
+    "PythonEnv" -> "QNLPModule" [color="#aaaaff", style=dotted]
+    "PythonEnv" -> "Pylib" [color="#aaaaff", style=dotted]
+}
