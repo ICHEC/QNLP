@@ -19,7 +19,7 @@ digraph "GG" {
     "QFT" [ label="QFT" shape="box" style=filled fillcolor="#ffaaaa"];
     "IntelSimulator" [ label="IntelSimulator" shape="box" style=filled fillcolor="#ffaaaa"];
     "SimulatorGeneral" [ label="SimulatorGeneral" shape="box" style=filled fillcolor="#ffaaaa"];
-    "Intel-QS" [ label="Intel-QS" shape="ellipse" style=filled fillcolor="#aaffaa"];
+    "Intel-QS" [ label="Intel-QS" shape="ellipse" style=filled fillcolor="#99ff99:#ff9999"];
 
     "PythonEnv" [ label="Python interp." shape="house" style=filled fillcolor="#cccccc"];
 
@@ -73,7 +73,7 @@ digraph "GG" {
     "VectorSpaceModel" -> "QNLPencoding"
     "process_corpus" -> "QNLPtagging"
 
-    "nltk" [ label="nltk" shape="ellipse" style=filled fillcolor="#aaffaa"];
+    "nltk" [ label="nltk" shape="ellipse" style=filled fillcolor="#aaffaa:#aaaaff"];
     "word_types" [ label="word_types" shape="box" style=filled fillcolor="#aaaaff"];
     
 
@@ -81,12 +81,14 @@ digraph "GG" {
     "QNLPtagging" -> "word_types"
     "process_corpus" -> "nltk"
 
-    "pybind11" [ label="pybind11" shape="ellipse" style=filled fillcolor="#aaffaa"];
+    "pybind11" [ label="pybind11" shape="ellipse" style=filled fillcolor="#99ff99:#ff9999"];
+    "mpi4py" [ label="mpi4py" shape="ellipse" style=filled fillcolor="#99ff99:#9999ff"];
     "Pylib" [ label="PyQNLPSimulator" shape="ellipse" style="rounded,filled", shape=diamond fillcolor="#ffaaaa"];
     "IntelSimMixin" [ label="IntelSimMixin" shape="box" style=filled fillcolor="#ffaaaa"];
     "IntelSimMixin" -> "IntelSimulator"
     "Pylib" -> "IntelSimMixin" 
     "Pylib" -> "pybind11"
+    "Pylib" -> "mpi4py"
 
     "PythonEnv" -> "QNLPModule" [color="#aaaaff", style=dotted]
     "PythonEnv" -> "Pylib" [color="#aaaaff", style=dotted]
