@@ -32,6 +32,7 @@ CONDA_PACKAGES=("nltk::anaconda"
                 "mkl-include"
                 "networkx"
                 "matplotlib"
+                "tqdm::conda-forge"
                )
 CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
 
