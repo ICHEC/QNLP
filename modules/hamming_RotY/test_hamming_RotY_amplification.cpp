@@ -30,8 +30,6 @@ std::size_t calc_hammingDist(std::size_t pattern1, std::size_t pattern2, std::si
 // Returns Hash map of encoded integers and the real component of their expected amplitudes which is calculated classically.
 std::map<std::size_t, double> expected_amplitude(std::vector<std::size_t>& target_vec, std::size_t test, std::size_t len_bin_pattern){
     const std::size_t num_bin_pattern = target_vec.size();
-  //  std::size_t total_similar_bits = 0;
-
     double norm_factor = 0.0;
 
     // Calculate Hamming Distance for each training pattern to test pattern
