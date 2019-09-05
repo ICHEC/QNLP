@@ -124,7 +124,7 @@ int main(int argc, char **argv){
         }
 
         
-        std::cout << "PRE-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "PRE-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
 
 
         // Compute Hamming distance between test pattern and encoded patterns
@@ -137,7 +137,7 @@ int main(int argc, char **argv){
             sim->PrintStates("After Hamming Rot_Y: ");
         }
 
-        std::cout << "POST-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "POST-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
 
 
         // Measure
@@ -146,7 +146,7 @@ int main(int argc, char **argv){
             sim->PrintStates("After Collapse to Basis z: ");
         }
 
-        std::cout << "POST-Z PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "POST-Z PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
 
         val = sim->applyMeasurementToRegister(reg_memory);
         if(verbose){
@@ -159,14 +159,18 @@ int main(int argc, char **argv){
 
     cout << "Measure:" << endl;
     int i = 0;
-
+    //Create reverse dict
+    std::map<std::size_t, std::size_t> count_vk;
     for(auto& [k,v] : count){
+        count_vk[v] = k;
+    }
+    for(auto& [k,v] : count_vk){
         //cout << vec_to_encode[i] << "\t";
-        cout << k << "\t";
+        cout << v << "\t";
         cout << "|";
-        print_bits(k, len_reg_memory);
+        print_bits(v, len_reg_memory);
         cout << ">\t";
-        cout << v << "\t" << ((double) v / (double) num_exps) << endl;
+        cout << k << "\t" << ((double) k / (double) num_exps) << endl;
         i++;
     }
 

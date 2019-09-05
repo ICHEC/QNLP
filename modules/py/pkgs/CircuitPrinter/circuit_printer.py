@@ -174,8 +174,8 @@ class CircuitPrinter:
 if __name__== "__main__":
     import os
     args = os.sys.argv
-    if len(args) < 3:
+    if len(args) < 4:
         print("Please specify the file to load and number of qubits in sim, and output filename to save: python cct.py <CSV> <>")
         exit()
     CCT = CircuitPrinter(num_qubits=int(args[3]))
-    CCT.latex_cct(args[1], args[2], max_depth=8)
+    CCT.latex_cct(args[1], args[2], max_depth=int(args[4]))

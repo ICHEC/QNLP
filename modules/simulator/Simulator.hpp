@@ -14,12 +14,11 @@
  */
 //##############################################################################
 
-#ifndef QNLP_SIMULATOR_INTERFACE_H
-#define QNLP_SIMULATOR_INTERFACE_H
+#ifndef QNLP_SIMULATOR_H
+#define QNLP_SIMULATOR_H
 #include <cstddef>
 #include <utility> //std::declval
 #include <vector>
-
 #include <iostream>
 
 // Include all additional modules to be used within simulator
@@ -31,146 +30,21 @@
 #include "bin_into_superpos.hpp"
 #include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
-//#include "arithmetic.hpp"
+
+#ifdef VIRTUAL_INTERFACE
+#include "ISimulator.hpp"
+#endif
 
 namespace QNLP{
 
 #define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
-
-#ifdef VIRTUAL_INTERFACE
-    /**
-    * @class	The abstract interface for implementing the QNLP-quantum 
-    * simulator connector. Currently exists for the purpose of later implementing 
-    * dynamic polymorphism.
-    */
-    class ISimulator{
-    public:
-        //##############################################################################
-        //                                  1 qubit gates
-        //##############################################################################
-
-        /**
-         * @brief Apply Pauli-X gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateX(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Pauli-Y gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateY(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Pauli-Z gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateZ(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Identity to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateI(std::size_t qubit_idx) = 0;
-        
-        /**
-         * @brief Apply Hadamard gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateH(std::size_t qubit_idx) = 0;
-
-        /**
-         * @brief Apply \sqrt{Pauli-X} gate to qubit at qubit_idx
-         * 
-         * @param qubit_idx Index of qubit to apply gate upon
-         */
-        virtual void applyGateSqrtX(std::size_t qubit_idx) = 0;
-
-        /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotX(std::size_t qubit_idx, double angle_rad) = 0;
-
-        /**
-         * @brief Arbitrary rotation around Y axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotY(std::size_t qubit_idx, double angle_rad) = 0;
-
-        /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
-         * 
-         * @param qubit_idx Index of qubit to apply rotation upon
-         * @param angle_rad Angle of rotation in radians
-         */
-        virtual void applyGateRotZ(std::size_t qubit_idx, double angle_rad) = 0;
-
-        //##############################################################################
-        //                                  2 qubit gates
-        //##############################################################################
-
-        /**
-         * @brief Apply Controlled Pauli-X (CNOT) on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCX(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Pauli-Y on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCY(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Pauli-Z on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */        
-        virtual void applyGateCZ(std::size_t control, std::size_t target) = 0;
-
-        /**
-         * @brief Apply Controlled Hadamard on target qubit
-         * 
-         * @param control Qubit index acting as control
-         * @param target Qubit index acting as target
-         */
-        virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
-
-        virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
-
-        virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
-
-        virtual std::size_t getNumQubits() = 0;
-
-        //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);
-    };
-#endif
-
-    //##############################################################################
-    //##############################################################################
-
 
     /**
      * @brief CRTP defined class for simulator implementations. 
      * 
      * @tparam DerivedType CRTP derived class simulator type
      */
-    template <class DerivedType>//<class QubitRegisterType, class GateType>
+    template <class DerivedType>
     #ifdef VIRTUAL_INTERFACE
     class SimulatorGeneral : virtual public ISimulator {
     #else
@@ -436,9 +310,6 @@ namespace QNLP{
             static_cast<DerivedType&>(*this).applyGateCRotZ(ctrl_qubit, qubit_idx, angle_rad);
         }
 
-
-
-
         /**
          * @brief Get the underlying qubit register object
          * 
@@ -498,7 +369,6 @@ namespace QNLP{
             n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
         }
 
-
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
@@ -515,14 +385,14 @@ namespace QNLP{
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
             }
-            else
+            else{
                 matrixLabel = label;
+            }
             n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
         }
 
-
         /**
-         * @brief Apply oracle to match given binary index
+         * @brief Apply oracle to match given binary index with non adjacent controls
          * 
          * @param U 2x2 unitary matrix to apply
          * @param minIdx Lowest index of the control lines expected for oracle
@@ -530,29 +400,35 @@ namespace QNLP{
          * @param target Target qubit index to apply U on
          */
         template<class Mat2x2Type>
-        void applyOracle(std::size_t bit_pattern, std::size_t minIdx, std::size_t maxIdx, std::size_t target, const Mat2x2Type& U ){
-            std::vector<std::size_t> control_indices;
-            for(std::size_t i = minIdx; i <= maxIdx; i++){
-                control_indices.push_back( i );
-            }
-            Oracle<DerivedType> oracle(static_cast<DerivedType*>(this)->getNumQubits()-1, control_indices);
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, control_indices, target, U);
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U ){
+            Oracle<DerivedType> oracle;
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U);
         }
 
         /**
-         * @brief Apply diffusion operator on marked state. Assumes states linearly ordered: minIdx=0 < maxIdx=num_qubits-2, target=num_qubits-1
+         * @brief Apply oracle to match given binary index with linearly adjacent controls
          * 
-         * @param minIdx Lowest index of the control lines expected for oracle calls
-         * @param maxIdx Highest index of the control lines expected for oracle calls
+         * @param bit_pattern Oracle pattern in binary
+         * @param ctrlIndices Control lines for oracle
+         * @param target Target qubit index to apply Z gate upon
+         */
+        void applyOraclePhase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
+            applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+        }
+
+        /**
+         * @brief Apply diffusion operator on marked state. 
+         * 
+         * @param ctrlIndices Vector of control line indices 
          * @param target Target qubit index to apply Ctrl-Z upon. 
          */
-        void applyDiffusion(std::size_t minIdx, std::size_t maxIdx, std::size_t target){
+        void applyDiffusion(const std::vector<std::size_t>& ctrlIndices, std::size_t target){
             Diffusion<DerivedType> diffusion;
-            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), minIdx, maxIdx, target);
+            diffusion.applyOpDiffusion(static_cast<DerivedType&>(*this), ctrlIndices, target);
         }
 
         /**
-         * @brief Directy encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         * @brief Directly encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
          *
          * @param target_pattern The binary pattern that is to be encoded
          * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
@@ -648,7 +524,6 @@ namespace QNLP{
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
-
         /**
          * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
          *
@@ -671,7 +546,6 @@ namespace QNLP{
 
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
-
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
@@ -709,8 +583,6 @@ namespace QNLP{
         void collapseToBasisZ(std::size_t target, bool collapseValue){
             static_cast<DerivedType*>(this)->collapseToBasisZ(target, collapseValue);
         }
-
-
                 
         /**
          * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)

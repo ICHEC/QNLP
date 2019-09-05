@@ -1,6 +1,6 @@
 # Convert corpus to non-zero state coefficients for quantum encoding
 
-import tagging as tg
+import QNLP.tagging as tg
 import os
 
 import nltk
@@ -8,7 +8,7 @@ import sys
 import numpy as np
 
 # DB for exporting data to be read into C++
-import qnlp_db as qdb
+import QNLP.io.qnlp_db as qdb
 
 from collections import Counter
 from nltk.corpus import stopwords
@@ -163,17 +163,9 @@ def mapNameToBinaryBasis(words, db_name, table_name="qnlp"):
 
 ###################################
 
-if __name__ == "__main__":
-    if len(os.sys.argv) < 2:
-        raise("Please specify the path to basis words as arg 1, corpus as arg 2, and processing mode as arg 3")
 
-    BasisPath = os.sys.argv[1]
-    CorpusPath = os.sys.argv[2]
-    
-    if len(os.sys.argv) == 4:
-        proc_mode = os.sys.argv[3]
-    else:
-        proc_mode=0
+def run(BasisPath, CorpusPath, proc_mode=0, db_name="qnlp_tagged_corpus"):
+
 
     # Load the basis words
     basis_text=""    
@@ -201,6 +193,5 @@ if __name__ == "__main__":
     _, num_q_total, num_q_n, num_q_v = num_qubits(basis_words)
 
     #Map basis words to binary strings, and populate DB
-    basis_nMap, basis_vMap = mapNameToBinaryBasis(basis_words, "qnlp_tagged_corpus","basis")
-
-    corpus_nMap, corpus_vMap = mapNameToBinaryBasis(corpus_words, "qnlp_tagged_corpus","corpus")
+    basis_nMap, basis_vMap = mapNameToBinaryBasis(basis_words, db_name, "basis")
+    corpus_nMap, corpus_vMap = mapNameToBinaryBasis(corpus_words, db_name, "corpus")
