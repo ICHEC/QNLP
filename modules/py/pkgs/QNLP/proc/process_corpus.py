@@ -165,8 +165,6 @@ def mapNameToBinaryBasis(words, db_name, table_name="qnlp"):
 
 
 def run(BasisPath, CorpusPath, proc_mode=0, db_name="qnlp_tagged_corpus"):
-
-
     # Load the basis words
     basis_text=""    
     # Load the corpus
