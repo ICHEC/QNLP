@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 project(qnlp_hamming_RotY_amplification)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QNLP_HAMMING_INC ${PROJECT_SOURCE_DIR} PARENT_SCOPE)
