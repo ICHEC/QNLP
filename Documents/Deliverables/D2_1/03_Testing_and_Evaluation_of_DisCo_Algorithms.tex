@@ -1,10 +1,102 @@
-\section{Testing and Evaluation of DisCo Algorithms}
+\section{Testing and evaluation of closest-vector algorithm}
 \label{sec:testing_and_evaluation_of_disco_algorithms}
 
-\subsection{Testing of DisCo Algorithms}
-\label{sec:testing_of_disco_algorithms}
+The algorithms discussed in Section~\ref{sec:implementation_of_closest_Vector_algorithms} requires a variety of separate algorithmic components to be implemented. To ensure correctness, an extensive set of validation tests of each individual component is necessary. All required modules and subsequent tests are discussed below, as well as the resulting validation of the full closest vector algorithm. The current state of the QNLP project software structure is defined in Appendix~\ref{app:dep_graph}, with subsequent tests located at the same hierarchical level as the module to evaluate. The build process for the QNLP application is defined in Appendix~\ref{app:build_instr}.
 
+\subsection{Testing of implemented algorithms}
+\label{sec:testing_of_implemented_algorithms}
 
-\subsection{Evaluation of DisCo Algorithms}
-\label{sec:evaluation_of_disco_algorithms}
+To ensure the implemented algorithms behave as expected, unit tests were written for each individual component, with the resulting test-suite examining all aspects of the routines. Through the Catch2 testing framework~\cite{catch2}, we have created a single point of execution for all implemented C++ modules. This encapsulates all functionality directly interfacing with the Intel\textregistered-QS library, and ensures the correctness of the implementations against an exhaustive list of verification steps.
+
+The testing binary, located within the build directory, can be found at \textbf{\lstinline{modules/tests/test}}, and is generated through use of the \textbf{\lstinline{-DENABLE_TESTS}} CMake build flag. The available modules for testing can be specified as arguments to the binary. The set of test cases are currently:
+\begin{itemize}
+    \item ``encode'': Test encoding of binary (integers) to superposition.
+    \item ``encode\_amp'': Test encoding of different register sizes and checking states' amplitudes.
+    \item ``diffusion'': 4 \& 8 qubit diffusion operator using module and simulator methods.
+    \item ``ncu'': Test n-controlled unitary module with $\sigma_x$, $\sigma_z$, both for linearly adjacent, and non-adjacent control lines with between 4 and 8 qubits.
+    \item ``oracle'': Phase oracle simulator method and standalone object for between 3 and 8 qubits in register.
+    \item ``hammingroty'': Test Hamming distance routines using rotation about y axis for post-selection.
+    \item ``db'': Test C++ SQLite3 database functionality.
+    \item ``simulator'': Test creation and initialisation of the simulator object with Intel\textregistered-QS backend.
+\end{itemize}
+
+Additional modules and tests created that do not participate in the current workflow are unlisted, and may be removed or merged with existing routines at a later date. A run of the entire test suite can be performed without passing any arguments to the test binary. This will run all above tests, and examine the resulting quantum states for all available patterns that the quantum register can represent ($2^{n}$, with $n=$num. qubits).
+
+\subsection{Evaluation of closest vector method}
+\label{sec:evaluation_of_cv_algorithms}
+
+The results summarised here are taken from the Jupyter notebook example work-flow defined in Appendix~\ref{qnlp-example}. This provides an example of the discussion originally presented in Deliverable 1.1 of the Hamming distance method for the closest vector method, and the theoretical approach discussed earlier in Section~\ref{sec:implementation_of_closest_Vector_algorithms}.
+
+The following section uses the sentence ``John rests inside, Mary walks outside'', as this is an example of the simplest non-trivial NVN style corpus in which we have two noun-verb-noun (NVN) style sentences back-to-back. Defining the basis token set algorithmically currently remains a challenge, and so we will define an example artificial basis set onto which we map our corpus sentences. 
+
+We begin by tokenising the respective sentences into 3 different categories: subject nouns, verbs, and object nouns. With the sentence tokenised, we next represent them as binary integers, and encode them using the QNLP runtime. The basis tokens are defined as:
+
+\begin{table}[h!]
+    \centering
+    \rowcolors{2}{gray!20!white}{gray!5!white}
+    \begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}| }
+        \textbf{Dataset} & \textbf{Token} & \textbf{Bin.~Index}\\
+        \hline
+        {$n_s$} & {adult} & 00 \\
+        {$n_s$} & {child} & 01 \\
+        {$n_s$} & {smith} & 10 \\
+        {$n_s$} & {surgeon} & 11 \\
+        \hline
+        {$v$} & {stand} & 00 \\
+        {$v$} & {move} & 01 \\
+        {$v$} & {sit} & 10 \\
+        {$v$} & {sleep} & 11 \\
+        \hline
+        {$n_o$} & {inside} & 0 \\
+        {$n_o$} & {outside} & 1 \\
+        \hline
+    \end{tabular}
+    \caption{Basis data}
+    \label{tbl:basis_encoding}
+\end{table}
+
+We define the mapping of ``John rests inside, Mary walks outside'' to this basis as:
+
+\begin{table}[h!]
+    \centering
+    \rowcolors{2}{gray!20!white}{gray!5!white}
+    \begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}| }
+        \textbf{Dataset} & \textbf{Token} & \textbf{State}\\
+        \hline
+        {$n_s$} & {John} & $(\vert 00 \rangle + \vert 10 \rangle)/\sqrt{2}$ \\
+        {$n_s$} & {Mary} & $(\vert 01 \rangle + \vert 11 \rangle)/\sqrt{2}$ \\
+        \hline
+        {$v$} & {walk} & $(\vert 00 \rangle + \vert 01 \rangle)/\sqrt{2}$ \\
+        {$v$} & {rest} & $(\vert 10 \rangle + \vert 11 \rangle)/\sqrt{2}$ \\
+        \hline
+        {$n_o$} & {inside} & $\vert 0 \rangle$  \\
+        {$n_o$} & {outside} & $\vert 1 \rangle$  \\
+        \hline
+    \end{tabular}
+    \caption{Sentence data encoding using basis from Table~\ref{tbl:basis_encoding}.}
+    \label{tbl:sentence_encoded}
+\end{table}
+
+Using the above choice of basis and encoding, the resulting patterns to be encoded are $p_i \in \{4, 20, 6, 22, 9, 25, 11, 27\},$ or in binary format $p_b \in \{00100, 10100, 00110, 10110, 01001, \\11001, 01011, 11011\}$.
+
+For the given test pattern, we must first map this onto the basis. For simplicity, we have chosen the pattern ``adults stand inside'' $\rightarrow \vert 00000\rangle$. The closest state from the encoding meanings defined by both the chosen basis and mapped corpus can be obtained through repeated state preparation and subsequent measurements using the methods discussed in Section~\ref{sec:implementation_of_closest_Vector_algorithms}. For this test state, the encoded state with shortest Hamming distance is ``(adult,sit,inside)'', which has a state encoding of $\vert 00100 \rangle$ and Hamming distance of 1. The result of the encoding and evaluation is visible in Fig.~\ref{fig:encoded_patterns}(a). Performing the same evaluation using a different test pattern, such as ``smith stand outside'' $( 17 \rightarrow \vert 10001\rangle)$ gives as the closest result ``(surgeon,stand,outside)'', and is visible in Fig.~\ref{fig:encoded_patterns}(b).
+
+The distribution of states returned gives the ordering of closeness by probability of occurrence. States appear with a probability inversely related to their Hamming distance from the test pattern, and as such we can infer vector closeness relationships between the ratios of the observed states.
+
+\begin{figure}[h!]
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.75\textwidth]{Images/qnlp_vector_measurement_adult_stand_inside.pdf}
+        \caption{Evenly encoded states given the meanings defined by both Table.~\eqref{tbl:basis_encoding} and \eqref{tbl:sentence_encoded}, and the resulting state measurements after post-selection using test-state encoded with $\vert 00000 \rangle $.}
+    \end{subfigure}
+    \vspace{1cm}
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.75\textwidth]{Images/qnlp_vector_measurement_smith_stand_outside.pdf}
+        \caption{Example encoding comparing the evenly encoded sentence data, and the post-selected result for ``smith stand outside'' $ 17 \rightarrow \vert 10001\rangle$. The closest vector is ``(surgeon,stand,outside)'', with pattern $25 \rightarrow 0b11001$ and a Hamming distance of $1$.}
+    \end{subfigure}
+    \caption{Sentence encoding and closest vector query results for states (a) $\vert 00000 \rangle$ and (b) $\vert 10001\rangle$. The highest peak indicates the resulting state with shortest Hamming distance to each respective test pattern.}
+    \label{fig:encoded_patterns}
+\end{figure}
+\clearpage
 

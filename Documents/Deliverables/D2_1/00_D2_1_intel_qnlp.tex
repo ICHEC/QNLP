@@ -1,6 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage[english]{babel}
 \usepackage[utf8x]{inputenc}
+\usepackage[table]{xcolor}
 \usepackage{amsmath}
 \usepackage{graphicx}
 \graphicspath{{Images/}}
@@ -12,13 +13,56 @@
 \usepackage{geometry}
 \usepackage[title,toc,page]{appendix}
 % \usepackage{fullpage}
-%\usepackage{fancyhdr}
+\usepackage{fancyhdr}
 %\pagestyle{fancy}
+\usepackage{listings}
+
+\usepackage{caption}
+\usepackage{subcaption}
+
+\input{incl_packages.tex}
+
+%% Code highlighting
+%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{listings}
+\usepackage{xcolor}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+ 
+\lstset{style=mystyle}
+%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 \begin{titlepage}
 \newcommand{\HRule}{\rule{\linewidth}{0.1mm}} 
 \center % Center everything on the page
+ 
+% Table width and separation
+\setlength{\arrayrulewidth}{1mm}
+\setlength{\tabcolsep}{18pt}
+\renewcommand{\arraystretch}{2.5}
  
 %---------------------------------------------------------------------------------
 %	HEADING SECTIONS
@@ -31,7 +75,7 @@
 %---------------------------------------------------------------------------------
 \HRule \\[0.4cm]
 { \Large \bfseries D2.1} \\[0.3cm]
-{ \Large \bfseries Implementation, Testing and Evaluation of DisCo Algorithms \\[0.1cm]using Representative Corpora}\\[0.1cm]
+{ \Large \bfseries Implementation, Testing and Evaluation of DisCo Algorithms: \\[0.1cm]Closest vector algorithm}\\[0.1cm]
 \HRule \\[1.5cm]
  
 %---------------------------------------------------------------------------------
@@ -68,7 +112,13 @@ Venkatesh \textsc{Kannan}, ICHEC
 %	AUTHOR SECTION 
 %---------------------------------------------------------------------------------
 \section*{Executive Summary}
-TBC
+
+%In Q2 2018, Intel Ireland and the Irish Centre for High-End Computing (ICHEC) identified the opportunity to leverage the Intel Quantum Simulator (qHiPSTER) to port and implement the quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a given corpus. Funded by both Intel Ireland and Enterprise Ireland, this project has the following aims: (1) to leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model; (2) to develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP; and (3) to pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
+
+In this deliverable, we extend the work previously discussed in deliverable D1.1, and introduce a formally defined method of implementation for the closest vector algorithm. We discuss the technical aspects of the method, and the approach we have taken to realise this using the quantum circuit formalism. Verification methods for the implementation as discussed, and we present the initial results taken while using the algorithm. We showcase the effectiveness of our approach for determining the closest vector for a set of given training and test data sets. We conclude with discussions on the implementation, and provide details for future extension of the methods to realise the full CSC sentence similarity algorithm.
+
+
+
 
 \newpage
 \tableofcontents
