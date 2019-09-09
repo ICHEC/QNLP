@@ -42,7 +42,7 @@ for i in range(len_reg_ancilla):
     reg_ancilla[i] = i + len_reg_memory;
 
 # data for encoding using the given basis
-"John rests upstairs, Mary walks cellar, James sits attic"
+"John rests upstairs, Mary walks (in the) cellar, James sits (in the) attic"
 sentences = [
     [{"john" :   [encoding_dict["ns"]["adult"], encoding_dict["ns"]["smith"], encoding_dict["ns"]["artist"]]},
     {"rest" :    [encoding_dict["v"]["sit"], encoding_dict["v"]["sleep"]]},
@@ -55,7 +55,6 @@ sentences = [
     [{"james" :  [encoding_dict["ns"]["adult"], encoding_dict["ns"]["engineer"], encoding_dict["ns"]["child"] ]},
     {"sits" :    [encoding_dict["v"]["sit"]]},
     {"doorway" : [encoding_dict["no"]["outside"], encoding_dict["no"]["inside"]] }], #6 +28 = 34
-
 ]
 print("sentences = ", sentences)
 
@@ -109,7 +108,7 @@ for i in vec_to_encode:
     count.update({i : 0})
 
 # Repeated shots of experiment
-for exper in tqdm_notebook(range(num_exps), desc='Sim. experiment progress'):       
+for exper in range(num_exps):#, desc='Sim. experiment progress'):       
     print("Comparison:=", exper)
 
     sim.initRegister()

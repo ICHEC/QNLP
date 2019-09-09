@@ -114,9 +114,8 @@ class VectorSpaceModel:
     def sort_basis_helper(self, token_type, num_elems):
         basis_dict = {token_type : {} }
         #consider Counter.most_common(num_elems)
-
         for counter, elem in enumerate(sorted(self.tokens[token_type].items(), key=lambda x : x[1][0], reverse = True)):
-            if counter == num_elems:
+            if counter >= int(num_elems):
                 break
             basis_dict[token_type].update({elem[0] : elem[1]})
         return basis_dict
@@ -127,7 +126,6 @@ class VectorSpaceModel:
     def define_basis(self, num_basis = {"verbs": 8, "nouns":8}):
         """ 2. Specify the number of basis elements in each space. 
         Dict holds keys of type and values of number of elements to request."""
-
         if self.tokens == None:
             return
         basis = {}
@@ -176,14 +174,17 @@ class VectorSpaceModel:
 
         basis_dist_dict = {}
         # pairwise distance calc
-        for c0,k0 in enumerate(basis_tk_list[0:-1]):
-            for k1 in basis_tk_list[c0:]:
-                if k0 != k1:
-                    a = self.tokens[tokens_type][k0][1]
-                    b = self.tokens[tokens_type][k1][1]
+        if len(basis_tk_list) > 1:
+            for c0,k0 in enumerate(basis_tk_list[0:-1]):
+                for k1 in basis_tk_list[c0:]:
+                    if k0 != k1:
+                        a = self.tokens[tokens_type][k0][1]
+                        b = self.tokens[tokens_type][k1][1]
 
-                    basis_dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
-                    #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
+                        basis_dist_dict[(k0,k1)] = np.min(dist_metric(a,b)) # list(map(np.unique, dist_metric(a,b)))
+                        #sorted([ dist_metric(i,j) for i in self.tokens[tokens_type][k0][1] for j in self.tokens[tokens_type][k1][1] ])
+        else:
+            basis_dist_dict.update({ (basis_tk_list[0],basis_tk_list[0]) : 0})
 
         self.distance_dictionary.update( {tokens_type : basis_dist_dict } )
 
@@ -235,6 +236,7 @@ class VectorSpaceModel:
 
             else:
                 d_val = np.min(distances) if not isinstance(distances, int) else distances
+
                 token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=d_val )
 
                 if graph_type == nx.DiGraph:

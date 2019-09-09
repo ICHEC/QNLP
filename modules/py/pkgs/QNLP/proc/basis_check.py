@@ -114,10 +114,3 @@ def basis_check(db_file_name=None):
             for j in v[1]:
                 print(k, "->", basis_verbs_rev[j])
     print("")
-
-if __name__ == "__main__":
-    if len(sys.argv) > 2:
-        db_file = os.sys.argv[2]
-        basis_check(db_file)
-    else:
-        basis_check()

@@ -1,4 +1,5 @@
 import QNLP.proc.process_corpus
+import os
 
 if __name__ == "__main__":
     if len(os.sys.argv) < 2:
