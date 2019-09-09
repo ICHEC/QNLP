@@ -1,0 +1,19 @@
+\section{QNLP project build instructions}\label{app:build_instr}
+To successfully build the QNLP project, it is first necessary to have built Intel-QS locally. The location of Intel-QS is to be defined by the environment variables \textbf{\texttt{QHIPSTER\_DIR\_INC}} for the header files directory, and \textbf{\texttt{QHIPSTER\_DIR\_LIB}} for the directory location of \textbf{\texttt{qHiPSTER.a}}. With these variables defined, the following steps allow for a build of QNLP enabling all options:
+
+\begin{lstlisting}[language=bash, caption=QNLP build instructions. Replace <> tags with respective paths.]
+git clone git@git.ichec.ie:intel-qnlp/intel-qnlp.git
+cd intel-qnlp
+
+./setup_env.sh # Installs conda, python, and additional depedencies
+source ./load_env.sh # Configures the terminal session to set all required paths
+
+cd build
+
+CXX=<MPI C++ compiler> CC=<MPI C compiler> cmake .. \
+  -DCMAKE_C_COMPILER=<MPI C compiler> -DCMAKE_CXX_COMPILER=<MPI C++ compiler> \
+  -DENABLE_TESTS=1 -DENABLE_LOGGING=1 -DENABLE_PYTHON=1
+\end{lstlisting}
+
+This build process will enable all tests for the project, allow the logging of all gate calls for later circuit generation, create the Python modules binding and install the bindings into the local (conda) python environment for use.
+\clearpage

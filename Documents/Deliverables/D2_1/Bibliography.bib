@@ -9,31 +9,9 @@
  @article{Wiebe_Kapoor_Svore_2014, title={Quantum Algorithms for Nearest-Neighbor Methods for Supervised and Unsupervised Learning}, url={http://arxiv.org/abs/1401.2142}, abstractNote={We present several quantum algorithms for performing nearest-neighbor learning. At the core of our algorithms are fast and coherent quantum methods for computing distance metrics such as the inner product and Euclidean distance. We prove upper bounds on the number of queries to the input data required to compute these metrics. In the worst case, our quantum algorithms lead to polynomial reductions in query complexity relative to the corresponding classical algorithm. In certain cases, we show exponential or even super-exponential reductions over the classical analog. We study the performance of our quantum nearest-neighbor algorithms on several real-world binary classification tasks and find that the classification accuracy is competitive with classical methods.}, note={arXiv: 1401.2142}, journal={arXiv:1401.2142 [quant-ph]}, author={Wiebe, Nathan and Kapoor, Ashish and Svore, Krysta}, year={2014}, month={Jan} }
 
 
- @phdthesis{Schuld_2017, title={Quantum machine learning for supervised pattern recognition.}, url={http://researchspace.ukzn.ac.za/handle/10413/15748}, abstractNote={Humans are experts at recognising patterns in past experience and applying them to new tasks. 
-For example, after seeing pictures of a face we can usually tell if another image contains the 
-same person or not. Machine learning is a research discipline at the intersection of computer 
-science, statistics and mathematics that investigates how pattern recognition can be performed 
-by machines and for large amounts of data. Since a few years machine learning has come 
-into the focus of quantum computing in which information processing based on the laws of 
-quantum theory is explored. Although large scale quantum computers are still in the first stages 
-of development, their theoretical description is well-understood and can be used to formulate 
-`quantum software’ or `quantum algorithms’ for pattern recognition. Researchers can therefore 
-analyse the impact quantum computers may have on intelligent data mining. This approach is 
-part of the emerging research discipline of quantum machine learning that harvests synergies 
-between quantum computing and machine learning. 
-The research objective of this thesis is to understand how we can solve a slightly more specific 
-problem called supervised pattern recognition based on the language that has been developed 
-for universal quantum computers. The contribution it makes is twofold: First, it presents a 
-methodology that understands quantum machine learning as the combination of data encoding into 
-quantum systems and quantum optimisation. Second, it proposes several quantum algorithms for 
-supervised pattern recognition. These include algorithms for convex and non-convex optimisation, 
-implementations of distance-based methods through quantum interference, and the preparation of 
-quantum states from which solutions can be derived via sampling. Amongst the machine learning 
-methods considered are least-squares linear regression, gradient descent and Newton’s method, 
-k-nearest neighbour, neural networks as well as ensemble methods. Together with the growing 
-body of literature, this thesis demonstrates that quantum computing offers a number of interesting 
-tools for machine learning applications, and has the potential to create new models of how to learn 
-from data.}, author={Schuld, Maria}, year={2017} }
+@phdthesis{Schuld_2017, title={Quantum machine learning for supervised pattern recognition.}, url={http://researchspace.ukzn.ac.za/handle/10413/15748}, abstractNote={Humans are experts at recognising patterns in past experience and applying them to new tasks. For example, after seeing pictures of a face we can usually tell if another image contains the same person or not. Machine learning is a research discipline at the intersection of computer science, statistics and mathematics that investigates how pattern recognition can be performed by machines and for large amounts of data. Since a few years machine learning has come into the focus of quantum computing in which information processing based on the laws of 
+quantum theory is explored. Although large scale quantum computers are still in the first stages of development, their theoretical description is well-understood and can be used to formulate `quantum software’ or `quantum algorithms’ for pattern recognition. Researchers can therefore analyse the impact quantum computers may have on intelligent data mining. This approach is part of the emerging research discipline of quantum machine learning that harvests synergies between quantum computing and machine learning. 
+The research objective of this thesis is to understand how we can solve a slightly more specific problem called supervised pattern recognition based on the language that has been developed for universal quantum computers. The contribution it makes is twofold: First, it presents a methodology that understands quantum machine learning as the combination of data encoding into quantum systems and quantum optimisation. Second, it proposes several quantum algorithms for supervised pattern recognition. These include algorithms for convex and non-convex optimisation, implementations of distance-based methods through quantum interference, and the preparation of quantum states from which solutions can be derived via sampling. Amongst the machine learning methods considered are least-squares linear regression, gradient descent and Newton’s method, k-nearest neighbour, neural networks as well as ensemble methods. Together with the growing body of literature, this thesis demonstrates that quantum computing offers a number of interesting tools for machine learning applications, and has the potential to create new models of how to learn from data.}, author={Schuld, Maria}, year={2017} }
 
  @article{Mitarai_Kitagawa_Fujii_2019, title={Quantum Analog-Digital Conversion}, volume={99}, ISSN={2469-9926, 2469-9934}, url={http://arxiv.org/abs/1805.11250}, DOI={10.1103/PhysRevA.99.012301}, abstractNote={Many quantum algorithms, such as Harrow-Hassidim-Lloyd (HHL) algorithm, depend on oracles that efficiently encode classical data into a quantum state. The encoding of the data can be categorized into two types; analog-encoding where the data are stored as amplitudes of a state, and digital-encoding where they are stored as qubit-strings. The former has been utilized to process classical data in an exponentially large space of a quantum system, where as the latter is required to perform arithmetics on a quantum computer. Quantum algorithms like HHL achieve quantum speedups with a sophisticated use of these two encodings. In this work, we present algorithms that converts these two encodings to one another. While quantum digital-to-analog conversions have implicitly been used in existing quantum algorithms, we reformulate it and give a generalized protocol that works probabilistically. On the other hand, we propose an deterministic algorithm that performs a quantum analog-to-digital conversion. These algorithms can be utilized to realize high-level quantum algorithms such as a nonlinear transformation of amplitude of a quantum state. As an example, we construct a “quantum amplitude perceptron”, a quantum version of neural network, and hence has a possible application in the area of quantum machine learning.}, note={arXiv: 1805.11250}, number={1}, journal={Physical Review A}, author={Mitarai, Kosuke and Kitagawa, Masahiro and Fujii, Keisuke}, year={2019}, month={Jan} }
 
@@ -104,4 +82,29 @@ keywords = {Language, Universal; Basic English},
   booktitle = {Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics
       (August 4-9, 2013, Sofia, Bulgaria)},
   year = {2013}
+}
+
+@article{Aaronson_2005,
+author = {Scott Aaronson },
+title = {Quantum computing, postselection, and probabilistic polynomial-time},
+journal = {Proceedings of the Royal Society A: Mathematical, Physical and Engineering Sciences},
+volume = {461},
+number = {2063},
+pages = {3473-3482},
+year = {2005},
+doi = {10.1098/rspa.2005.1546},
+URL = {https://royalsocietypublishing.org/doi/abs/10.1098/rspa.2005.1546},
+eprint = {https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.2005.1546}
+,
+    abstract = { I study the class of problems efficiently solvable by a quantum computer, given the ability to ‘postselect’ on the outcomes of measurements. I prove that this class coincides with a classical complexity class called PP, or probabilistic polynomial-time. Using this result, I show that several simple changes to the axioms of quantum mechanics would let us solve PP-complete problems efficiently. The result also implies, as an easy corollary, a celebrated theorem of Beigel, Reingold and Spielman that PP is closed under intersection, as well as a generalization of that theorem due to Fortnow and Reingold. This illustrates that quantum computing can yield new and simpler proofs of major results about classical computation. }
+}
+
+@article{clark_coecke_sadrzadeh_2010,
+	title = {A {Compositional} {Distributional} {Model} of {Meaning}},
+	abstract = {We propose a mathematical framework for a uniﬁcation of the distributional theory of meaning in terms of vector space models, and a compositional theory for grammatical types, namely Lambek’s pregroup semantics. A key observation is that the monoidal category of (ﬁnite dimensional) vector spaces, linear maps and the tensor product, as well as any pregroup, are examples of compact closed categories. Since, by deﬁnition, a pregroup is a compact closed category with trivial morphisms, its compositional content is reﬂected within the compositional structure of any non-degenerate compact closed category. The (slightly reﬁned) category of vector spaces enables us to compute the meaning of a compound well-typed sentence from the meaning of its constituents, by ‘lifting’ the type reduction mechanisms of pregroup semantics to the whole category. These sentence meanings live in a single space, independent of the grammatical structure of the sentence. Hence we can use the inner-product to compare meanings of arbitrary sentences. A variation of this procedure which involves constraining the scalars of the vector spaces to the semiring of Booleans results in the well-known Montague semantics.},
+	language = {en},
+	author = {Clark, Stephen and Coecke, Bob and Sadrzadeh, Mehrnoosh},
+    URL = {https://royalsocietypublishing.org/doi/abs/10.1098/rspa.2005.1546},
+    eprint = {https://royalsocietypublishing.org/doi/pdf/10.1098/rspa.2005.1546},
+	year = {2010},
 }

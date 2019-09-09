@@ -1,13 +1,15 @@
 \section{Introduction}
 \label{sec:introduction}
 
-\subsection{Abstraction of DisCo Algorithms}
+\subsection{Abstraction of DisCo algorithms: closest vector}
 \label{sec:abstraction_of_disco_algorithms}
-Updates to the algorithms defined in deliverable D1.1 Section 2 ``Abstraction of DisCo Algorithms"
+The reference implementation of the closest vector algorithm for natural language processing as defined by the DisCo algorithms~\cite{Zeng_Coecke_2016, clark_coecke_sadrzadeh_2010, Coecke_Sadrzadeh_Clark_2010} on a quantum simulator was defined in deliverable D1.1, and was defined using approaches introduced and discussed by the works~\cite{Trugenberger_2001, Trugenberger_2002, Schuld_Sinayskiy_Petruccione_2014}. Here we have taken the previously defined method, and modified our approach to use the controlled $R_y$ and post-selection method, discussed in D1.1 Appendix C. 
+
+Applying the Hamming distance approach as proposed by~\cite{Trugenberger_2001} allows us to compare the closest encoded meaning with a given test vector. A fully feature discussion of this implementation is given in Section~\ref{sec:implementation_of_closest_Vector_algorithms}.
 
 \subsection{Representative Corpora}
 \label{sec:representative_corpora}
-Recap of the representative corpora currently used for the tests and evaluation; Re-use from deliverable D1.1 if sufficient
+For the purpose of this deliverable, we have restricted ourselves to the simplest non-trivial noun-verb-noun sentence structure, and simplified basis set onto which we perform the mapping. We follow a similar approach to \cite{clark_coecke_sadrzadeh_2010} for comparing sentence meanings, wherein we define a basis set, and map our sentences onto this basis to determine meanings. Using the methods of encoding and Hamming distance allows then to build meanings between the encoded corpus and respective test vector.
 
 \subsection{Structure of the Document}
-The rest of the document is structured as follows: Sections~\ref{sec:implementation_of_disco_algorithms} xyz; Section~\ref{sec:testing_and_evaluation_of_disco_algorithms} xyz; Section~\ref{sec:discussion_and_summary} summarises and discusses the next steps towards implementing the algorithms.
+The rest of the document is structured as follows: Section~\ref{sec:implementation_of_closest_Vector_algorithms} discusses the technical details of the implemented solution for the closest vector algorithm; Section~\ref{sec:testing_and_evaluation_of_disco_algorithms} discusses the necessary validation stages for the individual components of the algorithm implementation, as well as sample results for using the implemented solution to determine the closest vector between a test set and an encoded meaning set; Section~\ref{sec:discussion_and_summary} summarises and discusses the results of the algorithm, as well as next stages of implementation and planned future work towards deliverables D2.2 and D2.3.
