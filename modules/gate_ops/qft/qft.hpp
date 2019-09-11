@@ -33,13 +33,11 @@ namespace QNLP{
 
                 //Control lines:
                 for(int j = i-1; j >= (int) minIdx; j--){
-
                     theta = 2.0*M_PI / (std::size_t) (1<<(1+(i-j)));
-
                     qSim.applyGateCPhaseShift(theta, j,  i);
-
                 }
             }
+            qSim.InvertRegister(minIdx, maxIdx);
         }
 
         /**
@@ -51,6 +49,7 @@ namespace QNLP{
          */
         static void applyIQFT(SimulatorType& qSim, const unsigned int minIdx, const unsigned int maxIdx){
             double theta=0;
+            qSim.InvertRegister(minIdx, maxIdx);
 
             //Target lines
             for(int i = minIdx; i <= (int) maxIdx; i++){

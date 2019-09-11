@@ -20,7 +20,7 @@
 using namespace QNLP;
 #include <bitset>
 
-TEST_CASE("QFT forward","[simulator]"){
+TEST_CASE("QFT forward","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
     IntelSimulator sim(num_qubits);
@@ -49,7 +49,7 @@ TEST_CASE("QFT forward","[simulator]"){
     }
 }
 
-TEST_CASE("QFT inverse","[simulator]"){
+TEST_CASE("QFT inverse","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
     IntelSimulator sim(num_qubits);
@@ -75,7 +75,7 @@ TEST_CASE("QFT inverse","[simulator]"){
         }
     }
 }
-TEST_CASE("QFT forward and inverse","[simulator]"){
+TEST_CASE("QFT forward and inverse","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
     IntelSimulator sim(num_qubits);

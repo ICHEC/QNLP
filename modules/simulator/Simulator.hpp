@@ -27,6 +27,7 @@
 #include "oracle.hpp"
 #include "diffusion.hpp"
 #include "qft.hpp"
+#include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
 #include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
@@ -348,6 +349,37 @@ namespace QNLP{
             QFT<decltype(static_cast<DerivedType&>(*this))>::applyIQFT(static_cast<DerivedType&>(*this), minIdx, maxIdx);
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+        /**
+         * @brief Applies |r1>|r2> -> |r1>|r1+r2>
+         */
+        void sumReg(std::size_t r0_minIdx, std::size_t r0_maxIdx, std::size_t r1_minIdx, std::size_t r1_maxIdx){
+            Arithmetic<decltype(static_cast<DerivedType&>(*this))>::sum_reg(static_cast<DerivedType&>(*this), r0_minIdx, r0_maxIdx, r1_minIdx, r1_maxIdx);
+        }
+
+       /**
+         * @brief Applies |r1>|r2> -> |r1>|r1-r2>
+         */
+        void subReg(std::size_t r0_minIdx, std::size_t r0_maxIdx, std::size_t r1_minIdx, std::size_t r1_maxIdx){
+            Arithmetic<decltype(static_cast<DerivedType&>(*this))>::sub_reg(static_cast<DerivedType&>(*this), r0_minIdx, r0_maxIdx, r1_minIdx, r1_maxIdx);
+        }
+
+
+
+
+
+
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
@@ -642,6 +674,19 @@ namespace QNLP{
             Uadjoint(1,0) = std::conj(Uadjoint(1,0));
             Uadjoint(1,1) = std::conj(Uadjoint(1,1));
             return Uadjoint;
+        }
+
+        /**
+         * @brief Invert the register about the given indides: 0,1,2...n-1,n -> n,n-1,...,1,0
+         * 
+         * @param minIdx The lower index of the inversion
+         * @param maxIdx The upper index of the inversion
+         */
+        void InvertRegister(const unsigned int minIdx, const unsigned int maxIdx){
+            unsigned int range2 = ((maxIdx - minIdx)%2 == 1) ? (maxIdx - minIdx)/2 +1 : (maxIdx - minIdx)/2;
+            for(unsigned int idx = 0; idx < range2; idx++){
+                applyGateSwap(minIdx+idx, maxIdx-idx);
+            }
         }
 
         #ifdef GATE_LOGGING
