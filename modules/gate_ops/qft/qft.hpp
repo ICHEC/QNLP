@@ -27,16 +27,17 @@ namespace QNLP{
         static void applyQFT(SimulatorType& qSim, const unsigned int minIdx, const unsigned int maxIdx){
             double theta=0;
 
-            std::size_t value_range = maxIdx - minIdx;
-
             //target lines
-            for(int i = minIdx; i <= maxIdx; i++){
-                qSim.applyGateH(value_range - i);
+            for(int i = maxIdx; i >= (int) minIdx; i--){
+                qSim.applyGateH(i);
 
                 //Control lines:
-                for(int j = i+1; j <= maxIdx; j++){
-                    theta = 2.0*M_PI / (std::size_t) (1<<(1+(j-i)));
-                    qSim.applyGateCPhaseShift(theta, value_range - j,  value_range - i);
+                for(int j = i-1; j >= (int) minIdx; j--){
+
+                    theta = 2.0*M_PI / (std::size_t) (1<<(1+(i-j)));
+
+                    qSim.applyGateCPhaseShift(theta, j,  i);
+
                 }
             }
         }
@@ -52,7 +53,7 @@ namespace QNLP{
             double theta=0;
 
             //Target lines
-            for(int i = minIdx; i <= maxIdx; i++){
+            for(int i = minIdx; i <= (int) maxIdx; i++){
 
                 //Control lines:
                 for(int j = minIdx; j < i; j++){
