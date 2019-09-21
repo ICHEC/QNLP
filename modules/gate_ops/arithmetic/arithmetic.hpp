@@ -26,32 +26,37 @@ namespace QNLP{
          * @param r2_min The lowest bounded r2 index to perform Fourier transform on.
          * @param r2_max The highest bounded r2 index to perform Fourier transform on.
          */
-        void sum_reg(SimulatorType& qSim, CST r1_min, CST r1_max, CST r2_min, CST r2_max){
+        static void sum_reg(SimulatorType& qSim, CST r1_min, CST r1_max, CST r2_min, CST r2_max){
             std::size_t num_qubits_r1 = r1_max - r1_min;
             std::size_t num_qubits_r2 = r2_max - r2_min;
 
             assert( num_qubits_r1 == num_qubits_r2 );
 
             qSim.applyQFT(r2_min, r2_max);
-            for(int i = num_qubits_r2; i > 0; i--){
-                for(int j = i; j > 0; j--){
-                    qSim.applyGateCPhaseShift(2.0*M_PI / (1<<(1 + (i-j))), r1_min + (j-1), r2_min + (i-1));
+            double theta = 0.0;
+
+            //Targets
+            for(int i = r2_max; i >= (int) r2_min; i--){
+                //Controls
+                for(int j = r1_max - (r2_max - i); j >= (int) r1_min; j--){
+                    theta = 2.0*M_PI / (std::size_t) (1<<(1 + (i-j)));
+                    qSim.applyGateCPhaseShift(theta, j, i);
                 }
             }
+
             qSim.applyIQFT(r2_min, r2_max);
         }
         
         /**
          * @brief Implements |r1>|r2> -> |r1>|r1-r2>. If r1 < r2 the state will underflow, with the subtraction continuing from |11..1>. 
          * 
-         * @param r1 The quantum register holding the bitstring to remain unmodified
+         * @param qReg The quantum register holding the bitstring to remain unmodified
          * @param r1_min The lowest bounded r1 index to perform Fourier transform on.
          * @param r1_max The highest bounded r1 index to perform Fourier transform on.
-         * @param r2 The quantum register holding the bitstring to accumulate r1
          * @param r2_min The lowest bounded r2 index to perform Fourier transform on.
          * @param r2_max The highest bounded r2 index to perform Fourier transform on.
          */
-        void sub_reg(SimulatorType& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
+        static void sub_reg(SimulatorType& qReg, const unsigned int r1_min, const unsigned int r1_max, const unsigned int r2_min, const unsigned int r2_max){
             std::size_t num_qubits_r1 = r1_max - r1_min;
             std::size_t num_qubits_r2 = r2_max - r2_min;
 
