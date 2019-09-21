@@ -236,7 +236,6 @@ class VectorSpaceModel:
 
             else:
                 d_val = np.min(distances) if not isinstance(distances, int) else distances
-
                 token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=d_val )
 
                 if graph_type == nx.DiGraph:

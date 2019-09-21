@@ -14,6 +14,8 @@ import os
 if __name__ == "__main__":
 
     if len(os.sys.argv) < 6:
+        print("Please specify arguments in the following order:")
+        print("<path to corpus>.txt <processing mode: l, s, None> <remove stop words: True False> <num. basis for nouns> <num. basis for verbs>")
         exit()
 
     CorpusPath = os.sys.argv[1]
@@ -41,15 +43,17 @@ if __name__ == "__main__":
     vsm.assign_indexing("verbs")
 
     # Define basis tokens encoding and decoding dicts
-    encoding_dict = {"ns" : vsm.encoded_tokens["nouns"],
-                    "v"  : vsm.encoded_tokens["verbs"],
-                    "no" : vsm.encoded_tokens["nouns"]
-                    }
+    encoding_dict = {
+        "ns" : vsm.encoded_tokens["nouns"],
+        "v"  : vsm.encoded_tokens["verbs"],
+        "no" : vsm.encoded_tokens["nouns"]
+    }
 
-    decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
-                    "v"  : { v:k for k,v in encoding_dict["v"].items() },
-                    "no" : { v:k for k,v in encoding_dict["no"].items() }
-                    }
+    decoding_dict = {
+        "ns" : { v:k for k,v in encoding_dict["ns"].items() },
+        "v"  : { v:k for k,v in encoding_dict["v"].items() },
+        "no" : { v:k for k,v in encoding_dict["no"].items() }
+    }
 
     # Register must be large enough to support 2*|nouns| + |verbs|
     len_no = int( np.ceil(np.log2( len(encoding_dict["no"]) )))
@@ -60,16 +64,23 @@ if __name__ == "__main__":
     len_reg_ancilla = len_reg_memory + 2
     num_qubits = len_reg_memory + len_reg_ancilla
 
-
-    print("""{}
+    print("""
+    {}
 
     Requires {} qubits to encode data using {} 
-    basis elements for V, {} for N, allowing a 
+    basis element(s) for V, {} for N, allowing a 
     maximum of {} unique patterns.
-
-{}
+    
+    {}
     """.format("#"*48, num_qubits, num_basis_elems_v, num_basis_elems_n, (2**len_no) * (2**len_v) * (2**len_ns), "#"*48)
     )
+
+    from IPython import embed; embed()
+########################################################################################
+
+    # Get indices of verb's occurrence in corpus;
+    # Calc averages between nn to determine area of effect
+    vsm.tokens["verbs"][list(vsm.encoded_tokens["verbs"])[0]]
 
     exit()
 
