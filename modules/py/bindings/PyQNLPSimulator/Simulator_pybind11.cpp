@@ -8,10 +8,11 @@ namespace py = pybind11;
 using namespace QNLP;
 using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
 
-class IntelSimMixin : public IntelSimulator{
+class IntelSimPy : public IntelSimulator{
     public:
-    IntelSimMixin(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
-    ~IntelSimMixin(){}
+    IntelSimPy(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
+    IntelSimPy(std::unique_ptr<IntelSimulator, std::default_delete<IntelSimulator> > iSim) : IntelSimulator(iSim->getNumQubits(), false) {}
+    ~IntelSimPy(){}
 
     void applyGateNCU_linear(const DCM& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
         this->applyGateNCU(U, minIdx, maxIdx, target, label);
@@ -19,10 +20,37 @@ class IntelSimMixin : public IntelSimulator{
     void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
         this->applyGateNCU(U, ctrl_indices, target, label);
     }
+    void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
+        this->applyOracleU( bit_pattern, ctrl_indices, target, U );
+    }
+
+    /*void applyOracle_Phase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
+        this->applyOraclePhase(bit_pattern, ctrlIndices, target, this->getGateZ());
+    }*/
 };
 
 template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
+    // Define various trivial types to allow simpler overload resolution:
+    py::module m_tag = m.def_submodule("tag");
+#define MAKE_TAG_TYPE(Name) \
+    struct Name##_tag {}; \
+    py::class_<Name##_tag>(m_tag, #Name "_tag").def(py::init<>()); \
+    m_tag.attr(#Name) = py::cast(Name##_tag{})
+    MAKE_TAG_TYPE(pointer);
+    MAKE_TAG_TYPE(unique_ptr);
+    MAKE_TAG_TYPE(move);
+    MAKE_TAG_TYPE(shared_ptr);
+    MAKE_TAG_TYPE(derived);
+    MAKE_TAG_TYPE(TF4);
+    MAKE_TAG_TYPE(TF5);
+    MAKE_TAG_TYPE(null_ptr);
+    MAKE_TAG_TYPE(base);
+    MAKE_TAG_TYPE(invalid_base);
+    MAKE_TAG_TYPE(alias);
+    MAKE_TAG_TYPE(unaliasable);
+    MAKE_TAG_TYPE(mixed);
+
     py::class_<SimulatorType>(m, "PyQNLPSimulator")
         .def(py::init<const std::size_t &, const bool &>())
         .def("getGateX", &SimulatorType::getGateX, py::return_value_policy::reference)
@@ -57,8 +85,8 @@ void intel_simulator_binding(py::module &m){
         .def("encodeToRegister", &SimulatorType::encodeToRegister)
         .def("encodeBinToSuperpos_unique", &SimulatorType::encodeBinToSuperpos_unique)
         .def("encodeBinToSuperpos", &SimulatorType::encodeBinToSuperpos)
-        .def("applyHammingDistance", &SimulatorType::applyHammingDistance)
         .def("applyHammingDistanceRotY", &SimulatorType::applyHammingDistanceRotY)
+        .def("applyHammingDistanceAncilla", &SimulatorType::applyHammingDistanceAncilla)
         .def("applyMeasurement", &SimulatorType::applyMeasurement)
         .def("applyMeasurementToRegister", &SimulatorType::applyMeasurementToRegister)
         .def("collapseToBasisZ", &SimulatorType::collapseToBasisZ)
@@ -66,11 +94,11 @@ void intel_simulator_binding(py::module &m){
         .def("printStates", &SimulatorType::PrintStates)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_linear)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear)
+        .def("subReg", &SimulatorType::subReg)
+        .def("sumReg", &SimulatorType::sumReg)
+        .def("applyOracleU", &SimulatorType::applyOracle_U)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase);
 /*
-        .def("applyGateNCU", py::overload_cast<DCM, std::size_t, std::size_t, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Adjacent control line NCU")
-        .def("applyGateNCU", py::overload_cast<DCM, std::vector<std::size_t>, std::size_t, std::string>(&SimulatorType::applyGateNCU), "Non-adjacent control line NCU")
-        .def("applyOracleU", &SimulatorType::applyOracleU)
         .def("adjointMatrix", &SimulatorType::adjointMatrix)
         .def("matrixSqrt", &SimulatorType::matrixSqrt)
         .def("getQubitRegister", &SimulatorType::getQubitRegister)        
@@ -104,5 +132,10 @@ void intel_simulator_binding(py::module &m){
 }
 
 PYBIND11_MODULE(_PyQNLPSimulator, m){
-    intel_simulator_binding<IntelSimMixin>(m);
+
+
+
+
+
+    intel_simulator_binding<IntelSimPy>(m);
 }
