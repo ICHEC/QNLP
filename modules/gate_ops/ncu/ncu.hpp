@@ -15,11 +15,12 @@
 #include <cassert>
 #include <utility>
 #include <vector>
+#include <iostream>
 
 namespace QNLP{
     template <class SimulatorType>
     class NCU{
-        private:
+        protected:
             //Take the 2x2 matrix type from the template SimulatorType
             using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
             // Maintains a table of pre-calculated matrices to avoid repeated work. Absolute value of the key gives the depth of the sqrt ( U^{1/2^n} ), and the sign indicates if it is the adjoint (negative). Key is the depth of the operation, and value is a pair containing the gate label and numeric matrix
@@ -181,7 +182,36 @@ namespace QNLP{
                 std::size_t cOps = ctrlIndices.size();
                 std::unordered_map<int, std::pair<std::string, Mat2x2Type> > *map_ptr;
 
-                if (cOps >= 2){
+                if(cOps == 3){
+                    std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
+                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. 
+                    //Separated, as the Pauli decomposition can be built from phase modifications directly.
+                    if ( ! (U.first == "X") ){
+                        map_ptr = &sqrtMatricesU;
+                    }
+                    else {
+                        map_ptr = &sqrtMatricesX;
+                    }
+                    //Apply single controlled qubit gate ops
+                    qSim.applyGateCU( (*map_ptr)[local_depth+1].second, ctrlIndices[0], qTarget,  label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[1]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[1], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[1]);
+                    qSim.applyGateCU( (*map_ptr)[local_depth+1].second, ctrlIndices[1], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[1], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[1], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+
+                    //Reset pointer
+                    map_ptr = nullptr;
+                }
+
+                else if (cOps >= 2 && cOps !=3){
                     std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
                     //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
                     if ( ! (U.first == "X") ){
