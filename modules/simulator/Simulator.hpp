@@ -29,7 +29,7 @@
 #include "qft.hpp"
 #include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
-#include "hamming.hpp"
+//#include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
 
 #ifdef VIRTUAL_INTERFACE
@@ -64,10 +64,6 @@ namespace QNLP{
     public:
         //using Mat2x2Type = decltype(std::declval<DerivedType>().getGateX());
         virtual ~SimulatorGeneral(){ }
-
-        DerivedType* createSimulator(std::size_t num_qubits){
-            return new DerivedType(static_cast<DerivedType&>(*this));
-        }
         //##############################################################################
         //                           Single qubit gates
         //##############################################################################
@@ -208,8 +204,24 @@ namespace QNLP{
          * @param target Qubit index acting as target
          */
         template<class Mat2x2Type>
-        void applyGateCU(const Mat2x2Type &U, std::size_t control, std::size_t target, std::string label="CU"){
+        void applyGateCU(const Mat2x2Type &U, const std::size_t control, const std::size_t target, std::string label="CU"){
             static_cast<DerivedType*>(this)->applyGateCU(U, control, target, label);
+        }
+
+        void applyGateCX(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCX(control, target);
+        }
+
+        void applyGateCY(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCY(control, target);
+        }
+
+        void applyGateCZ(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCZ(control, target);
+        }
+
+        void applyGateCH(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCH(control, target);
         }
 
         /**
@@ -350,17 +362,6 @@ namespace QNLP{
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
         /**
          * @brief Applies |r1>|r2> -> |r1>|r1+r2>
          */
@@ -374,10 +375,6 @@ namespace QNLP{
         void subReg(std::size_t r0_minIdx, std::size_t r0_maxIdx, std::size_t r1_minIdx, std::size_t r1_maxIdx){
             Arithmetic<decltype(static_cast<DerivedType&>(*this))>::sub_reg(static_cast<DerivedType&>(*this), r0_minIdx, r0_maxIdx, r1_minIdx, r1_maxIdx);
         }
-
-
-
-
 
 
         /**
@@ -445,7 +442,9 @@ namespace QNLP{
          * @param target Target qubit index to apply Z gate upon
          */
         void applyOraclePhase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
-            applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+            //applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+            Oracle<DerivedType> oracle;
+            oracle.bitStringPhaseOracle(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target );
         }
 
         /**
@@ -546,37 +545,38 @@ namespace QNLP{
                 const std::vector<std::size_t> reg_mem, 
                 const std::vector<std::size_t> reg_ancilla,  
                 std::size_t len_bin_pattern){
-
-            assert(len_bin_pattern < reg_ancilla.size()-1);
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
-
-            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
-            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
-
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+            applyHammingDistanceRotY(test_pattern, reg_mem, reg_ancilla, len_bin_pattern, 1);
         }
 
-        /**
-         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
-         *
-         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
-         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
-         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
-         * @param len_bin_pattern Length of the binary patterns
-         */
         void applyHammingDistanceRotY(std::size_t test_pattern, 
                 const std::vector<std::size_t> reg_mem, 
                 const std::vector<std::size_t> reg_ancilla,  
-                std::size_t len_bin_pattern, 
+                std::size_t len_bin_pattern,
                 std::size_t num_bin_patterns){
 
             assert(len_bin_pattern < reg_ancilla.size()-1);
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
 
             HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
-            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern, num_bin_patterns);
+            hamming_operator.computeHammingDistanceRotY(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern, num_bin_patterns);
 
             encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+        }
+
+        void applyHammingDistanceAncilla(std::size_t test_pattern, 
+                const std::vector<std::size_t>& reg_mem, 
+                const std::vector<std::size_t>& reg_pattern,
+                const std::size_t reg_anc,
+                std::size_t len_bin_pattern, 
+                std::size_t num_bin_patterns){
+
+            assert(len_bin_pattern < reg_pattern.size()-1);
+            encodeToRegister(test_pattern, reg_pattern, len_bin_pattern);
+
+            HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
+            hamming_operator.computeHammingOverwriteAncilla(static_cast<DerivedType&>(*this), reg_mem, reg_pattern, reg_anc, len_bin_pattern, num_bin_patterns);
+
+            //encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
         /**
