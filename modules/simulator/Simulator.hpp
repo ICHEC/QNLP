@@ -663,7 +663,7 @@ namespace QNLP{
          * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
          */
         template<class Mat2x2Type>
-        Mat2x2Type adjointMatrix(const Mat2x2Type& U){
+        static Mat2x2Type adjointMatrix(const Mat2x2Type& U){
             Mat2x2Type Uadjoint(U);
             std::complex<double> tmp;
             tmp = Uadjoint(0,1);

@@ -3,6 +3,7 @@
 #include "IntelSimulator.cpp"
 #include "pybind11/complex.h"
 #include "pybind11/stl.h"
+#include <pybind11/numpy.h>
 
 namespace py = pybind11;
 using namespace QNLP;
@@ -107,12 +108,105 @@ void intel_simulator_binding(py::module &m){
     //TinyMatrix
     py::class_<DCM>(m, "DCMatrix")
         .def(py::init<>())
+        .def(py::init([](std::vector<std::complex<double>> &values) { 
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m;
+            m(0,0) = values[0];
+            m(0,1) = values[1];
+            m(1,0) = values[2];
+            m(1,1) = values[3];
+            return m;
+        }))
+        .def("__repr__",
+            [](const DCM &s) {
+                return s.tostr();
+            }
+        )
         .def("__getitem__", 
             [](const DCM &s, std::size_t i, std::size_t j) {
                 if (i >= 2 || j >= 2) 
                     throw py::index_error();
                 return s(i,j);
-            });
+            })
+        .def("__mul__", [](const DCM &s0, const DCM &s1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m;
+            m(0,0) = s0(0,0)*s1(0,0) + s0(0,1)*s1(1,0);
+            m(0,1) = s0(0,0)*s1(1,0) + s0(0,1)*s1(1,1);
+            m(1,0) = s0(1,0)*s1(0,0) + s0(1,1)*s1(1,0);
+            m(1,1) = s0(1,0)*s1(1,0) + s0(1,1)*s1(1,1);
+            return m;
+        })
+        .def("__rmul__", [](const DCM &s0, std::complex<double> d1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) *= d1;
+            m(0,1) *= d1;
+            m(1,0) *= d1;
+            m(1,1) *= d1;
+            return m;
+        })
+        .def("__mul__", [](const DCM &s0, std::complex<double> d1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) *= d1;
+            m(0,1) *= d1;
+            m(1,0) *= d1;
+            m(1,1) *= d1;
+            return m;
+        })
+        .def("__radd__", [](const DCM &s0, std::complex<double> d1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) += d1;
+            m(0,1) += d1;
+            m(1,0) += d1;
+            m(1,1) += d1;
+            return m;
+        })
+        .def("__add__", [](const DCM &s0, const DCM &s1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) += s1(0,0);
+            m(0,1) += s1(0,1);
+            m(1,0) += s1(1,0);
+            m(1,1) += s1(1,1);
+            return m;
+        })
+        .def("__sub__", [](const DCM &s0, const DCM &s1) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) -= s1(0,0);
+            m(0,1) -= s1(0,1);
+            m(1,0) -= s1(1,0);
+            m(1,1) -= s1(1,1);
+            return m;
+        })
+        .def("adjoint", [](const DCM &s0) {
+            return SimulatorType::adjointMatrix(s0);;
+        })
+        .def("conjugate", [](const DCM &s0) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            m(0,0) = std::conj(m(0,0));
+            m(0,1) = std::conj(m(0,1));
+            m(1,0) = std::conj(m(1,0));
+            m(1,1) = std::conj(m(1,1));
+            return m;
+        })
+        .def("transpose", [](const DCM &s0) {
+            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            auto tmp = m(0,1);
+            m(0,1) = m(1,0);
+            m(1,0) = tmp;
+            return m;
+        })
+        .def("as_numpy",[](DCM &s0){
+            py::array_t<std::complex<double>> arr({ 2, 2 });
+            py::buffer_info arr_buff = arr.request();
+            std::complex<double>* ptr = (std::complex<double>*) arr_buff.ptr;
+
+            ptr[0] = s0(0,0);
+            ptr[1] = s0(0,1);
+            ptr[2] = s0(1,0);
+            ptr[3] = s0(1,1);
+
+            return arr;
+        });
+
+
 
     /** WIP: NumPy buffer interface fo data access
       py::class_<openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>>(m, "Matrix", py::buffer_protocol())
@@ -132,10 +226,5 @@ void intel_simulator_binding(py::module &m){
 }
 
 PYBIND11_MODULE(_PyQNLPSimulator, m){
-
-
-
-
-
     intel_simulator_binding<IntelSimPy>(m);
 }
