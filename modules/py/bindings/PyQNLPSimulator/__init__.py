@@ -1,25 +1,17 @@
 name = "PyQNLPSimulator"
-from mpi4py import MPI
+from mpi4py import MPI #Required to ensure initialisation of MPI environment
 from ._PyQNLPSimulator import *
 
 from scipy.linalg import expm
 import numpy as np
 
-"""
-X = PyQNLPSimulator.getGateX()
-Y = PyQNLPSimulator.getGateY()
-Z = PyQNLPSimulator.getGateZ()
-H = PyQNLPSimulator.getGateH()
-I = PyQNLPSimulator.getGateI()
-
-Xnp = np.matrix(X.as_numpy())
-Ynp = np.matrix(Y.as_numpy())
-Znp = np.matrix(Z.as_numpy())
-Hnp = np.matrix(H.as_numpy())
-Inp = np.matrix(I.as_numpy())
-"""
-
 class GateOps:
+    """
+    This class is primarily for experimenting with gate operations during algorithm development.
+    This wraps the underlying gate types from the given simulator, and also gives a numpy version.
+
+    THIS IS NOT TO BE USED FOR PERFORMANT/PRODUCTION CODE AND IS STRICTLY FOR DEV/TEST.
+    """
     def __init__(self, simulator):
         self.X = simulator.getGateX()
         self.Y = simulator.getGateY()
