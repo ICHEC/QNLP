@@ -142,7 +142,52 @@ class DisCoCat:
         return res_list
 
 ###############################################################################
+    from multimethod import multimethod #Allow multiple dispatch
 
+    @multimethod
+    def map_to_basis(self, corpus_list : dict, basis : list, basis_dist_cutoff=10, distance_func=None):
+        """
+        Maps the words from the corpus into the chosen basis.         
+        Returns word_map dictionary, mapping corpus tokens -> basis states
+
+        Keyword arguments:
+        corpus_list         --  List of tokens representing corpus
+        basis               --  List of basis tokens
+        basis_dist_cutoff   --  Cut-off for token distance from basis for it to be significant
+        distance_func       --  Function accepting distance between basis and token, and
+                                returning the resulting scaling. If 'None', defaults to 
+                                1/coeff for scaling param
+        """
+
+        if distance_func == None:
+            distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
+
+        word_map = {}
+
+       # map distance between basis words and other words in token list
+        for word, locations in corpus_list.items():
+            word_map.update({word : None})
+            for b_idx, b_val in enumerate(basis):
+                # Basis elements are orthogonal
+                if(b_val == word):
+                    word_map.update({b_val : {b_val : [0]}})
+                    break
+
+                min_dist = np.min(np.abs(locations[1][:, np.newaxis] - corpus_list[b_val][1]))
+                m = (word, b_val, min_dist <= basis_dist_cutoff)
+
+                if m[2] != False:
+                    if(word_map.get(m[0]) != None):
+                        update_val = word_map.get(m[0])
+                        update_val.update({m[1] : min_dist})
+                        word_map.update({m[0] : update_val })
+                    else:
+                        word_map.update({m[0] : {m[1] : min_dist} })
+        return word_map
+
+###############################################################################
+
+    @multimethod
     def map_to_basis(self, corpus_list : list, basis : list, basis_dist_cutoff=10, distance_func=None):
         """
         Maps the words from the corpus into the chosen basis.         
@@ -156,15 +201,16 @@ class DisCoCat:
                                 returning the resulting scaling. If 'None', defaults to 
                                 1/coeff for scaling param
         """
+
         if distance_func == None:
             distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
 
         d_map = {}
-        
+
         # Find location of basis words in token list. Store in dict as d_map
         for b in basis:
-            indices = list(filter(lambda x: corpus_list[x] == b[0], range(len(corpus_list))))
-            d_map.update({b[0] : np.array(indices)})
+            indices = list(filter(lambda x: corpus_list[x] == b, range(len(corpus_list))))
+            d_map.update({b : np.array(indices)})
 
         word_map = {}
 
@@ -185,6 +231,47 @@ class DisCoCat:
                     else:
                         word_map.update({m[0] : {m[1] : m[2]} })
         return word_map
+
+###############################################################################
+    @multimethod
+    def map_to_basis(self, corpus_dict : dict, basis : dict, basis_dist_cutoff=10, distance_func=None):
+        """
+        Maps the words from the corpus into the chosen basis.         
+        Returns word_map dictionary, mapping corpus tokens -> basis states
+
+        Keyword arguments:
+        corpus_list         --  List of tokens representing corpus
+        basis               --  List of basis tokens
+        basis_dist_cutoff   --  Cut-off for token distance from basis for it to be significant
+        distance_func       --  Function accepting distance between basis and token, and
+                                returning the resulting scaling. If 'None', defaults to 
+                                1/coeff for scaling param
+        """
+
+        if distance_func == None:
+            distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
+
+        word_map = {}
+
+        # map distance between basis words and other words in token list
+        for idx, word in enumerate(corpus_dict):
+            for b_k, b_v in basis.items():
+                # Basis elements are orthogonal
+                if(b_k == word):
+                    word_map.update({b_k : {b_k : [0]}})
+                    break
+                dist = np.abs(b_v - idx)
+                m = (word, b_k, [i for i in dist if i <= basis_dist_cutoff])
+                if len(m[2]) != 0:
+                    if(word_map.get(m[0]) != None):
+                        update_val = word_map.get(m[0])
+                        update_val.update({m[1] : m[2]})
+                        word_map.update({m[0] : update_val })
+                    else:
+                        word_map.update({m[0] : {m[1] : m[2]} })
+        return word_map
+
+###############################################################################
 
 ###############################################################################
 

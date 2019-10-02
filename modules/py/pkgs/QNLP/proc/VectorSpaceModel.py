@@ -26,7 +26,7 @@ class VSM_pc:
         Rewrite of pc.tokenize_corpus to allow for tracking of basis word 
         positions in list to improve later pairwise distance calculations.
         """
-
+#        from IPython import embed; embed()
         token_sents = self.pc.nltk.sent_tokenize(corpus) #Split on sentences
         token_words = [] # Individual words
         tags = [] # Words and respective tags
@@ -131,6 +131,7 @@ class VectorSpaceModel:
         basis = {}
         for t in ("nouns", "verbs"):
             basis.update( self.sort_basis_helper(t, num_basis[t]) )
+
         return basis
 
 ###############################################################################
