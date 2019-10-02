@@ -36,8 +36,8 @@ from IPython import embed; embed()
 from QNLP import DisCoCat
 
 dcc = DisCoCat.DisCoCat()
-mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , noun_dist['verbs'], basis_dist_cutoff=16)
-mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=16)
+mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , noun_dist['verbs'], basis_dist_cutoff=num_basis_elems)
+mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=num_basis_elems)
 
 import networkx as nx
 g_nouns = nx.graph.Graph()
@@ -54,13 +54,31 @@ for i in ['dawn', 'torrent']:
     g_nouns.add_node(i)
 
 # Set connections between basis and mapped words
-    for b_words in mapping_nouns[i]:
-        g_nouns.add_edge(i, b_words)
+    for b_words,b_weights in mapping_nouns[i].items():
+        g_nouns.add_edge(i, b_words, weight=b_weights)
 
-nx.draw(g_nouns, pos=nx.spring_layout(g_nouns), with_labels=True)
+#Remove unconnected basis words
+uncon = list(nx.isolates(g_nouns))
+g_nouns.remove_nodes_from(uncon)
+
+# create diagram positions and edge labels
+pos = nx.bipartite_layout(g_nouns, nx.bipartite.sets(g_nouns)[0]) #nx.shell_layout(g_nouns, iterations=500)
+labels = nx.get_edge_attributes(g_nouns,'weight')
+nx.draw_networkx_edge_labels(g_nouns, pos, edge_labels=labels)
+
+#Colourmap for the nodes
+cmap = []
+for n in g_nouns:
+    if n in noun_dist['nouns']:
+        cmap.append('teal')
+    else:
+        cmap.append('plum')
+
+nx.draw(g_nouns, pos=pos, with_labels=True, node_size=2000, node_color=color_map)
 
 # From here, we define our encoding and decoding dictionaries.
 exit()
+
 # Define basis tokens encoding and decoding dicts
 encoding_dict = {"ns" : vsm.encoded_tokens["nouns"],
                  "v"  : vsm.encoded_tokens["verbs"],

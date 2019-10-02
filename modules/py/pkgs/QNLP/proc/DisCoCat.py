@@ -172,7 +172,7 @@ class DisCoCat:
                 if(b_val == word):
                     word_map.update({b_val : {b_val : [0]}})
                     break
-
+                # to add left-right ordering here, remove the abs and use sign of distance to indicate where words appear relative to one another. 
                 min_dist = np.min(np.abs(locations[1][:, np.newaxis] - corpus_list[b_val][1]))
                 m = (word, b_val, min_dist <= basis_dist_cutoff)
 
@@ -185,11 +185,14 @@ class DisCoCat:
                         word_map.update({m[0] : {m[1] : min_dist} })
         return word_map
 
-###############################################################################
+    def nvn_distances(self, corpus_list : dict, verb_map, noun_map, dist_cutoff=2, distance_func=None):
+        pass
 
+###############################################################################
+    """
     @multimethod
     def map_to_basis(self, corpus_list : list, basis : list, basis_dist_cutoff=10, distance_func=None):
-        """
+        '''
         Maps the words from the corpus into the chosen basis.         
         Returns word_map dictionary, mapping corpus tokens -> basis states
 
@@ -200,7 +203,7 @@ class DisCoCat:
         distance_func       --  Function accepting distance between basis and token, and
                                 returning the resulting scaling. If 'None', defaults to 
                                 1/coeff for scaling param
-        """
+        '''
 
         if distance_func == None:
             distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
@@ -231,11 +234,12 @@ class DisCoCat:
                     else:
                         word_map.update({m[0] : {m[1] : m[2]} })
         return word_map
-
+    """
 ###############################################################################
+    """
     @multimethod
     def map_to_basis(self, corpus_dict : dict, basis : dict, basis_dist_cutoff=10, distance_func=None):
-        """
+        '''
         Maps the words from the corpus into the chosen basis.         
         Returns word_map dictionary, mapping corpus tokens -> basis states
 
@@ -246,7 +250,7 @@ class DisCoCat:
         distance_func       --  Function accepting distance between basis and token, and
                                 returning the resulting scaling. If 'None', defaults to 
                                 1/coeff for scaling param
-        """
+        '''
 
         if distance_func == None:
             distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
@@ -270,7 +274,7 @@ class DisCoCat:
                     else:
                         word_map.update({m[0] : {m[1] : m[2]} })
         return word_map
-
+    """
 ###############################################################################
 
 ###############################################################################
