@@ -32,7 +32,7 @@ noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=num_basis_elems)
 vsm.assign_indexing("nouns")
 vsm.assign_indexing("verbs")
 
-from IPython import embed; embed()
+#from IPython import embed; embed()
 from QNLP import DisCoCat
 
 dcc = DisCoCat.DisCoCat()
@@ -62,9 +62,8 @@ uncon = list(nx.isolates(g_nouns))
 g_nouns.remove_nodes_from(uncon)
 
 # create diagram positions and edge labels
-pos = nx.bipartite_layout(g_nouns, nx.bipartite.sets(g_nouns)[0]) #nx.shell_layout(g_nouns, iterations=500)
+pos = nx.spring_layout(g_nouns, scale=5.0, k=20/np.sqrt(g_nouns.order())) #nx.bipartite_layout(g_nouns, nx.bipartite.sets(g_nouns)[0], scale=5) #nx.shell_layout(g_nouns, iterations=500)
 labels = nx.get_edge_attributes(g_nouns,'weight')
-nx.draw_networkx_edge_labels(g_nouns, pos, edge_labels=labels)
 
 #Colourmap for the nodes
 cmap = []
@@ -74,7 +73,12 @@ for n in g_nouns:
     else:
         cmap.append('plum')
 
-nx.draw(g_nouns, pos=pos, with_labels=True, node_size=2000, node_color=color_map)
+nx.draw(g_nouns, pos=pos, with_labels=True, node_size=1000, node_color=cmap, font_size=10)
+plt.margins(0.1)
+nx.draw_networkx_edge_labels(g_nouns, pos, edge_labels=labels, alpha=0.5)
+
+#nx.draw(g_nouns, pos=pos, font_size=10, with_labels=True, node_size=2000, node_color=cmap)
+plt.savefig("Composite_to_Basis_map_simple.pdf", bbox_inches="tight")
 
 # From here, we define our encoding and decoding dictionaries.
 exit()

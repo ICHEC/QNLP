@@ -186,6 +186,11 @@ class DisCoCat:
         return word_map
 
     def nvn_distances(self, corpus_list : dict, verb_map, noun_map, dist_cutoff=2, distance_func=None):
+        """This function matches the NVN sentence structure, by locating adjacent
+        nouns and verbs, following the same procedure as used to map corpus words 
+        onto the basis. With this, we can construct relationships between the
+        verbs and their subject/object nouns."""
+        
         pass
 
 ###############################################################################
