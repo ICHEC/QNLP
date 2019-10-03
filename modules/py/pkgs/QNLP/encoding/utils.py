@@ -48,3 +48,13 @@ def bin_to_sentence(bin_val, encoding_dict, decoding_dict, type_offsets=None):
     no_val = (bin_val & bitmask_no)
     
     return decoding_dict["ns"][ns_val], decoding_dict["v"][v_val], decoding_dict["no"][no_val]
+
+def gen_state_string(l):
+    """Given a list of strings, generate the latex '\\vert {} \\rangle' representation of this in superposition."""
+    result = ""
+    str_template = r"\vert {} \rangle"
+    for idx,i in enumerate(l):
+        result += r"b_{{{}}}\vert \textrm{{{}}} \rangle ".format(idx, i[0])
+        if i != l[-1]:
+            result += " + "
+    return result
