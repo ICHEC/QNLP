@@ -23,7 +23,9 @@ GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"
              )
-PIP_PACKAGES=()
+PIP_PACKAGES=(  "multimethod"
+                "pyvis"
+             )
 CONDA_PACKAGES=("nltk::anaconda" 
                 "jupyter" 
                 "numpy" 
