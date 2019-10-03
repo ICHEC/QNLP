@@ -16,7 +16,7 @@ import tempfile
 # Next, we load the corpus file using the vector-space model, defined in the `VectorSpaceModel` class, specifying the mode of tagging, and whether to filter out stop-words.
 
 vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path="/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/84-0.txt", 
+    corpus_path="/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", 
     mode='l', 
     stop_words=False
 )
@@ -50,7 +50,7 @@ for v in noun_dist['nouns']:
     g_nouns.add_node(v)
 
 # Add mapped/composite words to graph
-for i in ['dawn', 'torrent']:
+for i in ['stocking', 'glove']: #['dawn', 'torrent']:
     g_nouns.add_node(i)
 
 # Set connections between basis and mapped words
@@ -73,11 +73,38 @@ for n in g_nouns:
     else:
         cmap.append('plum')
 
+############################################################
+# Generate interactive graph from pyvis
+############################################################
+from pyvis.network import Network
+
+G = Network(height="600px", width="100%", bgcolor="#222222", font_color="white")
+G.repulsion() # Solver backend
+G.show_buttons(filter_=['physics']) # Show sliders to control physics
+#G.from_nx(g_nouns)
+
+#Copy across edge weights with distance data
+for n_token,n_attr in g_nouns.nodes(data=True):
+    if n_token in noun_dist['nouns']:
+        G.add_node(n_token, color="#007FFF", **n_attr)
+    else:
+        G.add_node(n_token, color="#008080", **n_attr)
+
+#Copy across edge weights with distance data
+for src,dest,e_attr in g_nouns.edges(data=True):
+    G.add_edge(src,dest, width=2, color="#cccacb", title=int(e_attr.get("weight"))) #value=int(e_attr.get("weight")))
+
+G.show("Composite_to_Basis_map_simple.html")
+
+############################################################
+############################################################
+
+# Generate static graph plot from networkx
+
 nx.draw(g_nouns, pos=pos, with_labels=True, node_size=1000, node_color=cmap, font_size=10)
 plt.margins(0.1)
 nx.draw_networkx_edge_labels(g_nouns, pos, edge_labels=labels, alpha=0.5)
 
-#nx.draw(g_nouns, pos=pos, font_size=10, with_labels=True, node_size=2000, node_color=cmap)
 plt.savefig("Composite_to_Basis_map_simple.pdf", bbox_inches="tight")
 
 # From here, we define our encoding and decoding dictionaries.
