@@ -23,8 +23,9 @@ GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"
              )
-PIP_PACKAGES=(  "multimethod"
-                "pyvis"
+PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function 
+                "pyvis" # used to present interactive graph of token relationships
+                "ortools" # used to solve TSP for basis token ordering
              )
 CONDA_PACKAGES=("nltk::anaconda" 
                 "jupyter" 
