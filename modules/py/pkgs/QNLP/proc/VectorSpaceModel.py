@@ -17,6 +17,9 @@ import numpy as np
 import networkx as nx
 import itertools
 
+from ortools.constraint_solver import routing_enums_pb2
+from ortools.constraint_solver import pywrapcp
+
 class VSM_pc:
     def __init__(self):
         self.pc = pc
@@ -253,8 +256,61 @@ class VectorSpaceModel:
         #Must be fully connected
         
         assert( nx.tournament.is_strongly_connected(token_graph) )
+        #from IPython import embed; embed()
+        token_order, dist_total = self._tsp_token_solver(token_graph)
+        #from IPython import embed; embed()
+        return token_order# nx.tournament.hamiltonian_path(token_graph)
 
-        return nx.tournament.hamiltonian_path(token_graph)
+###############################################################################
+# Using or-tools to solve TSP of token_graph.
+# Adapted from or-tools examples on TSP
+###############################################################################
+    def _tsp_token_solver(self, token_graph : nx.DiGraph):
+        dist_dat = {}
+        dist_dat['distance_matrix'] = nx.adjacency_matrix(token_graph).todense().tolist() #Doesn't seem to like np matrices
+        dist_dat['num_vehicles'] = 1 #Single route
+        dist_dat['depot'] = 0 #Starting position at index 0; considering trying alternative options
+
+        mgr =   pywrapcp.RoutingIndexManager(
+                    len(dist_dat['distance_matrix']),
+                    dist_dat['num_vehicles'], dist_dat['depot']
+                )
+        routing = pywrapcp.RoutingModel(mgr)
+
+        def dist_matrix_val(idx_0, idx_1):
+            """Returns value from distance matrix between nodes"""
+            n0 = mgr.IndexToNode(idx_0)
+            n1 = mgr.IndexToNode(idx_1)
+            return dist_dat['distance_matrix'][n0][n1]
+
+        transit_callback_index = routing.RegisterTransitCallback(dist_matrix_val)
+        
+        routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+        # Setting first solution heuristic.
+        search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+        search_parameters.first_solution_strategy = (
+            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+
+        # Solve the problem.
+        assignment = routing.SolveWithParameters(search_parameters)
+
+        dist_total = assignment.ObjectiveValue()
+
+        index = routing.Start(0)
+        plan_output = ''
+        token_order = []
+        token_list = list(token_graph)
+
+        while not routing.IsEnd(index):
+            token_order.append(token_list[mgr.IndexToNode(index)])
+            previous_index = index
+            index = assignment.Value(routing.NextVar(index))
+        return token_order, dist_total
+
+###############################################################################
+###############################################################################
+
 
 ###############################################################################
 
