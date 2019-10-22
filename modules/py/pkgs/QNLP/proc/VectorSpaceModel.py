@@ -259,7 +259,7 @@ class VectorSpaceModel:
         #from IPython import embed; embed()
         token_order, dist_total = self._tsp_token_solver(token_graph)
         #from IPython import embed; embed()
-        return token_order# nx.tournament.hamiltonian_path(token_graph)
+        return token_order[:-1]# nx.tournament.hamiltonian_path(token_graph)
 
 ###############################################################################
 # Using or-tools to solve TSP of token_graph.
