@@ -45,7 +45,7 @@ namespace QNLP{
              * @param reg_ancilla A vector containing the indices of the qubits of the ancilla register. 
              * @param len_bin_pattern length of binary pattern ie length of memory register.
              */
-            void computeHammingDistance(SimulatorType& qSim, 
+            void computeHammingDistanceRotY(SimulatorType& qSim, 
                     const std::vector<std::size_t>& reg_memory,
                     const std::vector<std::size_t>& reg_ancilla, 
                     std::size_t len_bin_pattern, std::size_t num_bin_patterns){
@@ -104,9 +104,56 @@ namespace QNLP{
                     qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
                 }*/
             }
+
+            /**
+             * @brief Use last qubit in ancilla to ensure Hamming is set.
+             * 
+             * @param qSim 
+             * @param reg_memory 
+             * @param reg_ancilla 
+             * @param len_bin_pattern 
+             * @param num_bin_patterns 
+             */
+            void computeHammingOverwriteAncilla(SimulatorType& qSim, 
+                    const std::vector<std::size_t>& reg_memory,
+                    const std::vector<std::size_t>& reg_pattern, 
+                    const std::size_t reg_anc, 
+                    std::size_t len_bin_pattern, 
+                    std::size_t num_bin_patterns){
+
+                std::size_t len_reg_pattern;
+                len_reg_pattern = reg_pattern.size();
+
+                // Require length of ancilla register to have n+2 qubits
+                assert(reg_memory.size() + 1 < len_reg_ancilla);
+
+                //Last reg_ancilla qubit assumed zero. Set to 1 for control op
+                //qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
+                bool value = false;
+                for(std::size_t i = 0; i < len_bin_pattern; i++){
+
+                    // 0 & 1 -> 1
+                    qSim.applyGateX(reg_memory[i]);
+                    qSim.applyGateCCX(reg_memory[i], reg_pattern[i], reg_anc);
+                    qSim.applyGateX(reg_memory[i]);
+                    
+                    // 1 & 0 -> 1
+                    qSim.applyGateX(reg_pattern[i]);
+                    qSim.applyGateCCX(reg_memory[i], reg_pattern[i], reg_anc);
+                    qSim.applyGateX(reg_pattern[i]);
+
+                    qSim.applyGateSwap(reg_anc, reg_pattern[i]);
+
+                    //if state is 1, change to 0
+                    if(qSim.applyMeasurement(reg_anc, true)){
+                        qSim.applyGateX(reg_anc);
+                    }
+                }
+
+                //Reset
+                //qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
+            }
     };
 
 };
 #endif
-
-
