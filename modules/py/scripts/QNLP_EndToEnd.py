@@ -10,10 +10,9 @@
 # 
 # Our goal is to analyse a corpus, extract key features rom it, and represent those features in a quantum-compatible notation. We proceed to encide these features into a quantum simulation environment using Intel-QS (formerly qHiPSTER), and query for similarities using the encoded quantum states. For this, we have implemented various encoding and analysis strategies. Our primary method for similarity uses a Hamming distance approach, wherein we apply a simplified digital-to-analogue encoding strategy to allow the results to be obtained via measurement.
 
-from matplotlib import rc
-rc('text', usetex=True)
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
-
 
 # We must load the Python QNLP packages & module (`QNLP`), and the C++-Python bound simulator backend and algorithms (`PyQNLPSimulator`).
 
@@ -29,7 +28,7 @@ import tempfile
 # Next, we load the corpus file using the vector-space model, defined in the `VectorSpaceModel` class, specifying the mode of tagging, and whether to filter out stop-words. For this notebook I have used the Project Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple replacements to avoid incorrect tagging of elements (mostly standardising apostrophes to \' and quotations to \"). 
 
 vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path="./corpus/11-0.txt", 
+    corpus_path="/ichec/home/staff/loriordan/repos/intel-qnlp-python/build/11-0.txt", 
     mode=None, 
     stop_words=False
 )
@@ -122,49 +121,10 @@ for n in g_verbs:
     else:
         cmap.append('#008080')
 
-
-############################################################
-# Generate interactive graph from pyvis
-############################################################
-from pyvis.network import Network
-
-G = Network(notebook=True, height="600px", width="100%", bgcolor="#222222", font_color="white")
-G.repulsion() # Solver backend
-G.show_buttons(filter_=['physics']) # Show sliders to control physics
-#G.from_nx(g_nouns)
-
-#Copy across edge weights with distance data
-for n_token,n_attr in g_nouns.nodes(data=True):
-    if n_token in noun_dist['nouns']:
-        G.add_node(n_token, color="#007FFF", **n_attr)
-    else:
-        G.add_node(n_token, color="#008080", **n_attr)
-
-#Copy across edge weights with distance data
-for src,dest,e_attr in g_nouns.edges(data=True):
-    G.add_edge(src,dest, width=2, color="#cccacb", title=int(e_attr.get("weight"))) #value=int(e_attr.get("weight")))
-
-#Copy across edge weights with distance data
-for v_token,v_attr in g_verbs.nodes(data=True):
-    if v_token in verb_dist['verbs']:
-        G.add_node(v_token, color="#FF7F00", **n_attr)
-    else:
-        G.add_node(v_token, color="#808000", **n_attr)
-
-#Copy across edge weights with distance data
-for src,dest,e_attr in g_verbs.edges(data=True):
-    G.add_edge(src, dest, width=2, color="#cccacb", title=int(e_attr.get("weight"))) #value=int(e_attr.get("weight")))
-
-G.save_graph("Graph_plot.html")
-#G.show("Composite_to_Basis_map_simple.html")
-
-# Generate static graph plot from networkx
-
-nx.draw(g_nouns, pos=pos_n, with_labels=True, node_size=1000, node_color=cmap, font_size=10)
 plt.margins(0.1)
-nx.draw_networkx_edge_labels(g_nouns, pos_n, edge_labels=labels, alpha=0.5)
+#nx.draw_networkx_edge_labels(g_nouns, pos_n, edge_labels=labels, alpha=0.5)
 
-plt.savefig("Graph_plot.pdf", bbox_inches="tight")
+#plt.savefig("Graph_plot.pdf", bbox_inches="tight")
 #plt.show()
 
 
@@ -271,7 +231,7 @@ num_bin_pattern = len(vec_to_encode)
 #Set up simulator
 use_fusion = False
 sim = p(num_qubits, use_fusion)
-num_exps = 1
+num_exps = 1000
 normalise = True
 
 
@@ -292,11 +252,19 @@ for i in vec_to_encode:
 
 # Test of equally encoded bit patterns\n
 for exp in range(num_exps):
+    print("Iteration {} of {}".format(exp, num_exps))
     sim.initRegister()
     # Encode
     sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
-    shot_counter[val] += 1
+    if shot_counter.get(val) == None:
+        shot_counter.update({val : 1})
+    else:
+        shot_counter[val] += 1
+
+f = open("shot_counter.txt","w")
+f.write( str(shot_counter) )
+f.close()
 
 xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
 xlab_str
@@ -323,14 +291,14 @@ fig, ax = plt.subplots()
 rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel(r"$P(\textrm{{{}}})$".format("Pattern"),fontsize=24)
+#ax.set_ylabel("$P(\\textrm{{{}}})$".format("Pattern"),fontsize=24)
 ax.set_xticks(x)
 ax.tick_params(axis='both', which='major', labelsize=16)
 ax.set_xticklabels(labels, rotation=-30, ha="left",fontsize=16)
 ax.legend(fontsize=16)
 
 plt.axhline(y=1.0/len(shot_counter), color='crimson', linestyle="--")
-plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center', fontsize=16)
+#plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center', fontsize=16)
 plt.tight_layout()
 fig.set_size_inches(20, 12, forward=True)
 plt.savefig("End_to_end_plot.pdf", bbox_inches="tight")
