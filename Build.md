@@ -41,7 +41,7 @@ CC=mpiicc CXX=mpiicpc cmake ..
 Note: to build on Mac OS-Mojave, the following command should be run to create the Makefile provided the softaware including Intel-QS was built appropriately for the target environment.
 ```
 cd build
-CC=mpicc CXX=mpicxx cmake ..
+PATH=/opt/gcc/gcc91/bin:$PATH CC=mpicc CXX=mpicxx cmake ..
 ```
 
 ## Build from Makefile
