@@ -48,3 +48,9 @@ CC=mpicc CXX=mpicxx cmake ..
 ```
 make
 ```
+
+## Note: Running on Mac OS
+To run an executable that uses the `intel-qnlp` library, the command must be prepended with the `DYLD_LIBRARY_PATH` path as follows.
+```
+DYLD_LIBRARY_PATH=/opt/gcc/gcc91/lib:${CONDA_PREFIX}/lib:${DYLD_LIBRARY_PATH} <PATH-TO-EXECUTABLE>/<EXECUTABLE>
+```
