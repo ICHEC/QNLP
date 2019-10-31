@@ -5,7 +5,7 @@
 ###############################################################################
 if [ "$#" -eq 1 ]; then
     QNLP_ROOT=$1
-else 
+else
     QNLP_ROOT=$PWD
 fi
 NLTK_DATA=${QNLP_ROOT}/third_party/install/nltk_data
@@ -18,18 +18,18 @@ declare -a PIP_PACKAGES
 declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
-GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0" 
+GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0"
                 "CLIUtils/CLI11"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"
              )
-PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function 
+PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function
                 "pyvis" # used to present interactive graph of token relationships
                 "ortools" # used to solve TSP for basis token ordering
              )
-CONDA_PACKAGES=("nltk::anaconda" 
-                "jupyter" 
-                "numpy" 
+CONDA_PACKAGES=("nltk::anaconda"
+                "jupyter"
+                "numpy"
                 "scipy"
                 "tabulate"
                 "mkl-include"
@@ -44,10 +44,10 @@ CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
 # build, third_party, third_party/{downloads, install}
 ###############################################################################
 function setupDirs(){
-    declare -a dirs=(   "${QNLP_ROOT}/build" 
-                        "${QNLP_ROOT}/third_party" 
-                        "${QNLP_ROOT}/third_party/downloads" 
-                        "${QNLP_ROOT}/third_party/install" 
+    declare -a dirs=(   "${QNLP_ROOT}/build"
+                        "${QNLP_ROOT}/third_party"
+                        "${QNLP_ROOT}/third_party/downloads"
+                        "${QNLP_ROOT}/third_party/install"
                         "${QNLP_ROOT}/install"
                         "${NLTK_DATA}"
                     )
@@ -60,7 +60,7 @@ function setupDirs(){
 }
 
 ###############################################################################
-# Set Conda version based on current OS. 
+# Set Conda version based on current OS.
 # Assumes Nix systems only (MacOS not officially supported)
 ###############################################################################
 export SYS=$(uname -s)
@@ -131,7 +131,7 @@ function condaEnvSetup(){
     ${QNLP_ROOT}/third_party/downloads/${CONDA} -b -p ${QNLP_ROOT}/third_party/install/intel-qnlp_conda;
     source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
     conda update -n base conda -y;
-    conda create -n intel-qnlp -y python;
+    conda create -n intel-qnlp -y python=3.7;
     conda activate intel-qnlp #Activate said environment
 }
 
@@ -150,15 +150,15 @@ function fetchPackages(){
         for s in $(seq 0 $(( ${#GITHUB_REPOS[@]} -1 )) ); do
             echo ${GITHUB_REPOS[${s}]}
             PC=${GITHUB_REPOS[${s}]} #Package::channel
- 
+
             if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
-                git clone https://github.com/${PC%::*} 
+                git clone https://github.com/${PC%::*}
                 PCC=${PC#*/}
                 cd ${PCC%::*}
                 git checkout ${PC#*::}
                 cd -
             else
-                git clone https://github.com/${GITHUB_REPOS[${s}]} 
+                git clone https://github.com/${GITHUB_REPOS[${s}]}
             fi
 
         done
@@ -169,7 +169,7 @@ function fetchPackages(){
     if [ "${#CONDA_PACKAGES[@]}" -gt 0 ]; then
         for s in $(seq 0 $(( ${#CONDA_PACKAGES[@]} -1 )) ); do
             echo "Installing ${CONDA_PACKAGES[${s}]}"
-    
+
             if [[ "${CONDA_PACKAGES[${s}]}" =~ "::" ]]; then
                 PC=${CONDA_PACKAGES[${s}]} #Package::channel
                 #Split string and install package from specified channel
@@ -229,7 +229,7 @@ source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
 export PATH="${QNLP_ROOT}/install":"\${PATH}"
 export NLTK_DATA="${NLTK_DATA}"
 export QNLP_ROOT="${QNLP_ROOT}"
-conda activate intel-qnlp 
+conda activate intel-qnlp
 
 EOL
 ###############################################################################
