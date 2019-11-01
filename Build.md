@@ -38,7 +38,19 @@ cd build
 CC=mpiicc CXX=mpiicpc cmake ..
 ```
 
+Note: to build on Mac OS-Mojave, the following command should be run to create the Makefile provided the softaware including Intel-QS was built appropriately for the target environment.
+```
+cd build
+PATH=/opt/gcc/gcc91/bin:$PATH CC=mpicc CXX=mpicxx cmake ..
+```
+
 ## Build from Makefile
 ```
 make
+```
+
+## Note: Running on Mac OS
+To run an executable that uses the `intel-qnlp` library, the command must be prepended with the `DYLD_LIBRARY_PATH` path as follows.
+```
+DYLD_LIBRARY_PATH=/opt/gcc/gcc91/lib:${CONDA_PREFIX}/lib:${DYLD_LIBRARY_PATH} <PATH-TO-EXECUTABLE>/<EXECUTABLE>
 ```
