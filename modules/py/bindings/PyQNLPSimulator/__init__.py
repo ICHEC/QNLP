@@ -5,6 +5,7 @@ from ._PyQNLPSimulator import *
 from scipy.linalg import expm
 import numpy as np
 from itertools import product
+from scipy.optimize import least_squares
 
 class GateOps:
     """
@@ -52,7 +53,7 @@ class GateOps:
     def RZPh(self, theta):
         "RZ excluding global phase of exp(iTheta/2)"
         #np.matrix(np.exp(0.5*1j*theta)*expm(-0.5*1j*theta*self.Znp)))
-        return np.matrix([[1.0,0.0], [0., exp(1j*theta)] ])
+        return np.matrix([[1.0,0.0], [0., np.exp(1j*theta)] ])
 
     def RU(self, theta, U):
         res = None
@@ -71,27 +72,65 @@ class UnitaryFinder:
         self.ls = lsq
         self.minFunc = None
         self.unitary = unitary
+        self.unitarynp = None
         self.gates = ["X", "Y", "Z", "H", "RX", "RY", "RZ", "RZPh"]
         self.gate_ops = GateOps(simulator)
    
-    def findOps(self, ):
-        lambda x: np.array([2*x[0] + x[1] - 1]) 
-        
-        def setMinFunc(x, s_i):
-            mm = self.unitary
-            nn = Xnp*RY(x[0])*Xnp
-            ab = np.abs([mm[0][0] - nn[0,0], mm[0][1] - nn[0,1], mm[1][0] - nn[1,0], mm[1][1] - nn[1,1]])
-            return ab
-        res = least_squares(fun_test, [0], args=(5,))
+    def findOps(self, gate_order, cost_tol = 1e-3):
+        lambda x: np.array([2*x[0] + x[1] - 1])
+        num_params = 0
+        for i in gate_order:
+            if "R" in i[0]:
+                num_params += 1
 
-    def genOps(gates : list, depth=5):
+        def setMinFunc(x, gates):
+            mm = self.gate_ops.createU(self.unitary).as_numpy()
+            
+            nn = 1
+            param_val = 0
+            for g in reversed(gates):
+                if "R" in g[0]:
+                    nn *= getattr(self.gate_ops , g)(x[param_val])
+                    param_val += 1
+                else:
+                    nn *= getattr(self.gate_ops, "".join((g,"np")))
+            nn = nn.tolist()
+                        
+            ml = [i for sublist in mm for i in sublist]
+            mr = [np.real(i) for i in ml]
+            mi = [np.imag(i) for i in ml]
+            m = [] + mr + mi
+            nl = [i for sublist in nn for i in sublist]
+            nr = [np.real(i) for i in nl]
+            ni = [np.imag(i) for i in nl]
+            n = [] + nr + ni
+            
+            ab = np.sum([i**2 for i in np.subtract(m,n)])
+            
+            return ab
+        
+        if num_params > 0:
+            res = least_squares(setMinFunc, [0]*num_params, args=(gate_order,), bounds=(-np.pi, np.pi))
+            if res.cost <= cost_tol:
+                return res.success, res.x
+            else:
+                return False, []
+            
+        else:
+            rr = setMinFunc([], gate_order)
+            return np.isclose(rr, 0, rtol=cost_tol), []
+
+    def genOps(self, gates : list, depth=5):
         """Generate the combinations of operations.
         Same gate is never called twice in a row."""
 
+        ops_list0 = list(product(gates, repeat=depth))
         ops_list = list(product(gates, repeat=depth))
+        del_idx = set()
         for idx_ops_list, ops in enumerate(ops_list):
             for idx_ops in range(1,len(ops)):
                 if ops[idx_ops] == ops[idx_ops-1]:
-                    del ops_list[idx_ops_list]
-                    break
+                    #del ops_list[idx_ops_list]
+                    del_idx.add(idx_ops_list)
+        ops_list = [val for idx,val in enumerate(ops_list) if idx not in del_idx]
         return ops_list
