@@ -1,5 +1,7 @@
 # Build Steps for `intel-qnlp` on Kay
 
+Note: Ensure GCC version 5.1+ is loaded when building `Intel-QS`.
+
 ## Load Intel Compiler and Cmake3
 Load modules for Intel-2018-u3 and Cmake3.
 
