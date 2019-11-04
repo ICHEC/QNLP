@@ -161,6 +161,13 @@ add_definitions(
      -DLATEX_OUTPUT"
 )
 
+# Check if MPI environment is set up, and add precompiler definition if so
+if (MPI_FOUND)
+    add_definitions(
+        "-DMPI_FOUND"
+    )
+endif ()
+
 ################################################################################
 # Add Intel-QS library as target
 
