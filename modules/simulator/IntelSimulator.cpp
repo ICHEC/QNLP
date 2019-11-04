@@ -20,6 +20,10 @@
 #include "util/tinymatrix.hpp"
 #include <cstdlib>
 
+#ifdef MPI_FOUND
+    #include "mpi.h"
+#endif
+
 namespace QNLP{
 
 class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
@@ -52,6 +56,11 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         double coeff = (1./sqrt(2.));
         gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
+
+
+        #ifdef MPI_FOUND
+            MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        #endif
 
 
         // Set up random number generator for randomly collapsing qubit to 0 or 1
@@ -292,8 +301,20 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     // Apply measurement to single qubit
     inline bool applyMeasurement(CST target, bool normalize=true){
+        double rand;
         bool bit_val;
-        collapseQubit(target,(bit_val = (dist(mt) < getStateProbability(target))));
+
+        #ifdef MPI_FOUND
+            if(rank == 0){
+                rand = dist(mt);
+            }
+            MPI_Bcast(&rand, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+            MPI_Barrier(MPI_COMM_WORLD);
+        #else
+            rand = dist(mt);
+        #endif
+
+        collapseQubit(target,(bit_val = (rand < getStateProbability(target))));
         if(normalize){
             applyAmplitudeNorm();
         }
@@ -321,6 +342,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     std::size_t numQubits = 0;
     QRDP qubitRegister;
     std::vector<TMDP> gates;
+    #ifdef MPI_FOUND
+        int rank;
+    #endif
 
     //  RACE CONDITION - not thread safe
     //  Currently not an issue due to only MPI master rank using the rnadom numbers,
