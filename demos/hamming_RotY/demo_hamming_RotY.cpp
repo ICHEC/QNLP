@@ -45,19 +45,27 @@ int main(int argc, char **argv){
 
 
     std::size_t len_reg_memory = 2;
-    std::size_t len_reg_ancilla = len_reg_memory + 2;
-    std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
-    std::size_t num_bin_pattern = pow(2,len_reg_memory);
-
+    std::size_t len_reg_ancilla;
+    std::size_t num_qubits;
+    std::size_t num_bin_pattern;
     std::size_t test_pattern = 3;
 
     if(argc > 2){
         test_pattern = atoi(argv[2]);
     }
-
     if(argc > 3){
         num_exps = atoi(argv[3]);
     }
+    if(argc > 4){
+        len_reg_memory = atoi(argv[4]);
+    }
+
+    len_reg_ancilla = len_reg_memory + 2;
+    num_qubits = len_reg_memory + len_reg_ancilla;;
+    num_bin_pattern = pow(2,len_reg_memory);
+
+
+
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
@@ -124,16 +132,18 @@ int main(int argc, char **argv){
         count[val] += 1;
     }
 
-    cout << "Measure:" << endl;
-    int i = 0;
-    for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
-        cout << vec_to_encode[i] << "\t";
-        cout << it->first << "\t";
-        cout << "|";
-        print_bits(it->first, len_reg_memory);
-        cout << ">\t";
-        cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
-        i++;
+    if(rank == 0){
+        cout << "Measure:" << endl;
+        int i = 0;
+        for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
+            cout << vec_to_encode[i] << "\t";
+            cout << it->first << "\t";
+            cout << "|";
+            print_bits(it->first, len_reg_memory);
+            cout << ">\t";
+            cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
+            i++;
+        }
     }
 
 
