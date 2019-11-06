@@ -7,7 +7,7 @@
 #no extra settings
 
 #START_TIME=`date + "%Y-%b-%d"`
-START_TIME=`date '+%Y-%b-%m_%H.%M.%S'`
+START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 
 ITAC_RESULTS_PATH=ITAC_RESULTS
 EXPERIMENT_RESULTS_DIR=ITAC_RESULTS_${START_TIME}_job${SLURM_JOBID}
@@ -88,7 +88,8 @@ export VT_LOGFILE_FORMAT=STF #[ASCII|STF|STFSINGLE|SINGLESTF]
 start_time=`date +%s`
 
 # Standard MPI with C/C++
-mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+#mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 # MPI Applications in Python (require .so files to be specified (full paths might be required))
 #mpiexec.hydra -trace "libVT.so libmpi.so" -n ${NPROCS} -ppn ${NTASKSPERNODE} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
