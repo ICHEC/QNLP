@@ -6,7 +6,6 @@
 #SBATCH -A "ichec001"
 #no extra settings
 
-#START_TIME=`date + "%Y-%b-%d"`
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 
 PROFILING_RESULTS_PATH=PROFILING_RESULTS
@@ -23,6 +22,10 @@ NNODES=2
 NTASKSPERNODE=2
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
+
+export OMP_NUM_THREADS=${NTHREADS}
+export AFF_THREAD=${NTHREADS}
+export KMP_AFFINITY=compact
 
 #################################################
 ### Application configuration.
@@ -59,17 +62,16 @@ module load qhipster
 INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5.075/bin
 
 #################################################
-### Set-up Environment for application and ITAC.
+### Set-up Command line variables and Environment
+### for ITAC.
+###
+### Note: User may need to modify.
 #################################################
 
 source ${INTEL_PARALLELSTUDIO_PATH}/psxevars.sh
 
 export VT_ACTIVITY=SYSTEM ON
 export VT_PCTRACE=1
-
-export OMP_NUM_THREADS=${NTHREADS}
-export AFF_THREAD=${NTHREADS}
-export KMP_AFFINITY=compact
 
 #################################################
 ### Set-up directory for ITAC results.

@@ -23,6 +23,10 @@ NTASKSPERNODE=2
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
 
+export OMP_NUM_THREADS=${NTHREADS}
+export AFF_THREAD=${NTHREADS}
+export KMP_AFFINITY=compact
+
 #################################################
 ### Application configuration.
 ###
@@ -49,7 +53,8 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load qhipster
 
 #################################################
-### Set-up Environment for application and ADVISOR.
+### Set-up Command line variables and Environment
+### for Advisor.
 ###
 ### Note: User may need to modify.
 #################################################
@@ -59,10 +64,6 @@ ADVISOR_ANALYSIS_TYPE=survey
 ADVISOR_ARGS="
             "
             #--mark-up-loops --select=foo.cpp:34,bar.cpp:192
-
-export OMP_NUM_THREADS=${NTHREADS}
-export AFF_THREAD=${NTHREADS}
-export KMP_AFFINITY=compact
 
 #################################################
 ### Set-up directory for ADVISOR results.
