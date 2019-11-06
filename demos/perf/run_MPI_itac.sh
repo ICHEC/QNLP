@@ -63,6 +63,9 @@ INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5
 
 source ${INTEL_PARALLELSTUDIO_PATH}/psxevars.sh
 
+export VT_ACTIVITY=SYSTEM ON
+export VT_PCTRACE=1
+
 export OMP_NUM_THREADS=${NTHREADS}
 export AFF_THREAD=${NTHREADS}
 export KMP_AFFINITY=compact
