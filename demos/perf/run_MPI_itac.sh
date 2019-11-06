@@ -9,7 +9,8 @@
 #START_TIME=`date + "%Y-%b-%d"`
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 
-ITAC_RESULTS_PATH=ITAC_RESULTS
+PROFILING_RESULTS_PATH=PROFILING_RESULTS
+ITAC_RESULTS_PATH=${PROFILING_RESULTS_PATH}/ITAC_RESULTS
 EXPERIMENT_RESULTS_DIR=ITAC_RESULTS_${START_TIME}_job${SLURM_JOBID}
 
 #################################################
@@ -35,7 +36,7 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=500
-EXE_LEN_PATTERNS=4
+EXE_LEN_PATTERNS=10
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -74,6 +75,7 @@ export KMP_AFFINITY=compact
 ### Set-up directory for ITAC results.
 #################################################
 
+[ ! -d "${PROFILING_RESULTS_PATH}" ] && mkdir -p "${PROFILING_RESULTS_PATH}"
 [ ! -d "${ITAC_RESULTS_PATH}" ] && mkdir -p "${ITAC_RESULTS_PATH}"
 [ ! -d "${ITAC_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}" ] && mkdir -p "${ITAC_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}"
 
@@ -88,8 +90,7 @@ export VT_LOGFILE_FORMAT=STF #[ASCII|STF|STFSINGLE|SINGLESTF]
 start_time=`date +%s`
 
 # Standard MPI with C/C++
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
-#mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 # MPI Applications in Python (require .so files to be specified (full paths might be required))
 #mpiexec.hydra -trace "libVT.so libmpi.so" -n ${NPROCS} -ppn ${NTASKSPERNODE} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
