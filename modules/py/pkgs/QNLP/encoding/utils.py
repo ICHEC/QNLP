@@ -58,3 +58,7 @@ def gen_state_string(l):
         if i != l[-1]:
             result += " + "
     return result
+
+def HammingInt(i1 : int, i2 : int):
+    """Simple integer based hamming distance for bits"""
+    return bin(i1 ^ i2).count("1")
