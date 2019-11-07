@@ -1,10 +1,9 @@
 import ctypes
 from .encoder_base import EncoderBase
-
 """
-Adapated from example on https://en.wikipedia.org/wiki/Gray_code
+Adapated from example on http://www.ahok.de/en/hoklas-code.html
 """
-class GrayEncoder(EncoderBase):
+class OBrienEncoder(EncoderBase):
 
     def encode(self, bin_val : ctypes.c_uint):
         return bin_val ^ ( bin_val >> 1)

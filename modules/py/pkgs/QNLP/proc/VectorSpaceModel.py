@@ -179,7 +179,7 @@ class VectorSpaceModel:
         basis_dist_dict = {}
         # pairwise distance calc
         if len(basis_tk_list) > 1:
-            for c0,k0 in enumerate(basis_tk_list[0:-1]):
+            for c0,k0 in enumerate(basis_tk_list[0:]):
                 for k1 in basis_tk_list[c0:]:
                     if k0 != k1:
                         a = self.tokens[tokens_type][k0][1]
@@ -259,13 +259,15 @@ class VectorSpaceModel:
         #from IPython import embed; embed()
         token_order, dist_total = self._tsp_token_solver(token_graph)
         #from IPython import embed; embed()
-        return token_order[:-1]# nx.tournament.hamiltonian_path(token_graph)
+        return token_order[:]# nx.tournament.hamiltonian_path(token_graph)
 
 ###############################################################################
-# Using or-tools to solve TSP of token_graph.
-# Adapted from or-tools examples on TSP
-###############################################################################
+
     def _tsp_token_solver(self, token_graph : nx.DiGraph):
+        """
+        Using or-tools to solve TSP of token_graph.
+        Adapted from or-tools examples on TSP
+        """
         dist_dat = {}
         dist_dat['distance_matrix'] = nx.adjacency_matrix(token_graph).todense().tolist() #Doesn't seem to like np matrices
         dist_dat['num_vehicles'] = 1 #Single route
@@ -309,10 +311,6 @@ class VectorSpaceModel:
         return token_order, dist_total
 
 ###############################################################################
-###############################################################################
-
-
-###############################################################################
 
     def _calc_token_order_distance(self, token_order_list, token_type):
         sum_total = []
@@ -328,7 +326,6 @@ class VectorSpaceModel:
         return (np.sum(sum_total), sum_total)
 
 ###############################################################################
-###############################################################################
 
     def assign_indexing(self, token_type):
         """ 5. Encode the ordered tokens using a Gray code based on indexed 
@@ -337,13 +334,12 @@ class VectorSpaceModel:
         t_dict = {}
 
         for idx,token in enumerate(self.ordered_tokens[token_type]):
-            t_dict.update({token : self.encoder.binToGray(idx) })
+            t_dict.update({token : self.encoder.encode(idx) })
 
         self.encoded_tokens.update( {token_type : t_dict })
 
         return self.encoded_tokens
 
-###############################################################################
 ###############################################################################
 
     def calc_diff_matrix(self):
