@@ -28,7 +28,7 @@ class OBrienEncoder(EncoderBase):
     """
 
     def __init__(self):
-        self.enc_mapping = {1 : 1, 2 : 3, 3 : 2, 4 : 6, 5 : 14, 6 : 10, 7 : 11, 8 : 9 }
+        self.enc_mapping = { 1 : 1, 2 : 3, 3 : 2, 4 : 6, 5 : 14, 6 : 10, 7 : 11, 8 : 9 }
         self.dec_mapping = { v:k for k,v in self.enc_mapping.items() }
 
     def encode(self, bin_val):

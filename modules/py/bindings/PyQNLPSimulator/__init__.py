@@ -1,4 +1,9 @@
 name = "PyQNLPSimulator"
+
+#from mpi4py import rc
+#rc.initialize = False # if = True, The Init is done when "from mpi4py import MPI" is called
+#rc.thread_level = 'serialized'
+
 from mpi4py import MPI #Required to ensure initialisation of MPI environment
 from ._PyQNLPSimulator import *
 

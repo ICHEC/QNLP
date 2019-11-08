@@ -11,7 +11,8 @@ vsm_verbs.assign_indexing()
 ###############################################################################
 
 import QNLP.proc.process_corpus as pc
-import QNLP.encoding.gray as gr
+import QNLP.encoding as enc
+
 from os import path
 import numpy as np
 import networkx as nx
@@ -93,10 +94,10 @@ class VectorSpaceModel:
     relatively close together will be closer in the sorted list, and as a result have a smaller number of bit flips of difference
     which can be used in the Hamming distance calculation later for similarity of meanings.
     """
-    def __init__(self, corpus_path="", mode=0, stop_words=True):
+    def __init__(self, corpus_path="", mode=0, stop_words=True, encoder=enc.gray.GrayEncoder()):
         self.pc = VSM_pc()
         self.tokens = self.load_tokens(corpus_path, mode, stop_words)
-        self.encoder = gr.GrayEncoder()
+        self.encoder = encoder
         self.distance_dictionary = {}
         self.encoded_tokens = {}
         self.ordered_tokens = {}
@@ -333,7 +334,7 @@ class VectorSpaceModel:
         """
         t_dict = {}
 
-        for idx,token in enumerate(self.ordered_tokens[token_type]):
+        for idx,token in enumerate( self.ordered_tokens[token_type]):
             t_dict.update({token : self.encoder.encode(idx) })
 
         self.encoded_tokens.update( {token_type : t_dict })
