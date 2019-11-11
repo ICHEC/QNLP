@@ -124,7 +124,7 @@ namespace QNLP{
                 #endif
 
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
-                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + (len_bin_pattern-1));
+                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + len_bin_pattern);
 
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
@@ -239,8 +239,9 @@ namespace QNLP{
                 #endif
 
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
-                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + (len_bin_pattern-1));
-                                    //qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
+                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + len_bin_pattern);
+                //qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
+
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
