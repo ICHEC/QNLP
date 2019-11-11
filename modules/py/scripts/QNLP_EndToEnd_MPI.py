@@ -22,11 +22,13 @@ from QNLP.encoding import obrien
 from itertools import product
 import tempfile
 
+comm = MPI.COMM_WORLD
+rank = comm.Get_rank()
 
 # Next, we load the corpus file using the vector-space model, defined in the `VectorSpaceModel` class, specifying the mode of tagging, and whether to filter out stop-words. For this notebook I have used the Project Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple replacements to avoid incorrect tagging of elements (mostly standardising apostrophes to \' and quotations to \"). 
 
 vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path="/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", 
+    corpus_path="/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt", #"/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", 
     mode=None, 
     stop_words=False,
     encoder = obrien.OBrienEncoder()
@@ -116,13 +118,14 @@ decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
 len_reg_memory = int(np.log2(len(verb_dist['verbs'])) + 2*np.log2(len(noun_dist['nouns'])))
 len_reg_ancilla = len_reg_memory + 2
 num_qubits = len_reg_memory + len_reg_ancilla
-print("""{}
+if rank == 0:
+    print("""{}
 Requires {} qubits to encode data using {} 
 basis elements in each space, allowing a 
 maximum of {} unique patterns.
 {}
 """.format("#"*48, num_qubits, num_basis_elems, 2**num_qubits, "#"*48)
-)
+    )
 
 
 # Using encoded bitstrings for bases, look-up mapping terms for composite nouns and verbs, create bitstrings and generate quantum states
@@ -228,7 +231,7 @@ len_reg_memory = verb_bits + 2*noun_bits
 len_reg_ancilla = len_reg_memory + 2
 num_qubits = len_reg_memory + len_reg_ancilla
 
-use_fusion = False
+use_fusion = True
 sim = p(num_qubits, use_fusion)
 num_exps = 1
 normalise = True
@@ -271,7 +274,8 @@ for exp in range(num_exps):
     
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
-    print("Result[{}] = {}".format(exp, val))
+    if rank == 0:
+        print("Result[{}] = {}".format(exp, val))
 
 exit()
 
