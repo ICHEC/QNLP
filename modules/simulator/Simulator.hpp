@@ -387,6 +387,7 @@ namespace QNLP{
          * @param target Target qubit index to apply nCU
          */
         template<class Mat2x2Type>
+        [[deprecated( "Less optimal variant of NCU; please use 'applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = \"U\")' for better performance" )]]
         void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
             NCU<DerivedType> n;
             std::string matrixLabel = "";
