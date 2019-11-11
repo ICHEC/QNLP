@@ -161,11 +161,20 @@ add_definitions(
      -DLATEX_OUTPUT"
 )
 
-# Check if MPI environment is set up, and add precompiler definition if so
+# Check if MPI environment is set up, and add precompiler definition if so.
+# Note: Requires explicit ENABLE_MPI flag to be set to build MPI support.
 if (MPI_FOUND)
     add_definitions(
         "-DMPI_FOUND"
     )
+    option(ENABLE_MPI "Enable gate call logging" OFF)
+    if(${ENABLE_MPI})
+        set(CMAKE_CXX_FLAGS
+            "${CMAKE_CXX_FLAGS} \
+            -DENABLE_MPI=1 \
+            "
+        )
+    endif()
 endif ()
 
 ################################################################################
