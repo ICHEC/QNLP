@@ -2,7 +2,7 @@
 #SBATCH -J profile
 #SBATCH -N 2
 #SBATCH -p DevQ
-#SBATCH -t 04:00:00
+#SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -71,7 +71,6 @@ INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5
 
 source ${INTEL_PARALLELSTUDIO_PATH}/advixe-vars.sh
 
-
 #################################################
 ### Set-up Command line variables and Environment
 ### for Advisor.
@@ -105,17 +104,19 @@ start_time=`date +%s`
 ### Intel MPI Syntax
 # Survey Target
 mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect survey ${ADVISOR_ARGS_SURVEY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Survey Target run: Complete"
 # Roofline Target
 mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect tripcounts ${ADVISOR_ARGS_TRIPCOUNTS} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Roofline Target run: Complete"
 # Maps Target
 mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect map ${ADVISOR_ARGS_MAP} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Maps Target run: Complete"
 # Dependencies Target
 mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect dependencies ${ADVISOR_ARGS_DEPENDENCIES} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Dependencies Target run: Complete"
 # Suitability Target (threading)
 mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect suitability ${ADVISOR_ARGS_SUITABILITY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
-
-### Generic MPI Syntax
-#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} advixe-cl -collect ${ADVISOR_ANALYSIS_TYPE} ${ADVISOR_ARGS} --project-dir=${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR} -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Suitability Target run: Complete"
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))
