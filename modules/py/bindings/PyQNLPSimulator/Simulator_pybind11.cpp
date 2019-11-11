@@ -4,6 +4,7 @@
 #include "pybind11/complex.h"
 #include "pybind11/stl.h"
 #include <pybind11/numpy.h>
+#include <mpi.h>
 
 namespace py = pybind11;
 using namespace QNLP;
@@ -11,7 +12,8 @@ using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
 
 class IntelSimPy : public IntelSimulator{
     public:
-    IntelSimPy(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) {}
+
+    IntelSimPy(int numQubits, bool useFusion=false) : IntelSimulator(numQubits,  useFusion) { }
     IntelSimPy(std::unique_ptr<IntelSimulator, std::default_delete<IntelSimulator> > iSim) : IntelSimulator(iSim->getNumQubits(), false) {}
     ~IntelSimPy(){}
 
@@ -77,6 +79,7 @@ void intel_simulator_binding(py::module &m){
         .def("applyGateSqrtSwap", &SimulatorType::applyGateSqrtSwap)
         .def("applyGatePhaseShift", &SimulatorType::applyGatePhaseShift)
         .def("applyGateCPhaseShift", &SimulatorType::applyGateCPhaseShift)
+        .def("applyGateCX", &SimulatorType::applyGateCX)
         .def("applyGateCCX", &SimulatorType::applyGateCCX)
         .def("applyGateCSwap", &SimulatorType::applyGateCSwap)
         .def("getNumQubits", &SimulatorType::getNumQubits)
