@@ -36,13 +36,9 @@ namespace QNLP{
             //Take the 2x2 matrix type from the template SimulatorType
             using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
 
-            Mat2x2Type pX;
             std::unique_ptr< std::vector<Mat2x2Type> > S;
-
             std::size_t m, len_reg_ancilla, len_bin_pattern;
     
-
-
         public:
             EncodeBinIntoSuperpos(){};
 
@@ -63,10 +59,6 @@ namespace QNLP{
              */
             //template <class Type>
             void initialiseMats(){
-                pX(0, 0) = std::complex<double>( 0., 0. );
-                pX(0, 1) = std::complex<double>( 1., 0. );
-                pX(1, 0) = std::complex<double>( 1., 0. );
-                pX(1, 1) = std::complex<double>( 0., 0. );
 
                 // Preparation for binary encoding:
                 //
@@ -120,12 +112,10 @@ namespace QNLP{
                 std::cerr << "NOT YET IMPLEMENTED CORRECTLY" << std::endl;
                 std::abort();
                 
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
+                std::size_t len_reg_ancilla = reg_ancilla.size();
 
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
-
 
                 // Prepare state in |0...>|0...0>|10> of lengths n,n,2
 
@@ -134,6 +124,8 @@ namespace QNLP{
                 #endif
 
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
+                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + (len_bin_pattern-1));
+
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
@@ -169,7 +161,7 @@ namespace QNLP{
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
                     #endif
-                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
 
 
                     // Psi4
@@ -186,7 +178,7 @@ namespace QNLP{
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_5 \\rangle");
                     #endif
-                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
                     #ifdef GATE_LOGGING
@@ -236,8 +228,7 @@ namespace QNLP{
                     const std::vector<std::size_t>& bin_patterns){
 
                 
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
+                std::size_t len_reg_ancilla = reg_ancilla.size();
 
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
@@ -246,7 +237,10 @@ namespace QNLP{
                 #ifdef GATE_LOGGING
                 qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|10> of lengths n,n,2");
                 #endif
+
                 qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
+                std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + (len_bin_pattern-1));
+                                    //qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
                 // Begin Encoding
                 for(std::size_t i = 0; i < m; i++){
                     // Psi0
@@ -282,8 +276,9 @@ namespace QNLP{
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
                     #endif
-                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
-
+                    //qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                    //qSim.applyGateNCU(qSim.getGateX(), reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi4
                     // Step 1.3 - Apply S^i
@@ -299,7 +294,8 @@ namespace QNLP{
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_5 \\rangle");
                     #endif
-                    qSim.applyGateNCU(pX, reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                    //qSim.applyGateNCU(qSim.getGateX(), reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
                     // Psi6 
                     #ifdef GATE_LOGGING
@@ -327,12 +323,9 @@ namespace QNLP{
                         if(IS_SET(bin_patterns[i],j)){
                             qSim.applyGateX(reg_ancilla[j]);
                         }
-
                     }
                 }
-
             }
-
     };
 
 };

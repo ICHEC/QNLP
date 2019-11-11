@@ -20,7 +20,7 @@
 #include "util/tinymatrix.hpp"
 #include <cstdlib>
 
-#ifdef MPI_FOUND
+#ifdef ENABLE_MPI
     #include "mpi.h"
 #endif
 
@@ -58,7 +58,21 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
 
 
-        #ifdef MPI_FOUND
+        #ifdef ENABLE_MPI
+            int mpi_is_init;
+            MPI_Initialized(&mpi_is_init);
+            if (! mpi_is_init){ // Attempt init using Intel-QS MPI env
+                int argc = 0;
+                char** argv = new char*[argc];
+
+                openqu::mpi::Environment env(argc, argv); //we do not expect to pass any params here
+            }
+            MPI_Initialized(&mpi_is_init);
+            if (! mpi_is_init){ // If Intel-QS MPI env fails, use default init
+                int argc = 0;
+                char** argv = new char*[argc];
+                MPI_Init(&argc, &argv);
+            }
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         #endif
 
@@ -304,7 +318,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         double rand;
         bool bit_val;
 
-        #ifdef MPI_FOUND
+        #ifdef ENABLE_MPI
             if(rank == 0){
                 rand = dist(mt);
             }
@@ -342,7 +356,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     std::size_t numQubits = 0;
     QRDP qubitRegister;
     std::vector<TMDP> gates;
-    #ifdef MPI_FOUND
+    #ifdef ENABLE_MPI
         int rank;
     #endif
 
