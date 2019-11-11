@@ -2,7 +2,7 @@
 #SBATCH -J profile
 #SBATCH -N 2
 #SBATCH -p DevQ
-#SBATCH -t 01:00:00
+#SBATCH -t 04:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -38,8 +38,8 @@ EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=500
-EXE_LEN_PATTERNS=5
+EXE_NUM_EXP=100
+EXE_LEN_PATTERNS=4
 
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
@@ -53,17 +53,39 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load qhipster
 
 #################################################
+### Set path to appropriate version of Intel 
+### Parallel Studios Advisor on machine 
+### (directory which contains psxevars.sh).
+###
+### Note: User may need to modify.
+#################################################
+
+INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5.075/advisor_2019
+
+#################################################
 ### Set-up Command line variables and Environment
 ### for Advisor.
 ###
 ### Note: User may need to modify.
 #################################################
 
-ADVISOR_ANALYSIS_TYPE=survey
+source ${INTEL_PARALLELSTUDIO_PATH}/advixe-vars.sh
 
-ADVISOR_ARGS="
-            "
-            #--mark-up-loops --select=foo.cpp:34,bar.cpp:192
+
+#################################################
+### Set-up Command line variables and Environment
+### for Advisor.
+###
+### Note: User may need to modify.
+#################################################
+
+#ADVISOR_ANALYSIS_TYPE=survey
+
+ADVISOR_ARGS_SURVEY=""
+ADVISOR_ARGS_TRIPCOUNTS="-flop -stacks"
+ADVISOR_ARGS_MAP="-loops=total-time>0.1,loop-height=0"
+ADVISOR_ARGS_DEPENDENCIES="-loops=scalar,loops-height=0,total-time>0.1"
+ADVISOR_ARGS_SUITABILITY=""
 
 #################################################
 ### Set-up directory for ADVISOR results.
@@ -80,7 +102,20 @@ ADVISOR_ARGS="
 
 start_time=`date +%s`
 
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} advixe-cl -collect ${ADVISOR_ANALYSIS_TYPE} ${ADVISOR_ARGS} --project-dir=${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR} -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+### Intel MPI Syntax
+# Survey Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect survey ${ADVISOR_ARGS_SURVEY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Roofline Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect tripcounts ${ADVISOR_ARGS_TRIPCOUNTS} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Maps Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect map ${ADVISOR_ARGS_MAP} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Dependencies Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect dependencies ${ADVISOR_ARGS_DEPENDENCIES} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Suitability Target (threading)
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect suitability ${ADVISOR_ARGS_SUITABILITY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+
+### Generic MPI Syntax
+#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} advixe-cl -collect ${ADVISOR_ANALYSIS_TYPE} ${ADVISOR_ARGS} --project-dir=${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR} -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))
