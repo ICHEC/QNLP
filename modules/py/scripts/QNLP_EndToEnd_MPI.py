@@ -230,7 +230,7 @@ num_qubits = len_reg_memory + len_reg_ancilla
 
 use_fusion = False
 sim = p(num_qubits, use_fusion)
-num_exps = 10
+num_exps = 1
 normalise = True
 
 # Set up registers to store indices
