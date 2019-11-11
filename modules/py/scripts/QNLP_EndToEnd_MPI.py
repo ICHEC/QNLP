@@ -125,30 +125,13 @@ maximum of {} unique patterns.
 )
 
 
-# Using properly gray encoded bitstrings for bases, look-up mapping terms for composite nouns and verbs, create bitstrings and generate quantum states
+# Using encoded bitstrings for bases, look-up mapping terms for composite nouns and verbs, create bitstrings and generate quantum states
 
 
 ns = []
 
 verb_bits = int(np.log2(len(verb_dist['verbs'])))
 noun_bits = int(np.log2(len(noun_dist['nouns'])))
-
-for i in mapping_nouns['hall']:
-    ns.append("{0:b}".format(vsm.encoded_tokens['nouns'][i]).zfill( noun_bits) )
-v = []
-for i in mapping_verbs['whispered']:
-    v.append("{0:b}".format(vsm.encoded_tokens['verbs'][i]).zfill( verb_bits) )
-no = []
-for i in mapping_nouns['table']:
-    no.append("{0:b}".format(vsm.encoded_tokens['nouns'][i]).zfill( noun_bits ) )
-
-
-encodings = []
-for ns_i in ns:
-    for v_j in v:
-        for no_k in no:
-            value = "".join((ns_i, v_j, no_k))
-            encodings.append(value)
 
 import networkx as nx
 class VerbNode:
@@ -200,7 +183,6 @@ bit_shifts.insert(0,0)
 bit_shifts = np.cumsum(bit_shifts)
 bit_shifts
 
-
 corpus_list_n = vsm.tokens['nouns']
 corpus_list_v = vsm.tokens['verbs']
 dist_cutoff=3
@@ -245,14 +227,11 @@ sentences
 len_reg_memory = verb_bits + 2*noun_bits
 len_reg_ancilla = len_reg_memory + 2
 num_qubits = len_reg_memory + len_reg_ancilla
-num_bin_pattern = len(vec_to_encode)
-
 
 use_fusion = False
 sim = p(num_qubits, use_fusion)
-num_exps = 1
+num_exps = 10
 normalise = True
-
 
 # Set up registers to store indices
 reg_memory = [0]*len_reg_memory;
@@ -262,14 +241,6 @@ for i in range(len_reg_memory):
 reg_ancilla = [0]*len_reg_ancilla
 for i in range(len_reg_ancilla):
     reg_ancilla[i] = i + len_reg_memory;
-
-
-# Counter for experiment results
-shot_counter = {}
-for i in vec_to_encode:
-    shot_counter.update({i : 0})
-
-
 
 #Create list for the patterns to be encoded
 vec_to_encode = []
@@ -287,8 +258,12 @@ for idx in range(3):
 #Need to remove duplicates        
 vec_to_encode = list(set(vec_to_encode))
 
+# Counter for experiment results
+shot_counter = {}
+for i in vec_to_encode:
+    shot_counter.update({i : 0})
+
 for exp in range(num_exps):
-    print(exp)
     sim.initRegister()
 
     # Encode
@@ -296,7 +271,9 @@ for exp in range(num_exps):
     
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
+    print("Result[{}] = {}".format(exp, val))
 
+exit()
 
 xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
 xlab_str
