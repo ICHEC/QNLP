@@ -277,40 +277,36 @@ for exp in range(num_exps):
     if rank == 0:
         print("Result[{}] = {}".format(exp, val))
 
-exit()
+if rank == 0:
+    xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
+    xlab_str
 
-xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
-xlab_str
+    xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in list(shot_counter.keys())]
 
+    hist_list = list(zip(
+        [i[0]+r" $\vert$"+i[1]+r"$\rangle$" for i in zip(xlab_str,xlab_bin)],
+        [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
+    ))
 
-xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in list(shot_counter.keys())]
-xlab_bin
+    labels = [x[0] for x in hist_list]
+    post_vals = [y[1] for y in hist_list]
 
-hist_list = list(zip(
-    [i[0]+r" $\vert$"+i[1]+r"$\rangle$" for i in zip(xlab_str,xlab_bin)],
-    [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
-))
-hist_list
+    x = np.arange(len(labels))  # the label locations
+    width = 0.35  # the width of the bars
 
+    fig, ax = plt.subplots()
 
-labels = [x[0] for x in hist_list]
-post_vals = [y[1] for y in hist_list]
+    rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
 
-x = np.arange(len(labels))  # the label locations
-width = 0.35  # the width of the bars
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(r"$P(\textrm{{{}}})$".format("Pattern"),fontsize=24)
+    ax.set_xticks(x)
+    ax.tick_params(axis='both', which='major', labelsize=16)
+    ax.set_xticklabels(labels, rotation=-30, ha="left",fontsize=16)
+    ax.legend(fontsize=16)
 
-fig, ax = plt.subplots()
-
-rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
-
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel(r"$P(\textrm{{{}}})$".format("Pattern"),fontsize=24)
-ax.set_xticks(x)
-ax.tick_params(axis='both', which='major', labelsize=16)
-ax.set_xticklabels(labels, rotation=-30, ha="left",fontsize=16)
-ax.legend(fontsize=16)
-
-plt.axhline(y=1.0/len(shot_counter), color='crimson', linestyle="--")
-plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center', fontsize=16)
-plt.tight_layout()
-fig.set_size_inches(20, 12, forward=True)
+    plt.axhline(y=1.0/len(shot_counter), color='crimson', linestyle="--")
+    plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center', fontsize=16)
+    plt.tight_layout()
+    fig.set_size_inches(20, 12, forward=True)
+    plt.savefig("qnlp_e2e.pdf")
