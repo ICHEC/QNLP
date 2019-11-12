@@ -17,7 +17,7 @@ from PyQNLPSimulator import PyQNLPSimulator as p
 import QNLP as q
 import numpy as np
 from QNLP import DisCoCat
-from QNLP.encoding import obrien
+from QNLP.encoding import simple
 
 from itertools import product
 import tempfile
@@ -28,12 +28,11 @@ rank = comm.Get_rank()
 # Next, we load the corpus file using the vector-space model, defined in the `VectorSpaceModel` class, specifying the mode of tagging, and whether to filter out stop-words. For this notebook I have used the Project Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple replacements to avoid incorrect tagging of elements (mostly standardising apostrophes to \' and quotations to \"). 
 
 vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path="/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt", #"/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", 
+    corpus_path="/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", #/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt
     mode=None, 
     stop_words=False,
-    encoder = obrien.OBrienEncoder()
+    encoder = simple.SimpleEncoder()
 )
-
 
 # From here we can specify the number of basis elements by occurrence in the corpus. This will take the `num_basis_elems` most frequently occurring tokens in both verb and noun spaces respectively.
 
@@ -110,12 +109,12 @@ decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
                  "no" : { v:k for k,v in encoding_dict["no"].items() }
                 }
 
-
 # With the above information, we can now determine the required resources to store our data in a qubit register.
 
-
-# Register must be large enough to support 2*|nouns| + |verbs|
-len_reg_memory = int(np.log2(len(verb_dist['verbs'])) + 2*np.log2(len(noun_dist['nouns'])))
+# Register must be large enough to support 2*|nouns| + |verbs| in given encoding
+len_reg_memory =    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['v'].values()))) )[1] + \
+                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['no'].values()))) )[1] + \
+                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] #int(np.log2(len(verb_dist['verbs'])) + 2*np.log2(len(noun_dist['nouns'])))
 len_reg_ancilla = len_reg_memory + 2
 num_qubits = len_reg_memory + len_reg_ancilla
 if rank == 0:
@@ -127,9 +126,7 @@ maximum of {} unique patterns.
 """.format("#"*48, num_qubits, num_basis_elems, 2**num_qubits, "#"*48)
     )
 
-
 # Using encoded bitstrings for bases, look-up mapping terms for composite nouns and verbs, create bitstrings and generate quantum states
-
 
 ns = []
 
@@ -188,11 +185,11 @@ bit_shifts
 
 corpus_list_n = vsm.tokens['nouns']
 corpus_list_v = vsm.tokens['verbs']
-dist_cutoff=3
+dist_cutoff = 3
 
 for word_v, locations_v in corpus_list_v.items():
     v = VerbNode(word_v)
-    lv = locations_v[1][:, np.newaxis];
+    lv = locations_v[1][:, np.newaxis]
     for word_n, locations_n in corpus_list_n.items():#######!!!!!!!#######
         dists = np.ndarray.flatten(locations_n[1] - lv)
         if not isinstance(dists, np.int64):
@@ -247,6 +244,8 @@ for i in range(len_reg_ancilla):
 
 #Create list for the patterns to be encoded
 vec_to_encode = []
+
+from IPython import embed; embed()
 
 # Generate bit-patterns from sentences and store in vec_to_encode
 for idx in range(3):
