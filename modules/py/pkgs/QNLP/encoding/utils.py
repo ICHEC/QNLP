@@ -5,7 +5,7 @@ def pow2bits(bin_val):
     and number of bits required to represent it.
     """
     result = -1
-    bits = (bin_val).bit_length()-1
+    bits = (bin_val).bit_length()
     if bin_val > 1:
         result = 2**(bits)
     else:
