@@ -8,9 +8,28 @@ The Intel Parallel Studio Tool suite can be used to conduct performance analysis
 
 The scripts `run_MPI_itac.sh`, `run_MPI_amplxe.sh` and `run_MPI_adapt.sh` each launch an Slurm job for the respective profilers on the given executable (default is `inte-qnlp/demos/hamming_RotY/exe_demo_hamming_RotY`) and configuration.
 
-## Running the scripts
-In order to run the profiling scripts, ensure that the Intel Quantum Simulator used for building the ewxecutable is built with the following flags set; `-trace -fno-omit-frame-pointer -fPIC -g -O3`. Note: that some of these flags will inhibit performance and should be removed for production runs and proper benchmarking statistics.
+## Building the simulator
+In order to run the profiling scripts, ensure that the Intel Quantum Simulator used for building the executable is built with the following flags set; `-trace -fno-omit-frame-pointer -fPIC -g -O3`. Note: that some of these flags will inhibit performance and should be removed for production runs and proper benchmarking statistics.
 
+The local static simulator must now be built with the same flags enabled. This can be done by running the cmake with the `-DENABLE_PRFILING=ON` flag set.
+
+```
+cmake CC=mpiicc CXX=mpiicpc <PATH-TO-CMAKELISTS_FILE>/CMakeLists.txt -DENABLE_PROFILING=ON
+```
+
+Environment variables for the profiler suite need to be set by running the `psxevars.sh` script which is contained in the `parallel_studio_xe_*` directory relative to the install location of the  Intel library being used.
+
+```
+source <PATH-TO-SCRIPT>/psxevars.sh
+```
+
+Now the simmulator library is ready to be build by running
+
+```
+make
+```
+
+## Running the scripts
 After setting up the usual environment variables, execute
 ```
 sbatch <PERFORMANCE-ANALYSIS-SCRIPT>
