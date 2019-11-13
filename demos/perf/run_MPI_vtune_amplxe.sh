@@ -70,10 +70,6 @@ VTUNE_ARGS="-knob sampling-interval=5 -knob stack-size=0 -knob collect-memory-ba
             #-knob collect-memory-bandwidth=true        \
             #-knob collect-affinity=true                \
 
-SYMBOL_FILES_SEARCH_COMMAND="-search-dir ${QHIPSTER_DIR_INC}/../../qureg -search-dir ${QHIPSTER_DIR_INC}/../../util"
-
-SOURCE_FILES_SEARCH_COMMAND="-search-dir ${QHIPSTER_DIR_INC}/../../qureg -search-dir ${QHIPSTER_DIR_INC}/../../util"
-
 #################################################
 ### Set-up directory for VTUNE results.
 #################################################
