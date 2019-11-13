@@ -140,6 +140,17 @@ if(${ENABLE_LOGGING})
     )
 endif()
 
+option(ENABLE_PROFILE "Enable profiling with symbol files passed to profiler" OFF)
+if(${ENABLE_PROFILE})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+         -trace \
+         -fno-omit-frame-pointer \
+         -fPIC  \
+        "
+    )
+endif()
+
 option(ENABLE_PYTHON "Enable build of Python bindings" OFF)
 
 ################################################################################
