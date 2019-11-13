@@ -246,6 +246,136 @@ namespace QNLP{
                 }
             }
 
+
+
+
+            /**
+             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Control indices can be in any specified location
+             * 
+             * @tparam Type ComplexDP or ComplexSP 
+             * @param qReg Qubit register
+             * @param ctrlIndices Vector of indices for control lines
+             * @param qTarget Target qubit for the unitary matrix U
+             * @param U Unitary matrix, U
+             * @param depth Depth of recursion.
+             * @param isPauliX To indicate if the unitary is a PauliX matrix.
+             */
+            void applyNQubitControl_CXOpt(SimulatorType& qSim, 
+                    const std::vector<std::size_t> ctrlIndices,
+                    const std::vector<std::size_t> auxIndices,
+                    const unsigned int qTarget,
+                    const std::pair<std::string, Mat2x2Type>& U, 
+                    const unsigned int depth)
+            {
+                //No safety checks; be aware of what is physically possible (qTarget not in control_indices)
+
+                std::string label = "";
+                int local_depth = depth + 1;
+                if(sqrtMatricesU.size() == 0){
+                    initialiseMaps(U.first, U.second, ctrlIndices.size()+1);
+                }
+
+                //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
+                std::size_t cOps = ctrlIndices.size();
+                std::unordered_map<int, std::pair<std::string, Mat2x2Type> > *map_ptr;
+
+                if( (cOps == 7) && (auxIndices.size() >= 1) && (U.first == "X") && (depth == 0) ){//1457 -> 2*(60 + 13) = 144 2-qubit gate calls
+
+                    std::vector<std::size_t> subCtrlIndices5CX(ctrlIndices.begin(), ctrlIndices.begin() + 5);
+                    std::vector<std::size_t> subAuxIndices5CX(ctrlIndices.begin() + 5, ctrlIndices.begin() + 7);
+                    subAuxIndices5CX.push_back(qTarget);
+
+                    std::vector<std::size_t> subCtrlIndices3CX(ctrlIndices.begin()+5, ctrlIndices.begin() + 7);
+                    subCtrlIndices3CX.push_back(auxIndices[0]);
+
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices5CX, subAuxIndices5CX, auxIndices[0], sqrtMatricesX[0], 0 );
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices3CX, {}, qTarget, sqrtMatricesX[0], 0);
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices5CX, subAuxIndices5CX, auxIndices[0], sqrtMatricesX[0], 0 );
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices3CX, {}, qTarget, sqrtMatricesX[0], 0);
+                }
+
+                else if( (cOps == 5) && (auxIndices.size() >= 3) && (U.first == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
+
+                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
+
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                }
+
+                else if(cOps == 3){ //17 -> 13 2-qubit gate calls
+
+                    std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
+                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. 
+                    //Separated, as the Pauli decomposition can be built from phase modifications directly.
+                    if ( ! (U.first == "X") ){
+                        map_ptr = &sqrtMatricesU;
+                    }
+                    else {
+                        map_ptr = &sqrtMatricesX;
+                    }
+                    //Apply single controlled qubit gate ops
+                    qSim.applyGateCU( (*map_ptr)[local_depth+1].second, ctrlIndices[0], qTarget,  label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[1]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[1], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[1]);
+                    qSim.applyGateCU( (*map_ptr)[local_depth+1].second, ctrlIndices[1], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[1], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[1], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[-(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+                    qSim.applyGateCX(ctrlIndices[0], ctrlIndices[2]);
+                    qSim.applyGateCU( (*map_ptr)[(local_depth+1)].second, ctrlIndices[2], qTarget, label);
+
+                    //Reset pointer
+                    map_ptr = nullptr;
+                }
+
+                else if (cOps >= 2 && cOps !=3){
+                    std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
+                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
+                    if ( ! (U.first == "X") ){
+                        map_ptr = &sqrtMatricesU;
+                    }
+                    else {
+                        map_ptr = &sqrtMatricesX;
+                    }
+
+                    //Apply single qubit gate ops, and decompose higher order controls further
+                    label = U.first + "[" + std::to_string(local_depth) + "]" ;
+                    qSim.applyGateCU( (*map_ptr)[local_depth].second, ctrlIndices.back(), qTarget,  label);
+
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), sqrtMatricesX[0], 0 );
+
+                    label = U.first + "[" + std::to_string(-local_depth) + "]";
+                    qSim.applyGateCU( (*map_ptr)[-local_depth].second, ctrlIndices.back(), qTarget, label);
+
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), sqrtMatricesX[0], 0 );
+
+                    decltype(auto) sqrt_U(matrixSqrt(U.first, U.second));
+                    applyNQubitControl_CXOpt(qSim, subCtrlIndices, auxIndices, qTarget, sqrt_U, local_depth );
+
+                    //Reset pointer
+                    map_ptr = nullptr;
+                }
+
+                //If the number of control qubits is less than 2, assume we have decomposed sufficiently
+                else{
+                    label = U.first + "[" + std::to_string(depth) + "]";
+                    qSim.applyGateCU(U.second, ctrlIndices[0], qTarget, label); //The first decomposed matrix value is used here
+                }
+            }
+
             /**
              * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
              * 

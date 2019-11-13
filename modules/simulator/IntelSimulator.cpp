@@ -341,7 +341,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         applyAmplitudeNorm();
     }
 
-    // State observation mehtods: not allowed in quantum operations
+    // State observation methods: not allowed in quantum operations
     inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
         qubitRegister.Print(x,qubits);
     }

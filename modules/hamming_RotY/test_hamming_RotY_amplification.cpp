@@ -53,7 +53,7 @@ std::map<std::size_t, double> expected_amplitude(std::vector<std::size_t>& targe
 }
 
 TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingroty]"){
-    const std::size_t max_qubits = 5;
+    const std::size_t max_qubits = 6;
     double mach_eps = 7./3. - 4./3. -1.;
 
     std::size_t num_qubits;
