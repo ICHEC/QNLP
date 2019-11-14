@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J profile
+#SBATCH -J adapt
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -33,7 +33,7 @@ export KMP_AFFINITY=compact
 ### Note: User may need to modify.
 #################################################
 
-PATH_TO_EXECUTABLE=../../build/demos/hamming_RotY
+PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
@@ -53,14 +53,13 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load qhipster
 
 #################################################
-### Set path to appropriate version of Intel 
-### Parallel Studios Advisor on machine 
-### (directory which contains psxevars.sh).
+### Set-up Command line variables and Environment
+### for Advisor.
 ###
 ### Note: User may need to modify.
 #################################################
 
-INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5.075/advisor_2019
+source ${ADVISOR_XE_2019_DIR}/advixe-vars.sh
 
 #################################################
 ### Set-up Command line variables and Environment
@@ -68,17 +67,6 @@ INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5
 ###
 ### Note: User may need to modify.
 #################################################
-
-source ${INTEL_PARALLELSTUDIO_PATH}/advixe-vars.sh
-
-#################################################
-### Set-up Command line variables and Environment
-### for Advisor.
-###
-### Note: User may need to modify.
-#################################################
-
-#ADVISOR_ANALYSIS_TYPE=survey
 
 ADVISOR_ARGS_SURVEY=""
 ADVISOR_ARGS_TRIPCOUNTS="-flop -stacks"
