@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J profile
+#SBATCH -J aps
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -63,10 +63,10 @@ module load qhipster
 source ${VTUNE_AMPLIFIER_2019_DIR}/apsvars.sh
 
 # Collect internal Id;s of communicators
-#export APS_COLLECT_COMM_IDS=1
+export APS_COLLECT_COMM_IDS=1
 
 # Increase MPI Imbalance Collection 
-#export MPS_STAT_LEVEL=5 # 4 # Use 4 if too much info given with 5.
+export MPS_STAT_LEVEL=5 # 4 # Use 4 if too much info given with 5.
 
 #################################################
 ### Set-up directory for APS_VTUNE results.
@@ -100,13 +100,15 @@ echo "--------------- Generate report -----------------"
 aps --report=aps_result_${DATE}
 
 echo "--------------- Generate Detailed report -----------------"
-aps-report -x --format=html app_result_${DATE}
+aps-report -x --format=html aps_result_${DATE}
 
 #################################################
 ### Move result directory to sub directory
 #################################################
 echo "--------------- Moving Dir-----------------"
-mv aps_result_${DATE} aps_result_${DATE}*.html ${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/
+output=$( find . -maxdepth 1 -name "aps_report_${DATE}_*.html" )
+echo $output
+mv aps_result_${DATE} ${output} ${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/
 
 #################################################
 ### Copy slurm output to log file location
