@@ -43,7 +43,7 @@ Note: the provided scripts use some features which were only made available in I
 
 When launching the appropriate GUI to view the profiled results, ensure the appropriate variable set-up script for that profiler was executed to update the environment variables after the appropriate module for Intel has been loaded (assuming some version of Intel 2019 was used), as shown below;
 
-##vIntel Application Performance Snapshot:
+### Intel Application Performance Snapshot:
 
 Simply open the resulting `.html` files to show results.
 
