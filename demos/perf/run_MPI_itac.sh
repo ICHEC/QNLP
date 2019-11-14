@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J profile
+#SBATCH -J itac
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -33,7 +33,7 @@ export KMP_AFFINITY=compact
 ### Note: User may need to modify.
 #################################################
 
-PATH_TO_EXECUTABLE=../../build/demos/hamming_RotY
+PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
