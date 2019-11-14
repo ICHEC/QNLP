@@ -35,4 +35,30 @@ After setting up the usual environment variables, execute
 sbatch <PERFORMANCE-ANALYSIS-SCRIPT>
 ```
 
+## Viewing the results with appropriate GUI
+
+When launching the appropriate GUI to view the profiled results, ensure the appropriate variable set-up script for that profiler was executed to update the environment variables after the appropriate module for Intel has been loaded, as shown below;
+
+Intel Application Performance Snapshot:
+```
+source ${VTUNE_AMPLIFIER_2019_DIR}/apsvars.sh
+```
+
+Intel Tace Analyser and Collector:
+```
+source ${VTROOT}/bin/itacvars.sh
+```
+
+Intel VTUNE Amplifier:
+```
+source ${VTUNE_AMPLIFIER_2019_DIR}/amplxe-vars.sh
+```
+
+Intel Advisor:
+```
+source ${ADVISOR_XE_2019_DIR}/advixe-vars.sh
+```
+
+
+
 The results of the analysis will be outputted into the directory `PROFILING_RESULTS` relative to the directory `intel-qnlp/demos/perf`. The results can be viewd with the profiling type's specific GUI.
