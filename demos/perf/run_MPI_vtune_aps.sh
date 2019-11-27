@@ -60,7 +60,7 @@ module load qhipster
 ### Note: User may need to modify.
 #################################################
 
-source ${VTUNE_AMPLIFIER_2019_DIR}/apsvars.sh
+source ${VTUNE_AMPLIFIER_XE_2019_DIR}/apsvars.sh
 
 # Collect internal Id;s of communicators
 export APS_COLLECT_COMM_IDS=1

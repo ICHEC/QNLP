@@ -59,7 +59,7 @@ module load qhipster
 ### Note: User may need to modify.
 #################################################
 
-source ${VTUNE_AMPLIFIER_2019_DIR}/amplxe-vars.sh
+source ${VTUNE_AMPLIFIER_XE_2019_DIR}/amplxe-vars.sh
 
 VTUNE_ANALYSIS_TYPE=hpc-performance
 
