@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J itac
-#SBATCH -N 2
+#SBATCH -N 4
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
@@ -39,7 +39,7 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=500
-EXE_LEN_PATTERNS=5
+EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
