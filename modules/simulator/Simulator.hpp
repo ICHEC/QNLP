@@ -32,6 +32,9 @@
 //#include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
 
+//Questionable choice
+#include <any>
+
 #ifdef VIRTUAL_INTERFACE
 #include "ISimulator.hpp"
 #endif
@@ -53,13 +56,15 @@ namespace QNLP{
     #endif
     
     private:
-    SimulatorGeneral(){}; 
+    SimulatorGeneral(){ sim_ncu =  NCU<DerivedType>(); }; 
     friend DerivedType;
     
     protected:
     #ifdef GATE_LOGGING
     GateWriter writer;
     #endif
+
+    std::any sim_ncu;
 
     public:
         //using Mat2x2Type = decltype(std::declval<DerivedType>().getGateX());
@@ -376,29 +381,6 @@ namespace QNLP{
             Arithmetic<decltype(static_cast<DerivedType&>(*this))>::sub_reg(static_cast<DerivedType&>(*this), r0_minIdx, r0_maxIdx, r1_minIdx, r1_maxIdx);
         }
 
-
-        /**
-         * @brief Apply n-control unitary gate to the given qubit target
-         * 
-         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
-         * @param U 2x2 unitary matrix
-         * @param minIdx Lowest index of the control lines expected for nCU
-         * @param maxIdx Highest index of the control lines expected for the nCU
-         * @param target Target qubit index to apply nCU
-         */
-        template<class Mat2x2Type>
-        [[deprecated( "Less optimal variant of NCU; please use 'applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = \"U\")' for better performance" )]]
-        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
-            NCU<DerivedType> n;
-            std::string matrixLabel = "";
-            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
-                matrixLabel = "X";
-            }
-            else
-                matrixLabel = label;
-            n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
-        }
-
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
@@ -410,7 +392,6 @@ namespace QNLP{
          */
         template<class Mat2x2Type>
         void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = "U"){
-            NCU<DerivedType> n;
             std::string matrixLabel = "";
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
@@ -418,7 +399,9 @@ namespace QNLP{
             else{
                 matrixLabel = label;
             }
-            n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
+            auto gmd = GateMetaData(label, 0, false, 0.0);
+            auto cg = std::any_cast<NCU<DerivedType>&>(sim_ncu).getCachedGates();
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, gmd, cg.gateCacheMap[gmd], 0);
         }
 
         /**
@@ -432,7 +415,7 @@ namespace QNLP{
          */
         template<class Mat2x2Type>
         void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, std::string label = "U"){
-            NCU<DerivedType> n;
+            //NCU<DerivedType> n;
             std::string matrixLabel = "";
             if ( U == static_cast<DerivedType*>(this)->getGateX() ){
                 matrixLabel = "X";
@@ -440,7 +423,11 @@ namespace QNLP{
             else{
                 matrixLabel = label;
             }
-            n.applyNQubitControl_CXOpt(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, std::make_pair(matrixLabel,U), 0);
+        //    std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl_CXOpt(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, std::make_pair(matrixLabel,U), 0);
+            auto gmd = GateMetaData(label, 0, false, 0.0);
+            auto cg = std::any_cast<NCU<DerivedType>&>(sim_ncu).getCachedGates();
+            
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, gmd, cg.gateCacheMap[gmd], 0);
         }
 
 

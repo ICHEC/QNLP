@@ -17,9 +17,6 @@ class IntelSimPy : public IntelSimulator{
     IntelSimPy(std::unique_ptr<IntelSimulator, std::default_delete<IntelSimulator> > iSim) : IntelSimulator(iSim->getNumQubits(), false) {}
     ~IntelSimPy(){}
 
-    void applyGateNCU_linear(const DCM& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
-        this->applyGateNCU(U, minIdx, maxIdx, target, label);
-    }
     void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
         this->applyGateNCU(U, ctrl_indices, target, label);
     }
@@ -99,7 +96,6 @@ void intel_simulator_binding(py::module &m){
         .def("collapseToBasisZ", &SimulatorType::collapseToBasisZ)
         .def("initRegister", &SimulatorType::initRegister)
         .def("printStates", &SimulatorType::PrintStates)
-        .def("applyGateNCU", &SimulatorType::applyGateNCU_linear)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_5CX_Opt)
         .def("subReg", &SimulatorType::subReg)
