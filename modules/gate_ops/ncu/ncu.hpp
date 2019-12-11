@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "GateCache.hpp"
+#include "mat_ops.hpp"
 
 namespace QNLP{
     template <class SimulatorType>
@@ -55,18 +56,16 @@ namespace QNLP{
 
         public:
             NCU() {
-                gate_cache = GateCache<SimulatorType>();
-                
                 //Optimised building block routines for nCX
                 if(op_call_counts_CX.size() == 0){
                     op_call_counts_CX[3] = 13;
                     op_call_counts_CX[5] = 60;
                 }
             };
-            NCU(SimulatorType& qSim, std::string matrixLabel, const Mat2x2Type& U, const std::size_t num_ctrl_gates = 32) : NCU() {
-                initialiseMaps(qSim, matrixLabel, U, num_ctrl_gates);
-                gate_cache.initCache(qSim);
-            };
+
+            NCU(SimulatorType& qSim) : NCU(){
+                gate_cache = GateCache<SimulatorType>(qSim);
+            }
 
             ~NCU(){
                 clearMaps();
@@ -78,28 +77,12 @@ namespace QNLP{
              * 
              * @param U 
              */
-            void initialiseMaps( SimulatorType& qSim, std::string U_label, const Mat2x2Type& U, std::size_t num_ctrl_lines){
-                
-                Mat2x2Type phase_test = qSim.getGateZ();
-                gate_cache.gateCacheMap[GateMetaData(U_label, 0, false)] = U;
-
-                const bool is_gateZ = (qSim.getGateZ() == U);
-
-                for(std::size_t ncl = 1; ncl < num_ctrl_lines; ncl++){
-                    gate_cache.gateCacheMap[GateMetaData("X", ncl, false)] = matrixSqrt(qSim.getGateX());
-                    gate_cache.gateCacheMap[GateMetaData("X", ncl, true)] = adjointMatrix(gate_cache.gateCacheMap[GateMetaData("X", ncl, false)]);
-
-                    //If the input matrix U is a Pauli Z, use phase rotation to define sqrt gates
-                    if( is_gateZ ){
-                        phase_test(1,1) = exp( std::complex<double>(0,1.) * (M_PI/(0b1<<ncl)));
-                        gate_cache.gateCacheMap[GateMetaData("Z", ncl, false)] = phase_test;
-                        gate_cache.gateCacheMap[GateMetaData("Z", ncl, true)] = adjointMatrix(phase_test);
-                    }
-                    else{
-                        gate_cache.gateCacheMap[GateMetaData(U_label, ncl, false)] = matrixSqrt(gate_cache.gateCacheMap[GateMetaData(U_label, ncl-1, false)]);
-                        gate_cache.gateCacheMap[GateMetaData(U_label, ncl, true)] = adjointMatrix(gate_cache.gateCacheMap[GateMetaData(U_label, ncl, false)]);
-                    }
-                }
+            void initialiseMaps( SimulatorType& qSim,  std::size_t num_ctrl_lines){
+                gate_cache.initCache(qSim, num_ctrl_lines);
+                /*for( auto& [k,v] : gate_cache.gateCacheMap ){
+                    std::cout << "KEYS=" << k << std::endl;
+                    std::cout << "VALS=" << v[2].first.tostr() << "/:/" << v[2].second.tostr() << std::endl;
+                }*/
             }
 
             /**
@@ -107,28 +90,16 @@ namespace QNLP{
              * 
              * @param U 
              */
-            void addToMaps( std::string U_label, const Mat2x2Type& U, std::size_t num_ctrl_lines){
-                auto gmd = GateMetaData(U_label, 0, false);
-                auto it_find = gate_cache.gateCacheMap.find(gmd);
-
-                if( it_find != gate_cache.gateCacheMap.end() ){
-                    return;
-                }
-                gate_cache.gateCacheMap[gmd] = U;
-                gate_cache.gateSet.insert(U_label);
-
-                for(std::size_t ncl = 1; ncl < num_ctrl_lines; ncl++){
-                    gate_cache.gateCacheMap[GateMetaData(U_label, ncl, false)] = matrixSqrt(gate_cache.gateCacheMap[GateMetaData(U_label, ncl-1, false)]);
-                    gate_cache.gateCacheMap[GateMetaData(U_label, ncl, true)] = adjointMatrix(gate_cache.gateCacheMap[GateMetaData(U_label, ncl, false)]);
-                }
+            void addToMaps( SimulatorType& qSim, std::string U_label, const Mat2x2Type& U, std::size_t num_ctrl_lines){
+                gate_cache.addToCache(qSim, U_label, U, num_ctrl_lines);
             }
 
             /**
-             * @brief Get the Map of cached gates. Keys are GateMetaData object, and values are the gate types defined by choice of Simulator
+             * @brief Get the Map of cached gates. Keys are strings, and values are vectors of paired (gate, gate adjoint) types where the index give the value of (gate)^(1/2^i)
              * 
-             * @return auto& 
+             * @return GateCache<SimulatorType> type 
              */
-            GateCache<SimulatorType>& getCachedGates(){
+            GateCache<SimulatorType>& getGateCache(){
                 return gate_cache;
             }
 
@@ -140,8 +111,9 @@ namespace QNLP{
                 gate_cache.clearCache();
             }
 
+
             /**
-             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Control indices can be in any specified location
+             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Control indices can be in any specified location. Ensure the gate cache has been populated with the appropriate gate type before running. This avoids O(n) checking of the container at each call for the associated gates.
              * 
              * @tparam Type ComplexDP or ComplexSP 
              * @param qReg Qubit register
@@ -149,26 +121,32 @@ namespace QNLP{
              * @param qTarget Target qubit for the unitary matrix U
              * @param U Unitary matrix, U
              * @param depth Depth of recursion.
-             * @param isPauliX To indicate if the unitary is a PauliX matrix.
              */
             void applyNQubitControl(SimulatorType& qSim, 
                     const std::vector<std::size_t> ctrlIndices,
                     const std::vector<std::size_t> auxIndices,
                     const unsigned int qTarget,
-                    const GateMetaData gate_md,
-                    const Mat2x2Type& U, 
-                    const unsigned int depth)
+                    const std::string gateLabel,
+                    const Mat2x2Type& U,
+                    const std::size_t depth
+                    )
             {
                 //No safety checks; be aware of what is physically possible (qTarget not in control_indices)
                 int local_depth = depth + 1;
-                
-                /*
-                if( gate_cache.gateCacheMap.find(gate_md) == gate_cache.gateCacheMap.end() ){
-                    std::cout << "I AM ADDING TO THE MAPS" << std::endl;
-                    std::cout << gate_md << "\n";
-                    //initialiseMaps(qSim, gate_md.labelGate, U, ctrlIndices.size()+1);
-                    addToMaps(gate_md.labelGate, U, ctrlIndices.size() + 1);
+/*
+                for (auto& [gate,gate_vec] : gate_cache.gateCacheMap)//[gateLabel][local_depth].first
+                {
+                    std::cout << "GATE=" << gate << "\n";
+                    for(auto& sq : gate_vec){
+                        std::cout << "QS[1]" << sq.first.tostr() << " ";
+                        std::cout << "QS[2]" << sq.second.tostr() << " ";
+                    }
+                    std::cout << "\n";
                 }*/
+
+
+
+                
 /*
                 if(gate_cache.getGateSet().find(gate_md.labelGate) == gate_cache.getGateSet().end() ){
                     for(auto& a: gate_cache.getGateSet())
@@ -226,92 +204,45 @@ namespace QNLP{
                 }*/
 
                 if(cOps == 3){ //Optimisation for replacing 17 with 13 2-qubit gate calls
-                    //Create the two keys for accessign the appropriate matrices to perform the operations
-                    const auto gmd = GateMetaData(gate_md.labelGate, local_depth+1, gate_md.adjoint, gate_md.theta);
-                    const auto gmd_adj = GateMetaData(gate_md.labelGate, local_depth+1, !gate_md.adjoint, gate_md.theta);
 
                     //Apply the 13 2-qubit gate calls
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd], ctrlIndices[0], qTarget, gate_md.labelGate ); //Double check to see if gate is being referenced rather than copied
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[0], qTarget, gateLabel ); //Double check to see if gate is being referenced rather than copied
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd_adj], ctrlIndices[1], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[1], qTarget, gateLabel );
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd], ctrlIndices[1], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[1], qTarget, gateLabel );
                     qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd_adj], ctrlIndices[2], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[2], qTarget, gateLabel );
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd], ctrlIndices[2], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[2], qTarget, gateLabel );
                     qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd_adj], ctrlIndices[2], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[2], qTarget, gateLabel );
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd], ctrlIndices[2], qTarget, gate_md.labelGate );
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[2], qTarget, gateLabel );
                 }
 
                 else if (cOps >= 2 && cOps !=3){
                     std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
+                    //std::cout << "DEPTH=" << local_depth << "LABEL=" << gateLabel << "****!!!!****" << gate_cache.gateCacheMap[gateLabel][local_depth].first.tostr() << "     " << gate_cache.gateCacheMap[gateLabel][local_depth].second.tostr() << std::endl;
 
-                    const auto gmd = GateMetaData(gate_md.labelGate, local_depth, gate_md.adjoint, gate_md.theta);
-                    const auto gmd_adj = GateMetaData(gate_md.labelGate, local_depth, !gate_md.adjoint, gate_md.theta);
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices.back(), qTarget, gateLabel );
 
-                    //Apply single qubit gate ops, and decompose higher order controls further
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd], ctrlIndices.back(), qTarget, gate_md.labelGate ); //Double check to see if gate is being referenced rather than copied
-                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), GateMetaData("X"), qSim.getGateX(), 0 );
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gmd_adj], ctrlIndices.back(), qTarget, gate_md.labelGate );
-                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), GateMetaData("X"), qSim.getGateX(), 0 );
-                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, qTarget, gmd, gate_cache.gateCacheMap[gmd], local_depth );
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices.back(), qTarget, gateLabel );
+
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
+
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, qTarget, gateLabel, gate_cache.gateCacheMap[gateLabel][local_depth+1].first, local_depth );
+
                 }
 
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
-                    qSim.applyGateCU(gate_cache.gateCacheMap[gate_md], ctrlIndices[0], qTarget, gate_md.labelGate); //The first decomposed matrix value is used here
+                    qSim.applyGateCU(gate_cache.gateCacheMap[gateLabel][depth].first, ctrlIndices[0], qTarget, gateLabel); //The first decomposed matrix value is used here
                 }
             }
 
-            /**
-             * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
-             * 
-             * @tparam Type ComplexDP or ComplexSP
-             * @param U Unitary matrix to be rooted
-             * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
-             */
-            const Mat2x2Type matrixSqrt(const Mat2x2Type& U){
-                Mat2x2Type V(U);
-                std::complex<double> delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
-                std::complex<double> tau = U(0,0) + U(1,1);
-                std::complex<double> s = sqrt(delta);
-                std::complex<double> t = sqrt(tau + 2.0*s);
-
-                //must be a way to vectorise these; TinyMatrix have a scale/shift option?
-                V(0,0) += s;
-                V(1,1) += s;
-                std::complex<double> scale_factor(1.,0.);
-                scale_factor /= t;
-                V(0,0) *= scale_factor; //(std::complex<double>(1.,0.)/t);
-                V(0,1) *= scale_factor; //(1/t);
-                V(1,0) *= scale_factor; //(1/t);
-                V(1,1) *= scale_factor; //(1/t);
-
-                return V;
-            }
-
-            /**
-             * @brief Function to calculate the adjoint of an input matrix
-             * 
-             * @tparam Type ComplexDP or ComplexSP
-             * @param U Unitary matrix to be adjointed
-             * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
-             */
-            Mat2x2Type adjointMatrix(const Mat2x2Type& U){
-                Mat2x2Type Uadjoint(U);
-                std::complex<double> tmp;
-                tmp = Uadjoint(0,1);
-                Uadjoint(0,1) = Uadjoint(1,0);
-                Uadjoint(1,0) = tmp;
-                Uadjoint(0,0) = std::conj(Uadjoint(0,0));
-                Uadjoint(0,1) = std::conj(Uadjoint(0,1));
-                Uadjoint(1,0) = std::conj(Uadjoint(1,0));
-                Uadjoint(1,1) = std::conj(Uadjoint(1,1));
-                return Uadjoint;
-            }
 
         /**
          * @brief Returns the number of 2-qubit operations a non optimised 

@@ -56,7 +56,9 @@ namespace QNLP{
     #endif
     
     private:
-    SimulatorGeneral(){ sim_ncu =  NCU<DerivedType>(); }; 
+    SimulatorGeneral(){ 
+        sim_ncu =  NCU<DerivedType>(static_cast<DerivedType&>(*this));
+    }; 
     friend DerivedType;
     
     protected:
@@ -391,17 +393,8 @@ namespace QNLP{
          * @param label Gate label string (U, X, Y, etc.)
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = "U"){
-            std::string matrixLabel = "";
-            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
-                matrixLabel = "X";
-            }
-            else{
-                matrixLabel = label;
-            }
-            auto gmd = GateMetaData(label, 0, false, 0.0);
-            auto cg = std::any_cast<NCU<DerivedType>&>(sim_ncu).getCachedGates();
-            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, gmd, cg.gateCacheMap[gmd], 0);
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label){
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, label, U, 0);
         }
 
         /**
@@ -415,21 +408,8 @@ namespace QNLP{
          */
         template<class Mat2x2Type>
         void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, std::string label = "U"){
-            //NCU<DerivedType> n;
-            std::string matrixLabel = "";
-            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
-                matrixLabel = "X";
-            }
-            else{
-                matrixLabel = label;
-            }
-        //    std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl_CXOpt(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, std::make_pair(matrixLabel,U), 0);
-            auto gmd = GateMetaData(label, 0, false, 0.0);
-            auto cg = std::any_cast<NCU<DerivedType>&>(sim_ncu).getCachedGates();
-            
-            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, gmd, cg.gateCacheMap[gmd], 0);
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, label, U, 0);
         }
-
 
         /**
          * @brief Apply oracle to match given binary index with non adjacent controls
@@ -440,9 +420,9 @@ namespace QNLP{
          * @param target Target qubit index to apply U on
          */
         template<class Mat2x2Type>
-        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U ){
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
             Oracle<DerivedType> oracle;
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U);
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
         }
 
         /**
@@ -632,7 +612,16 @@ namespace QNLP{
          * 
          */
         void initRegister(){
-            static_cast<DerivedType*>(this)->initRegister(); 
+            static_cast<DerivedType&>(*this).initRegister();
+        }
+
+        void initCaches(){
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).initialiseMaps(static_cast<DerivedType&>(*this), 16);
+        }
+
+        template<class Mat2x2Type>
+        void addUToCache(std::string gateLabel, const Mat2x2Type& U){
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).getGateCache().addToCache(static_cast<DerivedType&>(*this), gateLabel, U, 16);
         }
 
         void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){

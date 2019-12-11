@@ -40,7 +40,7 @@ namespace QNLP{
             sim.applyGateH(target);
             sim.applyGateX(target);
             
-            sim.applyGateNCU(sim.getGateZ(), ctrlIndices, target);
+            sim.applyGateNCU(sim.getGateZ(), ctrlIndices, target, "Z");
 
             sim.applyGateX(target);
             sim.applyGateH(target);

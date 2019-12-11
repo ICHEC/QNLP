@@ -36,7 +36,7 @@ namespace QNLP{
          * @param U Unitary matrix to apply 
          * @return decltype(auto) 
          */
-        void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U){
+        void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U, std::string gateLabel){
             std::size_t bitmask = 0b1;
             std::vector<std::size_t> reverse_pattern;
             for(std::size_t i = 0; i < ctrl_indices.size() + 1; ++i){
@@ -50,7 +50,7 @@ namespace QNLP{
                         s.applyGateX(target);
                 }
             }
-            s.applyGateNCU(U, ctrl_indices, target);
+            s.applyGateNCU(U, ctrl_indices, target, gateLabel);
             //Undo PauliX ops
             for(auto& revIdx : reverse_pattern){
                 if( revIdx < ctrl_indices.size()){
@@ -73,7 +73,7 @@ namespace QNLP{
         void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>&ctrlIndices, std::size_t target ){
             std::size_t num_qubits = s.getNumQubits();
             assert ( (1<<num_qubits) < bitstring );
-            bitStringNCU(s, bitstring, ctrlIndices, target, s.getGateZ());
+            bitStringNCU(s, bitstring, ctrlIndices, target, s.getGateZ(), "Z");
         }
     };
 };

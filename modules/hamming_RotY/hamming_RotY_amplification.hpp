@@ -58,6 +58,8 @@ namespace QNLP{
                 Ry(1,0) = std::complex<double>( sin(theta/2), 0.);
                 Ry(1,1) = std::complex<double>( cos(theta/2), 0.);
 
+                qSim.addUToCache("RY", Ry);
+
                 std::size_t len_reg_ancilla;
                 len_reg_ancilla = reg_ancilla.size();
 
@@ -65,10 +67,10 @@ namespace QNLP{
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2], "RY");
                     qSim.applyGateX(reg_memory[i]);
                     qSim.applyGateX(reg_ancilla[i]);
-                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2], "RY");
                     qSim.applyGateX(reg_memory[i]);
                     qSim.applyGateX(reg_ancilla[i]);
                 }

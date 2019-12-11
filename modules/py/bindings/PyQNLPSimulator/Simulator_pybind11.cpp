@@ -6,6 +6,8 @@
 #include <pybind11/numpy.h>
 #include <mpi.h>
 
+#define PYBIND11_EXPORT __attribute__ ((visibility("default")))
+
 namespace py = pybind11;
 using namespace QNLP;
 using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
@@ -17,14 +19,14 @@ class IntelSimPy : public IntelSimulator{
     IntelSimPy(std::unique_ptr<IntelSimulator, std::default_delete<IntelSimulator> > iSim) : IntelSimulator(iSim->getNumQubits(), false) {}
     ~IntelSimPy(){}
 
-    void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
+    void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
         this->applyGateNCU(U, ctrl_indices, target, label);
     }
-    void applyGateNCU_5CX_Opt(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::vector<std::size_t>& aux_indices, std::size_t target, std::string label = "U"){
+    void applyGateNCU_5CX_Opt(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::vector<std::size_t>& aux_indices, std::size_t target, std::string label){
         this->applyGateNCU(U, ctrl_indices, aux_indices, target, label);
     }
-    void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label = "U"){
-        this->applyOracleU( bit_pattern, ctrl_indices, target, U );
+    void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
+        this->applyOracleU( bit_pattern, ctrl_indices, target, U, label);
     }
 
     /*void applyOracle_Phase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){

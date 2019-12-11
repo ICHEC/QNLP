@@ -162,12 +162,11 @@ namespace QNLP{
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
                     #endif
                     if (sub_reg.size() >= 5){
-                        std::cout << "USING NEW & IMPROVED NCU" << std::endl;
                         std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.begin () + 3);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     else{
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2], "X");
                     }
 
 
@@ -185,7 +184,7 @@ namespace QNLP{
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_5 \\rangle");
                     #endif
-                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2], "X");
 
                     // Psi6 
                     #ifdef GATE_LOGGING
@@ -285,15 +284,16 @@ namespace QNLP{
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_3 \\rangle");
                     #endif
                     if (sub_reg.size() == 7){
-                        std::vector<std::size_t> tmp_aux(reg_ancilla.begin()+ 1, reg_ancilla.begin () + 2);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.begin () + 1);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     else if (sub_reg.size() == 5){
                         std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.begin () + 3);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     else{
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, reg_ancilla[len_reg_ancilla-2]);
+                        std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.end () -2);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
 
                     //qSim.applyGateNCU(qSim.getGateX(), reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
@@ -316,15 +316,15 @@ namespace QNLP{
                     //branching may not be needed here anymore as functionality all built into applyGateNCU
                     if (sub_reg.size() == 7){
                         std::vector<std::size_t> tmp_aux(reg_ancilla.begin()+1, reg_ancilla.begin () + 2);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     else if (sub_reg.size() == 5){
                         std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.begin () + 3);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     else{
                         std::vector<std::size_t> tmp_aux(reg_ancilla.begin(), reg_ancilla.end () -2);
-                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2]);
+                        qSim.applyGateNCU(qSim.getGateX(), sub_reg, tmp_aux, reg_ancilla[len_reg_ancilla-2], "X");
                     }
                     //qSim.applyGateNCU(qSim.getGateX(), reg_memory[0], reg_memory[len_bin_pattern-1], reg_ancilla[len_reg_ancilla-2]);
 
