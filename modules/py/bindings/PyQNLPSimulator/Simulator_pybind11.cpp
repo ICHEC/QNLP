@@ -20,7 +20,7 @@ class IntelSimPy : public IntelSimulator{
     ~IntelSimPy(){}
 
     void applyGateNCU_nonlinear(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
-        this->applyGateNCU(U, ctrl_indices, target, label);
+        this->applyGateNCU(U, ctrl_indices, {}, target, label);
     }
     void applyGateNCU_5CX_Opt(const DCM& U, std::vector<std::size_t>& ctrl_indices, std::vector<std::size_t>& aux_indices, std::size_t target, std::string label){
         this->applyGateNCU(U, ctrl_indices, aux_indices, target, label);

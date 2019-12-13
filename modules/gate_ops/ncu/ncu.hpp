@@ -129,41 +129,15 @@ namespace QNLP{
                     const std::string gateLabel,
                     const Mat2x2Type& U,
                     const std::size_t depth
-                    )
-            {
+            ){
                 //No safety checks; be aware of what is physically possible (qTarget not in control_indices)
                 int local_depth = depth + 1;
-/*
-                for (auto& [gate,gate_vec] : gate_cache.gateCacheMap)//[gateLabel][local_depth].first
-                {
-                    std::cout << "GATE=" << gate << "\n";
-                    for(auto& sq : gate_vec){
-                        std::cout << "QS[1]" << sq.first.tostr() << " ";
-                        std::cout << "QS[2]" << sq.second.tostr() << " ";
-                    }
-                    std::cout << "\n";
-                }*/
-
-
-
-                
-/*
-                if(gate_cache.getGateSet().find(gate_md.labelGate) == gate_cache.getGateSet().end() ){
-                    for(auto& a: gate_cache.getGateSet())
-                        std::cout << "GS=" << a << std::endl;
-                    std::cout << "I AM ADDING TO THE MAPS" << std::endl;
-                    std::cout << gate_md << "\n";
-                    addToMaps(gate_md.labelGate, U, ctrlIndices.size() + 1);
-                }*/
-
-
 
                 //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
                 std::size_t cOps = ctrlIndices.size();
 
-//Care must be taken with the following decomposition routines. Attempt to use caching with 3 and 2+ opts only first
-/*
-                if( (cOps >= 6) && (auxIndices.size() >= 1) && (U.first == "X") && (depth == 0) ){
+//LAST HURDLE
+/*                if( (cOps >= 6) && (auxIndices.size() >= 1) && (gateLabel == "X") && (depth == 0) ){
                     auto params = find_optimal_params( ctrlIndices.size() );
 
                     //Need at least 1 aux qubit to perform decomposition
@@ -180,69 +154,97 @@ namespace QNLP{
                     subLCtrlIndicesNCX.push_back(auxIndices[0]);
                     std::vector<std::size_t> subLAuxIndicesNCX(ctrlIndices.begin(), ctrlIndices.begin() + params.m);
 
-                    applyNQubitControl_CXOpt(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], sqrtMatricesX[0], 0 );
-                    applyNQubitControl_CXOpt(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, sqrtMatricesX[0], 0);
-                    applyNQubitControl_CXOpt(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], sqrtMatricesX[0], 0 );
-                    applyNQubitControl_CXOpt(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, sqrtMatricesX[0], 0);
+                    applyNQubitControl(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, "X", qSim.getGateX(), 0 );
+
+                }
+*/
+                if( (cOps == 5) && (auxIndices.size() >= 3) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
+
+                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
+
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
+                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
+                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
                 }
 
-                else if( (cOps == 5) && (auxIndices.size() >= 3) && (U.first == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
-
-                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
-                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
-                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
-                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
-                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
-                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
-                    qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
-
-                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
-                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
-                    qSim.applyGateCCX(ctrlIndices[0], ctrlIndices[1], auxIndices[0]);
-                    qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
-                    qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
-                }*/
-
-                if(cOps == 3){ //Optimisation for replacing 17 with 13 2-qubit gate calls
+                else if(cOps == 3){ //Optimisation for replacing 17 with 13 2-qubit gate calls
 
                     //Apply the 13 2-qubit gate calls
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[0], qTarget, gateLabel ); //Double check to see if gate is being referenced rather than copied
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[0], qTarget, gateLabel );
+                    //std::cout << "G1[" << ctrlIndices[0] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].first.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[1], qTarget, gateLabel );
+                    //std::cout << "G2[" << ctrlIndices[0] << "," << ctrlIndices[1] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[1], qTarget, gateLabel );
+                    //std::cout << "G3[" << ctrlIndices[1] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].second.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[1], qTarget, gateLabel );
+                    //std::cout << "G4[" << ctrlIndices[0] << "," << ctrlIndices[1] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[1], qTarget, gateLabel );
+                    //std::cout << "G5[" << ctrlIndices[1] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].first.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G6[" << ctrlIndices[1] << "," << ctrlIndices[2] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G7[" << ctrlIndices[2] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].second.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G8[" << ctrlIndices[0] << "," << ctrlIndices[2] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G9[" << ctrlIndices[2] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].first.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G10[" << ctrlIndices[1] << "," << ctrlIndices[2] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G11[" << ctrlIndices[2] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].second.tostr() << std::endl;
+
                     qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
-                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G12[" << ctrlIndices[0] << "," << ctrlIndices[2] << "]=" << qSim.getGateX().tostr() << std::endl;
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[2], qTarget, gateLabel );
+                    //std::cout << "G13[" << ctrlIndices[2] << "," << qTarget << "]=" << gate_cache.gateCacheMap[gateLabel][local_depth+1].first.tostr() << std::endl;
                 }
 
                 else if (cOps >= 2 && cOps !=3){
+                //if (cOps >= 2){
                     std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
-                    //std::cout << "DEPTH=" << local_depth << "LABEL=" << gateLabel << "****!!!!****" << gate_cache.gateCacheMap[gateLabel][local_depth].first.tostr() << "     " << gate_cache.gateCacheMap[gateLabel][local_depth].second.tostr() << std::endl;
 
                     qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices.back(), qTarget, gateLabel );
+                    //std::cout << "Here 1 = " << local_depth << " GATE = " << gate_cache.gateCacheMap[gateLabel][local_depth].first.tostr() << std::endl;
 
                     applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
 
                     qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices.back(), qTarget, gateLabel );
+                    //std::cout << "Here 2 = " << local_depth << " GATE = " << gate_cache.gateCacheMap[gateLabel][local_depth].second.tostr() << std::endl;
 
                     applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
 
                     applyNQubitControl(qSim, subCtrlIndices, auxIndices, qTarget, gateLabel, gate_cache.gateCacheMap[gateLabel][local_depth+1].first, local_depth );
-
                 }
 
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
+
                     qSim.applyGateCU(gate_cache.gateCacheMap[gateLabel][depth].first, ctrlIndices[0], qTarget, gateLabel); //The first decomposed matrix value is used here
+                    //std::cout << "Here 4 = " << local_depth << " GATE = " << gate_cache.gateCacheMap[gateLabel][depth].first.tostr() << std::endl;
                 }
             }
-
 
         /**
          * @brief Returns the number of 2-qubit operations a non optimised 

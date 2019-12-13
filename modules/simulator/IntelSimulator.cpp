@@ -36,6 +36,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
                                     gates(5){
+
         //Define Pauli X
         gates[0](0,0) = ComplexDP(0.,0.);       gates[0](0,1) = ComplexDP(1.,0.);
         gates[0](1,0) = ComplexDP(1.,0.);       gates[0](1,1) = ComplexDP(0.,0.);
@@ -56,7 +57,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         double coeff = (1./sqrt(2.));
         gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
-
 
         #ifdef ENABLE_MPI
             int mpi_is_init;
@@ -123,7 +123,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     // 3 qubit
     inline void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
-        this->applyGateNCU(this->getGateX(), std::vector<std::size_t> {ctrl_qubit0, ctrl_qubit1}, target_qubit);
+        this->applyGateNCU(this->getGateX(), std::vector<std::size_t> {ctrl_qubit0, ctrl_qubit1}, target_qubit, "X");
     }
 
     /*
@@ -144,11 +144,11 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         V_dag(1,1) = {0.5, -0.5};
         
         applyGateCX(qubit_swap1, qubit_swap0);
-        applyGateCU(V, qubit_swap0, qubit_swap1);
-        applyGateCU(V, ctrl_qubit, qubit_swap1);
+        applyGateCU(V, qubit_swap0, qubit_swap1, "X");
+        applyGateCU(V, ctrl_qubit, qubit_swap1, "X");
         
         applyGateCX(ctrl_qubit, qubit_swap0);
-        applyGateCU(V_dag, qubit_swap0, qubit_swap1);
+        applyGateCU(V_dag, qubit_swap0, qubit_swap1, "X");
         applyGateCX(qubit_swap1, qubit_swap0);
         applyGateCX(ctrl_qubit, qubit_swap0);
     }
@@ -227,7 +227,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline TMDP getGateI(){ return gates[3]; }
     inline TMDP getGateH(){ return gates[4]; }
 
-    inline void applyGateCU(const TMDP& U, CST control, CST target, std::string U_label="CU"){
+    inline void applyGateCU(const TMDP& U, CST control, CST target, std::string label="U"){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( U_label, U.tostr(), control, target );
@@ -307,6 +307,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     inline void initRegister(){
         this->qubitRegister.Initialize("base",0);
+        this->initCaches();
     }
 
     inline void applyAmplitudeNorm(){
