@@ -1,0 +1,324 @@
+\hypertarget{qnlp-example}{%
+\section{Python-bound QNLP example Jupyter notebook}\label{qnlp-example}}
+
+This notebook runs an example encoding of \textbf{``John rests inside,
+Mary walks outside''}. We initially define mappings for each of these
+tokens to a pre-defined set of basis tokens. These tokens are next
+represented as binary integers, and encoded using the QNLP runtime.
+
+A test pattern is then constructed using \textbf{``adults stand
+inside''}, and the encoded patterns are queried and sampled to determine
+the closest encoded data, as learned from the given sentences.
+
+The basis tokens are defined as:
+
+\begin{equation*}
+\begin{array}{c|c|c}
+\mathbf{Dataset} & \mathbf{Word} & \mathbf{Bin.~Index} \\
+\hline
+{n_s} & \mathrm{adult} & 00 \\
+{n_s} & \mathrm{child} & 01 \\
+{n_s} & \mathrm{smith} & 10 \\
+{n_s} & \mathrm{surgeon} & 11 \\
+\\
+{v} & \mathrm{stand} & 00 \\
+{v} & \mathrm{move} & 01 \\
+{v} & \mathrm{sit} & 10 \\
+{v} & \mathrm{sleep} & 11 \\
+\\
+{n_o} & \mathrm{inside} & 0 \\
+{n_o} & \mathrm{outside} & 1 \\
+\end{array}
+\end{equation*}
+
+We define the mapping of \emph{``John rests inside, Mary walks
+outside''} to this basis as:
+
+\begin{equation*}
+\begin{array}{c|c|c}
+\mathbf{Dataset} & \mathbf{Word} & \mathbf{State} \\
+\hline
+{n_s} & \mathrm{John} & (\vert 00 \rangle + \vert 10 \rangle)/\sqrt{2} \\
+{n_s} & \mathrm{Mary} & (\vert 01 \rangle + \vert 11 \rangle)/\sqrt{2} \\
+{v} & \mathrm{walk} & (\vert 00 \rangle + \vert 01 \rangle)/\sqrt{2} \\
+{v} & \mathrm{rest} & (\vert 10 \rangle + \vert 11 \rangle)/\sqrt{2} \\
+{n_o} & \mathrm{inside} & \vert 0 \rangle  \\
+{n_o} & \mathrm{outside} & \vert 1 \rangle  \\
+\end{array}
+\end{equation*}
+
+Lastly, our test pattern is mapped onto the basis as \textbf{``adults
+stand inside''} \(\rightarrow |00000\rangle\). The remainder of the
+notebook will encode the data using the given basis, encode the test
+pattern, and query the resulting register state using the Hamming
+distance to determine closeness.
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{1}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{o}{\PYZpc{}}\PY{k}{matplotlib} notebook
+\PY{k+kn}{from} \PY{n+nn}{matplotlib} \PY{k}{import} \PY{n}{rc}
+\PY{n}{rc}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{text}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{usetex}\PY{o}{=}\PY{k+kc}{True}\PY{p}{)}
+\PY{k+kn}{import} \PY{n+nn}{matplotlib}\PY{n+nn}{.}\PY{n+nn}{pyplot} \PY{k}{as} \PY{n+nn}{plt}
+\end{Verbatim}
+\end{tcolorbox}
+
+    Import the C++ backed simulator package and the preprocessing Python
+package
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{2}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k+kn}{from} \PY{n+nn}{PyQNLPSimulator} \PY{k}{import} \PY{n}{PyQNLPSimulator} \PY{k}{as} \PY{n}{p}
+\PY{k+kn}{import} \PY{n+nn}{QNLP} \PY{k}{as} \PY{n+nn}{q}
+\PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+\PY{k+kn}{from} \PY{n+nn}{itertools} \PY{k}{import} \PY{n}{product}
+\end{Verbatim}
+\end{tcolorbox}
+
+    Predefine necessary data for encoding and calculate resources
+requirements
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{3}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Define basis tokens encoding and decoding dicts}
+\PY{n}{encoding\PYZus{}dict} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{adult}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{child}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{smith}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{surgeon}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{3} \PY{p}{\PYZcb{}}\PY{p}{,}
+                 \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}  \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{stand}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{0}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{move}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{1}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sit}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{2}\PY{p}{,} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sleep}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{3} \PY{p}{\PYZcb{}}\PY{p}{,}
+                 \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{no}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{inside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{outside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{:}\PY{l+m+mi}{1} \PY{p}{\PYZcb{}}
+                \PY{p}{\PYZcb{}}
+
+\PY{n}{decoding\PYZus{}dict} \PY{o}{=} \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+m+mi}{0}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{adult}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{child}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{smith}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{surgeon}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                 \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}  \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+m+mi}{0}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{stand}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{move}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{2}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sit}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{3}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sleep}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}\PY{p}{,}
+                 \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{no}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:} \PY{p}{\PYZob{}} \PY{l+m+mi}{0}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{inside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{:}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{outside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{\PYZcb{}}
+                \PY{p}{\PYZcb{}}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{4}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Set the size of the required quantum register}
+\PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{=} \PY{l+m+mi}{5}
+\PY{n}{len\PYZus{}reg\PYZus{}ancilla} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{l+m+mi}{2}
+\PY{n}{num\PYZus{}qubits} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}ancilla}
+\PY{n}{num\PYZus{}bin\PYZus{}pattern} \PY{o}{=} \PY{l+m+mi}{8}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{5}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Create simulator object}
+\PY{n}{use\PYZus{}fusion} \PY{o}{=} \PY{k+kc}{False}
+\PY{n}{sim} \PY{o}{=} \PY{n}{p}\PY{p}{(}\PY{n}{num\PYZus{}qubits}\PY{p}{,} \PY{n}{use\PYZus{}fusion}\PY{p}{)}
+\PY{n}{num\PYZus{}exps} \PY{o}{=} \PY{l+m+mi}{20000}
+\PY{n}{normalise} \PY{o}{=} \PY{k+kc}{True}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{6}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Set up registers to store indices}
+\PY{n}{reg\PYZus{}memory} \PY{o}{=} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{;}
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}\PY{p}{:}
+    \PY{n}{reg\PYZus{}memory}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{i}
+
+\PY{n}{reg\PYZus{}ancilla} \PY{o}{=} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}\PY{p}{)}\PY{p}{:}
+    \PY{n}{reg\PYZus{}ancilla}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{i} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{;}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{7}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} data for encoding using the given basis}
+\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{John rests outside, Mary walks inside}\PY{l+s+s2}{\PYZdq{}}
+\PY{n}{sentences} \PY{o}{=} \PY{p}{[}
+    \PY{p}{[}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{john}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}   \PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{adult}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{smith}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{,}
+    \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{rest}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}    \PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sit}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{sleep}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{,}
+    \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{inside}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}  \PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{no}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{inside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]} \PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{,}
+
+    \PY{p}{[}\PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{mary}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}   \PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{child}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,} \PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ns}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{surgeon}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{,}
+    \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{walk}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}    \PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{stand}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{,}  \PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{v}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{move}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]}\PY{p}{\PYZcb{}}\PY{p}{,}
+    \PY{p}{\PYZob{}}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{outside}\PY{l+s+s2}{\PYZdq{}} \PY{p}{:}\PY{p}{[}\PY{n}{encoding\PYZus{}dict}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{no}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{outside}\PY{l+s+s2}{\PYZdq{}}\PY{p}{]}\PY{p}{]} \PY{p}{\PYZcb{}}\PY{p}{]}\PY{p}{,}
+\PY{p}{]}
+\PY{n}{sentences}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, boxrule=.5pt, size=fbox, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{7}{\hspace{3.5pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+[[\{'john': [0, 2]\}, \{'rest': [2, 3]\}, \{'inside': [0]\}],
+ [\{'mary': [1, 3]\}, \{'walk': [0, 1]\}, \{'outside': [1]\}]]
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{8}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Create shift patterns for the encoding step}
+\PY{n}{bit\PYZus{}shifts} \PY{o}{=} \PY{p}{[}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n}{q}\PY{o}{.}\PY{n}{utils}\PY{o}{.}\PY{n}{get\PYZus{}type\PYZus{}offsets}\PY{p}{(}\PY{n}{encoding\PYZus{}dict}\PY{p}{)}\PY{p}{]}
+\PY{n}{bit\PYZus{}shifts}\PY{o}{.}\PY{n}{reverse}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{bit\PYZus{}shifts}\PY{o}{.}\PY{n}{insert}\PY{p}{(}\PY{l+m+mi}{0}\PY{p}{,}\PY{l+m+mi}{0}\PY{p}{)}
+\PY{n}{bit\PYZus{}shifts} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{cumsum}\PY{p}{(}\PY{n}{bit\PYZus{}shifts}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Parse the sentences and generate the required bit\PYZhy{}patterns}
+\PY{n}{superpos\PYZus{}patterns} \PY{o}{=} \PY{p}{[}\PY{n+nb}{list}\PY{p}{(}\PY{n}{sentences}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}\PY{p}{]}
+
+\PY{c+c1}{\PYZsh{}Create list for the patterns to be encoded}
+\PY{n}{vec\PYZus{}to\PYZus{}encode} \PY{o}{=} \PY{p}{[}\PY{p}{]}
+
+\PY{c+c1}{\PYZsh{} Generate bit\PYZhy{}patterns from sentences and store in vec\PYZus{}to\PYZus{}encode}
+\PY{k}{for} \PY{n}{idx} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{sentences}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+    \PY{n}{superpos\PYZus{}patterns} \PY{o}{=} \PY{p}{[}\PY{n+nb}{list}\PY{p}{(}\PY{n}{sentences}\PY{p}{[}\PY{n}{idx}\PY{p}{]}\PY{p}{[}\PY{n}{i}\PY{p}{]}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{l+m+mi}{3}\PY{p}{)}\PY{p}{]}
+    \PY{c+c1}{\PYZsh{} Generate all combinations of the bit\PYZhy{}patterns for superpos states}
+    \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{product}\PY{p}{(}\PY{n}{superpos\PYZus{}patterns}\PY{p}{[}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{,} \PY{n}{superpos\PYZus{}patterns}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{superpos\PYZus{}patterns}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{)}\PY{p}{)}\PY{p}{:}
+        \PY{n}{num} \PY{o}{=} \PY{l+m+mi}{0}
+        \PY{k}{for} \PY{n}{val} \PY{o+ow}{in} \PY{n+nb}{zip}\PY{p}{(}\PY{n}{i}\PY{p}{,}\PY{n}{bit\PYZus{}shifts}\PY{p}{)}\PY{p}{:}
+            \PY{n}{num} \PY{o}{+}\PY{o}{=} \PY{p}{(}\PY{n}{val}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{o}{\PYZlt{}\PYZlt{}} \PY{n}{val}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{)}
+        \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{o}{.}\PY{n}{extend}\PY{p}{(}\PY{p}{[}\PY{n}{num}\PY{p}{]}\PY{p}{)}
+        
+\PY{n}{vec\PYZus{}to\PYZus{}encode}
+\end{Verbatim}
+\end{tcolorbox}
+
+            \begin{tcolorbox}[breakable, boxrule=.5pt, size=fbox, pad at break*=1mm, opacityfill=0]
+\prompt{Out}{outcolor}{8}{\hspace{3.5pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+[4, 20, 6, 22, 9, 25, 11, 27]
+\end{Verbatim}
+\end{tcolorbox}
+        
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{9}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Init result counter\PYZus{}even}
+\PY{n}{count\PYZus{}even} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{:}
+    \PY{n}{count\PYZus{}even}\PY{o}{.}\PY{n}{update}\PY{p}{(}\PY{p}{\PYZob{}}\PY{n}{i} \PY{p}{:} \PY{l+m+mi}{0}\PY{p}{\PYZcb{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{10}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Test of equally encoded bit patterns}
+\PY{k}{for} \PY{n}{exp} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{num\PYZus{}exps}\PY{p}{)}\PY{p}{:}
+
+    \PY{n}{sim}\PY{o}{.}\PY{n}{initRegister}\PY{p}{(}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Encode}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
+    
+    \PY{n}{val} \PY{o}{=} \PY{n}{sim}\PY{o}{.}\PY{n}{applyMeasurementToRegister}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{normalise}\PY{p}{)}
+    \PY{n}{count\PYZus{}even}\PY{p}{[}\PY{n}{val}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{12}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} 00000 \PYZhy{}\PYZgt{}  adult, stand, inside}
+\PY{n}{test\PYZus{}pattern} \PY{o}{=} \PY{l+m+mi}{0}
+
+\PY{c+c1}{\PYZsh{} Init result counter}
+\PY{n}{count} \PY{o}{=} \PY{p}{\PYZob{}}\PY{p}{\PYZcb{}}
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{:}
+    \PY{n}{count}\PY{o}{.}\PY{n}{update}\PY{p}{(}\PY{p}{\PYZob{}}\PY{n}{i} \PY{p}{:} \PY{l+m+mi}{0}\PY{p}{\PYZcb{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{13}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Repeated shots of experiment}
+\PY{k}{for} \PY{n}{exp} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{num\PYZus{}exps}\PY{p}{)}\PY{p}{:}
+
+    \PY{n}{sim}\PY{o}{.}\PY{n}{initRegister}\PY{p}{(}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Encode}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Compute Hamming distance between test pattern and encoded patterns}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{applyHammingDistanceRotY}\PY{p}{(}\PY{n}{test\PYZus{}pattern}\PY{p}{,} \PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{,} \PY{n}{num\PYZus{}bin\PYZus{}pattern}\PY{p}{)}
+
+    \PY{c+c1}{\PYZsh{} Measure}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{collapseToBasisZ}\PY{p}{(}\PY{n}{reg\PYZus{}ancilla}\PY{p}{[}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}\PY{o}{\PYZhy{}}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+    
+    \PY{n}{val} \PY{o}{=} \PY{n}{sim}\PY{o}{.}\PY{n}{applyMeasurementToRegister}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{normalise}\PY{p}{)}
+    \PY{n}{count}\PY{p}{[}\PY{n}{val}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{33}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Format the data to be shown in bar\PYZhy{}plot}
+
+\PY{n}{xlab\PYZus{}str} \PY{o}{=} \PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{,}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{join}\PY{p}{(}\PY{n}{q}\PY{o}{.}\PY{n}{utils}\PY{o}{.}\PY{n}{bin\PYZus{}to\PYZus{}sentence}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n}{encoding\PYZus{}dict}\PY{p}{,} \PY{n}{decoding\PYZus{}dict}\PY{p}{)}\PY{p}{)}  \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{count}\PY{o}{.}\PY{n}{keys}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{]}
+\PY{n}{xlab\PYZus{}bin} \PY{o}{=} \PY{p}{[}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZob{}}\PY{l+s+s2}{0:0}\PY{l+s+si}{\PYZob{}num\PYZus{}bits\PYZcb{}}\PY{l+s+s2}{b\PYZcb{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{.}\PY{n}{format}\PY{p}{(}\PY{n}{i}\PY{p}{,} \PY{n}{num\PYZus{}bits}\PY{o}{=}\PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{count}\PY{o}{.}\PY{n}{keys}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{]}
+\PY{p}{[}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{+}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+se}{\PYZbs{}n}\PY{l+s+s2}{\PYZdq{}}\PY{o}{+}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{zip}\PY{p}{(}\PY{n}{xlab\PYZus{}str}\PY{p}{,}\PY{n}{xlab\PYZus{}bin}\PY{p}{)}\PY{p}{]}
+
+\PY{c+c1}{\PYZsh{} Sort histograms by P}
+\PY{n}{hist\PYZus{}list\PYZus{}even} \PY{o}{=} \PY{n+nb}{list}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}
+    \PY{p}{[}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{+}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ \PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{vert\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{+}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{+}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{rangle\PYZdl{}}\PY{l+s+s2}{\PYZdq{}} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{zip}\PY{p}{(}\PY{n}{xlab\PYZus{}str}\PY{p}{,}\PY{n}{xlab\PYZus{}bin}\PY{p}{)}\PY{p}{]}\PY{p}{,}
+    \PY{p}{[}\PY{n}{i}\PY{o}{/}\PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n+nb}{list}\PY{p}{(}\PY{n}{count\PYZus{}even}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{)} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{count\PYZus{}even}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{]}
+\PY{p}{)}\PY{p}{)}
+\PY{n}{hist\PYZus{}list} \PY{o}{=} \PY{n+nb}{list}\PY{p}{(}\PY{n+nb}{zip}\PY{p}{(}
+    \PY{p}{[}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{+}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{ \PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{vert\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{o}{+}\PY{n}{i}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]}\PY{o}{+}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdl{}}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{rangle\PYZdl{}}\PY{l+s+s2}{\PYZdq{}} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{zip}\PY{p}{(}\PY{n}{xlab\PYZus{}str}\PY{p}{,}\PY{n}{xlab\PYZus{}bin}\PY{p}{)}\PY{p}{]}\PY{p}{,}
+    \PY{p}{[}\PY{n}{i}\PY{o}{/}\PY{n}{np}\PY{o}{.}\PY{n}{sum}\PY{p}{(}\PY{n+nb}{list}\PY{p}{(}\PY{n}{count}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{)} \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{list}\PY{p}{(}\PY{n}{count}\PY{o}{.}\PY{n}{values}\PY{p}{(}\PY{p}{)}\PY{p}{)}\PY{p}{]}
+\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{47}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+c1}{\PYZsh{} Plot the data for both the evenly encoded and post\PYZhy{}selection measurements}
+
+\PY{n}{labels} \PY{o}{=} \PY{p}{[}\PY{n}{x}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]} \PY{k}{for} \PY{n}{x} \PY{o+ow}{in} \PY{n}{hist\PYZus{}list\PYZus{}even}\PY{p}{]}
+\PY{n}{even\PYZus{}vals} \PY{o}{=} \PY{p}{[}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{k}{for} \PY{n}{y} \PY{o+ow}{in} \PY{n}{hist\PYZus{}list\PYZus{}even}\PY{p}{]}
+\PY{n}{post\PYZus{}vals} \PY{o}{=} \PY{p}{[}\PY{n}{y}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{]} \PY{k}{for} \PY{n}{y} \PY{o+ow}{in} \PY{n}{hist\PYZus{}list}\PY{p}{]}
+
+\PY{n}{x} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{arange}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{labels}\PY{p}{)}\PY{p}{)}  \PY{c+c1}{\PYZsh{} the label locations}
+\PY{n}{width} \PY{o}{=} \PY{l+m+mf}{0.35}  \PY{c+c1}{\PYZsh{} the width of the bars}
+
+\PY{n}{fig}\PY{p}{,} \PY{n}{ax} \PY{o}{=} \PY{n}{plt}\PY{o}{.}\PY{n}{subplots}\PY{p}{(}\PY{p}{)}
+\PY{n}{rects1} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{bar}\PY{p}{(}\PY{n}{x} \PY{o}{\PYZhy{}} \PY{n}{width}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{even\PYZus{}vals}\PY{p}{,} \PY{n}{width}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Even superposition meansurement}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+\PY{n}{rects2} \PY{o}{=} \PY{n}{ax}\PY{o}{.}\PY{n}{bar}\PY{p}{(}\PY{n}{x} \PY{o}{+} \PY{n}{width}\PY{o}{/}\PY{l+m+mi}{2}\PY{p}{,} \PY{n}{post\PYZus{}vals}\PY{p}{,} \PY{n}{width}\PY{p}{,} \PY{n}{label}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Post\PYZhy{}selection measurement}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+
+\PY{c+c1}{\PYZsh{} Add some text for labels, title and custom x\PYZhy{}axis tick labels, etc.}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}ylabel}\PY{p}{(}\PY{l+s+sa}{r}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZdl{}P(}\PY{l+s+s2}{\PYZbs{}}\PY{l+s+s2}{textrm}\PY{l+s+si}{\PYZob{}pattern\PYZcb{}}\PY{l+s+s2}{)\PYZdl{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,}\PY{n}{fontsize}\PY{o}{=}\PY{l+m+mi}{16}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticks}\PY{p}{(}\PY{n}{x}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{set\PYZus{}xticklabels}\PY{p}{(}\PY{n}{labels}\PY{p}{,} \PY{n}{rotation}\PY{o}{=}\PY{o}{\PYZhy{}}\PY{l+m+mi}{30}\PY{p}{,} \PY{n}{ha}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{left}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{ax}\PY{o}{.}\PY{n}{legend}\PY{p}{(}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{axhline}\PY{p}{(}\PY{n}{y}\PY{o}{=}\PY{l+m+mf}{1.0}\PY{o}{/}\PY{n+nb}{len}\PY{p}{(}\PY{n}{count}\PY{p}{)}\PY{p}{,} \PY{n}{color}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{crimson}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{linestyle}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{\PYZhy{}\PYZhy{}}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\PY{n}{plt}\PY{o}{.}\PY{n}{text}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{count}\PY{p}{)}\PY{o}{\PYZhy{}}\PY{l+m+mf}{0.1}\PY{p}{,} \PY{l+m+mf}{1.0}\PY{o}{/}\PY{p}{(}\PY{n+nb}{len}\PY{p}{(}\PY{n}{count}\PY{p}{)}\PY{p}{)}\PY{p}{,} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{\PYZdl{}1/}\PY{l+s+s1}{\PYZbs{}}\PY{l+s+s1}{sqrt}\PY{l+s+si}{\PYZob{}n\PYZcb{}}\PY{l+s+s1}{\PYZdl{}}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{horizontalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{left}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{verticalalignment}\PY{o}{=}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{center}\PY{l+s+s1}{\PYZsq{}}\PY{p}{)}
+
+\PY{n}{plt}\PY{o}{.}\PY{n}{tight\PYZus{}layout}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+   \begin{figure}
+   \centering
+   \includegraphics{qnlp_vector_measurement_adult_stand_inside.pdf}
+   \end{figure}
+    
+    \begin{tcolorbox}[breakable, size=fbox, boxrule=1pt, pad at break*=1mm,colback=cellbackground, colframe=cellborder]
+\prompt{In}{incolor}{48}{\hspace{4pt}}
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{plt}\PY{o}{.}\PY{n}{savefig}\PY{p}{(}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{qnlp\PYZus{}vector\PYZus{}measurement.pdf}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+\end{Verbatim}
+\end{tcolorbox}
+
+    As we can see, the closest discovered pattern using the given basis is
+``adult, sit, inside'', which is the result with the smallest Hamming
+distance. Additionally, the likelihood of other states occurring is inversely
+related to how large their Hamming distance is.
+\clearpage
