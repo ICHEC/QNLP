@@ -135,7 +135,7 @@ namespace QNLP{
 
                 //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
                 std::size_t cOps = ctrlIndices.size();
-
+                //std::cout << auxIndices.size() << std::endl;
 //LAST HURDLE
 /*                if( (cOps >= 6) && (auxIndices.size() >= 1) && (gateLabel == "X") && (depth == 0) ){
                     auto params = find_optimal_params( ctrlIndices.size() );
@@ -161,7 +161,7 @@ namespace QNLP{
 
                 }
 */
-                if( (cOps == 5) && (auxIndices.size() >= 3) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
+                /*if( (cOps == 5) && (auxIndices.size() >= 3) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
 
                     qSim.applyGateCCX(ctrlIndices[4], auxIndices[2], qTarget);
                     qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
@@ -177,8 +177,31 @@ namespace QNLP{
                     qSim.applyGateCCX(ctrlIndices[2], auxIndices[0], auxIndices[1]);
                     qSim.applyGateCCX(ctrlIndices[3], auxIndices[1], auxIndices[2]);
                 }
+*/
+                if( (cOps >= 5) && ( auxIndices.size() >= cOps-2 ) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
+                    //std::cout << "I AM HERE0! " << cOps << "  " << auxIndices.size() << "    " << ctrlIndices.size() << std::endl;
+                    qSim.applyGateCCX( ctrlIndices.back(), auxIndices.back(), qTarget);
+                    for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
+                    }
+                    qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );
+                    
+                    for (std::size_t i = 2; i < ctrlIndices.size(); i++){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
+                    }
+                    qSim.applyGateCCX( ctrlIndices.back(), auxIndices.back(), qTarget);
+
+                    for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
+                    }
+                    qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );    
+                    for (std::size_t i = 2; i < ctrlIndices.size(); i++){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
+                    }
+                }
 
                 else if(cOps == 3){ //Optimisation for replacing 17 with 13 2-qubit gate calls
+                    //std::cout << "I AM HERE1! " << cOps << "  " << auxIndices.size() << "    " << ctrlIndices.size() << std::endl;
 
                     //Apply the 13 2-qubit gate calls
                     qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[0], qTarget, gateLabel );
@@ -222,6 +245,8 @@ namespace QNLP{
                 }
 
                 else if (cOps >= 2 && cOps !=3){
+                    //std::cout << "I AM HERE2! " << cOps << "  " << auxIndices.size() << "    " << ctrlIndices.size() << std::endl;
+
                 //if (cOps >= 2){
                     std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
 
@@ -240,6 +265,7 @@ namespace QNLP{
 
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
+                    //std::cout << "I AM HERE3! " << cOps << "  " << auxIndices.size() << "    " << ctrlIndices.size() << std::endl;
 
                     qSim.applyGateCU(gate_cache.gateCacheMap[gateLabel][depth].first, ctrlIndices[0], qTarget, gateLabel); //The first decomposed matrix value is used here
                     //std::cout << "Here 4 = " << local_depth << " GATE = " << gate_cache.gateCacheMap[gateLabel][depth].first.tostr() << std::endl;
