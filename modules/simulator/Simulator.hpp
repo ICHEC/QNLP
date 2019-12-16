@@ -32,8 +32,12 @@
 //#include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
 
-//Questionable choice
+#ifdef __INTEL_COMPILER
+//pybind11 fails to compile with icpc using cpp17 support, so fallback to 14 if necessary
+#include <experimental/any>
+#else
 #include <any>
+#endif
 
 #ifdef VIRTUAL_INTERFACE
 #include "ISimulator.hpp"
@@ -66,7 +70,12 @@ namespace QNLP{
     GateWriter writer;
     #endif
 
+
+    #ifdef __INTEL_COMPILER
+    std::experimental::any sim_ncu;
+    #else
     std::any sim_ncu;
+    #endif
 
     public:
         //using Mat2x2Type = decltype(std::declval<DerivedType>().getGateX());
@@ -394,7 +403,11 @@ namespace QNLP{
          */
         template<class Mat2x2Type>
         void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label){
+            #ifdef __INTEL_COMPILER
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, label, U, 0);
+            #else
             std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, label, U, 0);
+            #endif
         }
 
         /**
@@ -408,7 +421,11 @@ namespace QNLP{
          */
         template<class Mat2x2Type>
         void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, std::string label){
+        #ifdef __INTEL_COMPILER
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, label, U, 0);
+        #else
             std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, label, U, 0);
+        #endif
         }
 
         /**
@@ -616,12 +633,20 @@ namespace QNLP{
         }
 
         void initCaches(){
+            #ifdef __INTEL_COMPILER
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).initialiseMaps(static_cast<DerivedType&>(*this), 16);
+            #else
             std::any_cast<NCU<DerivedType>&>(sim_ncu).initialiseMaps(static_cast<DerivedType&>(*this), 16);
+            #endif
         }
 
         template<class Mat2x2Type>
         void addUToCache(std::string gateLabel, const Mat2x2Type& U){
+            #ifdef __INTEL_COMPILER
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).getGateCache().addToCache(static_cast<DerivedType&>(*this), gateLabel, U, 16);
+            #else
             std::any_cast<NCU<DerivedType>&>(sim_ncu).getGateCache().addToCache(static_cast<DerivedType&>(*this), gateLabel, U, 16);
+            #endif
         }
 
         void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){

@@ -145,10 +145,10 @@ namespace QNLP{
                 gateCacheMap["H"] = std::vector< std::pair<GateType, GateType> > { std::make_pair( sim.getGateH(), adjointMatrix( sim.getGateH() ) ) };
 
                 for( std::size_t depth = 1; depth <= sqrt_depth; depth++ ){
-                    for( auto& [k,v] : gateCacheMap ){
-                        v.reserve(sqrt_depth + 1);
-                        auto m = matrixSqrt<GateType>(v[depth-1].first);
-                        v.emplace(v.begin() + depth, std::make_pair( m, adjointMatrix( m ) ) );
+                    for( auto& kv : gateCacheMap ){
+                        kv.second.reserve(sqrt_depth + 1);
+                        auto m = matrixSqrt<GateType>(kv.second[depth-1].first);
+                        kv.second.emplace(kv.second.begin() + depth, std::make_pair( m, adjointMatrix( m ) ) );
                     }
                 }
                 cache_depth = sqrt_depth;
