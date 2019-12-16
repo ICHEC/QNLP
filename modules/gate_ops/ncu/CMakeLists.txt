@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(qnlp_ncu INTERFACE)
 target_include_directories(qnlp_ncu INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_link_libraries(qnlp_ncu INTERFACE qnlp_utils)
+
 
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_ncu OBJECT test_ncu.cpp)
