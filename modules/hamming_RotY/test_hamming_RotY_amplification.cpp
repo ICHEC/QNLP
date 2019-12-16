@@ -75,6 +75,7 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     num_bin_pattern = pow(2,len_reg_memory);
 
                     IntelSimulator sim(num_qubits);
+                    sim.initRegister();
                     auto &r = sim.getQubitRegister();
 
                     // Set up registers to store indices

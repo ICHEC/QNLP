@@ -26,6 +26,8 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
         std::size_t num_bin_pattern = pow(2,len_reg_memory) - 2;
 
         IntelSimulator sim(num_qubits);
+        sim.initRegister();
+
         REQUIRE(sim.getNumQubits() == num_qubits);
 
         // Set up registers to store indices
@@ -81,6 +83,7 @@ TEST_CASE("Test encoding of different register sizes and checking states' amplit
             expected_val = sqrt(1.0 / (double) num_bin_pattern);
 
             IntelSimulator sim(num_qubits);
+            sim.initRegister();
             auto &r = sim.getQubitRegister();
 
             // Set up registers to store indices
