@@ -11,7 +11,7 @@ set(QNLP_MODULES_SUBDIRS    gate_ops;
                             py;
                             simulator;
                             #qubit_extended;
-                            #util;
+                            utils;
                             test
                             io;
 )
