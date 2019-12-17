@@ -45,7 +45,7 @@ namespace Catch {
 }
 */
 int main( int argc, char* argv[] ) {
-    openqu::mpi::Environment env(argc, argv);
+    qhipster::mpi::Environment env(argc, argv);
 
     int result = Catch::Session().run( argc, argv );
 

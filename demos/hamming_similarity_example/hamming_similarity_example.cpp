@@ -66,8 +66,8 @@ int main(int argc, char **argv){
     }
     std::size_t num_exps = 100;
 
-    openqu::mpi::Environment env(argc, argv);
-    int rank = env.rank();
+    qhipster::mpi::Environment env(argc, argv);
+    int rank = env.GetRank();
 
     std::size_t len_reg_memory = 5;
     std::size_t len_reg_ancilla = len_reg_memory + 2;

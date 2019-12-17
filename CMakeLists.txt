@@ -37,9 +37,9 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
 
-set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
+#set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
+#set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
+#set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
 
@@ -181,9 +181,9 @@ endif ()
 ################################################################################
 # Add Intel-QS library as target
 
-ADD_LIBRARY(qhipster STATIC IMPORTED)
-SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
-target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
+#ADD_LIBRARY(qhipster STATIC IMPORTED)
+#SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
+#target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
 
 ################################################################################
 # Include the directories with sources

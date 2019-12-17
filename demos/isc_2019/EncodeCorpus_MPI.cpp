@@ -23,12 +23,12 @@ int main(int argc, char **argv){
     char** empty;
     int empty_int = 0;
 
-    openqu::mpi::Environment env(empty_int, empty);
+    qhipster::mpi::Environment env(empty_int, empty);
 
-    rank = env.rank();
-    num_procs = openqu::mpi::Environment::size();
-    if (env.is_useful_rank() == false) return 0;
-    MPI_Comm comm = openqu::mpi::Environment::comm();
+    rank = env.GetRank();
+    num_procs = qhipster::mpi::Environment::GetSize();
+    if (env.IsUsefulRank() == false) return 0;
+    MPI_Comm comm = qhipster::mpi::Environment::GetComm();
     //std::cout << "MPI RANKS= " << rank  << std::endl;
 #endif
 
@@ -39,6 +39,7 @@ int main(int argc, char **argv){
     
 
     IntelSimulator sim(18, true);
+    sim.initRegister();
     sim.getQubitRegister().TurnOnSpecialize();
     sim.getQubitRegister().EnableStatistics();
 

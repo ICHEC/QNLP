@@ -4,7 +4,9 @@ project(qnlp_third_party LANGUAGES CXX)
 ###############################################################################
 # Include all nested sources directories
 ###############################################################################
-set(QNLP_THIRD_PARTY_SUBDIRS    CLI11;
+option(IqsFPIC "" ON)
+set(QNLP_THIRD_PARTY_SUBDIRS    intel-qs;
+                                CLI11;
                                 Catch2;
 )
 set(CLI11_SINGLE_FILE ON)

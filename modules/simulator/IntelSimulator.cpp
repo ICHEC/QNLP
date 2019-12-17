@@ -28,7 +28,7 @@ namespace QNLP{
 
 class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     public:
-    using TMDP = openqu::TinyMatrix<ComplexDP, 2, 2, 32>;
+    using TMDP = qhipster::TinyMatrix<ComplexDP, 2, 2, 32>;
     using QRDP = QubitRegister<ComplexDP>;
     using CST = const std::size_t;
 
@@ -65,7 +65,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
                 int argc = 0;
                 char** argv = new char*[argc];
 
-                openqu::mpi::Environment env(argc, argv); //we do not expect to pass any params here
+                qhipster::mpi::Environment env(argc, argv); //we do not expect to pass any params here
             }
             MPI_Initialized(&mpi_is_init);
             if (! mpi_is_init){ // If Intel-QS MPI env fails, use default init
@@ -131,13 +131,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      */
     inline void applyGateCSwap(std::size_t ctrl_qubit, std::size_t qubit_swap0, std::size_t qubit_swap1){
         //V = sqrt(X)
-        openqu::TinyMatrix<ComplexDP, 2, 2, 32> V;
+        TMDP V;
         V(0,0) = {0.5,  0.5};
         V(0,1) = {0.5, -0.5};
         V(1,0) = {0.5, -0.5};
         V(1,1) = {0.5,  0.5};
         
-        openqu::TinyMatrix<ComplexDP, 2, 2, 32> V_dag;
+        TMDP V_dag;
         V_dag(0,0) = {0.5, -0.5};
         V_dag(0,1) = {0.5,  0.5};
         V_dag(1,0) = {0.5,  0.5};
@@ -259,7 +259,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     inline void applyGateCPhaseShift(double angle, unsigned int control, unsigned int target){
-        openqu::TinyMatrix<ComplexDP, 2, 2, 32> U(gates[3]);
+        TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
         #ifdef GATE_LOGGING

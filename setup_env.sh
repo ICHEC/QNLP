@@ -18,7 +18,8 @@ declare -a PIP_PACKAGES
 declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
-GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0"
+GITHUB_REPOS=(  "intel/intel-qs"
+                "catchorg/Catch2::v2.7.0"
                 "CLIUtils/CLI11"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"

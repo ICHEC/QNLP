@@ -74,7 +74,7 @@ void QubitCircuit<Type>::ApplyNCPauliX(vector<std::size_t> input, vector<std::si
 //
 //      Requires one less ancilla qubits than control qubits, passed in as n control qubits.
 template <class Type>
-void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, openqu::TinyMatrix<Type, 2, 2, 32> U , int n){
+void QubitCircuit<Type>::ApplyNCUnitary(vector<std::size_t> input, vector<std::size_t> ancilla, vector<std::size_t> target, qhipster::TinyMatrix<Type, 2, 2, 32> U , int n){
     this->ApplyToffoli(input[0],input[1],ancilla[0]);
 
     // Apply Toffoli repeatedly and dependent on ancillary qubit set by previous iteration of

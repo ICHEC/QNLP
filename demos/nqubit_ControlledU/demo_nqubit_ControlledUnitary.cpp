@@ -10,9 +10,9 @@ using namespace QNLP;
 
 int main(int argc, char **argv){
 
-    openqu::mpi::Environment env(argc, argv);
+    qhipster::mpi::Environment env(argc, argv);
 
-    int rank = env.rank();
+    int rank = env.GetRank();
 
     unsigned num_exps, m, n;
     n = 8;                     // Number of qubit registers

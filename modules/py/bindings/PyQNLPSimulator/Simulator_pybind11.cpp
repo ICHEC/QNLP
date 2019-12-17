@@ -10,7 +10,7 @@
 
 namespace py = pybind11;
 using namespace QNLP;
-using DCM = openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
+using DCM = qhipster::TinyMatrix<std::complex<double>, 2u, 2u, 32u>;
 
 class IntelSimPy : public IntelSimulator{
     public:
@@ -114,7 +114,7 @@ void intel_simulator_binding(py::module &m){
     py::class_<DCM>(m, "DCMatrix")
         .def(py::init<>())
         .def(py::init([](std::vector<std::complex<double>> &values) { 
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m;
+            DCM m;
             m(0,0) = values[0];
             m(0,1) = values[1];
             m(1,0) = values[2];
@@ -133,7 +133,7 @@ void intel_simulator_binding(py::module &m){
                 return s(i,j);
             })
         .def("__mul__", [](const DCM &s0, const DCM &s1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m;
+            DCM m;
             m(0,0) = s0(0,0)*s1(0,0) + s0(0,1)*s1(1,0);
             m(0,1) = s0(0,0)*s1(1,0) + s0(0,1)*s1(1,1);
             m(1,0) = s0(1,0)*s1(0,0) + s0(1,1)*s1(1,0);
@@ -141,7 +141,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("__rmul__", [](const DCM &s0, std::complex<double> d1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) *= d1;
             m(0,1) *= d1;
             m(1,0) *= d1;
@@ -149,7 +149,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("__mul__", [](const DCM &s0, std::complex<double> d1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) *= d1;
             m(0,1) *= d1;
             m(1,0) *= d1;
@@ -157,7 +157,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("__radd__", [](const DCM &s0, std::complex<double> d1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) += d1;
             m(0,1) += d1;
             m(1,0) += d1;
@@ -165,7 +165,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("__add__", [](const DCM &s0, const DCM &s1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) += s1(0,0);
             m(0,1) += s1(0,1);
             m(1,0) += s1(1,0);
@@ -173,7 +173,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("__sub__", [](const DCM &s0, const DCM &s1) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) -= s1(0,0);
             m(0,1) -= s1(0,1);
             m(1,0) -= s1(1,0);
@@ -184,7 +184,7 @@ void intel_simulator_binding(py::module &m){
             return SimulatorType::adjointMatrix(s0);;
         })
         .def("conjugate", [](const DCM &s0) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             m(0,0) = std::conj(m(0,0));
             m(0,1) = std::conj(m(0,1));
             m(1,0) = std::conj(m(1,0));
@@ -192,7 +192,7 @@ void intel_simulator_binding(py::module &m){
             return m;
         })
         .def("transpose", [](const DCM &s0) {
-            openqu::TinyMatrix<ComplexDP, 2, 2, 32> m(s0);
+            DCM m(s0);
             auto tmp = m(0,1);
             m(0,1) = m(1,0);
             m(1,0) = tmp;
