@@ -14,9 +14,9 @@ def pow2bits(bin_val):
     return result, bits
 
 def get_type_offsets(encoding_dict):
-    l_ns = pow2bits( len(encoding_dict['ns']) )
-    l_v  = pow2bits( len(encoding_dict['v']) )
-    l_no = pow2bits( len(encoding_dict['no']) )
+    l_ns = pow2bits( len(encoding_dict['ns']) -1 )
+    l_v  = pow2bits( len(encoding_dict['v'])  -1 )
+    l_no = pow2bits( len(encoding_dict['no']) -1 )
     return l_ns, l_v, l_no
 
 def get_type_masks(encoding_dict, type_offsets=None):
