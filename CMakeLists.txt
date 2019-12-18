@@ -96,6 +96,15 @@ set(CMAKE_CXX_FLAGS
 # Selective build options
 ################################################################################
 
+option(ENABLE_NATIVE "Enable inative build tuning" OFF)
+if(${ENABLE_NATIVE})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -march=native \
+        "
+    )
+endif()
+
 option(ENABLE_AVX512 "Enable Skylake AVX512 build tuning" OFF)
 if(${ENABLE_AVX512})
     set(CMAKE_CXX_FLAGS
