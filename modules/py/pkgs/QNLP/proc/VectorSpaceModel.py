@@ -254,7 +254,7 @@ class VectorSpaceModel:
         #Must be a directed graph
         assert( isinstance(token_graph, nx.DiGraph) )
         #Must be fully connected
-        from IPython import embed; embed()
+
         assert( nx.tournament.is_strongly_connected(token_graph) )
         if ham_cycle:
             return nx.tournament.hamiltonian_path(token_graph)
