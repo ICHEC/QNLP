@@ -47,15 +47,6 @@ EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
-### Modify to load appropriate intel, gcc and 
-### qhipster libraries.
-###
-### Note: User may need to modify.
-#################################################
-
-module load qhipster
-
-#################################################
 ### Set-up Command line variables and Environment
 ### for APS_VTUNE.
 ###
