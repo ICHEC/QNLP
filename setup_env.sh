@@ -27,6 +27,7 @@ GITHUB_REPOS=(  "intel/intel-qs"
 PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function
                 "pyvis" # used to present interactive graph of token relationships
                 "ortools" # used to solve TSP for basis token ordering
+                "cython" # used during Python module setup (mpi4py)
              )
 CONDA_PACKAGES=("nltk::anaconda"
                 "jupyter"
