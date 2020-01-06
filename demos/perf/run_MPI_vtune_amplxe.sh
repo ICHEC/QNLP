@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J amplxe
-#SBATCH -N 2
+#SBATCH -N 1
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
@@ -12,14 +12,23 @@ PROFILING_RESULTS_PATH=PROFILING_RESULTS
 VTUNE_RESULTS_PATH=${PROFILING_RESULTS_PATH}/VTUNE_RESULTS
 EXPERIMENT_RESULTS_DIR=VTUNE_RESULTS_${START_TIME}_job${SLURM_JOBID}
 
+################################################
+### NUMA Bindings
+################################################
+
+NUMA_CPU_BIND="0"
+NUMA_MEM_BIND="0"
+
+NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}"
+
 #################################################
 ### MPI job configuration.
 ###
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
-NTASKSPERNODE=2
+NNODES=1
+NTASKSPERNODE=16
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
 
@@ -38,10 +47,16 @@ EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=500
+EXE_NUM_EXP=50
 EXE_LEN_PATTERNS=5
 
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
+
+
+#################################################
+### Load relevant module files.
+#################################################
+module load  gcc/8.2.0 intel/2019u5
 
 #################################################
 ### Set-up Command line variables and Environment
@@ -77,16 +92,16 @@ VTUNE_ARGS="-knob sampling-interval=5 -knob stack-size=0 -knob collect-memory-ba
 start_time=`date +%s`
 
 # Collect HPC-Performance Metrics
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -l amplxe-cl -collect ${VTUNE_ANALYSIS_TYPE} ${VTUNE_ARGS}  ${SYMBOL_FILES_SEARCH_COMMAND} ${SOURCE_FILES_SEARCH_COMMAND} -result-dir ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} -l ${NUMA_CTL_CMD_ARGS} amplxe-cl -collect ${VTUNE_ANALYSIS_TYPE} ${VTUNE_ARGS}  ${SYMBOL_FILES_SEARCH_COMMAND} ${SOURCE_FILES_SEARCH_COMMAND} -result-dir ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 echo "Completeted hpc-performance"
 
 
 # Collect Threading Metrics
-#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} amplxe-cl -collect threading -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+#srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} amplxe-cl -collect threading -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 echo "Completed threading"
 
 # Collect Threading with Hardware counters Metrics
-#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} amplxe-cl -collect threading -knob sampling-and-waits=hw -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+#srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} amplxe-cl -collect threading -knob sampling-and-waits=hw -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 echo "Completed threading with Hardware"
 
 end_time=`date +%s`

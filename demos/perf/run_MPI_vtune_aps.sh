@@ -13,6 +13,15 @@ PROFILING_RESULTS_PATH=PROFILING_RESULTS
 APS_VTUNE_RESULTS_PATH=${PROFILING_RESULTS_PATH}/APS_VTUNE_RESULTS
 EXPERIMENT_RESULTS_DIR=APS_VTUNE_RESULTS_${START_TIME}_job${SLURM_JOBID}
 
+################################################
+### NUMA Bindings
+################################################
+
+NUMA_CPU_BIND="0"
+NUMA_MEM_BIND="0"
+
+NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}"
+
 #################################################
 ### MPI job configuration.
 ###
@@ -47,6 +56,11 @@ EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
+### Load relevant module files.
+#################################################
+module load  gcc/8.2.0 intel/2019u5
+
+#################################################
 ### Set-up Command line variables and Environment
 ### for APS_VTUNE.
 ###
@@ -77,7 +91,7 @@ export MPS_STAT_LEVEL=5 # 4 # Use 4 if too much info given with 5.
 start_time=`date +%s`
 
 # Run APS on App
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} aps ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} aps ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))
