@@ -173,7 +173,7 @@ class VectorSpaceModel:
         self.ordered_tokens.update( { tokens_type : self._get_ordered_tokens(token_graph) } )
         return self.ordered_tokens
 
-    def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16):
+    def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16, ham_cycle = True):
         " 3. & 4."
         basis_tk_list = list(self.define_basis(num_basis={"verbs":num_basis, "nouns" : num_basis})[tokens_type].keys())
 
@@ -205,7 +205,7 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        self.ordered_tokens.update( {tokens_type : self._get_ordered_tokens(token_graph) } )
+        self.ordered_tokens.update( {tokens_type : self._get_ordered_tokens(token_graph, ham_cycle) } )
         return self.ordered_tokens
 
 ###############################################################################
@@ -250,18 +250,18 @@ class VectorSpaceModel:
 
 ###############################################################################
 
-    def _get_ordered_tokens(self, token_graph : nx.DiGraph):
-
+    def _get_ordered_tokens(self, token_graph : nx.DiGraph, ham_cycle = True):
         #Must be a directed graph
         assert( isinstance(token_graph, nx.DiGraph) )
         #Must be fully connected
-        
+        from IPython import embed; embed()
         assert( nx.tournament.is_strongly_connected(token_graph) )
-        #from IPython import embed; embed()
-        token_order, dist_total = self._tsp_token_solver(token_graph)
-        #from IPython import embed; embed()
-        return token_order[:]# nx.tournament.hamiltonian_path(token_graph)
-
+        if ham_cycle:
+            return nx.tournament.hamiltonian_path(token_graph)
+        else:
+            token_order, dist_total = self._tsp_token_solver(token_graph)
+            return token_order[:] 
+            
 ###############################################################################
 
     def _tsp_token_solver(self, token_graph : nx.DiGraph):
