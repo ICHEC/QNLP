@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J itac
+#SBATCH -J aps
 #SBATCH -N 4
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -7,10 +7,11 @@
 #no extra settings
 
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
+DATE=`date '+%Y%m%d'`
 
 PROFILING_RESULTS_PATH=PROFILING_RESULTS
-ITAC_RESULTS_PATH=${PROFILING_RESULTS_PATH}/ITAC_RESULTS
-EXPERIMENT_RESULTS_DIR=ITAC_RESULTS_${START_TIME}_job${SLURM_JOBID}
+APS_VTUNE_RESULTS_PATH=${PROFILING_RESULTS_PATH}/APS_VTUNE_RESULTS
+EXPERIMENT_RESULTS_DIR=APS_VTUNE_RESULTS_${START_TIME}_job${SLURM_JOBID}
 
 #################################################
 ### MPI job configuration.
@@ -18,7 +19,7 @@ EXPERIMENT_RESULTS_DIR=ITAC_RESULTS_${START_TIME}_job${SLURM_JOBID}
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
+NNODES=4
 NTASKSPERNODE=2
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
@@ -39,7 +40,10 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=500
+#EXE_NUM_EXP=25
+#EXE_LEN_PATTERNS=7
 EXE_LEN_PATTERNS=6
+
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -52,58 +56,64 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load qhipster
 
 #################################################
-### Set path to appropriate version of Intel 
-### Parallel Studios on machine (directory which
-### contains psxevars.sh).
-###
-### Note: User may need to modify.
-#################################################
-
-INTEL_PARALLELSTUDIO_PATH=/ichec/packages/intel/2019u5/parallel_studio_xe_2019.5.075/bin
-
-#################################################
 ### Set-up Command line variables and Environment
-### for ITAC.
+### for APS_VTUNE.
 ###
 ### Note: User may need to modify.
 #################################################
 
-source ${INTEL_PARALLELSTUDIO_PATH}/psxevars.sh
+source ${VTUNE_AMPLIFIER_XE_2019_DIR}/apsvars.sh
 
-export VT_ACTIVITY=SYSTEM ON
-export VT_PCTRACE=1
+# Collect internal Id;s of communicators
+export APS_COLLECT_COMM_IDS=1
+
+# Increase MPI Imbalance Collection 
+export MPS_STAT_LEVEL=5 # 4 # Use 4 if too much info given with 5.
 
 #################################################
-### Set-up directory for ITAC results.
+### Set-up directory for APS_VTUNE results.
 #################################################
 
 [ ! -d "${PROFILING_RESULTS_PATH}" ] && mkdir -p "${PROFILING_RESULTS_PATH}"
-[ ! -d "${ITAC_RESULTS_PATH}" ] && mkdir -p "${ITAC_RESULTS_PATH}"
-[ ! -d "${ITAC_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}" ] && mkdir -p "${ITAC_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}"
-
-export VT_LOGFILE_PREFIX=${ITAC_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}
-export VT_LOGFILE_FORMAT=STF #[ASCII|STF|STFSINGLE|SINGLESTF]
+[ ! -d "${APS_VTUNE_RESULTS_PATH}" ] && mkdir -p "${APS_VTUNE_RESULTS_PATH}"
+[ ! -d "${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}" ] && mkdir -p "${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}"
 
 #################################################
-### Run application using ITAC 
+### Run application using APS_VTUNE 
 ### (also collects timing metrics).
 #################################################
 
 start_time=`date +%s`
 
-# Standard MPI with C/C++
-mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
-
-# MPI Applications in Python (require .so files to be specified (full paths might be required))
-#mpiexec.hydra -trace "libVT.so libmpi.so" -n ${NPROCS} -ppn ${NTASKSPERNODE} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Run APS on App
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} aps ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))
 
 echo "Execution time: ${runtime}"
 
+
+#################################################
+### Generate APS report
+#################################################
+
+echo "--------------- Generate report -----------------"
+aps --report=aps_result_${DATE}
+
+echo "--------------- Generate Detailed report -----------------"
+aps-report -x --format=html aps_result_${DATE}
+
+#################################################
+### Move result directory to sub directory
+#################################################
+echo "--------------- Moving Dir-----------------"
+output=$( find . -maxdepth 1 -name "aps_report_${DATE}_*.html" )
+echo $output
+mv aps_result_${DATE} ${output} ${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/
+
 #################################################
 ### Copy slurm output to log file location
 #################################################
 
-cp slurm-${SLURM_JOBID}.out ${VT_LOGFILE_PREFIX}/slurm-${SLURM_JOBID}.out
+cp slurm-${SLURM_JOBID}.out ${APS_VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/slurm-${SLURM_JOBID}.out

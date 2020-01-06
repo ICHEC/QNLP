@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J profile
+#SBATCH -J amplxe
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -33,7 +33,7 @@ export KMP_AFFINITY=compact
 ### Note: User may need to modify.
 #################################################
 
-PATH_TO_EXECUTABLE=../../build/demos/hamming_RotY
+PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
@@ -59,13 +59,16 @@ module load qhipster
 ### Note: User may need to modify.
 #################################################
 
+source ${VTUNE_AMPLIFIER_XE_2019_DIR}/amplxe-vars.sh
+
 VTUNE_ANALYSIS_TYPE=hpc-performance
 
-VTUNE_ARGS="
-            "
-            #-knob enable-stack-collection=true  \
-            #-knob collect-memory-bandwidth=true \
-            #-knob collect-affinity=true         \
+VTUNE_ARGS="-knob sampling-interval=5 -knob stack-size=0 -knob collect-memory-bandwidth=true"
+            #-knob  sampling-interval=5                 \
+            #-knob enable-stack-collection=-true        \
+            #-knob stack-size=0                         \ 
+            #-knob collect-memory-bandwidth=true        \
+            #-knob collect-affinity=true                \
 
 #################################################
 ### Set-up directory for VTUNE results.
@@ -82,7 +85,18 @@ VTUNE_ARGS="
 
 start_time=`date +%s`
 
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} amplxe-cl -collect ${VTUNE_ANALYSIS_TYPE} ${VTUNE_ARGS} -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+# Collect HPC-Performance Metrics
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -l amplxe-cl -collect ${VTUNE_ANALYSIS_TYPE} ${VTUNE_ARGS}  ${SYMBOL_FILES_SEARCH_COMMAND} ${SOURCE_FILES_SEARCH_COMMAND} -result-dir ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Completeted hpc-performance"
+
+
+# Collect Threading Metrics
+#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} amplxe-cl -collect threading -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Completed threading"
+
+# Collect Threading with Hardware counters Metrics
+#mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} amplxe-cl -collect threading -knob sampling-and-waits=hw -r ${VTUNE_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/profile -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Completed threading with Hardware"
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))

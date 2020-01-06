@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J profile
+#SBATCH -J adapt
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
@@ -33,13 +33,13 @@ export KMP_AFFINITY=compact
 ### Note: User may need to modify.
 #################################################
 
-PATH_TO_EXECUTABLE=../../build/demos/hamming_RotY
+PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=500
-EXE_LEN_PATTERNS=5
+EXE_NUM_EXP=100
+EXE_LEN_PATTERNS=4
 
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
@@ -59,11 +59,20 @@ module load qhipster
 ### Note: User may need to modify.
 #################################################
 
-ADVISOR_ANALYSIS_TYPE=survey
+source ${ADVISOR_XE_2019_DIR}/advixe-vars.sh
 
-ADVISOR_ARGS="
-            "
-            #--mark-up-loops --select=foo.cpp:34,bar.cpp:192
+#################################################
+### Set-up Command line variables and Environment
+### for Advisor.
+###
+### Note: User may need to modify.
+#################################################
+
+ADVISOR_ARGS_SURVEY=""
+ADVISOR_ARGS_TRIPCOUNTS="-flop -stacks"
+ADVISOR_ARGS_MAP="-loops=total-time>0.1,loop-height=0"
+ADVISOR_ARGS_DEPENDENCIES="-loops=scalar,loops-height=0,total-time>0.1"
+ADVISOR_ARGS_SUITABILITY=""
 
 #################################################
 ### Set-up directory for ADVISOR results.
@@ -80,7 +89,22 @@ ADVISOR_ARGS="
 
 start_time=`date +%s`
 
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} advixe-cl -collect ${ADVISOR_ANALYSIS_TYPE} ${ADVISOR_ARGS} --project-dir=${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR} -- ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+### Intel MPI Syntax
+# Survey Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect survey ${ADVISOR_ARGS_SURVEY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Survey Target run: Complete"
+# Roofline Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect tripcounts ${ADVISOR_ARGS_TRIPCOUNTS} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Roofline Target run: Complete"
+# Maps Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect map ${ADVISOR_ARGS_MAP} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Maps Target run: Complete"
+# Dependencies Target
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect dependencies ${ADVISOR_ARGS_DEPENDENCIES} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Dependencies Target run: Complete"
+# Suitability Target (threading)
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} -gtool "advixe-cl -collect suitability ${ADVISOR_ARGS_SUITABILITY} -project-dir ${ADVISOR_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}:0" ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+echo "Suitability Target run: Complete"
 
 end_time=`date +%s`
 runtime=$((end_time-start_time))
