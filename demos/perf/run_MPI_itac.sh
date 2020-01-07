@@ -12,6 +12,15 @@ PROFILING_RESULTS_PATH=PROFILING_RESULTS
 ITAC_RESULTS_PATH=${PROFILING_RESULTS_PATH}/ITAC_RESULTS
 EXPERIMENT_RESULTS_DIR=ITAC_RESULTS_${START_TIME}_job${SLURM_JOBID}
 
+################################################
+### NUMA Bindings
+################################################
+
+NUMA_CPU_BIND="0"
+NUMA_MEM_BIND="0"
+
+NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}"
+
 #################################################
 ### MPI job configuration.
 ###
@@ -43,13 +52,9 @@ EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
-### Modify to load appropriate intel, gcc and 
-### qhipster libraries.
-###
-### Note: User may need to modify.
+### Load relevant module files.
 #################################################
-
-module load qhipster
+module load  gcc/8.2.0 intel/2019u5
 
 #################################################
 ### Set path to appropriate version of Intel 
@@ -92,7 +97,7 @@ export VT_LOGFILE_FORMAT=STF #[ASCII|STF|STFSINGLE|SINGLESTF]
 start_time=`date +%s`
 
 # Standard MPI with C/C++
-mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+srun -trace --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 # MPI Applications in Python (require .so files to be specified (full paths might be required))
 #mpiexec.hydra -trace "libVT.so libmpi.so" -n ${NPROCS} -ppn ${NTASKSPERNODE} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
