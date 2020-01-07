@@ -23,12 +23,13 @@ GITHUB_REPOS=(  "intel/intel-qs"
                 "CLIUtils/CLI11"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"
-             )
+)
 PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function
                 "pyvis" # used to present interactive graph of token relationships
                 "ortools" # used to solve TSP for basis token ordering
                 "cython" # used during Python module setup (mpi4py)
-             )
+                "spacy" # additional NLP lib for tagging
+)
 CONDA_PACKAGES=("nltk::anaconda"
                 "jupyter"
                 "numpy"
@@ -38,8 +39,10 @@ CONDA_PACKAGES=("nltk::anaconda"
                 "networkx"
                 "matplotlib"
                 "tqdm::conda-forge"
-               )
-CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
+)
+CMDS=(          "python -m nltk.downloader -d ${NLTK_DATA} all" #Download additional NLTK models
+                "python -m spacy download en_core_web_sm" #Download additional spacy models
+)
 
 ###############################################################################
 # Create all directories required by QNLP project

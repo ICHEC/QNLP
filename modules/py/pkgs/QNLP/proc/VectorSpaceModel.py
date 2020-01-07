@@ -9,6 +9,9 @@ vsm_verbs.assign_indexing()
 """
 ###############################################################################
 ###############################################################################
+import spacy
+from spacy.tokenizer import Tokenizer
+from spacy.lang.en import English
 
 import QNLP.proc.process_corpus as pc
 import QNLP.encoding as enc
@@ -25,33 +28,55 @@ class VSM_pc:
     def __init__(self):
         self.pc = pc
     
-    def tokenize_corpus(self, corpus, proc_mode=0, stop_words=True):
+    def tokenize_corpus(self, corpus, proc_mode=0, stop_words=True, use_spacy=False):
         """
         Rewrite of pc.tokenize_corpus to allow for tracking of basis word 
         positions in list to improve later pairwise distance calculations.
         """
-#        from IPython import embed; embed()
-        token_sents = self.pc.nltk.sent_tokenize(corpus) #Split on sentences
+        token_sents = []
         token_words = [] # Individual words
         tags = [] # Words and respective tags
+        tagged_tokens = []
         
-        for s in token_sents:
-            tk = self.pc.nltk.word_tokenize(s)
-            if stop_words == False:
-                tk = self.pc.remove_stopwords(tk, self.pc.sw)
-            token_words.extend(tk)
-            tags.extend(self.pc.nltk.pos_tag(tk))
+        if use_spacy == False:
+            token_sents = self.pc.nltk.sent_tokenize(corpus) #Split on sentences
+            
+            for s in token_sents:
+                tk = self.pc.nltk.word_tokenize(s)
+                if stop_words == False:
+                    tk = self.pc.remove_stopwords(tk, self.pc.sw)
+                token_words.extend(tk)
+                tags.extend(self.pc.nltk.pos_tag(tk))
 
-        if proc_mode != 0:
-            if proc_mode == 's':
-                s = self.pc.nltk.SnowballStemmer('english', ignore_stopwords = not stop_words)
-                token_words = [s.stem(t) for t in token_words]
-            elif proc_mode == 'l':
-                wnl = self.pc.nltk.WordNetLemmatizer()
-                token_words = [wnl.lemmatize(t) for t in token_words]
+            if proc_mode != 0:
+                if proc_mode == 's':
+                    s = self.pc.nltk.SnowballStemmer('english', ignore_stopwords = not stop_words)
+                    token_words = [s.stem(t) for t in token_words]
+                elif proc_mode == 'l':
+                    wnl = self.pc.nltk.WordNetLemmatizer()
+                    token_words = [wnl.lemmatize(t) for t in token_words]
+            
+            tagged_tokens = self.pc.nltk.pos_tag(token_words)
 
-        tagged_tokens = self.pc.nltk.pos_tag(token_words)
+        #spacy_tokenizer = English()
+        else: #using spacy
+            spacy_pos_tagger = spacy.load("en_core_web_sm")
+            for s in spacy_pos_tagger(corpus):
+                if stop_words == False and s.is_stop:
+                    continue
+                else:
+                    text_val = s.text
+                    if proc_mode != 0:
+                        if proc_mode == 's':
+                            raise Exception("Stemming not currently supported by spacy")
+                        elif proc_mode == 'l':
+                            text_val = s.lemma_
 
+                    text_val = text_val.lower()
+                    token_words.append(text_val)
+                    tags.append((text_val, s.pos_))
+            tagged_tokens = tags
+            
         nouns = self._get_token_position(tagged_tokens, self.pc.tg.Noun)
         verbs = self._get_token_position(tagged_tokens, self.pc.tg.Verb)
 
@@ -94,9 +119,9 @@ class VectorSpaceModel:
     relatively close together will be closer in the sorted list, and as a result have a smaller number of bit flips of difference
     which can be used in the Hamming distance calculation later for similarity of meanings.
     """
-    def __init__(self, corpus_path="", mode=0, stop_words=True, encoder=enc.gray.GrayEncoder()):
+    def __init__(self, corpus_path="", mode=0, stop_words=True, encoder=enc.gray.GrayEncoder(), use_spacy=False):
         self.pc = VSM_pc()
-        self.tokens = self.load_tokens(corpus_path, mode, stop_words)
+        self.tokens = self.load_tokens(corpus_path, mode, stop_words, use_spacy)
         self.encoder = encoder
         self.distance_dictionary = {}
         self.encoded_tokens = {}
@@ -105,10 +130,10 @@ class VectorSpaceModel:
 ###############################################################################
 ###############################################################################
 
-    def load_tokens(self, corpus_path, mode=0, stop_words=True):
+    def load_tokens(self, corpus_path, mode=0, stop_words=True, use_spacy=False):
         " 1. Wraps the calls from process_corpus.py to tokenize. Returns None if path is "
         if path.exists(corpus_path):
-            return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words)
+            return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words, use_spacy)
         else:
             return None
 
@@ -251,10 +276,13 @@ class VectorSpaceModel:
 ###############################################################################
 
     def _get_ordered_tokens(self, token_graph : nx.DiGraph, ham_cycle = True):
+        """
+        Solves the Hamiltonian cycle problem to define the ordering of the basis tokens.
+        If a cycle is not required, can solve the TSP problem instead (ham_cycle = False).
+        """
         #Must be a directed graph
         assert( isinstance(token_graph, nx.DiGraph) )
         #Must be fully connected
-
         assert( nx.tournament.is_strongly_connected(token_graph) )
         if ham_cycle:
             return nx.tournament.hamiltonian_path(token_graph)
