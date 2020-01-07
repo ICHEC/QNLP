@@ -3,14 +3,24 @@
 
 # # Calculating sentence similarity using a hybrid classical-quantum workflow
 # 
-# ### Lee J. O'Riordan, M. Doyle, V. Kannan, F. Baruffa
+# ### Lee J. O'Riordan and Myles Doyle
 # 
 
-# This notebook will serve to demonstrate a mixed hybrid workflow to examine relationships between words, and respective sentence meanings using classical and quantum information processing techniques.
+# This notebook will serve to demonstrate a mixed hybrid workflow to examine 
+# relationships between words, and respective sentence meanings using classical 
+# and quantum information processing techniques.
 # 
-# Our goal is to analyse a corpus, extract key features rom it, and represent those features in a quantum-compatible notation. We proceed to encide these features into a quantum simulation environment using Intel-QS (formerly qHiPSTER), and query for similarities using the encoded quantum states. For this, we have implemented various encoding and analysis strategies. Our primary method for similarity uses a Hamming distance approach, wherein we apply a simplified digital-to-analogue encoding strategy to allow the results to be obtained via measurement.
+# Our goal is to analyse a corpus, extract key features rom it, and represent 
+# those features in a quantum-compatible notation. We proceed to encide these 
+# features into a quantum simulation environment using Intel-QS (formerly qHiPSTER),
+# and query for similarities using the encoded quantum states. For this, we have 
+# implemented various encoding and analysis strategies. Our primary method for 
+# similarity uses a Hamming distance approach, wherein we apply a simplified 
+# digital-to-analogue encoding strategy to allow the results to be obtained via
+# measurement.
 
-# We must load the Python QNLP packages & module (`QNLP`), and the C++-Python bound simulator backend and algorithms (`PyQNLPSimulator`).
+# We must load the Python QNLP packages & module (`QNLP`), and the C++-Python 
+# bound simulator backend and algorithms (`PyQNLPSimulator`).
 
 from mpi4py import MPI
 from PyQNLPSimulator import PyQNLPSimulator as p
@@ -18,6 +28,8 @@ import QNLP as q
 import numpy as np
 from QNLP import DisCoCat
 from QNLP.encoding import simple
+from QNLP.proc.VerbGraph import VerbGraph as vg
+import networkx as nx
 
 from itertools import product
 import tempfile
@@ -25,36 +37,66 @@ import tempfile
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-# Next, we load the corpus file using the vector-space model, defined in the `VectorSpaceModel` class, specifying the mode of tagging, and whether to filter out stop-words. For this notebook I have used the Project Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple replacements to avoid incorrect tagging of elements (mostly standardising apostrophes to \' and quotations to \"). 
+# Next, we load the corpus file using the vector-space model, defined in the 
+# `VectorSpaceModel` class, specifying the mode of tagging, and whether to 
+# filter out stop-words. For this notebook I have used the Project Gutenberg 
+# [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple 
+# replacements to avoid incorrect tagging of elements (mostly standardising 
+# apostrophes to \' and quotations to \"). 
 
+corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
+#corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
 vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path="/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt", #/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt
-    mode=None, 
-    stop_words=False,
-    encoder = simple.SimpleEncoder()
+    corpus_path=corpus_file,
+    mode="l", 
+    stop_words=True,
+    encoder = simple.SimpleEncoder(),
+    use_spacy=True
 )
 
-# From here we can specify the number of basis elements by occurrence in the corpus. This will take the `num_basis_elems` most frequently occurring tokens in both verb and noun spaces respectively.
+# From here we can specify the number of basis elements by occurrence in the 
+# corpus. This will take the `num_basis_elems` most frequently occurring tokens
+# in both verb and noun spaces respectively.
 
 num_basis_elems = 8
 basis     = vsm.define_basis({'verbs' : num_basis_elems, 'nouns' : num_basis_elems})
 
-# Next, we aim to sort the mapping of the basis tokens to a binary representation for state encoding. By building a graph, and aiming to solve the TSP problem, we can ensure that the tokens are ordered such that  any nearest-neighbours have the shortest paths. This becomes necessary later when encoding Gray-coded information, as any incorrect bit-flips (potentially offered by noise), should still allow some similarity to be represented. By ordering the tokens by their minimum path lengths we may maintain closeness in the presence of errors.
-
+# Next, we aim to sort the mapping of the basis tokens to a binary 
+# representation for state encoding. By building a graph, and aiming to solve 
+# the TSP problem, we can ensure that the tokens are ordered such that any 
+# nearest-neighbours have the shortest paths. This becomes necessary later when
+# encoding Gray-coded information, as any incorrect bit-flips (potentially 
+# offered by noise), should still allow some similarity to be represented. By 
+# ordering the tokens by their minimum path lengths we may maintain closeness 
+# in the presence of errors.
 
 verb_dist = vsm.sort_basis_tokens_by_dist("verbs", num_basis=num_basis_elems)
 noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=num_basis_elems)
 
 
-# We now take the previously defined basis elements, and attempt to arrange them such that the distance between nearest-neighbours in the corpus is minimised. With this, we assign a Gray code value to the basis. This allows us to ensure values closer together in the corpus have a shorter Hamming distance between them. We make use of the DisCo-inspired compositional model, wherein the distances between words dictates their closeness; we use these distances to define the edge-weights between nodes (tokens), and hence by defining the problem as a TSP, we can find an ordering that ensures Hamming distance relates directly to closeness of words.
+# We now take the previously defined basis elements, and attempt to arrange 
+# them such that the distance between nearest-neighbours in the corpus is 
+# minimised. With this, we assign a Gray code value to the basis. This allows 
+# us to ensure values closer together in the corpus have a shorter Hamming 
+# distance between them. We make use of the DisCo-inspired compositional model,
+# wherein the distances between words dictates their closeness; we use these 
+# distances to define the edge-weights between nodes (tokens), and hence by 
+# defining the problem as a TSP, we can find an ordering that ensures Hamming 
+# distance relates directly to closeness of words.
 
 vsm.assign_indexing("nouns");
 vsm.assign_indexing("verbs");
 
 
-# With the basis tokens correctly ordered, we may now map the other respective elements in their space onto these bases. We aim to map the nouns onto the noun basis, and likewise for the verbs. This allows us to represent any other word in the corpus in the given basis. We may encode arbitrary superposition states to represent the tokens, which can be ascribed as a vector-space representation model using quantum states.
+# With the basis tokens correctly ordered, we may now map the other respective 
+# elements in their space onto these bases. We aim to map the nouns onto the 
+# noun basis, and likewise for the verbs. This allows us to represent any other
+# word in the corpus in the given basis. We may encode arbitrary superposition 
+# states to represent the tokens, which can be ascribed as a vector-space 
+# representation model using quantum states.
 # 
-# For this, we begin by creating a `DisCoCat` object, and use to perform the mappings of basis tokens.
+# For this, we begin by creating a `DisCoCat` object, and use to perform the 
+# mappings of basis tokens.
 
 dcc = DisCoCat.DisCoCat()
 mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=10)
@@ -69,9 +111,16 @@ mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis
 # \end{array}
 # $$
 # 
-# where we assume each item in the basis set has an orthogonal quantum state representing it. For the given 32-numbered bases, we can assume the coefficient of any unlisted state is represented as zero.
+# where we assume each item in the basis set has an orthogonal quantum state 
+# representing it. For the given 32-numbered bases, we can assume the 
+# coefficient of any unlisted state is represented as zero.
 
-# With nouns mappable to the noun basis set, and verbs mappable to the verbs basis set, we may now examine the composite noun-verb-noun sentence structures. This involves a similar approach to compositional mapping of token to token-basis, wherein composite words close together can be considered within the same NVN sentnence, and thus present themselves as a constructable entity for binary-string quantum state encoding.
+# With nouns mappable to the noun basis set, and verbs mappable to the verbs 
+# basis set, we may now examine the composite noun-verb-noun sentence 
+# structures. This involves a similar approach to compositional mapping of 
+# token to token-basis, wherein composite words close together can be 
+# considered within the same NVN sentnence, and thus present themselves as a 
+# constructable entity for binary-string quantum state encoding.
 # 
 # The following pair-wise relations are required for a fully generalised solution:
 # 
@@ -94,7 +143,10 @@ mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis
 # \end{equation*}
 # $$
 
-# Additionally, one may add a more complex parameter exploration space by customising the tagging options; here the use of lemmatisation `(mode="l")`, stemming `(mode="s")`, or default tagging options `(mode=None)`, results in a different set of words in the above graphs.
+# Additionally, one may add a more complex parameter exploration space by 
+# customising the tagging options; here the use of lemmatisation `(mode="l")`, 
+# stemming `(mode="s")`, or default tagging options `(mode=None)`, results in 
+# a different set of words in the above graphs.
 
 # From here, we define our encoding and decoding dictionaries.
 
@@ -109,12 +161,14 @@ decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
                  "no" : { v:k for k,v in encoding_dict["no"].items() }
                 }
 
-# With the above information, we can now determine the required resources to store our data in a qubit register.
+# With the above information, we can now determine the required resources to 
+# store our data in a qubit register.
 
 # Register must be large enough to support 2*|nouns| + |verbs| in given encoding
 len_reg_memory =    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['v'].values()))) )[1] + \
                     q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['no'].values()))) )[1] + \
-                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] #int(np.log2(len(verb_dist['verbs'])) + 2*np.log2(len(noun_dist['nouns'])))
+                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] 
+
 len_reg_ancilla = len_reg_memory + 2
 num_qubits = len_reg_memory + len_reg_ancilla
 if rank == 0:
@@ -126,55 +180,13 @@ maximum of {} unique patterns.
 """.format("#"*48, num_qubits, num_basis_elems, 2**num_qubits, "#"*48)
     )
 
-# Using encoded bitstrings for bases, look-up mapping terms for composite nouns and verbs, create bitstrings and generate quantum states
+# Using encoded bitstrings for bases, look-up mapping terms for composite nouns
+# and verbs, create bitstrings and generate quantum states.
 
 ns = []
 
 verb_bits = int(np.log2(len(verb_dist['verbs'])))
 noun_bits = int(np.log2(len(noun_dist['nouns'])))
-
-import networkx as nx
-class VerbNode:
-    def __init__(self, verb = None, pos = []):
-        self.verb = verb
-        self.pos = pos
-        self.left_nouns = {}
-        self.right_nouns = {}
-        self.lr_nouns = {}
-        
-    def addL(self, noun, pos):
-        self.left_nouns.update({noun : pos})
-        
-    def addR(self, noun, pos):
-        self.right_nouns.update({noun : pos})
-        
-    def createLGraph(self, G = None):
-        v_idx = []
-        l_idx = []
-        if G == None:
-            G = nx.DiGraph()
-        G.add_node(self.verb)
-        v_idx = self.verb
-        for k,v in self.left_nouns.items():
-            G.add_node(k)
-            l_idx.append(k)
-            G.add_edge(k, self.verb)
-        return G, v_idx, l_idx
-    
-    def createRGraph(self, G = None):
-        v_idx = []
-        r_idx = []
-        if G == None:
-            G = nx.DiGraph()
-        G.add_node(self.verb)
-        v_idx = self.verb
-
-        for k,v in self.right_nouns.items():
-            G.add_node(k)
-            r_idx.append(k)
-            G.add_edge(self.verb, k)
-        return G, v_idx, r_idx
-
 
 bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
 bit_shifts.reverse()
@@ -187,32 +199,9 @@ corpus_list_n = vsm.tokens['nouns']
 corpus_list_v = vsm.tokens['verbs']
 dist_cutoff = 3
 
-for word_v, locations_v in corpus_list_v.items():
-    v = VerbNode(word_v)
-    lv = locations_v[1][:, np.newaxis]
-    for word_n, locations_n in corpus_list_n.items():#######!!!!!!!#######
-        dists = np.ndarray.flatten(locations_n[1] - lv)
-        if not isinstance(dists, np.int64):
-            vals = [x for x in dists if np.abs(x) <= dist_cutoff]
-        else:
-            vals = [dists] if np.abs(dists) <= dist_cutoff else []
-        
-        dl = [(i,i_pos) for i,i_pos in zip(vals, locations_n[1]) if i < 0]
-        dr = [(i,i_pos) for i,i_pos in zip(vals, locations_n[1]) if i > 0]
-        
-        if len(dl) >0:
-            v.addL(word_n, dl)
-        if len(dr) >0:
-            v.addR(word_n, dr)
-            
-        if len(v.left_nouns) >3 and len(v.right_nouns) >3:
-            break
-            
-        continue
-        
-        ###TBC
-    break
- 
+#!!!!!!######!!!!!!
+v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
+from IPython import embed; embed()
 
 sentences = []
 for i in product(v.left_nouns, [v.verb], v.right_nouns):
@@ -221,7 +210,6 @@ for i in product(v.left_nouns, [v.verb], v.right_nouns):
                       {i[1] : mapping_verbs[i[1]].values() },
                       {i[2] : mapping_nouns[i[2]].values()}])
 sentences
-
 
 #Define register size
 len_reg_memory = verb_bits + 2*noun_bits
