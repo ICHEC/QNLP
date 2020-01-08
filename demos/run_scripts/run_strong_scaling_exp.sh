@@ -51,6 +51,15 @@ EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=500
 
+################################################
+### NUMA Bindings
+################################################
+
+NUMA_CPU_BIND="0,1"
+NUMA_MEM_BIND="0,1"
+
+NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}"
+
 #################################################
 ### Modify to load appropriate intel, gcc and 
 ### qhipster libraries.
@@ -95,7 +104,7 @@ for (( EXE_LEN_PATTERNS=${MIN_EXE_LEN_PATTERNS}; EXE_LEN_PATTERNS<=${MAX_EXE_LEN
 
     start_time=`date +%s`
 
-    mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
+    srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
 
     end_time=`date +%s`
     runtime=$((end_time-start_time))
