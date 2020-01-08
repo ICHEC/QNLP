@@ -1,4 +1,6 @@
 # Utility functions in encoding and decoding of data
+import numpy as np
+
 def pow2bits(bin_val):
     """
     Convert the integer value to a tuple of the next power of two, 
@@ -12,11 +14,17 @@ def pow2bits(bin_val):
         result = 1
         bits = 1
     return result, bits
-
+"""
 def get_type_offsets(encoding_dict):
     l_ns = pow2bits( len(encoding_dict['ns']) -1 )
     l_v  = pow2bits( len(encoding_dict['v'])  -1 )
     l_no = pow2bits( len(encoding_dict['no']) -1 )
+    return l_ns, l_v, l_no
+"""
+def get_type_offsets(encoding_dict):
+    l_ns = pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )
+    l_v  = pow2bits( int(np.max( list(encoding_dict['v'].values()))) )
+    l_no = pow2bits( int(np.max( list(encoding_dict['no'].values()))) )
     return l_ns, l_v, l_no
 
 def get_type_masks(encoding_dict, type_offsets=None):

@@ -201,20 +201,21 @@ dist_cutoff = 3
 
 #!!!!!!######!!!!!!
 v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
-from IPython import embed; embed()
+#from IPython import embed; embed()
 
 sentences = []
-for i in product(v.left_nouns, [v.verb], v.right_nouns):
-    #ns,s,no = mapping_nouns[i[0]], mapping_verbs[i[1]], mapping_nouns[i[2]]
-    sentences.append([{i[0] : mapping_nouns[i[0]].values() },
-                      {i[1] : mapping_verbs[i[1]].values() },
-                      {i[2] : mapping_nouns[i[2]].values()}])
+for v in v_list:
+    for i in product(v.left_nouns, [v.verb], v.right_nouns):
+        #ns,s,no = mapping_nouns[i[0]], mapping_verbs[i[1]], mapping_nouns[i[2]]
+        #if v.left_nouns != None and v.right_nouns != None:
+        if mapping_nouns[i[0]] != None and mapping_verbs[i[1]] != None and mapping_nouns[i[2]] != None:
+            sentences.append(
+                [   {i[0] : [encoding_dict['ns'][k] for k in mapping_nouns[i[0]].keys()] },
+                    {i[1] : [encoding_dict['v'][k] for k in mapping_verbs[i[1]].keys()] },
+                    {i[2] : [encoding_dict['no'][k] for k in mapping_nouns[i[2]].keys()] }
+                ]
+            )
 sentences
-
-#Define register size
-len_reg_memory = verb_bits + 2*noun_bits
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
@@ -233,9 +234,8 @@ for i in range(len_reg_ancilla):
 #Create list for the patterns to be encoded
 vec_to_encode = []
 
-from IPython import embed; embed()
-
 # Generate bit-patterns from sentences and store in vec_to_encode
+
 for idx in range(3):
     superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
     # Generate all combinations of the bit-patterns for superpos states
@@ -244,6 +244,8 @@ for idx in range(3):
         for val in zip(i,bit_shifts):
             num += (val[0] << val[1])
         vec_to_encode.extend([num])
+
+#from IPython import embed; embed()
 
 #Need to remove duplicates        
 vec_to_encode = list(set(vec_to_encode))
