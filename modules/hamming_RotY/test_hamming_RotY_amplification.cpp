@@ -15,7 +15,7 @@ using namespace Catch::Matchers;
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class HammingDistanceRotY<IntelSimulator>;
+template class QNLP::HammingDistanceRotY<IntelSimulator>;
 
 // Returns Hamming distance between binary representation of two integers.
 std::size_t calc_hammingDist(std::size_t pattern1, std::size_t pattern2, std::size_t len_bin_pattern){

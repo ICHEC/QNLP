@@ -95,8 +95,16 @@ set(CMAKE_CXX_FLAGS
 ################################################################################
 # Selective build options
 ################################################################################
+option(ENABLE_INTEL_LLVM "Enable Intel LLVM compiler (qnextgen)" OFF)
+if(${ENABLE_INTEL_LLVM})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -qnextgen \
+        "
+    )
+endif()
 
-option(ENABLE_NATIVE "Enable inative build tuning" OFF)
+option(ENABLE_NATIVE "Enable inactive build tuning" OFF)
 if(${ENABLE_NATIVE})
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} \

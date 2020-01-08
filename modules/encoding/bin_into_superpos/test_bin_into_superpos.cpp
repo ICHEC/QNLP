@@ -13,8 +13,7 @@ using namespace Catch::Matchers;
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class EncodeBinIntoSuperpos<IntelSimulator>;
-
+template class QNLP::EncodeBinIntoSuperpos<IntelSimulator>;
 
 TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
     SECTION("Testing qubit encoding"){

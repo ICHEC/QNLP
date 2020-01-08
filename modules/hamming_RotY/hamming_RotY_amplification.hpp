@@ -126,6 +126,9 @@ namespace QNLP{
                 std::size_t len_reg_pattern;
                 len_reg_pattern = reg_pattern.size();
 
+                std::size_t len_reg_ancilla;
+                len_reg_ancilla = reg_pattern.size();
+
                 // Require length of ancilla register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_ancilla);
 

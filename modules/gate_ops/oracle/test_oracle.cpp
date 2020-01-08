@@ -10,7 +10,7 @@ using namespace QNLP;
 
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
-template class Oracle<IntelSimulator>;
+template class QNLP::Oracle<IntelSimulator>;
 
 TEST_CASE("3 qubit Oracle standalone class","[oracle]"){
     std::size_t num_qubits = 3;

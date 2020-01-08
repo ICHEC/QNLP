@@ -13,8 +13,7 @@ using namespace Catch::Matchers;
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class HammingDistance<IntelSimulator>;
-
+template class QNLP::HammingDistance<IntelSimulator>;
 
 TEST_CASE("Test Hamming distance routine","[Hamming]"){
     SECTION("Testing distance calc"){
