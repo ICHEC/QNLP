@@ -61,13 +61,17 @@ NUMA_MEM_BIND="0,1"
 NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}"
 
 #################################################
-### Modify to load appropriate intel, gcc and 
-### qhipster libraries.
+### Modify to load appropriate intel, gcc.
 ###
 ### Note: User may need to modify.
 #################################################
 
-module load qhipster
+module load gcc/8.2.0 intel/2019u5
+
+#################################################
+### Set-up MPI environment variables for SHM.
+#################################################
+#export I_MPI_SHM=skx_avx512
 
 #################################################
 ### Set-up directory for results.
