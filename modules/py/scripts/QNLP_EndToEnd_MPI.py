@@ -44,8 +44,8 @@ rank = comm.Get_rank()
 # replacements to avoid incorrect tagging of elements (mostly standardising 
 # apostrophes to \' and quotations to \"). 
 
-corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
-#corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
+corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
 vsm = q.VectorSpaceModel.VectorSpaceModel(
     corpus_path=corpus_file,
     mode="l", 
@@ -267,6 +267,9 @@ for exp in range(num_exps):
         print("Result[{}] = {}".format(exp, val))
 
 if rank == 0:
+    print(shot_counter)
+
+if 0:
     xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
     xlab_str
 
