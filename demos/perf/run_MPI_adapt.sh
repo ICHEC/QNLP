@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J adapt
-#SBATCH -N 2
+#SBATCH -N 1
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
@@ -27,8 +27,8 @@ NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
-NTASKSPERNODE=2
+NNODES=1
+NTASKSPERNODE=16
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
 
@@ -47,8 +47,8 @@ EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=100
-EXE_LEN_PATTERNS=4
+EXE_NUM_EXP=2
+EXE_LEN_PATTERNS=12
 
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
