@@ -135,7 +135,7 @@ class VectorSpaceModel:
         if path.exists(corpus_path):
             return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words, use_spacy)
         else:
-            return None
+            raise Exception("No corpus found at the given path.")
 
 ###############################################################################
 ###############################################################################
