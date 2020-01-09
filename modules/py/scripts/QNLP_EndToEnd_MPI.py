@@ -65,9 +65,9 @@ basis     = vsm.define_basis({'verbs' : num_basis_elems, 'nouns' : num_basis_ele
 
 # Next, we aim to sort the mapping of the basis tokens to a binary 
 # representation for state encoding. By building a graph, and aiming to solve 
-# the TSP problem, we can ensure that the tokens are ordered such that any 
+# the Hamiltonian cycle problem, we can ensure that the tokens are ordered such that any 
 # nearest-neighbours have the shortest paths. This becomes necessary later when
-# encoding Gray-coded information, as any incorrect bit-flips (potentially 
+# encoding information, as any incorrect bit-flips (potentially 
 # offered by noise), should still allow some similarity to be represented. By 
 # ordering the tokens by their minimum path lengths we may maintain closeness 
 # in the presence of errors.
@@ -238,7 +238,7 @@ vec_to_encode = []
 
 # Generate bit-patterns from sentences and store in vec_to_encode
 
-for idx in range(3):
+for idx in range(len(sentences)):
     superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
     # Generate all combinations of the bit-patterns for superpos states
     for i in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):

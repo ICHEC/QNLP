@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J itac
-#SBATCH -N 4
+#SBATCH -N 1
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
@@ -27,8 +27,8 @@ NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
-NTASKSPERNODE=2
+NNODES=1
+NTASKSPERNODE=16
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
 
@@ -47,8 +47,8 @@ EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=500
-EXE_LEN_PATTERNS=6
+EXE_NUM_EXP=2
+EXE_LEN_PATTERNS=12
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -97,7 +97,7 @@ export VT_LOGFILE_FORMAT=STF #[ASCII|STF|STFSINGLE|SINGLESTF]
 start_time=`date +%s`
 
 # Standard MPI with C/C++
-srun -trace --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+mpirun -trace -n ${NPROCS} -ppn ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
 # MPI Applications in Python (require .so files to be specified (full paths might be required))
 #mpiexec.hydra -trace "libVT.so libmpi.so" -n ${NPROCS} -ppn ${NTASKSPERNODE} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
