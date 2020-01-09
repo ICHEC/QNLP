@@ -30,6 +30,8 @@ from QNLP import DisCoCat
 from QNLP.encoding import simple
 from QNLP.proc.VerbGraph import VerbGraph as vg
 import networkx as nx
+from tqdm import tqdm
+import sys
 
 from itertools import product
 import tempfile
@@ -219,7 +221,7 @@ sentences
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 1
+num_exps = 10
 normalise = True
 
 # Set up registers to store indices
@@ -255,6 +257,10 @@ shot_counter = {}
 for i in vec_to_encode:
     shot_counter.update({i : 0})
 
+if rank == 0:
+    pbar = tqdm(total=num_exps)
+    pbar.update(0)
+
 for exp in range(num_exps):
     sim.initRegister()
 
@@ -264,9 +270,13 @@ for exp in range(num_exps):
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
     if rank == 0:
+        pbar.update(1)
         print("Result[{}] = {}".format(exp, val))
+        print(pbar)
+        sys.stdout.flush()
 
 if rank == 0:
+    pbar.close()
     print(shot_counter)
 
 if 0:
