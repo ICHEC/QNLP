@@ -7,6 +7,8 @@
 #no extra settings
 
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
+TIMING_RESULTS_FILE=time.csv
+touch ${TIMING_RESULTS_FILE}
 
 ################################################
 ### NUMA Bindings
@@ -48,7 +50,7 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=10000
-EXE_LEN_PATTERNS=5
+EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -59,19 +61,31 @@ module load  gcc/8.2.0 intel/2019u5
 #################################################
 ### Set-up MPI environment variables for SHM.
 #################################################
-export I_MPI_SHM=skx_avx512
+#export I_MPI_SHM=skx_avx512
 
 #################################################
 ### Run application using ITAC 
 ### (also collects timing metrics).
 #################################################
 
-start_time=`date +%s`
+MIN_EXE_NUM_EXP=10
+MAX_EXE_NUM_EXP=10000
 
-#srun -N ${NNODES} -n ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+for (( EXE_NUM_EXP=${MIN_EXE_NUM_EXP}; EXE_NUM_EXP<=${MAX_EXE_NUM_EXP}; EXE_NUM_EXP=10*${EXE_NUM_EXP} )); do
 
-mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
-end_time=`date +%s`
-runtime=$((end_time-start_time))
+    EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
+    echo -e "num iters ${EXE_NUM_EXP}"
+    echo -e "mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}"
+    start_time=`date +%s`
 
-echo "Execution time: ${runtime}"
+    #srun -N ${NNODES} -n ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+
+    mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+    end_time=`date +%s`
+    runtime=$((end_time-start_time))
+
+    echo "Execution time: ${runtime}"
+
+    echo "${EXE_LEN_PATTERNS},${I_MPI_SHM},${EXE_NUM_EXP},${runtime}" >> ${TIMING_RESULTS_FILE}
+    
+done
