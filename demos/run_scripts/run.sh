@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J meas
 #SBATCH -N 1
-#SBATCH -p ProdQ
-#SBATCH -t 03:00:00
+#SBATCH -p DevQ
+#SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -41,10 +41,14 @@ export KMP_AFFINITY=compact
 PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
+#PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/encoding
+#EXECUTABLE=exe_demo_encoding
+
+
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=20
-EXE_LEN_PATTERNS=10
+EXE_NUM_EXP=10000
+EXE_LEN_PATTERNS=5
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -55,7 +59,7 @@ module load  gcc/8.2.0 intel/2019u5
 #################################################
 ### Set-up MPI environment variables for SHM.
 #################################################
-#export I_MPI_SHM=skx_avx512
+export I_MPI_SHM=skx_avx512
 
 #################################################
 ### Run application using ITAC 
@@ -64,8 +68,9 @@ module load  gcc/8.2.0 intel/2019u5
 
 start_time=`date +%s`
 
-srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+#srun -N ${NNODES} -n ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 
+mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
 end_time=`date +%s`
 runtime=$((end_time-start_time))
 

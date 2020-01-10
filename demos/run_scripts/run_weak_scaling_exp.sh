@@ -109,7 +109,7 @@ for (( EXE_LEN_PATTERNS=${MIN_EXE_LEN_PATTERNS}; EXE_LEN_PATTERNS<=${MAX_EXE_LEN
 
     start_time=`date +%s`
 
-    srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
+    mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
 
     end_time=`date +%s`
     runtime=$((end_time-start_time))
