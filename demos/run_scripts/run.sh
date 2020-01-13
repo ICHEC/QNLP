@@ -59,9 +59,12 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load  gcc/8.2.0 intel/2019u5
 
 #################################################
-### Set-up MPI environment variables for SHM.
+### Set-up MPI environment variables.
 #################################################
 #export I_MPI_SHM=skx_avx512
+
+# Increases performance
+export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
 
 #################################################
 ### Run application using ITAC 
