@@ -66,6 +66,9 @@ source ${ADVISOR_XE_2019_DIR}/advixe-vars.sh
 #################################################
 module load  gcc/8.2.0 intel/2019u5
 
+# Increases performance
+export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
+
 #################################################
 ### Set-up Command line variables and Environment
 ### for Advisor.
