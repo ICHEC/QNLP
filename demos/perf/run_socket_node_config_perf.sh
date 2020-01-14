@@ -7,7 +7,7 @@
 #no extra settings
 
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
-TIMING_RESULTS_FILE=time2_srun_vs_mpirun.csv
+TIMING_RESULTS_FILE=time_cpu_binding_comparison.csv
 touch ${TIMING_RESULTS_FILE}
 
 if [[ $# -gt 1 ]]; then
@@ -64,7 +64,7 @@ module load  gcc/8.2.0 intel/2019u5
 #################################################
 ### Set-up MPI environment variables.
 #################################################
-#export I_MPI_SHM=skx_avx512
+export I_MPI_SHM=skx_avx512
 
 # Increases performance
 export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
