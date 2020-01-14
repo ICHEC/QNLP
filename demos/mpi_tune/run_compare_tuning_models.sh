@@ -63,7 +63,7 @@ end_time=`date +%s`
 runtime=$((end_time-start_time))
 
 echo "Execution time: ${runtime}"
-echo -e "${I_MPI_TUNING_BIN} (default unspecified),${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMING_FILE}
+echo -e "(default unspecified),${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMING_FILE}
 
 ###################################
 # Best standard tuning model
@@ -84,7 +84,7 @@ echo -e "${I_MPI_TUNING_BIN},${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMIN
 ###################################
 # ARG tuning models
 ###################################
-for TUNING_MODEL_BIN in "@"; do
+for TUNING_MODEL_BIN in "$@"; do
     echo -e "Tuning model ${TUNING_MODEL_BIN}"
     if test -f "${TUNING_MODEL_BIN}"; then
         export I_MPI_TUNING_BIN=${TUNING_MODEL_BIN}
