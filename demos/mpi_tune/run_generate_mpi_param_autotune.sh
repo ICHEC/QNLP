@@ -68,8 +68,8 @@ runtime=$((end_time-start_time))
 echo "Execution time: ${runtime}"
 
 echo -e "\
-# To use the tuning configuration binary generated in a production run, \ 
-# execute the following command before running the application: \
-# export I_MPI_TUNING_BIN=<PATH-TO-TUNING-BINARY>/<TUNING-BINARY.dat>   \
-# ie. export I_MPI_TUNING_BIN=${PWD}/${I_MPI_TUNING_BIN_DUMP}   \
+# To use the tuning configuration binary generated in a production run, \n 
+# execute the following command before running the application: \n
+# export I_MPI_TUNING_BIN=<PATH-TO-TUNING-BINARY>/<TUNING-BINARY.dat>   \n
+# ie. export I_MPI_TUNING_BIN=${PWD}/${I_MPI_TUNING_BIN_DUMP}   \n
 "
