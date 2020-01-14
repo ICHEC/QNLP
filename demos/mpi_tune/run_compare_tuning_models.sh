@@ -7,7 +7,8 @@
 #no extra settings
 
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
-TIMING_FILE=${TIMING_FILE}
+TIMING_FILE=timing_tuning_model_comparison.csv
+touch ${TIMING_FILE}
 
 #################################################
 ### MPI job configuration.
@@ -62,7 +63,7 @@ end_time=`date +%s`
 runtime=$((end_time-start_time))
 
 echo "Execution time: ${runtime}"
-echo -e "${I_MPI_TUNING_MODE} (default unspecified),${I_MPI_TUNING_BIN},${runtime}" >> ${TIMING_FILE}
+echo -e "${I_MPI_TUNING_BIN} (default unspecified),${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMING_FILE}
 
 ###################################
 # Best standard tuning model
@@ -77,13 +78,14 @@ end_time=`date +%s`
 runtime=$((end_time-start_time))
 
 echo "Execution time: ${runtime}"
-echo -e "${I_MPI_TUNING_MODE},${I_MPI_TUNING_BIN},${runtime}" >> ${TIMING_FILE}
+echo -e "${I_MPI_TUNING_BIN},${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMING_FILE}
 
 
 ###################################
 # ARG tuning models
 ###################################
 for TUNING_MODEL_BIN in "@"; do
+    echo -e "Tuning model ${TUNING_MODEL_BIN}"
     if test -f "${TUNING_MODEL_BIN}"; then
         export I_MPI_TUNING_BIN=${TUNING_MODEL_BIN}
 
@@ -95,7 +97,7 @@ for TUNING_MODEL_BIN in "@"; do
         runtime=$((end_time-start_time))
 
         echo "Execution time: ${runtime}"
-        echo -e "${I_MPI_TUNING_MODE},${I_MPI_TUNING_BIN},${runtime}" >> ${TIMING_FILE}
+        echo -e "${I_MPI_TUNING_BIN},${NPROCS},${EXECUTABLE_ARGS},${runtime}" >> ${TIMING_FILE}
 
     else
         echo -e "Warning: Tuning file binary ${TUNING_MODEL_BIN} does not exist. File skipped."
