@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH -J meas
+#SBATCH -J tune
 #SBATCH -N 2
 #SBATCH -p DevQ
 #SBATCH -t 01:00:00
