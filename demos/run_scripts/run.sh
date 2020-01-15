@@ -1,12 +1,14 @@
 #!/bin/bash
 #SBATCH -J meas
 #SBATCH -N 1
-#SBATCH -p ProdQ
-#SBATCH -t 03:00:00
+#SBATCH -p DevQ
+#SBATCH -t 01:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
+TIMING_RESULTS_FILE=time.csv
+touch ${TIMING_RESULTS_FILE}
 
 ################################################
 ### NUMA Bindings
@@ -41,10 +43,14 @@ export KMP_AFFINITY=compact
 PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/hamming_RotY
 EXECUTABLE=exe_demo_hamming_RotY
 
+#PATH_TO_EXECUTABLE=${QNLP_ROOT}/build/demos/encoding
+#EXECUTABLE=exe_demo_encoding
+
+
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=20
-EXE_LEN_PATTERNS=10
+EXE_NUM_EXP=10000
+EXE_LEN_PATTERNS=6
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -53,20 +59,36 @@ EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PAT
 module load  gcc/8.2.0 intel/2019u5
 
 #################################################
-### Set-up MPI environment variables for SHM.
+### Set-up MPI environment variables.
 #################################################
 #export I_MPI_SHM=skx_avx512
+
+# Increases performance
+export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
 
 #################################################
 ### Run application using ITAC 
 ### (also collects timing metrics).
 #################################################
 
-start_time=`date +%s`
+MIN_EXE_NUM_EXP=10
+MAX_EXE_NUM_EXP=10000
 
-srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+for (( EXE_NUM_EXP=${MIN_EXE_NUM_EXP}; EXE_NUM_EXP<=${MAX_EXE_NUM_EXP}; EXE_NUM_EXP=10*${EXE_NUM_EXP} )); do
 
-end_time=`date +%s`
-runtime=$((end_time-start_time))
+    EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
+    echo -e "num iters ${EXE_NUM_EXP}"
+    echo -e "mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}"
+    start_time=`date +%s`
 
-echo "Execution time: ${runtime}"
+    #srun -N ${NNODES} -n ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+
+    mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS}
+    end_time=`date +%s`
+    runtime=$((end_time-start_time))
+
+    echo "Execution time: ${runtime}"
+
+    echo "${EXE_LEN_PATTERNS},${I_MPI_SHM},${EXE_NUM_EXP},${runtime}" >> ${TIMING_RESULTS_FILE}
+    
+done

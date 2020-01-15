@@ -71,9 +71,12 @@ NUMA_CTL_CMD_ARGS="numactl --cpubind=${NUMA_CPU_BIND} --membind=${NUMA_MEM_BIND}
 module load gcc/8.2.0 intel/2019u5
 
 #################################################
-### Set-up MPI environment variables for SHM.
+### Set-up MPI environment variables.
 #################################################
 #export I_MPI_SHM=skx_avx512
+
+# Increases performance
+export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
 
 #################################################
 ### Set-up directory for results.
@@ -109,7 +112,7 @@ for (( EXE_LEN_PATTERNS=${MIN_EXE_LEN_PATTERNS}; EXE_LEN_PATTERNS<=${MAX_EXE_LEN
 
     start_time=`date +%s`
 
-    srun --ntasks ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
+    mpirun -n ${NPROCS} -ppn ${NTASKSPERNODE} ${NUMA_CTL_CMD_ARGS} ${PATH_TO_EXECUTABLE}/${EXECUTABLE} ${EXECUTABLE_ARGS} &> ${SCALING_RESULTS_PATH}/${EXPERIMENT_RESULTS_DIR}/output_${POSTFIX_ID}.out
 
     end_time=`date +%s`
     runtime=$((end_time-start_time))
