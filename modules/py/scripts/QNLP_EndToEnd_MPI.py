@@ -41,10 +41,10 @@ rank = comm.Get_rank()
 
 
 #####
-NUM_BASIS_NOUN = 4
-NUM_BASIS_VERB = 4
-BASIS_NOUN_DIST_CUTOFF = 2
-BASIS_VERB_DIST_CUTOFF = 2
+NUM_BASIS_NOUN = 10
+NUM_BASIS_VERB = 2
+BASIS_NOUN_DIST_CUTOFF = 4
+BASIS_VERB_DIST_CUTOFF = 4
 #####
 
 # Next, we load the corpus file using the vector-space model, defined in the 
@@ -54,8 +54,8 @@ BASIS_VERB_DIST_CUTOFF = 2
 # replacements to avoid incorrect tagging of elements (mostly standardising 
 # apostrophes to \' and quotations to \"). 
 
-corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
-#corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
+corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
 vsm = q.VectorSpaceModel.VectorSpaceModel(
     corpus_path=corpus_file,
     mode="l", 
@@ -111,6 +111,9 @@ dcc = DisCoCat.DisCoCat()
 mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=BASIS_VERB_DIST_CUTOFF)
 mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=BASIS_NOUN_DIST_CUTOFF)
 
+if rank ==0:
+    print("GOT HERE 1")
+    sys.stdout.flush()
 
 # For the above data, the meanings of the composite nouns `hall` and `table` can be represented as:
 # 
@@ -206,11 +209,19 @@ bit_shifts
 
 corpus_list_n = vsm.tokens['nouns']
 corpus_list_v = vsm.tokens['verbs']
-dist_cutoff = 2
+dist_cutoff = BASIS_VERB_DIST_CUTOFF
+
+if rank ==0:
+    print("GOT HERE 2")
+    sys.stdout.flush()
 
 #!!!!!!######!!!!!!
 v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
 #from IPython import embed; embed()
+
+if rank ==0:
+    print("GOT HERE 3")
+    sys.stdout.flush()
 
 sentences = []
 for v in v_list:
@@ -226,9 +237,13 @@ for v in v_list:
             )
 sentences
 
+if rank ==0:
+    print("GOT HERE 4")
+    sys.stdout.flush()
+
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 10
+num_exps = 100
 normalise = True
 
 # Set up registers to store indices
@@ -254,6 +269,10 @@ for idx in range(len(sentences)):
             num += (val[0] << val[1])
         vec_to_encode.extend([num])
 
+if rank ==0:
+    print("GOT HERE 5")
+    sys.stdout.flush()
+
 #from IPython import embed; embed()
 
 #Need to remove duplicates        
@@ -271,9 +290,18 @@ if rank == 0:
 for exp in range(num_exps):
     sim.initRegister()
 
+    if rank ==0:
+        print("GOT HERE 6 {}".format(len(vec_to_encode)))
+        sys.stdout.flush()
+
     # Encode
+    comm.Barrier()
     sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
-    
+    if rank ==0:
+        print("GOT HERE 7")
+        sys.stdout.flush()
+
+    comm.Barrier()
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
     if rank == 0:
@@ -286,14 +314,18 @@ if rank == 0:
     pbar.close()
     print(shot_counter)
 
-if 0:
+#if 0:
+    import matplotlib as mpl
+    mpl.use('Agg')
+    import matplotlib.pyplot as plt
+
     xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
     xlab_str
 
     xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in list(shot_counter.keys())]
 
     hist_list = list(zip(
-        [i[0]+r" $\vert$"+i[1]+r"$\rangle$" for i in zip(xlab_str,xlab_bin)],
+        [i[0]+r" |"+i[1]+r">" for i in zip(xlab_str,xlab_bin)],
         [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
     ))
 
@@ -301,21 +333,26 @@ if 0:
     post_vals = [y[1] for y in hist_list]
 
     x = np.arange(len(labels))  # the label locations
-    width = 0.35  # the width of the bars
+    width = 0.65  # the width of the bars
 
     fig, ax = plt.subplots()
 
     rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel(r"$P(\textrm{{{}}})$".format("Pattern"),fontsize=24)
+    ax.set_ylabel(r"P({})".format("Pattern"),fontsize=24)
     ax.set_xticks(x)
-    ax.tick_params(axis='both', which='major', labelsize=16)
-    ax.set_xticklabels(labels, rotation=-30, ha="left",fontsize=16)
+    ax.tick_params(axis='both', which='major', labelsize=10)
+    ax.set_xticklabels(labels, rotation=-35, ha="left",fontsize=10)
     ax.legend(fontsize=16)
 
     plt.axhline(y=1.0/len(shot_counter), color='crimson', linestyle="--")
-    plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center', fontsize=16)
+    plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '1/sqrt(n)', horizontalalignment='left', verticalalignment='center', fontsize=16)
     plt.tight_layout()
     fig.set_size_inches(20, 12, forward=True)
     plt.savefig("qnlp_e2e.pdf")
+
+    import  pickle
+    f = open("qnlp_e2e.pkl","wb")
+    pickle.dump(shot_counter, f)
+    f.close()
