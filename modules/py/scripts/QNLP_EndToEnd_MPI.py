@@ -37,6 +37,14 @@ import tempfile
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
+
+#####
+NUM_BASIS_NOUN = 4
+NUM_BASIS_VERB = 4
+BASIS_NOUN_DIST_CUTOFF = 2
+BASIS_VERB_DIST_CUTOFF = 2
+#####
+
 # Next, we load the corpus file using the vector-space model, defined in the 
 # `VectorSpaceModel` class, specifying the mode of tagging, and whether to 
 # filter out stop-words. For this notebook I have used the Project Gutenberg 
@@ -44,13 +52,13 @@ rank = comm.Get_rank()
 # replacements to avoid incorrect tagging of elements (mostly standardising 
 # apostrophes to \' and quotations to \"). 
 
-#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
-corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
+#corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
 vsm = q.VectorSpaceModel.VectorSpaceModel(
     corpus_path=corpus_file,
     mode="l", 
     stop_words=True,
-    encoder = simple.SimpleEncoder(),
+    encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB),
     use_spacy=True
 )
 
@@ -59,7 +67,7 @@ vsm = q.VectorSpaceModel.VectorSpaceModel(
 # in both verb and noun spaces respectively.
 
 num_basis_elems = 8
-basis     = vsm.define_basis({'verbs' : num_basis_elems, 'nouns' : num_basis_elems})
+basis     = vsm.define_basis({'verbs' : NUM_BASIS_VERB, 'nouns' : NUM_BASIS_NOUN})
 
 # Next, we aim to sort the mapping of the basis tokens to a binary 
 # representation for state encoding. By building a graph, and aiming to solve 
@@ -70,9 +78,8 @@ basis     = vsm.define_basis({'verbs' : num_basis_elems, 'nouns' : num_basis_ele
 # ordering the tokens by their minimum path lengths we may maintain closeness 
 # in the presence of errors.
 
-verb_dist = vsm.sort_basis_tokens_by_dist("verbs", num_basis=num_basis_elems)
-noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=num_basis_elems)
-
+verb_dist = vsm.sort_basis_tokens_by_dist("verbs", num_basis=NUM_BASIS_VERB)
+noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=NUM_BASIS_NOUN)
 
 # We now take the previously defined basis elements, and attempt to arrange 
 # them such that the distance between nearest-neighbours in the corpus is 
@@ -99,8 +106,8 @@ vsm.assign_indexing("verbs");
 # mappings of basis tokens.
 
 dcc = DisCoCat.DisCoCat()
-mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=10)
-mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=10)
+mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=BASIS_VERB_DIST_CUTOFF)
+mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=BASIS_NOUN_DIST_CUTOFF)
 
 
 # For the above data, the meanings of the composite nouns `hall` and `table` can be represented as:
@@ -197,7 +204,7 @@ bit_shifts
 
 corpus_list_n = vsm.tokens['nouns']
 corpus_list_v = vsm.tokens['verbs']
-dist_cutoff = 3
+dist_cutoff = 2
 
 #!!!!!!######!!!!!!
 v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
@@ -216,6 +223,8 @@ for v in v_list:
                 ]
             )
 sentences
+
+from IPython import embed; embed()
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
@@ -245,7 +254,7 @@ for idx in range(len(sentences)):
             num += (val[0] << val[1])
         vec_to_encode.extend([num])
 
-#from IPython import embed; embed()
+from IPython import embed; embed()
 
 #Need to remove duplicates        
 vec_to_encode = list(set(vec_to_encode))
@@ -255,7 +264,7 @@ shot_counter = {}
 for i in vec_to_encode:
     shot_counter.update({i : 0})
 
-for exp in range(num_exps):
+for exp in range(num_exps*1000):
     sim.initRegister()
 
     # Encode

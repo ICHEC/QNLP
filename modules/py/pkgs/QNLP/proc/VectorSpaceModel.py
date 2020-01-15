@@ -357,13 +357,13 @@ class VectorSpaceModel:
 ###############################################################################
 
     def assign_indexing(self, token_type):
-        """ 5. Encode the ordered tokens using a Gray code based on indexed 
+        """ 5. Encode the ordered tokens using a code based on indexed 
         location. Values close together will have fewer bit flips.
         """
         t_dict = {}
 
         for idx,token in enumerate( self.ordered_tokens[token_type]):
-            t_dict.update({token : self.encoder.encode(idx) })
+            t_dict.update({token : self.encoder.encode(idx, token_type) })
 
         self.encoded_tokens.update( {token_type : t_dict })
 

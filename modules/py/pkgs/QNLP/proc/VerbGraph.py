@@ -51,9 +51,13 @@ class VerbGraph:
         return G, v_idx, r_idx
     
     @staticmethod
-    def calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff, max_terms=3):
+    def calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff, max_terms=5):
         v_list = []
         for word_v, locations_v in corpus_list_v.items():
+
+            if len(locations_v[1]) <= 1:
+                continue
+
             v = VerbGraph(word_v)
             lv = locations_v[1][:, np.newaxis]
             for word_n, locations_n in corpus_list_n.items():#######!!!!!!!#######
@@ -71,11 +75,12 @@ class VerbGraph:
                 if len(dr) >0:
                     v.addR(word_n, dr)
                     
-                if len(v.left_nouns) > max_terms and len(v.right_nouns) > max_terms:
-                    break
+                #if len(v.left_nouns) > max_terms and len(v.right_nouns) > max_terms:
+                #    break
                     
                 continue
-            v_list.append(v)
+            if len(v.left_nouns) >1 and len(v.right_nouns) >1:
+                v_list.append(v)
                 ###TBC
             #break
         return v_list
