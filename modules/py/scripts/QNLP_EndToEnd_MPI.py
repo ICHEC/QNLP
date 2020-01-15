@@ -43,8 +43,8 @@ rank = comm.Get_rank()
 #####
 NUM_BASIS_NOUN = 10
 NUM_BASIS_VERB = 2
-BASIS_NOUN_DIST_CUTOFF = 4
-BASIS_VERB_DIST_CUTOFF = 4
+BASIS_NOUN_DIST_CUTOFF = 1
+BASIS_VERB_DIST_CUTOFF = 1
 #####
 
 # Next, we load the corpus file using the vector-space model, defined in the 
@@ -55,21 +55,21 @@ BASIS_VERB_DIST_CUTOFF = 4
 # apostrophes to \' and quotations to \"). 
 
 #corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
-corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
-vsm = q.VectorSpaceModel.VectorSpaceModel(
-    corpus_path=corpus_file,
-    mode="l", 
-    stop_words=True,
-    encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB),
-    use_spacy=True
-)
+if rank == 0:
+    corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+    vsm = q.VectorSpaceModel.VectorSpaceModel(
+        corpus_path=corpus_file,
+        mode="l", 
+        stop_words=True,
+        encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB),
+        use_spacy=True
+    )
 
 # From here we can specify the number of basis elements by occurrence in the 
 # corpus. This will take the `num_basis_elems` most frequently occurring tokens
 # in both verb and noun spaces respectively.
-
-num_basis_elems = 8
-basis     = vsm.define_basis({'verbs' : NUM_BASIS_VERB, 'nouns' : NUM_BASIS_NOUN})
+    num_basis_elems = 8
+    basis     = vsm.define_basis({'verbs' : NUM_BASIS_VERB, 'nouns' : NUM_BASIS_NOUN})
 
 # Next, we aim to sort the mapping of the basis tokens to a binary 
 # representation for state encoding. By building a graph, and aiming to solve 
@@ -80,8 +80,8 @@ basis     = vsm.define_basis({'verbs' : NUM_BASIS_VERB, 'nouns' : NUM_BASIS_NOUN
 # ordering the tokens by their minimum path lengths we may maintain closeness 
 # in the presence of errors.
 
-verb_dist = vsm.sort_basis_tokens_by_dist("verbs", num_basis=NUM_BASIS_VERB)
-noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=NUM_BASIS_NOUN)
+    verb_dist = vsm.sort_basis_tokens_by_dist("verbs", num_basis=NUM_BASIS_VERB)
+    noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=NUM_BASIS_NOUN)
 
 # We now take the previously defined basis elements, and attempt to arrange 
 # them such that the distance between nearest-neighbours in the corpus is 
@@ -93,8 +93,8 @@ noun_dist = vsm.sort_basis_tokens_by_dist("nouns", num_basis=NUM_BASIS_NOUN)
 # defining the problem as a TSP, we can find an ordering that ensures Hamming 
 # distance relates directly to closeness of words.
 
-vsm.assign_indexing("nouns");
-vsm.assign_indexing("verbs");
+    vsm.assign_indexing("nouns");
+    vsm.assign_indexing("verbs");
 
 
 # With the basis tokens correctly ordered, we may now map the other respective 
@@ -107,13 +107,9 @@ vsm.assign_indexing("verbs");
 # For this, we begin by creating a `DisCoCat` object, and use to perform the 
 # mappings of basis tokens.
 
-dcc = DisCoCat.DisCoCat()
-mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=BASIS_VERB_DIST_CUTOFF)
-mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=BASIS_NOUN_DIST_CUTOFF)
-
-if rank ==0:
-    print("GOT HERE 1")
-    sys.stdout.flush()
+    dcc = DisCoCat.DisCoCat()
+    mapping_verbs = dcc.map_to_basis(vsm.tokens['verbs'] , verb_dist['verbs'], basis_dist_cutoff=BASIS_VERB_DIST_CUTOFF)
+    mapping_nouns = dcc.map_to_basis(vsm.tokens['nouns'] , noun_dist['nouns'], basis_dist_cutoff=BASIS_NOUN_DIST_CUTOFF)
 
 # For the above data, the meanings of the composite nouns `hall` and `table` can be represented as:
 # 
@@ -163,27 +159,27 @@ if rank ==0:
 # From here, we define our encoding and decoding dictionaries.
 
 # Define basis tokens encoding and decoding dicts
-encoding_dict = {"ns" : vsm.encoded_tokens["nouns"],
-                 "v"  : vsm.encoded_tokens["verbs"],
-                 "no" : vsm.encoded_tokens["nouns"]
-                }
+    encoding_dict = {"ns" : vsm.encoded_tokens["nouns"],
+                     "v"  : vsm.encoded_tokens["verbs"],
+                     "no" : vsm.encoded_tokens["nouns"]
+                    }
 
-decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
-                 "v"  : { v:k for k,v in encoding_dict["v"].items() },
-                 "no" : { v:k for k,v in encoding_dict["no"].items() }
-                }
+    decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
+                      "v"  : { v:k for k,v in encoding_dict["v"].items() },
+                     "no" : { v:k for k,v in encoding_dict["no"].items() }
+                    }
 
 # With the above information, we can now determine the required resources to 
 # store our data in a qubit register.
 
 # Register must be large enough to support 2*|nouns| + |verbs| in given encoding
-len_reg_memory =    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['v'].values()))) )[1] + \
-                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['no'].values()))) )[1] + \
-                    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] 
+    len_reg_memory =    q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['v'].values()))) )[1] + \
+                        q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['no'].values()))) )[1] + \
+                        q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] 
 
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
-if rank == 0:
+    len_reg_ancilla = len_reg_memory + 2
+    num_qubits = len_reg_memory + len_reg_ancilla
+
     print("""{}
 Requires {} qubits to encode data using {} 
 basis elements in each space, allowing a 
@@ -195,93 +191,88 @@ maximum of {} unique patterns.
 # Using encoded bitstrings for bases, look-up mapping terms for composite nouns
 # and verbs, create bitstrings and generate quantum states.
 
-ns = []
+    ns = []
 
-verb_bits = int(np.log2(len(verb_dist['verbs'])))
-noun_bits = int(np.log2(len(noun_dist['nouns'])))
+    verb_bits = int(np.log2(len(verb_dist['verbs'])))
+    noun_bits = int(np.log2(len(noun_dist['nouns'])))
 
-bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
-bit_shifts.reverse()
+    bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
+    bit_shifts.reverse()
 
-bit_shifts.insert(0,0)
-bit_shifts = np.cumsum(bit_shifts)
-bit_shifts
+    bit_shifts.insert(0,0)
+    bit_shifts = np.cumsum(bit_shifts)
+    bit_shifts
 
-corpus_list_n = vsm.tokens['nouns']
-corpus_list_v = vsm.tokens['verbs']
-dist_cutoff = BASIS_VERB_DIST_CUTOFF
-
-if rank ==0:
-    print("GOT HERE 2")
-    sys.stdout.flush()
+    corpus_list_n = vsm.tokens['nouns']
+    corpus_list_v = vsm.tokens['verbs']
+    dist_cutoff = BASIS_VERB_DIST_CUTOFF
 
 #!!!!!!######!!!!!!
-v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
+    v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
 #from IPython import embed; embed()
 
-if rank ==0:
-    print("GOT HERE 3")
-    sys.stdout.flush()
-
-sentences = []
-for v in v_list:
-    for i in product(v.left_nouns, [v.verb], v.right_nouns):
+    sentences = []
+    for v in v_list:
+        for i in product(v.left_nouns, [v.verb], v.right_nouns):
         #ns,s,no = mapping_nouns[i[0]], mapping_verbs[i[1]], mapping_nouns[i[2]]
         #if v.left_nouns != None and v.right_nouns != None:
-        if mapping_nouns[i[0]] != None and mapping_verbs[i[1]] != None and mapping_nouns[i[2]] != None:
-            sentences.append(
-                [   {i[0] : [encoding_dict['ns'][k] for k in mapping_nouns[i[0]].keys()] },
-                    {i[1] : [encoding_dict['v'][k] for k in mapping_verbs[i[1]].keys()] },
-                    {i[2] : [encoding_dict['no'][k] for k in mapping_nouns[i[2]].keys()] }
-                ]
-            )
-sentences
-
-if rank ==0:
-    print("GOT HERE 4")
-    sys.stdout.flush()
-
-use_fusion = True
-sim = p(num_qubits, use_fusion)
-num_exps = 100
-normalise = True
+            if mapping_nouns[i[0]] != None and mapping_verbs[i[1]] != None and mapping_nouns[i[2]] != None:
+                sentences.append(
+                    [   {i[0] : [encoding_dict['ns'][k] for k in mapping_nouns[i[0]].keys()] },
+                        {i[1] : [encoding_dict['v'][k] for k in mapping_verbs[i[1]].keys()] },
+                        {i[2] : [encoding_dict['no'][k] for k in mapping_nouns[i[2]].keys()] }
+                    ]
+                )
+    sentences
 
 # Set up registers to store indices
-reg_memory = [0]*len_reg_memory;
-for i in range(len_reg_memory):
-    reg_memory[i] = i
+    reg_memory = [0]*len_reg_memory;
+    for i in range(len_reg_memory):
+        reg_memory[i] = i
 
-reg_ancilla = [0]*len_reg_ancilla
-for i in range(len_reg_ancilla):
-    reg_ancilla[i] = i + len_reg_memory;
+    reg_ancilla = [0]*len_reg_ancilla
+    for i in range(len_reg_ancilla):
+        reg_ancilla[i] = i + len_reg_memory;
 
 #Create list for the patterns to be encoded
-vec_to_encode = []
+    vec_to_encode = []
 
 # Generate bit-patterns from sentences and store in vec_to_encode
 
-for idx in range(len(sentences)):
-    superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
-    # Generate all combinations of the bit-patterns for superpos states
-    for i in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):
-        num = 0
-        for val in zip(i,bit_shifts):
-            num += (val[0] << val[1])
-        vec_to_encode.extend([num])
-
-if rank ==0:
-    print("GOT HERE 5")
-    sys.stdout.flush()
-
-#from IPython import embed; embed()
+    for idx in range(len(sentences)):
+        superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
+        # Generate all combinations of the bit-patterns for superpos states
+        for i in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):
+            num = 0
+            for val in zip(i,bit_shifts):
+                num += (val[0] << val[1])
+            vec_to_encode.extend([num])
 
 #Need to remove duplicates        
-vec_to_encode = list(set(vec_to_encode))
+    vec_to_encode = list(set(vec_to_encode))
+    vec_to_encode.sort()
+
+else:
+    reg_memory = None
+    reg_ancilla = None
+    len_reg_memory = None
+    vec_to_encode = None
+
+reg_memory = comm.bcast(reg_memory, root=0)
+reg_ancilla = comm.bcast(reg_ancilla, root=0)
+vec_to_encode = comm.bcast(vec_to_encode, root=0)
 
 # Counter for experiment results
 shot_counter = {}
 for i in vec_to_encode:
     shot_counter.update({i : 0})
+
+num_qubits = len(reg_memory) + len(reg_ancilla)
+
+use_fusion = True
+sim = p(num_qubits, use_fusion)
+num_exps = 10
+normalise = True
 
 if rank == 0:
     pbar = tqdm(total=num_exps)
@@ -295,13 +286,11 @@ for exp in range(num_exps):
         sys.stdout.flush()
 
     # Encode
-    comm.Barrier()
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len(reg_memory))
     if rank ==0:
         print("GOT HERE 7")
         sys.stdout.flush()
 
-    comm.Barrier()
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
     if rank == 0:
