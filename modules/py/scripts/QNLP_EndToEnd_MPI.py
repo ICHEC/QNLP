@@ -39,25 +39,21 @@ import tempfile
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
+try:
+    NUM_BASIS_NOUN = int(os.environ['NUM_BASIS_NOUN'])
+    NUM_BASIS_VERB = int(os.environ['NUM_BASIS_VERB'])
 
-NUM_BASIS_NOUN = int(os.environ['NUM_BASIS_NOUN'])
-NUM_BASIS_VERB = int(os.environ['NUM_BASIS_VERB'])
+    BASIS_NOUN_DIST_CUTOFF = int(os.environ['BASIS_NOUN_DIST_CUTOFF'])
+    BASIS_VERB_DIST_CUTOFF = int(os.environ['BASIS_VERB_DIST_CUTOFF'])
 
-BASIS_NOUN_DIST_CUTOFF = int(os.environ['BASIS_NOUN_DIST_CUTOFF'])
-BASIS_VERB_DIST_CUTOFF = int(os.environ['BASIS_VERB_DIST_CUTOFF'])
-
-VERB_NOUN_DIST_CUTOFF = int(os.environ['VERB_NOUN_DIST_CUTOFF'])
-
+    VERB_NOUN_DIST_CUTOFF = int(os.environ['VERB_NOUN_DIST_CUTOFF'])
+    
+except KeyError as e:    
 ##### Set defaults if the above env vars are not set.
-if NUM_BASIS_NOUN == None:
     NUM_BASIS_NOUN = 2
-if NUM_BASIS_VERB == None:
     NUM_BASIS_VERB = 2
-if BASIS_NOUN_DIST_CUTOFF == None:
     BASIS_NOUN_DIST_CUTOFF = 2
-if BASIS_VERB_DIST_CUTOFF == None:
     BASIS_VERB_DIST_CUTOFF = 2
-if VERB_NOUN_DIST_CUTOFF == None:
     VERB_NOUN_DIST_CUTOFF = 2
 #####
 
