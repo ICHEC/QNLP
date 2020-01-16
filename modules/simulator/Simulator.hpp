@@ -516,32 +516,6 @@ namespace QNLP{
         }
 
         /**
-         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation DOES allow for multiple instances of the same input pattern. There is a restriction that the binary string consisting of all zeroes cannot be inputted for encoding.
-         * 
-         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
-         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
-         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
-         * @param len_bin_pattern The length of the binary patterns being encoded
-         */
-        void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
-                const std::vector<std::size_t>& reg_ancilla,
-                const std::vector<std::size_t>& bin_patterns,
-                const std::size_t len_bin_pattern){
-             
-            std::cerr << "NOT YET IMPLEMENTED" << std::endl;
-            std::abort();
-
-#ifndef NDEBUG
-            // Ensure zero is not passed in to be encoded
-            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
-                assert((*it) != 0);
-            }
-#endif
-            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
-            encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
-        }
-
-        /**
          * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state.
          *
          * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
