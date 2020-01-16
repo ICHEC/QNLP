@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J tune
-#SBATCH -N 2
-#SBATCH -p DevQ
-#SBATCH -t 01:00:00
+#SBATCH -N 16
+#SBATCH -p ProdQ
+#SBATCH -t 10:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -14,7 +14,7 @@ START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
+NNODES=16
 NTASKSPERNODE=32
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
@@ -35,7 +35,7 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=1000
-EXE_LEN_PATTERNS=7
+EXE_LEN_PATTERNS=12
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
