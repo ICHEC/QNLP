@@ -39,9 +39,6 @@ namespace QNLP{
             std::size_t num_ops;
         };
 
-        //Note: currently these are used for optimising CX calls only. Static would be better for perf. Optimise later
-        //static std::unordered_map<std::size_t, std::size_t> op_call_counts_CX ;
-        //static std::unordered_map<std::size_t, OptParamsCX> opt_op_call_params_CX ;        
         std::unordered_map<std::size_t, std::size_t> op_call_counts_CX ;
         std::unordered_map<std::size_t, OptParamsCX> opt_op_call_params_CX ;
 
@@ -79,10 +76,6 @@ namespace QNLP{
              */
             void initialiseMaps( SimulatorType& qSim,  std::size_t num_ctrl_lines){
                 gate_cache.initCache(qSim, num_ctrl_lines);
-                /*for( auto& [k,v] : gate_cache.gateCacheMap ){
-                    std::cout << "KEYS=" << k << std::endl;
-                    std::cout << "VALS=" << v[2].first.tostr() << "/:/" << v[2].second.tostr() << std::endl;
-                }*/
             }
 
             /**
@@ -135,8 +128,8 @@ namespace QNLP{
 
                 //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
                 std::size_t cOps = ctrlIndices.size();
-                //std::cout << auxIndices.size() << std::endl;
-//LAST HURDLE
+
+                //This can be generalised to find a more optimal set of splitting parameters. Using default example breakdown given in Barenco et al ('95) for now.
 /*                if( (cOps >= 6) && (auxIndices.size() >= 1) && (gateLabel == "X") && (depth == 0) ){
                     auto params = find_optimal_params( ctrlIndices.size() );
 
@@ -161,33 +154,24 @@ namespace QNLP{
 
                 }
 */
-                //This can be generalised to find a more optimal set of splitting parameters. Using default example breakdown given in Barenco et al ('95) for now.
                 if( (cOps >= 5) && ( auxIndices.size() >= cOps-2 ) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
-                    //std::cout << "1:{C-" << ctrlIndices.back() << ", A-" << *(auxIndices.begin() + ctrlIndices.size() - 3) << ", Q-" << qTarget << "}" <<  std::endl;
                     qSim.applyGateCCX( ctrlIndices.back(), *(auxIndices.begin() + ctrlIndices.size() - 3), qTarget);
 
                     for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
-                        //std::cout << "2:{C-" << *(ctrlIndices.begin() + i) << ", A-" << *(auxIndices.begin() + (i-2)) << ", A-" << *(auxIndices.begin() + (i-1)) << "}" << std::endl;
                         qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
                     }
-                    //std::cout << "3:{C-" << *(ctrlIndices.begin()) << ", C-" << *(ctrlIndices.begin() + 1) << ", A-" << *(auxIndices.begin()) << "}" << std::endl;
                     qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );
                     
                     for (std::size_t i = 2; i <= ctrlIndices.size()-2; i++){
-                        //std::cout << "4:{C-" << *(ctrlIndices.begin()+i) << ", A-" << *(auxIndices.begin() + (i-2)) << ", A-" << *(auxIndices.begin() + (i-1)) << "}" << std::endl;
                         qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
                     }
-                    //std::cout << "5:{C-" << ctrlIndices.back() << ", A-" << *(auxIndices.begin() + ctrlIndices.size() - 3) << ", Q-" << qTarget << "}" <<  std::endl;
                     qSim.applyGateCCX( ctrlIndices.back(), *(auxIndices.begin() + ctrlIndices.size() - 3), qTarget);
 
                     for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
-                        //std::cout << "6:{C-" << *(ctrlIndices.begin()+i) << ", A-" << *(auxIndices.begin() + (i-2)) << ", A-" << *(auxIndices.begin() + (i-1)) << "}" << std::endl;
                         qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
                     }
-                    //std::cout << "7:{C-" << *(ctrlIndices.begin()) << ", C-" << *(ctrlIndices.begin() + 1) << ", A-" << *(auxIndices.begin()) << "}" << std::endl;
                     qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );
                     for (std::size_t i = 2; i <= ctrlIndices.size()-2; i++){
-                        //std::cout << "8:{C-" << *(ctrlIndices.begin()+i) << ", A-" << *(auxIndices.begin() + (i-2)) << ", A-" << *(auxIndices.begin() + (i-1)) << "}" << std::endl;
                         qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
                     }
                 }

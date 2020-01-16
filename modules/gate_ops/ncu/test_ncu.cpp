@@ -9,10 +9,7 @@
 
 using namespace QNLP;
 
-//For simplicity, enabling complex double only
 typedef ComplexDP Type;
-
-//template class NCU<IntelSimulator>;
 
 TEST_CASE("Test n-controlled unitary module with Pauli-X |11..10>","[ncu]"){
     std::size_t max_qubits = 8;
@@ -208,43 +205,8 @@ TEST_CASE("Test n-controlled unitary module with Pauli-X and non-adjacent contro
                         else                            
                             CHECK(sim.applyMeasurementToRegister(vals1, true) != 15);
                     }
-                    /* // Non unqiue values makes this tricky to test cleanly
-                    DYNAMIC_SECTION("CTRLs {0,2} STATE VALUE=" << state << " TARGET=1"){
-                        sim.initRegister();
-                        for(std::size_t ctrl_idx = 0; ctrl_idx < vals2.size(); ctrl_idx++){
-                            unsigned int window_select = (state >> ctrl_idx) & 0b1;
-                            if(window_select == 1){
-                                sim.applyGateX(vals2[ctrl_idx]);
-                            }
-                        }
-                        sim.applyGateNCU(sim.getGateX(), vals2, 1);
-                        vals2.push_back(1);
-                        if(state == 7)
-                            CHECK(sim.applyMeasurementToRegister(vals2, true) == 7);
-                        else                            
-                            CHECK(sim.applyMeasurementToRegister(vals2, true) != 7);
-                    }
-
-                    DYNAMIC_SECTION("CTRLs {0,2} STATE VALUE=" << state << " TARGET=3"){
-                        sim.initRegister();
-                        for(std::size_t ctrl_idx = 0; ctrl_idx < vals2.size(); ctrl_idx++){
-                            unsigned int window_select = (state >> ctrl_idx) & 0b1;
-                            if(window_select == 1){
-                                sim.applyGateX(vals2[ctrl_idx]);
-                            }
-                        }
-                        sim.applyGateNCU(sim.getGateX(), vals2, 3);
-                        vals2.push_back(3);
-                        if(state == (0b1<<(num_qubits-1)) - 1)
-                            CHECK(sim.applyMeasurementToRegister(vals2, true) == 13);
-                        else                            
-                            CHECK(sim.applyMeasurementToRegister(vals2, true) != 13);
-                    }
-                    */
                 }
             }
-
-
         }
 
         //Non-trivial odd use case
