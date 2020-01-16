@@ -29,7 +29,6 @@
 #include "qft.hpp"
 #include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
-//#include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
 
 #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
