@@ -8,10 +8,7 @@
 
 using namespace QNLP;
 
-//For simplicity, enabling complex double only
 typedef ComplexDP Type;
-
-//template class NCU<IntelSimulator>;
 
 TEST_CASE("4 qubit diffusion using module","[diffusion]"){
     std::size_t num_qubits = 4;
