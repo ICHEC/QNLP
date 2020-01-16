@@ -32,6 +32,7 @@ from QNLP.proc.VerbGraph import VerbGraph as vg
 import networkx as nx
 from tqdm import tqdm
 import sys
+import os
 
 from itertools import product
 import tempfile
@@ -39,12 +40,25 @@ import tempfile
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
+NUM_BASIS_NOUN = int(os.environ['NUM_BASIS_NOUN'])
+NUM_BASIS_VERB = int(os.environ['NUM_BASIS_VERB'])
 
-#####
-NUM_BASIS_NOUN = 10
-NUM_BASIS_VERB = 2
-BASIS_NOUN_DIST_CUTOFF = 1
-BASIS_VERB_DIST_CUTOFF = 1
+BASIS_NOUN_DIST_CUTOFF = int(os.environ['BASIS_NOUN_DIST_CUTOFF'])
+BASIS_VERB_DIST_CUTOFF = int(os.environ['BASIS_VERB_DIST_CUTOFF'])
+
+VERB_NOUN_DIST_CUTOFF = int(os.environ['VERB_NOUN_DIST_CUTOFF'])
+
+##### Set defaults if the above env vars are not set.
+if NUM_BASIS_NOUN == None:
+    NUM_BASIS_NOUN = 2
+if NUM_BASIS_VERB == None:
+    NUM_BASIS_VERB = 2
+if BASIS_NOUN_DIST_CUTOFF == None:
+    BASIS_NOUN_DIST_CUTOFF = 2
+if BASIS_VERB_DIST_CUTOFF == None:
+    BASIS_VERB_DIST_CUTOFF = 2
+if VERB_NOUN_DIST_CUTOFF == None:
+    VERB_NOUN_DIST_CUTOFF = 2
 #####
 
 # Next, we load the corpus file using the vector-space model, defined in the 
@@ -208,7 +222,7 @@ maximum of {} unique patterns.
     dist_cutoff = BASIS_VERB_DIST_CUTOFF
 
 #!!!!!!######!!!!!!
-    v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, dist_cutoff)
+    v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, VERB_NOUN_DIST_CUTOFF)
 #from IPython import embed; embed()
 
     sentences = []
@@ -252,11 +266,23 @@ maximum of {} unique patterns.
     vec_to_encode = list(set(vec_to_encode))
     vec_to_encode.sort()
 
+    d ={"sentences" : len(sentences),
+        "patterns" : len(vec_to_encode),
+        "NUM_BASIS_NOUN" : NUM_BASIS_NOUN,
+        "NUM_BASIS_VERB" : NUM_BASIS_VERB,
+        "BASIS_NOUN_DIST_CUTOFF" : BASIS_NOUN_DIST_CUTOFF,
+        "BASIS_VERB_DIST_CUTOFF" : BASIS_VERB_DIST_CUTOFF,
+        "VERB_NOUN_DIST_CUTOFF" : VERB_NOUN_DIST_CUTOFF 
+    }
+    print(d)
+
 else:
     reg_memory = None
     reg_ancilla = None
     len_reg_memory = None
     vec_to_encode = None
+
+exit()
 
 reg_memory = comm.bcast(reg_memory, root=0)
 reg_ancilla = comm.bcast(reg_ancilla, root=0)
