@@ -1,8 +1,7 @@
 /**
  * @file bin_into_superpos.hpp
  * @author Myles Doyle (myles.doyle@ichec.ie)
- * @brief Functions for encoding binary numbers into a superposition of states
- * @version 0.1
+ * @brief this header file introduces routines for encoding binary numbers represented as unsigned integers into a superposition of quantum states. The amplitude of each state will be even. The method used follows the approach outlined in the paper https://arxiv.org/abs/quant-ph/0210176v2 by C. A. Trugenberger. * @version 0.1
  * @date 2019-29-06
  */
 
