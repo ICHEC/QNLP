@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J test
-#SBATCH -N 2
+#SBATCH -N 8
 #SBATCH -p ProdQ
-#SBATCH -t 01:00:00
+#SBATCH -t 08:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -28,7 +28,7 @@ LOOP_ITER=1
 ### Note: User may need to modify.
 #################################################
 
-NNODES=2
+NNODES=8
 NTASKSPERNODE=32
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
@@ -52,7 +52,7 @@ EXECUTABLE=exe_demo_hamming_RotY
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
 EXE_NUM_EXP=1000
-EXE_LEN_PATTERNS=7
+EXE_LEN_PATTERNS=10
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
