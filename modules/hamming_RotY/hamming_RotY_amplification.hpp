@@ -74,37 +74,6 @@ namespace QNLP{
                     qSim.applyGateX(reg_memory[i]);
                     qSim.applyGateX(reg_ancilla[i]);
                 }
-                /* 
-                double theta = 2 * M_PI / (double) len_bin_pattern; 
-
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
-
-                // Require length of ancilla register to have n+2 qubits
-                assert(reg_memory.size() + 1 < len_reg_ancilla);
-
- //               qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PreCX_X");
-                #endif
-                for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
-                    qSim.applyGateX(reg_memory[i]);
-
-                }
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PreCRY");
-                #endif
-                for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCRotY(reg_memory[i], reg_ancilla[len_reg_ancilla-2], theta);
-                }
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PREX_CX");
-                #endif
-                for(int i = len_bin_pattern-1; i > -1; i--){
-                    qSim.applyGateX(reg_memory[i]);
-                    qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
-                }*/
             }
 
             /**
@@ -154,9 +123,6 @@ namespace QNLP{
                         qSim.applyGateX(reg_anc);
                     }
                 }
-
-                //Reset
-                //qSim.applyGateX(reg_ancilla[len_reg_ancilla-1]);
             }
     };
 
