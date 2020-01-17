@@ -86,7 +86,6 @@ void intel_simulator_binding(py::module &m){
         .def("applyDiffusion", &SimulatorType::applyDiffusion)
         .def("encodeToRegister", &SimulatorType::encodeToRegister)
         .def("encodeBinToSuperpos_unique", &SimulatorType::encodeBinToSuperpos_unique)
-        .def("encodeBinToSuperpos", &SimulatorType::encodeBinToSuperpos)
         .def("applyHammingDistanceRotY", &SimulatorType::applyHammingDistanceRotY)
         .def("applyHammingDistanceAncilla", &SimulatorType::applyHammingDistanceAncilla)
         .def("applyMeasurement", &SimulatorType::applyMeasurement)
