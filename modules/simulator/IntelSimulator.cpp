@@ -76,13 +76,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         #endif
 
-
-        // Set up random number generator for randomly collapsing qubit to 0 or 1
-        //
-        //  RACE CONDITION - not thread safe
-        //  Currently not an issue due to only MPI master rank using the rnadom numbers,
-        //  however this would be a problem if this changes 
-        //
+        /* Set up random number generator for randomly collapsing qubit to 0 or 1
+         *
+         * Note: a random number will be generated on rank 0 and then broadcasted
+         * to all ranks so that each rank collapses the respective qubit to the
+         * same value.
+         */
         std::mt19937 mt_(rd()); 
         std::uniform_real_distribution<double> dist_(0.0,1.0);
         mt = mt_;
@@ -92,9 +91,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
     ~IntelSimulator(){ }
 
-    //#################################################
-    //   TO IMPLEMENT
-    //#################################################
     // 1 qubit
     inline void applyGateU(const TMDP& U, CST qubitIndex, std::string label="U"){      
         qubitRegister.Apply1QubitGate(qubitIndex, U);
@@ -343,6 +339,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     // State observation methods: not allowed in quantum operations
+    // but implemented for convenience and debugging/testing.
     inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
         qubitRegister.Print(x,qubits);
     }
@@ -361,9 +358,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         int rank;
     #endif
 
-    //  RACE CONDITION - not thread safe
-    //  Currently not an issue due to only MPI master rank using the rnadom numbers,
-    //  however this would be a problem if this changes 
     std::random_device rd; 
     std::mt19937 mt;
     std::uniform_real_distribution<double> dist;
