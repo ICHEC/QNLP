@@ -477,7 +477,6 @@ namespace QNLP{
                 std::size_t len_bin_pattern){
 
             for(std::size_t i = 0; i < len_bin_pattern; i++){
-            //for(int i = len_bin_pattern-1; i > -1; i--){
                 if(IS_SET(target_pattern,i)){
                     applyGateX(target_register[i]);
                 }
@@ -487,13 +486,11 @@ namespace QNLP{
         /**
          * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
          * 
-         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
          * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
          * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
          * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
          * @param len_bin_pattern The length of the binary patterns being encoded
          */
-        //template<class Mat2x2Type>
         void encodeBinToSuperpos_unique(const std::vector<std::size_t>& reg_memory,
                 const std::vector<std::size_t>& reg_ancilla,
                 const std::vector<std::size_t>& bin_patterns,
@@ -556,8 +553,6 @@ namespace QNLP{
 
             HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingOverwriteAncilla(static_cast<DerivedType&>(*this), reg_mem, reg_pattern, reg_anc, len_bin_pattern, num_bin_patterns);
-
-            //encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
         }
 
         /**
