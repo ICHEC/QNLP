@@ -57,7 +57,7 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
     double mach_eps = 7./3. - 4./3. -1.;
 
     std::size_t num_qubits;
-    std::size_t len_reg_ancilla;
+    std::size_t len_reg_auxiliary;
     std::size_t num_bin_pattern;
     std::size_t val;
 
@@ -71,7 +71,7 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
 
                     // Experiment set-up
                     num_qubits = 2*len_reg_memory + 2;
-                    len_reg_ancilla = len_reg_memory + 2;
+                    len_reg_auxiliary = len_reg_memory + 2;
                     num_bin_pattern = pow(2,len_reg_memory);
 
                     IntelSimulator sim(num_qubits);
@@ -83,9 +83,9 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     for(std::size_t i = 0; i < len_reg_memory; i++){
                         reg_memory[i] = i;
                     }
-                    std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
-                    for(std::size_t i = 0; i < len_reg_ancilla; i++){
-                        reg_ancilla[i] = i + len_reg_memory;
+                    std::vector<std::size_t> reg_auxiliary(len_reg_auxiliary);
+                    for(std::size_t i = 0; i < len_reg_auxiliary; i++){
+                        reg_auxiliary[i] = i + len_reg_memory;
                     }
 
                     // Init data to encode
@@ -95,13 +95,13 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     }
 
                     // Encode
-                    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory);
+                    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory);
 
                     // Compute Hamming distance
-                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
+                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern);
 
                     // Post-selection
-                    sim.collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+                    sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
 
                     // Generate expected amplitudes from classical computation
                     std::map<std::size_t, double> exp_amp =  expected_amplitude(vec_to_encode, test_pattern, len_reg_memory);
