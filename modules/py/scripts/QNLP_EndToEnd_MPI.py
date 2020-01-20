@@ -278,8 +278,6 @@ else:
     len_reg_memory = None
     vec_to_encode = None
 
-exit()
-
 reg_memory = comm.bcast(reg_memory, root=0)
 reg_ancilla = comm.bcast(reg_ancilla, root=0)
 vec_to_encode = comm.bcast(vec_to_encode, root=0)
@@ -293,7 +291,7 @@ num_qubits = len(reg_memory) + len(reg_ancilla)
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 10
+num_exps = 5000
 normalise = True
 
 if rank == 0:
@@ -304,20 +302,17 @@ for exp in range(num_exps):
     sim.initRegister()
 
     if rank ==0:
-        print("GOT HERE 6 {}".format(len(vec_to_encode)))
+        print("Encoding {} patterns for experiment {} of {}".format(len(vec_to_encode), exp, num_exps))
         sys.stdout.flush()
 
     # Encode
     sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len(reg_memory))
-    if rank ==0:
-        print("GOT HERE 7")
-        sys.stdout.flush()
 
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
     if rank == 0:
         pbar.update(1)
-        print("Result[{}] = {}".format(exp, val))
+        print("Measured pattern {} for experiment {} of {}".format(val, exp, num_exps))
         print(pbar)
         sys.stdout.flush()
 
