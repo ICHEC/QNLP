@@ -30,15 +30,18 @@ PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function
                 "cython" # used during Python module setup (mpi4py)
                 "spacy" # additional NLP lib for tagging
 )
-CONDA_PACKAGES=("nltk::anaconda"
-                "jupyter"
-                "numpy"
-                "scipy"
-                "tabulate"
-                "mkl-include"
-                "networkx"
-                "matplotlib"
+CONDA_PACKAGES=("nltk::intel"
+                "jupyter::intel"
+                "numpy::intel"
+                "scipy::intel"
+                "tabulate::intel"
+                "mkl-include::intel"
+                "mkl-devel::intel"
+                "mkl-static::intel"
+                "networkx::intel"
+                "matplotlib::intel"
                 "tqdm::conda-forge"
+                "pandas::intel"
 )
 CMDS=(          "python -m nltk.downloader -d ${NLTK_DATA} all" #Download additional NLTK models
                 "python -m spacy download en_core_web_sm" #Download additional spacy models
@@ -136,7 +139,7 @@ function condaEnvSetup(){
     ${QNLP_ROOT}/third_party/downloads/${CONDA} -b -p ${QNLP_ROOT}/third_party/install/intel-qnlp_conda;
     source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
     conda update -n base conda -y;
-    conda create -n intel-qnlp -y python=3.7;
+    conda create -n intel-qnlp -c intel -y python=3.7;
     conda activate intel-qnlp #Activate said environment
 }
 
@@ -228,12 +231,26 @@ else
     echo "To load the environment run: source ${QNLP_ROOT}/load_env.sh" > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
 fi
 
+# Create MKLROOT dir mirroring actual MKL to avoid discrepencies
+pushd . &> /dev/null
+conda activate intel-qnlp
+echo "Creating MKLROOT-style directory structure in ${CONDA_PREFIX}/lib"
+cd ${CONDA_PREFIX}/lib
+mkdir intel64 && cd intel64
+for i in $(ls .. | grep mkl); do ln -sf $PWD/../$i .; done
+for i in $(ls .. | grep libiomp); do ln -sf $PWD/../$i .; done
+popd
+
 cat > ${QNLP_ROOT}/load_env.sh << EOL
 #!/bin/bash
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
 export PATH="${QNLP_ROOT}/install":"\${PATH}"
 export NLTK_DATA="${NLTK_DATA}"
 export QNLP_ROOT="${QNLP_ROOT}"
+if [ -z "\${MKLROOT}" ];
+then
+    export MKLROOT="${CONDA_PREFIX}"
+fi
 conda activate intel-qnlp
 
 EOL
