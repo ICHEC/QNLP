@@ -10,7 +10,7 @@ module load gcc/8.2.0 intel/2019u5 cmake3
 Note: this step assumes that Environment Modules is used on the system and that GCC version 8.2.0, Intel-2019-u5 and Cmake3 is installed. The module names on your system may vary.
 
 ### Build environment configuration
-Run the `setup_env.sh` script which pulls down and installs third party software required; Catch2, CLI11,Intel-Quantum Simulator (QS)S, mpi4py and pybind11. Notably, this includes the Intel-QS which executes the quantum gate calls under the hood of the library.
+Run the `setup_env.sh` script which pulls down and installs third party software required; Catch2, CLI11,Intel-Quantum Simulator (QS), mpi4py and pybind11. Notably, this includes the Intel-QS which executes the quantum gate calls under the hood of the `intel-qnlp` library.
 
 ```
 cd <PATH-TO-intel-qnlp>/intel-qnlp
@@ -37,9 +37,11 @@ cd build
 CXX=mpiicpc CC=mpiicc cmake .. -DCMAKE_C_COMPILER=mpiicc -DCMAKE_CXX_COMPILER=mpiicpc -DENABLE_MPI=1 -DENABLE_NATIVE=ON -DIqsMPI=ON -DIqsMKL=ON
 ```
 
+This has been done using the recommended compilers from Intel. 
+
 Include the appropriate flag(s) at the end of the above CMake command to build with the following functionality enabled:
 - Unit testing requires the `-DENABLE_TESTS=1` flag
-- Gate logging reuires the `-DENABLE_LOGGING=1` flag
+- Gate logging requires the `-DENABLE_LOGGING=1` flag
 - Python bindings enabled (recommended) requires the `-DENABLE_PYTHON=1` flag
 
 (ie. to enable all funtionality for a distributed compute system, run 
@@ -55,10 +57,9 @@ Build the software and third party libraries;
 make
 ```
 
-
 # Build steps for applications using `intel-qnlp` on *NIX systems
 
-After the above Build steps have been completed, and given a new instance of a session in your terminal (environment variables are reset), the following steps should be taken to build an application using `intel-qnlp`.
+After the above Build steps have been completed, and assuming a new instance of a session in your terminal (environment variables are reset), the following steps should be taken to build an application using `intel-qnlp`.
 
 ### Set-up of the appropriate environment variables
 Load modules for GCC version 8.2.0, Intel-2019-u5 and Cmake3.
@@ -69,7 +70,7 @@ Note: this step assumes that Environment Modules is used on the system and that 
 module load gcc/8.2.0 intel/2019u5 cmake3
 ```
 
-Run script to set-up envoronment for `intel-qnlp` and third-party software:
+Run the script to set-up the envoronment for `intel-qnlp` and third-party software:
 
 ```
 cd <PATH-TO-intel-qnlp>/intel-qnlp
@@ -77,6 +78,7 @@ source <PATH-TO-intel-qnlp>/intel-qnlp/load_env.sh
 ```
 
 ### Running applications using `intel-qnlp`
+Applications can be created using either the Python or C++ interfaces. For Pythn, scripts or Jupyter notebooks can be used. How to run an application using each of these methods is outlined below.
 
 #### C++ Applciations
 A number of sample applications written in C++ are provided in the subdirectories contained in `intel-qnlp/demos`. Each of these subdirectories has a Slurm run scripts which can be used to launch that application by executing
@@ -110,14 +112,16 @@ sbatch run_py_MPI.sh
 ##### Interactive Job
 An interactive job can be used to run any of the versions of the application; C++, Python batch submission, or Python interactive. However, it becomes very useful when combined with using Jupyter notebooks.
 
-Sample workflows by using Jupyter notebooks are provided in `intel-qnlp/modules/py/nb`. Allocate an interactive job on your cluster. For Slurm this can be done by executing
+Sample workflows which use Jupyter notebooks are provided in `intel-qnlp/modules/py/nb`. Allocate an interactive job on your cluster. For Slurm this can be done by executing
 
 ```
 srun -p <JOB-QUEUE> -N <NUM-NODES> -A <ACCOUNT-ID> -t <TIME-DAYS:HOURS:MINS:SECS> --pty bash
 ```
 
-
 If you have an interactive GUI interface for your cluster (using VNC for example), you can run your Jupyter notebooks interactively. Alternatively, the interactive jobs run very well on a local machine, although the scaling of the problem size is then limited.
+
+
+
 
 
 # Build steps for `intel-qnlp` on MacOS Mojave WIP
