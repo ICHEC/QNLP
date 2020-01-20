@@ -34,6 +34,10 @@ TEST_CASE("Intel-QS simulator creation","[simulator]"){
     }
 }
 
+/**
+ * @brief Test the Pauli operators
+ * 
+ */
 TEST_CASE("Pauli operators"){
     IntelSimulator sim(1);
     auto& reg = sim.getQubitRegister();
@@ -79,13 +83,15 @@ TEST_CASE("Pauli operators"){
     }
 }
 
-
 /**
+ * @brief Test the Simulator interface. 
+ * 
+ */
+/*
  *  Consider using virtual for non-standard functions, and CRTP for everything else.
  *  Default functions should be as fast as possible, with the others being only
  *  rarely needed, thus performance isn't as critical.
  */
-
 TEST_CASE("Simulator interface"){
     SECTION("ISimulator virtual base pointer"){
         ISimulator *s1 = new IntelSimulator(8) ;//createSimulator(8);
@@ -114,7 +120,10 @@ TEST_CASE("Simulator interface"){
     }
 }
 
-
+/**
+ * @brief Test the measurement of qubits
+ * 
+ */
 TEST_CASE("Measurement of qubits"){
     std::size_t num_qubits = 3;
 
@@ -159,7 +168,10 @@ TEST_CASE("Measurement of qubits"){
 
 
 
-
+/**
+ * @brief Test the encoding of binary patterns into a superposition of states into an even distribution
+ * 
+ */
 TEST_CASE("Encoding even distribution: Unique Binary Patterns"){
     SECTION("Check encoding works correctly without throws and with expected distribution"){
         std::size_t max_num_qubits_mem = 6;
@@ -222,6 +234,10 @@ TEST_CASE("Encoding even distribution: Unique Binary Patterns"){
     }
 }
 
+/**
+ * @brief Test the Hamming distance delivers an appropriate distribution quantifying the similarity between a test state and a superposition of states
+ * 
+ */
 TEST_CASE("Hamming distance check"){
     SECTION("Check encoding works correctly without throws and with expected distribution"){
         std::size_t max_num_qubits_mem = 6;
