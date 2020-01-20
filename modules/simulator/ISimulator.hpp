@@ -116,10 +116,28 @@ namespace QNLP{
          */
         virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
 
+        /**
+         * @brief Apply Phase Shift on specified qubit by angle in radians
+         * 
+         * @param angle Angle of phase shift in rads
+         * @param qubit_idx Index of target qubit to perform phase shift upon
+         */
         virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
 
+        /**
+         * @brief Apply Controlled Phase Shift on specified qubit by angle in radians
+         * 
+         * @param angle Angle of phase shift in rads
+         * @param control Qubit index acting as control
+         * @param target Qubit index acting as target
+         */
         virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
 
+        /**
+         * @brief Get the Number of qubits in the simulator
+         * 
+         * @return std::size_t Returns the length of (number of qubits in) the quantum register.
+         */
         virtual std::size_t getNumQubits() = 0;
 
         //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);
