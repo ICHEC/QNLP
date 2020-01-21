@@ -1,7 +1,7 @@
 /**
  * @file bin_into_superpos.hpp
  * @author Myles Doyle (myles.doyle@ichec.ie)
- * @brief this header file introduces routines for encoding binary numbers represented as unsigned integers into a superposition of quantum states. The amplitude of each state will be even. The method used follows the approach outlined in the paper https://arxiv.org/abs/quant-ph/0210176v2 by C. A. Trugenberger. * @version 0.1
+ * @brief Defines class which introduces routines for encoding binary numbers represented as unsigned integers into a superposition of quantum states. The amplitude of each state will be even. The method used follows the approach outlined in the paper https://arxiv.org/abs/quant-ph/0210176v2 by C. A. Trugenberger. * @version 0.1
  * @date 2019-29-06
  */
 
@@ -27,6 +27,11 @@ namespace QNLP{
      */
     #define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
 
+    /**
+     * @brief Definition of class to encode a binary string represented by an integer into a superposition of states. 
+     * 
+     * @tparam SimulatorType Class simulator type 
+     */
     template <class SimulatorType>
     class EncodeBinIntoSuperpos{
         private:
@@ -36,8 +41,18 @@ namespace QNLP{
             std::size_t m, len_reg_auxiliary, len_bin_pattern;
     
         public:
+            /**
+             * @brief Construct a new object instance to encode a binary string into a superposition
+             * 
+             */
             EncodeBinIntoSuperpos(){};
 
+            /**
+             * @brief Construct a new object instance to encode a binary string into a superposition
+             * 
+             * @param num_bin_patterns Number of binary patterns to encode 
+             * @param len_bin_pattern_ Length of the binary patterns being encoded
+             */
             EncodeBinIntoSuperpos(const std::size_t num_bin_patterns, const std::size_t len_bin_pattern_){
                 m = num_bin_patterns;
                 len_bin_pattern = len_bin_pattern_;
@@ -45,11 +60,15 @@ namespace QNLP{
                 initialiseMats();
             };
 
+            /**
+             * @brief Destroy the Encode Bin Into Superpos object
+             * 
+             */
             ~EncodeBinIntoSuperpos(){
             };
 
             /**
-             * @brief Define the PauliX and the unitary matrix S
+             * @brief Initialiser of the encoder (define the required PauliX and the unitary matrix S)
              * 
              */
             void initialiseMats(){
