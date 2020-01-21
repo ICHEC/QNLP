@@ -14,6 +14,10 @@ typedef ComplexDP Type;
 
 template class QNLP::EncodeBinIntoSuperpos<IntelSimulator>;
 
+/**
+ * @brief Test binary encoding basic implementation.
+ * 
+ */
 TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
     SECTION("Testing qubit encoding"){
 
@@ -56,6 +60,10 @@ TEST_CASE("Test encoding of binary (integers) to superposition","[encode]"){
     }
 }
 
+/**
+ * @brief Test binary encoding for different register sizes and checking that the states' amplitudes are correct.
+ * 
+ */
 TEST_CASE("Test encoding of different register sizes and checking states' amplitudes","[encode_amp]"){
     const std::size_t max_qubits = 5;
     double mach_eps = 7./3. - 4./3. -1.;
