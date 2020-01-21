@@ -594,7 +594,7 @@ namespace QNLP{
         }
 
         /**
-         * @brief Apply measurement to a target qubit with respect to the z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
+         * @brief Apply measurement to a target qubit with respect to the Z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
          * 
          * @param target The index of the qubit being collapsed
          * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
@@ -715,7 +715,7 @@ namespace QNLP{
         /**
          * @brief Get the Gate Writer object
          * 
-         * @return GateWriter& 
+         * @return GateWriter& Returns reference to the writer member in the class 
          */
         GateWriter& getGateWriter(){
             return writer;

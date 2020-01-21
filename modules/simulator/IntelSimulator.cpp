@@ -26,12 +26,22 @@
 
 namespace QNLP{
 
+/**
+ * @brief Class definition for IntelSimulator. The purpose of this class is to map the functionality of the underlying quantum simulator to this class so that it can be used as the template for the CRTP templated SimulatorGeneral class.
+ * 
+ */
 class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     public:
     using TMDP = qhipster::TinyMatrix<ComplexDP, 2, 2, 32>;
     using QRDP = QubitRegister<ComplexDP>;
     using CST = const std::size_t;
 
+    /**
+     * @brief Construct a new Intel Simulator object. The constructor also sets up and initialises the MPI environemnt if MPI is enabled in the build process.
+     * 
+     * @param numQubits Number of qubits in quantum register
+     * @param useFusion Implement gate fusion (defualt is False)
+     */
     IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
@@ -89,9 +99,21 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         if(useFusion == true)
             qubitRegister.TurnOnFusion();
     }
+
+    /**
+     * @brief Destroy the Intel Simulator object
+     * 
+     */
     ~IntelSimulator(){ }
 
     // 1 qubit
+    /**
+     * @brief Apply arbitrary user-defined unitary gate to qubit at qubit_idx
+     * 
+     * @param U User-defined unitary 2x2 matrix of templated type Mat2x2Type
+     * @param qubitIndex Index of qubit to apply gate upon
+     * @param label Label for the gate U
+     */
     inline void applyGateU(const TMDP& U, CST qubitIndex, std::string label="U"){      
         qubitRegister.Apply1QubitGate(qubitIndex, U);
         #ifdef GATE_LOGGING
@@ -99,10 +121,21 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     }
 
+    /**
+     * @brief Apply the Identity gate to the given qubit
+     * 
+     * @param qubitIndex 
+     */
     inline void applyGateI(std::size_t qubitIndex){
         applyGateU(getGateI(), qubitIndex, "I");
     }
 
+    /**
+     * @brief Apply phase shift to given Qubit; [[1 0] [0 exp(i*angle)]]
+     * 
+     * @param qubit_idx Qubit index to perform phase shift upon
+     * @param angle Angle of phase shift in rads
+     */
     inline void applyGatePhaseShift(std::size_t qubit_idx, double angle){
         //Phase gate is identity with 1,1 index modulated by angle
         TMDP U(gates[3]);
@@ -112,18 +145,36 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     }
 
     // 2 qubit
+    /**
+     * @brief Performs Sqrt SWAP gate between two given qubits (half way SWAP)
+     * 
+     * @param qubit_idx0 Qubit index 0
+     * @param qubit_idx1 Qubit index 1
+     */
     inline void applyGateSqrtSwap(  std::size_t qubit_idx0, std::size_t qubit_idx1){    
         std::cerr << "NOT YET IMPLEMENTED" << std::endl; 
         std::abort();
     }
 
     // 3 qubit
+    /**
+     * @brief Controlled controlled NOT (CCNOT, CCX) gate
+     * 
+     * @param ctrl_qubit0 Control qubit 0
+     * @param ctrl_qubit1 Control qubit 1
+     * @param target_qubit Target qubit
+     */
     inline void applyGateCCX(std::size_t ctrl_qubit0, std::size_t ctrl_qubit1, std::size_t target_qubit){
         this->applyGateNCU(this->getGateX(), std::vector<std::size_t> {ctrl_qubit0, ctrl_qubit1}, target_qubit, "X");
     }
 
-    /*
-     * Controlled swap decomposition taken from arXiV:1301.3727
+    /**
+     * @brief Controlled SWAP gate (Controlled swap decomposition taken from arXiV:1301.3727
+)
+     * 
+     * @param ctrl_qubit Control qubit
+     * @param qubit_swap0 Swap qubit 0
+     * @param qubit_swap1 Swap qubit 1
      */
     inline void applyGateCSwap(std::size_t ctrl_qubit, std::size_t qubit_swap0, std::size_t qubit_swap1){
         //V = sqrt(X)
@@ -151,24 +202,47 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     //#################################################
 
+    /**
+     * @brief Apply the Pauli X gate to the given qubit
+     * 
+     * @param qubitIndex 
+     */
     inline void applyGateX(CST qubitIndex){ 
         qubitRegister.ApplyPauliX(qubitIndex);
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("X", getGateX().tostr(), qubitIndex);
         #endif
     }
+
+    /**
+     * @brief Apply the Pauli Y gate to the given qubit
+     * 
+     * @param qubitIndex 
+     */
     inline void applyGateY(CST qubitIndex){ 
         qubitRegister.ApplyPauliY(qubitIndex);
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("Y", getGateY().tostr(), qubitIndex);
         #endif
     }
+
+    /**
+     * @brief Apply the Pauli Z gate to the given qubit
+     * 
+     * @param qubitIndex 
+     */
     inline void applyGateZ(CST qubitIndex){ 
         qubitRegister.ApplyPauliZ(qubitIndex);
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("Z", getGateZ().tostr(), qubitIndex);
         #endif
     }
+
+    /**
+     * @brief Apply the Hadamard gate to the given qubit
+     * 
+     * @param qubitIndex 
+     */
     inline void applyGateH(CST qubitIndex){ 
         qubitRegister.ApplyHadamard(qubitIndex);
         #ifdef GATE_LOGGING
@@ -176,7 +250,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     }
 
-    inline void applyGateSqrtX(CST qubitIndex){
+    /**
+     * @brief Apply the Sqrt{Pauli X} gate to the given qubit
+     * 
+     * @param qubit_idx 
+     */
+   inline void applyGateSqrtX(CST qubitIndex){
         qubitRegister.ApplyPauliSqrtX(qubitIndex);
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
@@ -186,6 +265,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         );
         #endif
     };
+
+    /**
+     * @brief Apply the given Rotation about X-axis to the given qubit
+     * 
+     * @param qubitIndex Index of qubit to rotate about X-axis
+     * @param angle Rotation angle
+     */
     inline void applyGateRotX(CST qubitIndex, double angle) {
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
@@ -196,6 +282,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
         qubitRegister.ApplyRotationX(qubitIndex, angle);
     };
+
+    /**
+     * @brief Apply the given Rotation about Y-axis to the given qubit
+     * 
+     * @param qubitIndex Index of qubit to rotate about X-axis
+     * @param angle Rotation angle
+     */
     inline void applyGateRotY(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationY(qubitIndex, angle);
         #ifdef GATE_LOGGING
@@ -206,6 +299,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         );
         #endif
     };
+
+    /**
+     * @brief Apply the given Rotation about Z-axis to the given qubit
+     * 
+     * @param qubitIndex Index of qubit to rotate about X-axis
+     * @param angle Rotation angle
+     */
     inline void applyGateRotZ(CST qubitIndex, double angle) {
         qubitRegister.ApplyRotationZ(qubitIndex, angle);
         #ifdef GATE_LOGGING
@@ -217,36 +317,96 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     };
 
+    /**
+     * @brief Get the Pauli-X gate
+     * @return TMDP return type of Pauli-X gate
+     */
     inline TMDP getGateX(){ return gates[0]; }
+
+    /**
+     * @brief Get the Pauli-Y gate
+     * @return TMDP return type of Pauli-Y gate
+     */
     inline TMDP getGateY(){ return gates[1]; }
+
+    /**
+     * @brief Get the Pauli-Z gate
+     * @return TMDP return type of Pauli-Z gate
+     */
     inline TMDP getGateZ(){ return gates[2]; }
+
+    /**
+     * @brief Get the Identity
+     * @return TMDP return type of the Identity
+     */
     inline TMDP getGateI(){ return gates[3]; }
+
+    /**
+     * @brief Get the Hadamard gate
+     * @return TMDP return type of Hadamard gate
+     */
     inline TMDP getGateH(){ return gates[4]; }
 
+    /**
+     * @brief Apply the given controlled unitary gate on target qubit
+     * 
+     * @param U User-defined arbitrary 2x2 unitary gate (matrix)
+     * @param control Qubit index acting as control
+     * @param target Qubit index acting as target
+     * @param label Optional parameter to label the gate U
+     */
     inline void applyGateCU(const TMDP& U, CST control, CST target, std::string label="U"){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( U_label, U.tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply Controlled Pauli-X (CNOT) on target qubit
+     * 
+     * @param control Qubit index acting as control
+     * @param target Qubit index acting as target
+     */
     inline void applyGateCX(CST control, CST target){
         qubitRegister.ApplyCPauliX(control, target);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "X", getGateX().tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply Controlled Pauli-Y on target qubit
+     * 
+     * @param control Qubit index acting as control
+     * @param target Qubit index acting as target
+     */
     inline void applyGateCY(CST control, CST target){
         qubitRegister.ApplyCPauliY(control, target);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "Y", getGateY().tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply Controlled Pauli-Z on target qubit
+     * 
+     * @param control Qubit index acting as control
+     * @param target Qubit index acting as target
+     */
     inline void applyGateCZ(CST control, CST target){
         qubitRegister.ApplyCPauliZ(control, target);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "Z", getGateZ().tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply Controlled Hadamard on target qubit
+     * 
+     * @param control Qubit index acting as control
+     * @param target Qubit index acting as target
+     */
     inline void applyGateCH(CST control, CST target){
         qubitRegister.ApplyCHadamard(control, target);
         #ifdef GATE_LOGGING
@@ -254,6 +414,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     }
 
+    /**
+     * @brief Perform controlled phase shift gate 
+     * 
+     * @param angle Angle of phase shift in rads
+     * @param control Index of control qubit
+     * @param target Index of target qubit
+     */
     inline void applyGateCPhaseShift(double angle, unsigned int control, unsigned int target){
         TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
@@ -263,18 +430,41 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     }
 
+    /**
+     * @brief Apply the given Controlled Rotation about X-axis to the given qubit
+     * 
+     * @param control Control qubit
+     * @param target Index of qubit to rotate about X-axis
+     * @param theta Rotation angle
+     */
     inline void applyGateCRotX(CST control, CST target, const double theta){
         qubitRegister.ApplyCRotationX(control, target, theta);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_X", getGateI().tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply the given Controlled Rotation about Y-axis to the given qubit
+     * 
+     * @param control Control qubit
+     * @param target Index of qubit to rotate about Y-axis
+     * @param theta Rotation angle
+     */
     inline void applyGateCRotY(CST control, CST target, CST theta){
         qubitRegister.ApplyCRotationY(control, target, theta);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_Y", getGateI().tostr(), control, target );
         #endif
     }
+
+    /**
+     * @brief Apply the given Controlled Rotation about Z-axis to the given qubit
+     * 
+     * @param control Control qubit
+     * @param target Index of qubit to rotate about Z-axis
+     * @param theta Rotation angle
+     */
     inline void applyGateCRotZ(CST control, CST target, const double theta){
         qubitRegister.ApplyCRotationZ(control, target, theta);
         #ifdef GATE_LOGGING
@@ -282,35 +472,70 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #endif
     }
 
-    inline void applyGateSwap(CST q1, CST q2){
-        qubitRegister.ApplySwap(q1, q2);
+    /**
+     * @brief Swap the qubits at the given indices
+     * 
+     * @param qubit_idx0 Index of qubit 0 to swap &(0 -> 1)
+     * @param qubit_idx1 Index of qubit 1 to swap &(1 -> 0)
+     */
+    inline void applyGateSwap(CST qubit_idx0, CST qubit_idx1){
+        qubitRegister.ApplySwap(qubit_idx0, qubit_idx1);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( "SWAP", getGateI().tostr(), q1, q2 );
+        writer.twoQubitGateCall( "SWAP", getGateI().tostr(), qubit_idx0, qubit_idx1 );
         #endif
     }
 
+    /**
+     * @brief Get the Qubit Register object
+     * 
+     * @return QubitRegister<ComplexDP>& Returns a refernce to the Qubit Register object 
+     */
     inline QubitRegister<ComplexDP>& getQubitRegister() { 
         return this->qubitRegister; 
     }
 
+    /**
+     * @brief Get the Qubit Register object
+     * 
+     * @return const QubitRegister<ComplexDP>& Returns a refernce to the Qubit Register object  
+     */
     inline const QubitRegister<ComplexDP>& getQubitRegister() const { 
         return this->qubitRegister; 
     };
 
+    /**
+     * @brief Get the number of Qubits
+     * 
+     * @return std::size_t Number of qubits in register
+     */
     std::size_t getNumQubits() { 
         return numQubits; 
     }
 
+    /**
+     * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
+     * 
+     */
     inline void initRegister(){
         this->qubitRegister.Initialize("base",0);
         this->initCaches();
     }
 
+    /**
+     * @brief Apply normalization to the amplitudes of each state. This is required after a qubit in a state is collapsed.
+     * 
+     */
     inline void applyAmplitudeNorm(){
         this->qubitRegister.Normalize();
     }
 
-    // Apply measurement to single qubit
+    /**
+     * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value. If built with MPI enabled, this member function collpases the corresponding qubit in each state across all processes.
+     * 
+     * @return bool Value that qubit is randomly collapsed to
+     * @param target The index of the qubit being collapsed
+     * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+     */
     inline bool applyMeasurement(CST target, bool normalize=true){
         double rand;
         bool bit_val;
@@ -332,19 +557,33 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return bit_val;
     }
 
-    // Measurement methods
+    /**
+     * @brief Apply measurement to a target qubit with respect to the Z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
+     * 
+     * @param target The index of the qubit being collapsed
+     * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
+     */
     inline void collapseToBasisZ(CST target, bool collapseValue){
         collapseQubit(target, collapseValue);
         applyAmplitudeNorm();
     }
 
-    // State observation methods: not allowed in quantum operations
-    // but implemented for convenience and debugging/testing.
+    /**
+     * @brief Prints the string x and then for each state of the specified qubits in the superposition, prints each its amplitude, followed by state and then by the probability of that state. Note that this state observation method is not a permitted quantum operation, however it is provided for convenience and debugging/testing. 
+     * 
+     * @param x String to be printed to stdout
+     * @param qubits Indices of qubits in register to be printed
+     */
     inline void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
         qubitRegister.Print(x,qubits);
     }
 
     #ifdef GATE_LOGGING
+    /**
+     * @brief Get the Gate Writer object
+     * 
+     * @return GateWriter& Returns reference to the writer member in the class 
+     */
     GateWriter& getGateWriter(){
         return writer;
     } 
@@ -363,10 +602,22 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     std::uniform_real_distribution<double> dist;
 
     // Measurement methods
+    /**
+     * @brief Collapses specified qubit in register to the collapseValue without applying normalization.
+     * 
+     * @param target Index of qubit to be collapsed 
+     * @param collapseValue Value qubit is collapsed to (0 or 1)
+     */
     inline void collapseQubit(CST target, bool collapseValue){
         qubitRegister.CollapseQubit(target, collapseValue);
     }
 
+    /**
+     * @brief Get the probability of the specified qubit being in the state |1>
+     * 
+     * @param target Target qubit 
+     * @return double Probability that the target qubit is in the state |1>
+     */
     inline double getStateProbability(CST target){
         return qubitRegister.GetProbability(target);
     }
