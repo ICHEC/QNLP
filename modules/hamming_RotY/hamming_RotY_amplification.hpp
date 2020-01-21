@@ -17,6 +17,11 @@
 #include<complex>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for implementing the Hamming distance routine along with controlled Y rotations to encode the Hamming distance into the states' amplitudes. 
+     * 
+     * @tparam SimulatorType Class simulator type 
+     */
     template <class SimulatorType>
     class HammingDistanceRotY{
         private:
@@ -26,17 +31,30 @@ namespace QNLP{
             std::size_t len_bin_pattern;
 
         public:
+            /**
+             * @brief Construct a new Hamming Distance Rot Y object (disabled)
+             * 
+             */
             HammingDistanceRotY() = delete;
 
+            /**
+             * @brief Construct a new Hamming Distance Rot Y object
+             * 
+             * @param len_bin_pattern_ Length of binary string which the Hamming distance is to be computed upon 
+             */
             HammingDistanceRotY(const std::size_t len_bin_pattern_){
                 len_bin_pattern = len_bin_pattern_;
             };
 
+            /**
+             * @brief Destroy the Hamming Distance Rot Y object
+             * 
+             */
             ~HammingDistanceRotY(){
             };
 
             /**
-             * @brief Adjusts each state's amplitude proportional to the Hamming distance between the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
+             * @brief Computes Hamming Distance; adjusts each state's amplitude proportional to the Hamming distance between the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
              *
              * @param qSim Quantum simulator instance.
              * @param reg_memory A vector containing the indices of the qubits of the memory register. 

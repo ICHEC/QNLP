@@ -42,10 +42,10 @@ namespace QNLP{
     
         public:
             /**
-             * @brief Construct a new object instance to encode a binary string into a superposition
+             * @brief Construct a new object instance to encode a binary string into a superposition (disabled)
              * 
              */
-            EncodeBinIntoSuperpos(){};
+            EncodeBinIntoSuperpos() = delete;
 
             /**
              * @brief Construct a new object instance to encode a binary string into a superposition
