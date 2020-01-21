@@ -356,6 +356,7 @@ namespace QNLP{
         void applyGateCRotX(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateCRotX(ctrl_qubit, qubit_idx, angle_rad);
         }
+
         /**
          * @brief Apply the given Controlled Rotation about Y-axis to the given qubit
          * 
@@ -366,6 +367,7 @@ namespace QNLP{
         void applyGateCRotY(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateCRotY(ctrl_qubit, qubit_idx, angle_rad);
         }
+
         /**
          * @brief Apply the given Controlled Rotation about Z-axis to the given qubit
          * 
