@@ -84,7 +84,7 @@ namespace QNLP{
         virtual void applyGateRotY(std::size_t qubit_idx, double angle_rad) = 0;
 
         /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
+         * @brief Arbitrary rotation around Z axis by angle 'angle_rad' in radians
          * 
          * @param qubit_idx Index of qubit to apply rotation upon
          * @param angle_rad Angle of rotation in radians
