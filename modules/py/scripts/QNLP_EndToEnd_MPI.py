@@ -66,7 +66,8 @@ except KeyError as e:
 
 #corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
-    corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+    #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
+    corpus_file="/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
     vsm = q.VectorSpaceModel.VectorSpaceModel(
         corpus_path=corpus_file,
         mode="l", 
@@ -187,8 +188,8 @@ if rank == 0:
                         q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['no'].values()))) )[1] + \
                         q.encoding.utils.pow2bits( int(np.max( list(encoding_dict['ns'].values()))) )[1] 
 
-    len_reg_ancilla = len_reg_memory + 2
-    num_qubits = len_reg_memory + len_reg_ancilla
+    len_reg_aux = len_reg_memory + 2
+    num_qubits = len_reg_memory + len_reg_aux
 
     print("""{}
 Requires {} qubits to encode data using {} 
@@ -235,15 +236,19 @@ maximum of {} unique patterns.
                 )
     sentences
 
-# Set up registers to store indices
+    # Set up registers to store indices
+    # Keeping aux register and control registers in these positions
+    # to reduce overhead during encoding stages. ~25% faster than data-aux-control
     reg_memory = [0]*len_reg_memory;
     for i in range(len_reg_memory):
-        reg_memory[i] = i
+        reg_memory[i] = i + 2 + len_reg_aux
 
-    reg_ancilla = [0]*len_reg_ancilla
-    for i in range(len_reg_ancilla):
-        reg_ancilla[i] = i + len_reg_memory;
-
+    reg_aux = [0]*len_reg_aux
+    for i in range(len_reg_aux-2):
+        reg_aux[i] = i + 2
+    reg_aux[-2] = 0
+    reg_aux[-1] = 1
+    
 #Create list for the patterns to be encoded
     vec_to_encode = []
 
@@ -274,12 +279,12 @@ maximum of {} unique patterns.
 
 else:
     reg_memory = None
-    reg_ancilla = None
+    reg_aux = None
     len_reg_memory = None
     vec_to_encode = None
 
 reg_memory = comm.bcast(reg_memory, root=0)
-reg_ancilla = comm.bcast(reg_ancilla, root=0)
+reg_aux = comm.bcast(reg_aux, root=0)
 vec_to_encode = comm.bcast(vec_to_encode, root=0)
 
 # Counter for experiment results
@@ -287,11 +292,11 @@ shot_counter = {}
 for i in vec_to_encode:
     shot_counter.update({i : 0})
 
-num_qubits = len(reg_memory) + len(reg_ancilla)
+num_qubits = len(reg_memory) + len(reg_aux)
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 5000
+num_exps = 2
 normalise = True
 
 if rank == 0:
@@ -306,7 +311,7 @@ for exp in range(num_exps):
         sys.stdout.flush()
 
     # Encode
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len(reg_memory))
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_aux, vec_to_encode, len(reg_memory))
 
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     shot_counter[val] += 1
