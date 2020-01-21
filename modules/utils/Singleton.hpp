@@ -15,17 +15,51 @@ namespace QNLP{
 class Singleton{
     private:
 
+    /**
+     * @brief Construct a new Singleton object
+     * 
+     */
     Singleton() = default;
+
+    /**
+     * @brief Destroy the Singleton object
+     * 
+     */
     virtual ~Singleton() = default;
 
     public:
 
+    /**
+     * @brief Construct a new Singleton object (disabled)
+     * 
+     */
     Singleton(const Singleton&) = delete;
+
+    /**
+     * @brief Construct a new Singleton object (disabled)
+     * 
+     */
     Singleton(Singleton&&) = delete;
 
+    /**
+     * @brief Overloaded = (disabled)
+     * 
+     * @return Singleton& Reference to singleton object 
+     */
     Singleton& operator=(const Singleton&) = delete;
+
+    /**
+     * @brief Overloaded = (disabled)
+     * 
+     * @return Singleton& Reference to singleton object 
+     */
     Singleton& operator=(Singleton&&) = delete;
 
+    /**
+     * @brief Get the Instance object
+     * 
+     * @return Singleton& Returns instance of Singleton object. 
+     */
     static Singleton& getInstance(){
         static Singleton s;
         return s;
