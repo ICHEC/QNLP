@@ -1,3 +1,14 @@
+/**
+ * @file ISimulator.hpp
+ * @author Myles Doyle (myles.doyle@ichec.ie)
+ * @brief Define thee abstract interface class for implementing the QNLP-quantum simulator connector.
+ * @version 0.1
+ * @date 2020-01-20
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef QNLP_SIMULATOR_INTERFACE_H
 #define QNLP_SIMULATOR_INTERFACE_H
 
