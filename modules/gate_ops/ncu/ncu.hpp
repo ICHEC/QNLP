@@ -20,6 +20,11 @@
 #include "mat_ops.hpp"
 
 namespace QNLP{
+    /**
+     * @brief Class definition for applying n-qubit controlled unitary operations.
+     * 
+     * @tparam SimulatorType Class Simulator Type
+     */
     template <class SimulatorType>
     class NCU{
         private:
@@ -52,6 +57,10 @@ namespace QNLP{
             static std::size_t num_gate_ops;
 
         public:
+            /**
+             * @brief Construct a new NCU object
+             * 
+             */
             NCU() {
                 //Optimised building block routines for nCX
                 if(op_call_counts_CX.size() == 0){
@@ -60,10 +69,19 @@ namespace QNLP{
                 }
             };
 
+            /**
+             * @brief Construct a new NCU object
+             * 
+             * @param qSim Instance of quantum simulator 
+             */
             NCU(SimulatorType& qSim) : NCU(){
                 gate_cache = GateCache<SimulatorType>(qSim);
             }
 
+            /**
+             * @brief Destroy the NCU object
+             * 
+             */
             ~NCU(){
                 clearMaps();
                 gate_cache.clearCache();

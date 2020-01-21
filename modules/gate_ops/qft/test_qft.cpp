@@ -20,6 +20,10 @@
 using namespace QNLP;
 #include <bitset>
 
+/**
+ * @brief Test: QFT forward 
+ * 
+ */
 TEST_CASE("QFT forward","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
@@ -47,6 +51,10 @@ TEST_CASE("QFT forward","[qft]"){
     }
 }
 
+/**
+ * @brief Test: QFT inverse 
+ * 
+ */
 TEST_CASE("QFT inverse","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
@@ -73,6 +81,11 @@ TEST_CASE("QFT inverse","[qft]"){
         }
     }
 }
+
+/**
+ * @brief Test: QFT forward and inverse 
+ * 
+ */
 TEST_CASE("QFT forward and inverse","[qft]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;

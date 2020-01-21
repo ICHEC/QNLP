@@ -14,6 +14,11 @@
 #include <cmath>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for performing quantum forward and inverse Fourier transforms
+     * 
+     * @tparam SimulatorType Class Simulator type 
+     */
     template <class SimulatorType>
     class QFT{
         public:

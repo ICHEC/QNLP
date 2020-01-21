@@ -18,10 +18,25 @@
 #include <vector>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for applying Grover diffusion to a marked register
+     * 
+     * @tparam SimulatorType Class Simulator type
+     */
     template <class SimulatorType>
     class Diffusion{
     public:
+        
+        /**
+         * @brief Construct a new Diffusion object
+         * 
+         */
         Diffusion() {};
+
+        /**
+         * @brief Destroy the Diffusion object
+         * 
+         */
         ~Diffusion() {};
 
         /**
@@ -53,4 +68,3 @@ namespace QNLP{
     };
 }
 #endif
-

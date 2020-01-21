@@ -13,6 +13,11 @@
 #define QNLP_ARITHMETIC
 
 namespace QNLP{
+    /**
+     * @brief Class definition for bit-wise summation and subtraction of qubits.
+     * 
+     * @tparam SimulatorType 
+     */
     template <class SimulatorType>
     class Arithmetic{
         public:

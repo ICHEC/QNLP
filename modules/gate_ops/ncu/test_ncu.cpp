@@ -11,6 +11,10 @@ using namespace QNLP;
 
 typedef ComplexDP Type;
 
+/**
+ * @brief Test PauliX for NCU
+ * 
+ */
 TEST_CASE("Test n-controlled unitary module with Pauli-X |11..10>","[ncu]"){
     std::size_t max_qubits = 8;
     double mach_eps = 7./3. - 4./3. -1.;
@@ -55,6 +59,10 @@ TEST_CASE("Test n-controlled unitary module with Pauli-X |11..10>","[ncu]"){
     }
 }
 
+/**
+ * @brief Test Pauli-Z for NCU
+ * 
+ */
 TEST_CASE("Test n-controlled unitary module with Pauli-Z on |111..1>","[ncu]"){
     std::size_t max_qubits = 8;
     double mach_eps = 7./3. - 4./3. -1.;
@@ -102,7 +110,10 @@ TEST_CASE("Test n-controlled unitary module with Pauli-Z on |111..1>","[ncu]"){
     } 
 }
 
-
+/**
+ * @brief Test Pauli-X and non-adjacent controls for NCU
+ * 
+ */
 TEST_CASE("Test n-controlled unitary module with Pauli-X and non-adjacent controls","[ncu]"){
     const std::size_t max_qubits = 8;
 

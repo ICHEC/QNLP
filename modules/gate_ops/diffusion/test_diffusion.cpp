@@ -10,6 +10,10 @@ using namespace QNLP;
 
 typedef ComplexDP Type;
 
+/**
+ * @brief Test diffusion for 4 qubits
+ * 
+ */
 TEST_CASE("4 qubit diffusion using module","[diffusion]"){
     std::size_t num_qubits = 4;
     IntelSimulator sim(num_qubits);
@@ -69,7 +73,10 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
     }
 }
 
-
+/**
+ * @brief Test diffusion for 8 qubits
+ * 
+ */
 TEST_CASE("8 qubit diffusion using module","[diffusion]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);
@@ -130,7 +137,10 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
     }
 }
 
-
+/**
+ * @brief Test diffusion for 4 qubits using Simulator method
+ * 
+ */
 TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
     std::size_t num_qubits = 4;
     IntelSimulator sim(num_qubits);
@@ -183,6 +193,10 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
     }
 }
 
+/**
+ * @brief Test diffusion for 8 qubits using Simulator method
+ * 
+ */
 TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);

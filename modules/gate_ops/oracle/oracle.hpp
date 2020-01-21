@@ -17,6 +17,11 @@
 #include <iostream>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for defining and applying an Oracle
+     * 
+     * @tparam SimulatorType Class Simulator type
+     */
     template <class SimulatorType>
     class Oracle{
         private:
@@ -24,17 +29,27 @@ namespace QNLP{
         using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
 
         public:
+        /**
+         * @brief Construct a new Oracle object
+         * 
+         */
         Oracle(){};
+
+        /**
+         * @brief Destroy the Oracle object
+         * 
+         */
         ~Oracle(){};
 
         /**
          * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
          * 
-         * @param s 
-         * @param bitstring 
-         * @param ctrl_indices 
+         * @param s Instance of quantum simulator
+         * @param bitstring Binary pattern represented by a std::size_t bitstring
+         * @param ctrl_indices Indices of the control qubits in the register
+         * @param target Qubit acting as target
          * @param U Unitary matrix to apply 
-         * @return decltype(auto) 
+         * @param gateLabel Label to assign operation for U 
          */
         void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U, std::string gateLabel){
             std::size_t bitmask = 0b1;
@@ -66,9 +81,9 @@ namespace QNLP{
          * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
          * 
          * @param s Simulator object
-         * @param bitstring 
-         * @param ctrlIndices 
-         * @param target 
+         * @param bitstring Binary pattern represented by a std::size_t bitstring
+         * @param ctrlIndices Indices of the control qubits in the register
+         * @param target Qubit acting as target
          */
         void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>&ctrlIndices, std::size_t target ){
             std::size_t num_qubits = s.getNumQubits();
