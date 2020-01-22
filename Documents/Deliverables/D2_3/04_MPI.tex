@@ -1,0 +1,21 @@
+\section{MPI}
+\label{sec:MPI}
+MPI was enabled for the QNLP library allowing for experiments to be scaled across a distributed computing system. 
+
+\subsection{Implementation}
+\label{sec:Enabling_MPI__Implmentation}
+This was simply done by adding a \textit{MPI\_Comm\_rank} call in the constructor of the \textit{IntelSimulator} class so that each MPI process had it's rank identifier. This was necessary, since in the \textit{applyMeasurement} member function of the \textit{IntelSimulator} class, a random number must be generated and distributed to all processes so that the same random number is being used to randomly collapse a specified qubit across all states in the superposition. If each process had it's own unique random number, this measurement would behave incorrectly, yielding incorrect results.
+
+The Python layer also works using the MPI environment, however \textit{mpi4py} must be imported to set up the MPI environment. During the compilation of the Python bindings, we also compile mpi4py using the given system environment, where mpi4py is subsequently imported during the QNLP library import stage. This allows for the MPI environment to be initialised correctly, and has been verified to operate correctly with the MPI setup on Slurm with ICHEC's Kay supercomputer.
+
+\subsection{Verification}
+\label{sec:Enabling_MPI__Verification}
+All of the unit tests passed using a distributed resource allocation. This would not be the case if MPI was enabled but not behaving as expected. Thus, the MPI implementation works correctly.
+
+\subsection{Building with MPI Enabled}
+\label{sec:Enabling_MPI__Building_with_MPI_Enabled}
+Finally, in order to enable the MPI environment when using the QNLP library, both the Intel\textregistered-QS library and the QNLP library must be built with the appropriate version of MPI. Note that if the MPI environment is setup when building the QNLP library with CMake, the \textit{MPI\_FOUND} flag will be automatically set, which is the condition that the MPI environment will be compiled with the MPI environment enabled.
+
+\subsection{Running Application with MPI}
+\label{sec:Enabling_MPI__Running_Application_with_MPI}
+It is also worth noting that the number of processes on a node is not limited to two. A larger number of processes per node can be specified as long as it is a power of two, and that the overall number of processes is a also a power of two. The identification of this misconception allows for better utilisation of a node's memory and compute resources, and a possible reduction in MPI communication overhead due to the locality of processes on a node. This needs to be verified to ensure that the bandwidth both for intra- and inter-node communication does not become an area of contention for larger scale experiments. On ICHEC's HPC system, Kay, each node is composed of two sockets, each with $20$ physical cores. Due to Intel\textregistered-QS's requirement that the number of processes must be power of two, a maximum of 32 processes can be run on each node.
