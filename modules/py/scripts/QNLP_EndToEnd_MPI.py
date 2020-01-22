@@ -194,10 +194,10 @@ if rank == 0:
 
     print("""{}
 Requires {} qubits to encode data using {} 
-basis elements in each space, allowing a 
+noun and {} verb basis elements, allowing a 
 maximum of {} unique patterns.
 {}
-""".format("#"*48, num_qubits, num_basis_elems, 2**num_qubits, "#"*48)
+""".format("#"*48, num_qubits, NUM_BASIS_NOUN, NUM_BASIS_VERB, (NUM_BASIS_NOUN**2)*NUM_BASIS_VERB, "#"*48)
     )
 
 # Using encoded bitstrings for bases, look-up mapping terms for composite nouns
@@ -219,9 +219,7 @@ maximum of {} unique patterns.
     corpus_list_v = vsm.tokens['verbs']
     dist_cutoff = BASIS_VERB_DIST_CUTOFF
 
-#!!!!!!######!!!!!!
     v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, VERB_NOUN_DIST_CUTOFF)
-#from IPython import embed; embed()
 
     sentences = []
     for v in v_list:
@@ -299,18 +297,26 @@ num_qubits = len(reg_memory) + len(reg_aux)
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 2
 normalise = True
 
 if rank == 0:
+    try:
+        num_exps = int(sys.argv[2])
+    except Exception as e:
+        num_exps = 10
+
     pbar = tqdm(total=num_exps)
     pbar.update(0)
+else:
+    num_exps = None
+
+num_exps=comm.bcast(num_exps, root=0)
 
 for exp in range(num_exps):
     sim.initRegister()
 
     if rank ==0:
-        print("Encoding {} patterns for experiment {} of {}".format(len(vec_to_encode), exp, num_exps))
+        print("Encoding {} patterns for experiment {} of {}".format(len(vec_to_encode), exp+1, num_exps))
         sys.stdout.flush()
 
     # Encode
@@ -320,23 +326,29 @@ for exp in range(num_exps):
     shot_counter[val] += 1
     if rank == 0:
         pbar.update(1)
-        print("Measured pattern {} for experiment {} of {}".format(val, exp, num_exps))
+        print("Measured pattern {} for experiment {} of {}".format(val, exp+1, num_exps))
         print(pbar)
         sys.stdout.flush()
 
 if rank == 0:
     pbar.close()
+    print("#"*48, "Shot counter values")
     print(shot_counter)
+    key_order = list(shot_counter.keys())
+    xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict)) for i in key_order]
+    xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in key_order ]
 
-#if 0:
+    pattern_dict = {k:v for k,v in zip(xlab_str, xlab_bin)}
+    pattern_count = {k:v for k,v in zip(xlab_str, [shot_counter[i] for i in key_order])}
+
+    print("#"*48, "Shot counter values key to token state")
+    print(pattern_dict)
+    print("#"*48, "Token state counts")
+    print(pattern_count)
+
     import matplotlib as mpl
     mpl.use('Agg')
     import matplotlib.pyplot as plt
-
-    xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict))  for i in list(shot_counter.keys())]
-    xlab_str
-
-    xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in list(shot_counter.keys())]
 
     hist_list = list(zip(
         [i[0]+r" |"+i[1]+r">" for i in zip(xlab_str,xlab_bin)],
