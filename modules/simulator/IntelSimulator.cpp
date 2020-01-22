@@ -454,7 +454,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target Index of qubit to rotate about Y-axis
      * @param theta Rotation angle
      */
-    inline void applyGateCRotY(CST control, CST target, CST theta){
+    inline void applyGateCRotY(CST control, CST target, double theta){
         qubitRegister.ApplyCRotationY(control, target, theta);
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_Y", getGateI().tostr(), control, target );
