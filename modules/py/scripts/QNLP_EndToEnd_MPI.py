@@ -66,8 +66,9 @@ except KeyError as e:
 
 #corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
+    assert (len(sys.argv) > 1)
     #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
-    corpus_file="/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
+    corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
     vsm = q.VectorSpaceModel.VectorSpaceModel(
         corpus_path=corpus_file,
         mode="l", 
@@ -241,13 +242,15 @@ maximum of {} unique patterns.
     # to reduce overhead during encoding stages. ~25% faster than data-aux-control
     reg_memory = [0]*len_reg_memory;
     for i in range(len_reg_memory):
-        reg_memory[i] = i + 2 + len_reg_aux
+        reg_memory[i] = i + len_reg_aux
 
     reg_aux = [0]*len_reg_aux
     for i in range(len_reg_aux-2):
         reg_aux[i] = i + 2
     reg_aux[-2] = 0
     reg_aux[-1] = 1
+    print("REG_MEM=",reg_memory)
+    print("REG_AUX=",reg_aux)
     
 #Create list for the patterns to be encoded
     vec_to_encode = []
