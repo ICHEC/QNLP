@@ -163,7 +163,7 @@ namespace QNLP{
          * @param max_depth Depth of calculations for sqrt and associate adjoints
          */
         void addToCache(SimulatorType& sim, const std::string gateLabel, const GateType& gate, std::size_t max_depth){
-            if(max_depth < cache_depth && gateCacheMap.find(gateLabel) != gateCacheMap.end() ){
+            if(max_depth <= cache_depth && gateCacheMap.find(gateLabel) != gateCacheMap.end() ){
                 return;
             }
             else if(max_depth > cache_depth){
