@@ -13,6 +13,10 @@ typedef ComplexDP Type;
 
 template class NCU<IntelSimulator>;
 
+/**
+ * @brief Test n-controlled unitary module with Pauli-X |11..10> 
+ * 
+ */
 TEST_CASE("Test n-controlled unitary module with Pauli-X |11..10>","[ncu]"){
     GateWriter writer;
     writer.oneQubitGateCall("label", )
