@@ -8,26 +8,8 @@ set(QNLP_MODULES_SUBDIRS
                             isc_2019;
                             nqubit_ControlledU;
                             encoding;
-                            hamming;
                             hamming_RotY;
                             hamming_similarity_example;
-#                            superposition_encoding;
-#                            hamming_distance;
-#                            corpus_encoding;
-#                            superposition_encoding_optimal_num_qubits;
-#                            nn_hamming_distance;
-#                            superposition_encoding;
-#                            nn_superposition_encoding;
-#                            db_tests;
-#                            installation_tests;
-#                            nn_hamming_distance_Schuld;
-#                            test_arithmetic;
-#                            decomposition_tests;
-#                            measurement;
-#                            test_qft;
-#                            entanglement_test;
-#                            measure_probs;
-#                            yRot
 )
 
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
@@ -35,9 +17,3 @@ foreach(MOD ${QNLP_MODULES_SUBDIRS})
 endforeach()
 
 ###############################################################################
-
-#file(GLOB_RECURSE mod_src_list "*.cpp" )
-#file(GLOB_RECURSE mod_inc_list "*.hpp" )
-
-#add_library(qnlp_modules STATIC ${mod_src_list} ${mod_inc_list})
-#target_include_directories(qnlp_modules PUBLIC ${mod_inc_list})
