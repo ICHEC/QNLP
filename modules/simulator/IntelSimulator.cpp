@@ -58,6 +58,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         gates[4](0,0) = coeff*ComplexDP(1.,0.);   gates[4](0,1) = coeff*ComplexDP(1.,0.);
         gates[4](1,0) = coeff*ComplexDP(1.,0.);   gates[4](1,1) = -coeff*ComplexDP(1.,0.);
 
+        //Ensure the cache maps are populated before use.
+        this->initCaches();
+
         #ifdef ENABLE_MPI
             int mpi_is_init;
             MPI_Initialized(&mpi_is_init);

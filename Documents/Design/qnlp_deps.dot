@@ -20,6 +20,8 @@ digraph "GG" {
     "IntelSimulator" [ label="IntelSimulator" shape="box" style=filled fillcolor="#ffaaaa"];
     "SimulatorGeneral" [ label="SimulatorGeneral" shape="box" style=filled fillcolor="#ffaaaa"];
     "Intel-QS" [ label="Intel-QS" shape="ellipse" style=filled fillcolor="#99ff99:#ff9999"];
+    "MatOpts" [ label="MatOpts" shape="box" style=filled fillcolor="#ffaaaa"];
+    "GateCache" [ label="GateCache" shape="box" style=filled fillcolor="#ffaaaa"];
 
     "PythonEnv" [ label="Python interp." shape="house" style=filled fillcolor="#cccccc"];
 
@@ -32,6 +34,9 @@ digraph "GG" {
     "SimulatorGeneral" -> "NCU" // qnlp_simulator -> qnlp_ncu
     "SimulatorGeneral" -> "Oracle" // qnlp_simulator -> qnlp_oracle
     "SimulatorGeneral" -> "QFT" // qnlp_simulator -> qnlp_qft
+
+    "NCU" -> "GateCache"
+    "GateCache" -> "MatOpts"
 
     "QNLPModule" [ label="QNLP" shape="box" fillcolor="#aaaaff" style="rounded,filled", shape=diamond];
     "CircuitPrinterModule" [ label="CircuitPrinter" shape="box" style=filled fillcolor="#aaaaff"];
@@ -48,23 +53,31 @@ digraph "GG" {
     "QNLPModule" -> "QNLPproc"
     "QNLPModule" -> "QNLPtagging"
 
+    "EncoderBase" [ label="EncoderBase" shape="box" style=filled fillcolor="#aaaaff"];    
     "GrayEncoder" [ label="GrayEncoder" shape="box" style=filled fillcolor="#aaaaff"];    
+    "OBrienEncoder" [ label="OBrienEncoder" shape="box" style=filled fillcolor="#aaaaff"];    
+    "SimpleEncoder" [ label="SimpleEncoder" shape="box" style=filled fillcolor="#aaaaff"];    
     "qnlp_db" [ label="qnlp_db"  shape="box" style=filled fillcolor="#aaaaff"];
     "basis_check" [ label="basis_check"  shape="box" style=filled fillcolor="#aaaaff"];
     "DisCoCat" [ label="DisCoCat"  shape="box" style=filled fillcolor="#aaaaff"];
     "process_corpus" [ label="process_corpus"  shape="box" style=filled fillcolor="#aaaaff"];
     "VectorSpaceModel" [ label="VectorSpaceModel"  shape="box" style=filled fillcolor="#aaaaff"];
+    "VerbGraph" [ label="VerbGraph"  shape="box" style=filled fillcolor="#aaaaff"];
 
     "QNLPio" -> "qnlp_db"
 
     "QNLPproc" -> "QNLPencoding"
-    "QNLPencoding" -> "GrayEncoder"
+    "QNLPencoding" -> "EncoderBase"
+    "EncoderBase" -> "GrayEncoder"
+    "EncoderBase" -> "OBrienEncoder"
+    "EncoderBase" -> "SimpleEncoder"
 
     "QNLPproc" -> "QNLPio"
     "QNLPproc" -> "basis_check"
     "QNLPproc" -> "DisCoCat"
     "QNLPproc" -> "process_corpus" 
     "QNLPproc" -> "VectorSpaceModel"
+    "QNLPproc" -> "VerbGraph"
     "basis_check" -> "QNLPio"
     "DisCoCat" -> "QNLPio"
     "process_corpus" -> "QNLPio"
