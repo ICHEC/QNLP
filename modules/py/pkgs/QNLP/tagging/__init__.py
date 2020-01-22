@@ -15,12 +15,12 @@ import QNLP.tagging.tag_file
 __all__ = ["word_types","tag_file"]
 
 """
-Reduces the nltk types to simplified types defined above
+Reduces the nltk/spacy types to simplified types defined above
 """    
 def matchables(classType, tag):
     if isinstance(classType, Noun) or classType is Noun:
-        return tag in ["NN","NNS","NNP","NNPS"]
+        return tag in ["NN","NNS","NNP","NNPS","NOUN", "PROPN"]
     elif isinstance(classType, Verb) or classType is Verb:
-        return tag in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ"]
+        return tag in ["VB", "VBD", "VBG", "VBN", "VBP", "VBZ","VERB"]
     else:
         return False        

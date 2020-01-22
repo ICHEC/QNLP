@@ -66,8 +66,8 @@ int main(int argc, char **argv){
     }
     std::size_t num_exps = 100;
 
-    openqu::mpi::Environment env(argc, argv);
-    int rank = env.rank();
+    qhipster::mpi::Environment env(argc, argv);
+    int rank = env.GetRank();
 
     std::size_t len_reg_memory = 5;
     std::size_t len_reg_ancilla = len_reg_memory + 2;
@@ -131,7 +131,7 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         #endif
-        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
+        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
 
         if(verbose){
             sim->PrintStates("After Hamming Rot_Y: ");

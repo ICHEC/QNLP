@@ -20,7 +20,8 @@ set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
 project (QNLP)
 
 ################################################################################
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
 
@@ -36,9 +37,9 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 ################################################################################
 
-set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
-set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
-set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
+#set(QHIPSTER $ENV{QHIPSTER_DIR} CACHE INTERNAL "" FORCE)
+#set(QHIPSTER_LIB $ENV{QHIPSTER_DIR_LIB}/qHiPSTER.a CACHE INTERNAL "" FORCE)
+#set(QHIPSTER_INC $ENV{QHIPSTER_DIR_INC} CACHE INTERNAL "" FORCE)
 
 ################################################################################
 
@@ -94,6 +95,23 @@ set(CMAKE_CXX_FLAGS
 ################################################################################
 # Selective build options
 ################################################################################
+option(ENABLE_INTEL_LLVM "Enable Intel LLVM compiler (qnextgen)" OFF)
+if(${ENABLE_INTEL_LLVM})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -qnextgen \
+        "
+    )
+endif()
+
+option(ENABLE_NATIVE "Enable inactive build tuning" OFF)
+if(${ENABLE_NATIVE})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -march=native \
+        "
+    )
+endif()
 
 option(ENABLE_AVX512 "Enable Skylake AVX512 build tuning" OFF)
 if(${ENABLE_AVX512})
@@ -140,6 +158,17 @@ if(${ENABLE_LOGGING})
     )
 endif()
 
+option(ENABLE_PROFILE "Enable profiling with symbol files passed to profiler" OFF)
+if(${ENABLE_PROFILE})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+         -trace \
+         -fno-omit-frame-pointer \
+         -fPIC  \
+        "
+    )
+endif()
+
 option(ENABLE_PYTHON "Enable build of Python bindings" OFF)
 
 ################################################################################
@@ -161,12 +190,28 @@ add_definitions(
      -DLATEX_OUTPUT"
 )
 
+# Check if MPI environment is set up, and add precompiler definition if so.
+# Note: Requires explicit ENABLE_MPI flag to be set to build MPI support.
+if (MPI_FOUND)
+    add_definitions(
+        "-DMPI_FOUND"
+    )
+    option(ENABLE_MPI "Enable gate call logging" OFF)
+    if(${ENABLE_MPI})
+        set(CMAKE_CXX_FLAGS
+            "${CMAKE_CXX_FLAGS} \
+            -DENABLE_MPI=1 \
+            "
+        )
+    endif()
+endif ()
+
 ################################################################################
 # Add Intel-QS library as target
 
-ADD_LIBRARY(qhipster STATIC IMPORTED)
-SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
-target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
+#ADD_LIBRARY(qhipster STATIC IMPORTED)
+#SET_TARGET_PROPERTIES(qhipster PROPERTIES IMPORTED_LOCATION "${QHIPSTER_LIB}")
+#target_include_directories(qhipster INTERFACE ${QHIPSTER_INC})
 
 ################################################################################
 # Include the directories with sources

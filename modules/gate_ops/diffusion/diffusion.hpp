@@ -1,7 +1,7 @@
 /**
  * @file diffusion.hpp
  * @author Lee J. O'Riordan (lee.oriordan@ichec.ie)
- * @brief 
+ * @brief Defines class with operator which applies the Grover diffusion to a marked register. Follows the Q = -A S_0 A structure as defined in https://arxiv.org/pdf/quant-ph/0005055.pdf.
  * @version 0.1
  * @date 2019-04-02
  * 
@@ -18,10 +18,25 @@
 #include <vector>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for applying Grover diffusion to a marked register
+     * 
+     * @tparam SimulatorType Class Simulator type
+     */
     template <class SimulatorType>
     class Diffusion{
     public:
+        
+        /**
+         * @brief Construct a new Diffusion object
+         * 
+         */
         Diffusion() {};
+
+        /**
+         * @brief Destroy the Diffusion object
+         * 
+         */
         ~Diffusion() {};
 
         /**
@@ -40,7 +55,7 @@ namespace QNLP{
             sim.applyGateH(target);
             sim.applyGateX(target);
             
-            sim.applyGateNCU(sim.getGateZ(), ctrlIndices, target);
+            sim.applyGateNCU(sim.getGateZ(), ctrlIndices, target, "Z");
 
             sim.applyGateX(target);
             sim.applyGateH(target);
@@ -53,4 +68,3 @@ namespace QNLP{
     };
 }
 #endif
-

@@ -22,7 +22,7 @@ enum SimBackend { intelqs=0, unknown=1 };
 /**
  * @brief Create a Simulator object
  * 
- * @param s index of simulator backend in the above enum
+ * @param sim index of simulator backend in the above enum
  * @param numQubits number of qubits to create in simulator register.
  * @return std::unique_ptr<Simulator> returns pointer to the chosen subclassed simulator
  */

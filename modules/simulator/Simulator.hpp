@@ -29,8 +29,14 @@
 #include "qft.hpp"
 #include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
-#include "hamming.hpp"
 #include "hamming_RotY_amplification.hpp"
+
+#if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+//pybind11 fails to compile with icpc using cpp17 support, so fallback to 14 if necessary
+#include <experimental/any>
+#else
+#include <any>
+#endif
 
 #ifdef VIRTUAL_INTERFACE
 #include "ISimulator.hpp"
@@ -38,7 +44,13 @@
 
 namespace QNLP{
 
-#define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
+    /*
+     * @brief Returns the boolean True if the bit at index 'bit' in 'byte' is set to 1, else returns False
+     * 
+     * @param byte An integer whose bit at index 'bit' is being tested if it is set
+     * @param bit The index into the integer 'byte' being tested if it is set
+     */
+    #define IS_SET(byte,bit) (((byte) & (1UL << (bit))) >> (bit))
 
     /**
      * @brief CRTP defined class for simulator implementations. 
@@ -53,7 +65,14 @@ namespace QNLP{
     #endif
     
     private:
-    SimulatorGeneral(){}; 
+    /**
+     * @brief Construct a new Simulator General object
+     * 
+     */
+    SimulatorGeneral(){ 
+        sim_ncu =  NCU<DerivedType>(static_cast<DerivedType&>(*this));
+    }; 
+    
     friend DerivedType;
     
     protected:
@@ -61,13 +80,20 @@ namespace QNLP{
     GateWriter writer;
     #endif
 
+
+    #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+    std::experimental::any sim_ncu;
+    #else
+    std::any sim_ncu;
+    #endif
+
     public:
         //using Mat2x2Type = decltype(std::declval<DerivedType>().getGateX());
+        /**
+         * @brief Destroy the Simulator General object
+         * 
+         */
         virtual ~SimulatorGeneral(){ }
-
-        DerivedType* createSimulator(std::size_t num_qubits){
-            return new DerivedType(static_cast<DerivedType&>(*this));
-        }
         //##############################################################################
         //                           Single qubit gates
         //##############################################################################
@@ -208,8 +234,48 @@ namespace QNLP{
          * @param target Qubit index acting as target
          */
         template<class Mat2x2Type>
-        void applyGateCU(const Mat2x2Type &U, std::size_t control, std::size_t target, std::string label="CU"){
+        void applyGateCU(const Mat2x2Type &U, const std::size_t control, const std::size_t target, std::string label="CU"){
             static_cast<DerivedType*>(this)->applyGateCU(U, control, target, label);
+        }
+
+        /**
+         * @brief Apply Controlled Pauli-X (CNOT) on target qubit
+         * 
+         * @param control Qubit index acting as control
+         * @param target Qubit index acting as target
+         */
+        void applyGateCX(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCX(control, target);
+        }
+
+        /**
+         *  @brief Apply Controlled Pauli-Y on target qubit
+         * 
+         *  @param control Qubit index acting as control
+         *  @param target Qubit index acting as target
+         */
+        void applyGateCY(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCY(control, target);
+        }
+
+        /**
+         *  @brief Apply Controlled Pauli-Z on target qubit
+         * 
+         *  @param control Qubit index acting as control
+         *  @param target Qubit index acting as target
+         */
+        void applyGateCZ(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCZ(control, target);
+        }
+
+        /**
+         *  @brief Apply Controlled Hadamard on target qubit
+         * 
+         *  @param control Qubit index acting as control
+         *  @param target Qubit index acting as target
+         */
+        void applyGateCH(const std::size_t control, const std::size_t target){
+            static_cast<DerivedType*>(this)->applyGateCH(control, target);
         }
 
         /**
@@ -290,6 +356,7 @@ namespace QNLP{
         void applyGateCRotX(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateCRotX(ctrl_qubit, qubit_idx, angle_rad);
         }
+
         /**
          * @brief Apply the given Controlled Rotation about Y-axis to the given qubit
          * 
@@ -300,6 +367,7 @@ namespace QNLP{
         void applyGateCRotY(std::size_t ctrl_qubit, std::size_t qubit_idx, double angle_rad){
             static_cast<DerivedType&>(*this).applyGateCRotY(ctrl_qubit, qubit_idx, angle_rad);
         }
+
         /**
          * @brief Apply the given Controlled Rotation about Z-axis to the given qubit
          * 
@@ -350,17 +418,6 @@ namespace QNLP{
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
         /**
          * @brief Applies |r1>|r2> -> |r1>|r1+r2>
          */
@@ -375,34 +432,26 @@ namespace QNLP{
             Arithmetic<decltype(static_cast<DerivedType&>(*this))>::sub_reg(static_cast<DerivedType&>(*this), r0_minIdx, r0_maxIdx, r1_minIdx, r1_maxIdx);
         }
 
-
-
-
-
-
         /**
          * @brief Apply n-control unitary gate to the given qubit target
          * 
          * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
          * @param U 2x2 unitary matrix
-         * @param minIdx Lowest index of the control lines expected for nCU
-         * @param maxIdx Highest index of the control lines expected for the nCU
+         * @param ctrlIndices Vector of the control lines for NCU operation
          * @param target Target qubit index to apply nCU
+         * @param label Gate label string (U, X, Y, etc.)
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label = "U"){
-            NCU<DerivedType> n;
-            std::string matrixLabel = "";
-            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
-                matrixLabel = "X";
-            }
-            else
-                matrixLabel = label;
-            n.applyNQubitControl(static_cast<DerivedType&>(*this), minIdx, maxIdx, target, std::make_pair(matrixLabel,U), 0);
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label){
+            #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, label, U, 0);
+            #else
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, {}, target, label, U, 0);
+            #endif
         }
 
         /**
-         * @brief Apply n-control unitary gate to the given qubit target
+         * @brief Apply n-control sigma_x gate to the given qubit target, using auxiliary qubits for 5CX optimisation
          * 
          * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object; decltype(simulator.getGateX()) can be used in template
          * @param U 2x2 unitary matrix
@@ -411,16 +460,12 @@ namespace QNLP{
          * @param target Target qubit index to apply nCU
          */
         template<class Mat2x2Type>
-        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label = "U"){
-            NCU<DerivedType> n;
-            std::string matrixLabel = "";
-            if ( U == static_cast<DerivedType*>(this)->getGateX() ){
-                matrixLabel = "X";
-            }
-            else{
-                matrixLabel = label;
-            }
-            n.applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, target, std::make_pair(matrixLabel,U), 0);
+        void applyGateNCU(const Mat2x2Type& U, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, std::string label){
+            #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, label, U, 0);
+            #else
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).applyNQubitControl(static_cast<DerivedType&>(*this), ctrlIndices, auxIndices, target, label, U, 0);
+            #endif
         }
 
         /**
@@ -432,9 +477,9 @@ namespace QNLP{
          * @param target Target qubit index to apply U on
          */
         template<class Mat2x2Type>
-        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U ){
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
             Oracle<DerivedType> oracle;
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U);
+            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
         }
 
         /**
@@ -445,7 +490,9 @@ namespace QNLP{
          * @param target Target qubit index to apply Z gate upon
          */
         void applyOraclePhase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
-            applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+            //applyOracleU<decltype(static_cast<DerivedType*>(this)->getGateZ())>(bit_pattern, ctrlIndices, target, static_cast<DerivedType*>(this)->getGateZ());
+            Oracle<DerivedType> oracle;
+            oracle.bitStringPhaseOracle(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target );
         }
 
         /**
@@ -460,7 +507,7 @@ namespace QNLP{
         }
 
         /**
-         * @brief Directly encodes the binary pattern represented by the target unsigned integer into the circuits register represented by the register indexes stored in target_register.
+         * @brief Encodes a defined binary pattern into a defined target register (initially in state |00...0>) of all quantum states in the superposition
          *
          * @param target_pattern The binary pattern that is to be encoded
          * @param target_register Vector containing the indices of the register qubits that the pattern is to be encoded into (beginning at least significant digit). Note, the target register is expected to be in the state consisting of all 0's before the encoding.
@@ -471,7 +518,6 @@ namespace QNLP{
                 std::size_t len_bin_pattern){
 
             for(std::size_t i = 0; i < len_bin_pattern; i++){
-            //for(int i = len_bin_pattern-1; i > -1; i--){
                 if(IS_SET(target_pattern,i)){
                     applyGateX(target_register[i]);
                 }
@@ -479,110 +525,51 @@ namespace QNLP{
         }
 
         /**
-         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
+         * @brief Encode inputted binary strings to the memory register specified as a superposition of states. Note that this implementation does not allow for multiple instances of the same input pattern but allows for 0 to be encoded.
          * 
-         * @tparam Mat2x2Type 2x2 Matrix type of unitary gate in the format expected by the derived simulator object
          * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
-         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
+         * @param reg_auxiliary std::vector of unsigned integers type containing the indices of the circuit's auxiliary register
          * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
          * @param len_bin_pattern The length of the binary patterns being encoded
          */
-        //template<class Mat2x2Type>
         void encodeBinToSuperpos_unique(const std::vector<std::size_t>& reg_memory,
-                const std::vector<std::size_t>& reg_ancilla,
+                const std::vector<std::size_t>& reg_auxiliary,
                 const std::vector<std::size_t>& bin_patterns,
                 const std::size_t len_bin_pattern){
 
-#ifndef NDEBUG
-            // Ensure that each binary pattern passed into the encoding is unique.
-            // This slow exhaustive search should be updated to a sort and smart search to improve large scale performance
-            std::size_t tmp;
-            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
-                for(std::vector<std::size_t>::const_iterator it_tmp = it+1; it_tmp != bin_patterns.end(); ++it_tmp){
-                    assert((*it) != (*it_tmp));
-                }
-            }
-#endif
-
             EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
-            encoder.encodeBinInToSuperpos_unique(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
+            encoder.encodeBinInToSuperpos_unique(static_cast<DerivedType&>(*this), reg_memory, reg_auxiliary, bin_patterns);
         }
 
         /**
-         * @brief Encode inputted binary strings to the memory register specified, as a superposition of states. Note that this implementation DOES allow for multiple instances of the same input pattern. There is a restriction that the binary string consisting of all zeroes cannot be inputted for encoding.
-         * 
-         * @param reg_memory std::vector of unsigned integers containing the indices of the circuit's memory register
-         * @param reg_ancilla std::vector of unsigned integers type containing the indices of the circuit's ancilla register
-         * @param bin_patterns std::vector of unsigned integers representing the binary patterns to encode
-         * @param len_bin_pattern The length of the binary patterns being encoded
-         */
-        void encodeBinToSuperpos(const std::vector<std::size_t>& reg_memory,
-                const std::vector<std::size_t>& reg_ancilla,
-                const std::vector<std::size_t>& bin_patterns,
-                const std::size_t len_bin_pattern){
-             
-            std::cerr << "NOT YET IMPLEMENTED" << std::endl;
-            std::abort();
-
-#ifndef NDEBUG
-            // Ensure zero is not passed in to be encoded
-            for(std::vector<std::size_t>::const_iterator it = bin_patterns.begin(); it != bin_patterns.end(); ++it){
-                assert((*it) != 0);
-            }
-#endif
-            EncodeBinIntoSuperpos<DerivedType> encoder(bin_patterns.size(), len_bin_pattern);
-            encoder.encodeBinInToSuperpos(static_cast<DerivedType&>(*this), reg_memory, reg_ancilla, bin_patterns);
-        }
-
-        /**
-         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state.
+         * @brief Computes the relative Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state.
          *
          * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
          * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
-         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
-         * @param len_bin_pattern Length of the binary patterns
-         */
-        void applyHammingDistance(std::size_t test_pattern, 
-                const std::vector<std::size_t> reg_mem, 
-                const std::vector<std::size_t> reg_ancilla,  
-                std::size_t len_bin_pattern){
-
-            assert(len_bin_pattern < reg_ancilla.size()-1);
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
-
-            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
-            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern);
-
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
-        }
-
-        /**
-         * @brief Computes the Hamming distance between the test pattern and the pattern stored in each state of the superposition, storing the result in the amplitude of the corresponding state. This method uses rotations about y by theta=2*pi/len_bin_pattern for each qubit in the test pattern that matches the training pattern to adjust each state's amplitude
-         *
-         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
-         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
-         * @param reg_ancilla Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         * @param reg_auxiliary Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
          * @param len_bin_pattern Length of the binary patterns
          */
         void applyHammingDistanceRotY(std::size_t test_pattern, 
                 const std::vector<std::size_t> reg_mem, 
-                const std::vector<std::size_t> reg_ancilla,  
-                std::size_t len_bin_pattern, 
-                std::size_t num_bin_patterns){
+                const std::vector<std::size_t> reg_auxiliary,  
+                std::size_t len_bin_pattern){
 
-            assert(len_bin_pattern < reg_ancilla.size()-1);
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+            assert(len_bin_pattern < reg_auxiliary.size()-1);
+
+            // Encode test pattern to auxiliary register
+            encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
 
             HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
-            hamming_operator.computeHammingDistance(static_cast<DerivedType&>(*this), reg_mem, reg_ancilla, len_bin_pattern, num_bin_patterns);
+            hamming_operator.computeHammingDistanceRotY(static_cast<DerivedType&>(*this), reg_mem, reg_auxiliary, len_bin_pattern);
 
-            encodeToRegister(test_pattern, reg_ancilla, len_bin_pattern);
+            // Un-encode test pattern from auxiliary register
+            encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
         }
 
         /**
          * @brief Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and returns the collapsed value.
          * 
-         * @return bool Value that qubit is randomly collapsed to according to amplitude
+         * @return bool Value that qubit is randomly collapsed to
          * @param target The index of the qubit being collapsed
          * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
          */
@@ -607,7 +594,7 @@ namespace QNLP{
         }
 
         /**
-         * @brief Apply measurement to a target qubit with respect to the z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
+         * @brief Apply measurement to a target qubit with respect to the Z-basis, collapsing to a specified value (0 or 1). Amplitudes are r-normalized afterwards. 
          * 
          * @param target The index of the qubit being collapsed
          * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
@@ -621,16 +608,51 @@ namespace QNLP{
          * 
          */
         void initRegister(){
-            static_cast<DerivedType*>(this)->initRegister(); 
+            static_cast<DerivedType&>(*this).initRegister();
         }
 
+        /**
+         * @brief Initialise caches used in NCU operation.
+         * 
+         */
+        void initCaches(){
+            #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).initialiseMaps(static_cast<DerivedType&>(*this), 16);
+            #else
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).initialiseMaps(static_cast<DerivedType&>(*this), 16);
+            #endif
+        }
+
+        /**
+         * @brief Adds a matrix to the cache, assigning it to a defined label. This is used in the caching for the NCU operation.
+         * 
+         * @tparam Mat2x2Type Matrix type to be cached 
+         * @param gateLabel Label assigned to the matrix being cached
+         * @param U Matrix to be cached
+         */
+        template<class Mat2x2Type>
+        void addUToCache(std::string gateLabel, const Mat2x2Type& U){
+            #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
+            std::experimental::any_cast<NCU<DerivedType>&>(sim_ncu).getGateCache().addToCache(static_cast<DerivedType&>(*this), gateLabel, U, 16);
+            #else
+            std::any_cast<NCU<DerivedType>&>(sim_ncu).getGateCache().addToCache(static_cast<DerivedType&>(*this), gateLabel, U, 16);
+            #endif
+        }
+
+        /**
+         * @brief Prints the string x and then for each state of the specified qubits in the superposition, prints each its amplitude, followed by state and then by the probability of that state. Note that this state observation method is not a permitted quantum operation, however it is provided for convenience and debugging/testing. 
+         * 
+         * @param x String to be printed to stdout
+         * @param qubits Indices of qubits in register to be printed
+         */
         void PrintStates(std::string x, std::vector<std::size_t> qubits = {}){
             static_cast<DerivedType*>(this)->PrintStates(x, qubits);
         }
+
         /**
          * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
          * 
-         * @tparam Type ComplexDP or ComplexSP
+         * @tparam Mat2x2Type Matrix type
          * @param U Unitary matrix to be rooted
          * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
          */
@@ -658,12 +680,12 @@ namespace QNLP{
         /**
          * @brief Function to calculate the adjoint of an input matrix
          * 
-         * @tparam Type ComplexDP or ComplexSP
+         * @tparam Mat2x2Type Matrix type
          * @param U Unitary matrix to be adjointed
          * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
          */
         template<class Mat2x2Type>
-        Mat2x2Type adjointMatrix(const Mat2x2Type& U){
+        static Mat2x2Type adjointMatrix(const Mat2x2Type& U){
             Mat2x2Type Uadjoint(U);
             std::complex<double> tmp;
             tmp = Uadjoint(0,1);
@@ -690,6 +712,11 @@ namespace QNLP{
         }
 
         #ifdef GATE_LOGGING
+        /**
+         * @brief Get the Gate Writer object
+         * 
+         * @return GateWriter& Returns reference to the writer member in the class 
+         */
         GateWriter& getGateWriter(){
             return writer;
         } 

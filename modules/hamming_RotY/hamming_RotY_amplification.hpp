@@ -9,8 +9,6 @@
 #ifndef QNLP_HAMMING_ROTY
 #define QNLP_HAMMING_ROTY
 
-//#include "Simulator.hpp"
-//#include <complex>
 #include <cassert>
 #include <utility>
 #include <memory>
@@ -19,6 +17,11 @@
 #include<complex>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for implementing the Hamming distance routine along with controlled Y rotations to encode the Hamming distance into the states' amplitudes. 
+     * 
+     * @tparam SimulatorType Class simulator type 
+     */
     template <class SimulatorType>
     class HammingDistanceRotY{
         private:
@@ -28,27 +31,40 @@ namespace QNLP{
             std::size_t len_bin_pattern;
 
         public:
+            /**
+             * @brief Construct a new Hamming Distance Rot Y object (disabled)
+             * 
+             */
             HammingDistanceRotY() = delete;
 
+            /**
+             * @brief Construct a new Hamming Distance Rot Y object
+             * 
+             * @param len_bin_pattern_ Length of binary string which the Hamming distance is to be computed upon 
+             */
             HammingDistanceRotY(const std::size_t len_bin_pattern_){
                 len_bin_pattern = len_bin_pattern_;
             };
 
+            /**
+             * @brief Destroy the Hamming Distance Rot Y object
+             * 
+             */
             ~HammingDistanceRotY(){
             };
 
             /**
-             * @brief Adjusts each state's amplitude proportional to the Hamming distance between the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
+             * @brief Computes Hamming Distance; adjusts each state's amplitude proportional to the Hamming distance between the state's training pattern and the test pattern using rotations about y for each mattern qubit. 
              *
              * @param qSim Quantum simulator instance.
              * @param reg_memory A vector containing the indices of the qubits of the memory register. 
-             * @param reg_ancilla A vector containing the indices of the qubits of the ancilla register. 
+             * @param reg_auxiliary A vector containing the indices of the qubits of the auxiliary register. 
              * @param len_bin_pattern length of binary pattern ie length of memory register.
              */
-            void computeHammingDistance(SimulatorType& qSim, 
+            void computeHammingDistanceRotY(SimulatorType& qSim, 
                     const std::vector<std::size_t>& reg_memory,
-                    const std::vector<std::size_t>& reg_ancilla, 
-                    std::size_t len_bin_pattern, std::size_t num_bin_patterns){
+                    const std::vector<std::size_t>& reg_auxiliary, 
+                    std::size_t len_bin_pattern){
                 
                 double theta = M_PI / (double) len_bin_pattern; 
                 auto Ry = qSim.getGateI();
@@ -58,55 +74,24 @@ namespace QNLP{
                 Ry(1,0) = std::complex<double>( sin(theta/2), 0.);
                 Ry(1,1) = std::complex<double>( cos(theta/2), 0.);
 
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
+                qSim.addUToCache("RY", Ry);
 
-                // Require length of ancilla register to have n+2 qubits
-                assert(reg_memory.size() + 1 < len_reg_ancilla);
+                std::size_t len_reg_auxiliary;
+                len_reg_auxiliary = reg_auxiliary.size();
+
+                // Require length of auxiliary register to have n+2 qubits
+                assert(reg_memory.size() + 1 < len_reg_auxiliary);
 
                 for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_auxiliary[i], reg_memory[i]}, reg_auxiliary[len_reg_auxiliary-2], "RY");
                     qSim.applyGateX(reg_memory[i]);
-                    qSim.applyGateX(reg_ancilla[i]);
-                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_ancilla[i], reg_memory[i]}, reg_ancilla[len_reg_ancilla-2]);
+                    qSim.applyGateX(reg_auxiliary[i]);
+                    qSim.applyGateNCU(Ry, std::vector<std::size_t> {reg_auxiliary[i], reg_memory[i]}, reg_auxiliary[len_reg_auxiliary-2], "RY");
                     qSim.applyGateX(reg_memory[i]);
-                    qSim.applyGateX(reg_ancilla[i]);
+                    qSim.applyGateX(reg_auxiliary[i]);
                 }
-                /* 
-                double theta = 2 * M_PI / (double) len_bin_pattern; 
-
-                std::size_t len_reg_ancilla;
-                len_reg_ancilla = reg_ancilla.size();
-
-                // Require length of ancilla register to have n+2 qubits
-                assert(reg_memory.size() + 1 < len_reg_ancilla);
-
- //               qSim.applyGateH(reg_ancilla[len_reg_ancilla-2]);
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PreCX_X");
-                #endif
-                for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
-                    qSim.applyGateX(reg_memory[i]);
-
-                }
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PreCRY");
-                #endif
-                for(std::size_t i = 0; i < len_bin_pattern; i++){
-                    qSim.applyGateCRotY(reg_memory[i], reg_ancilla[len_reg_ancilla-2], theta);
-                }
-                #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("PREX_CX");
-                #endif
-                for(int i = len_bin_pattern-1; i > -1; i--){
-                    qSim.applyGateX(reg_memory[i]);
-                    qSim.applyGateCX(reg_ancilla[i], reg_memory[i]);
-                }*/
             }
     };
 
 };
 #endif
-
-

@@ -142,8 +142,10 @@ class DisCoCat:
         return res_list
 
 ###############################################################################
+    #from multimethod import multimethod #Allow multiple dispatch
 
-    def map_to_basis(self, corpus_list : list, basis : list, basis_dist_cutoff=10, distance_func=None):
+    #@multimethod
+    def map_to_basis(self, corpus_list : dict, basis : list, basis_dist_cutoff=10, distance_func=None):
         """
         Maps the words from the corpus into the chosen basis.         
         Returns word_map dictionary, mapping corpus tokens -> basis states
@@ -156,35 +158,69 @@ class DisCoCat:
                                 returning the resulting scaling. If 'None', defaults to 
                                 1/coeff for scaling param
         """
+
         if distance_func == None:
             distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
 
-        d_map = {}
-        
-        # Find location of basis words in token list. Store in dict as d_map
-        for b in basis:
-            indices = list(filter(lambda x: corpus_list[x] == b[0], range(len(corpus_list))))
-            d_map.update({b[0] : np.array(indices)})
+        word_map = {}
+
+       # map distance between basis words and other words in token list
+        for word, locations in corpus_list.items():
+            word_map.update({word : None})
+            for b_idx, b_val in enumerate(basis):
+                # Basis elements are orthogonal
+                if(b_val == word):
+                    word_map.update({b_val : {b_val : 0}})
+                    break
+                # to add left-right ordering here, remove the abs and use sign of distance to indicate where words appear relative to one another. 
+                min_dist = np.min(np.abs(locations[1][:, np.newaxis] - corpus_list[b_val][1]))
+                m = (word, b_val, min_dist <= basis_dist_cutoff)
+
+                if m[2] != False:
+                    if(word_map.get(m[0]) != None):
+                        update_val = word_map.get(m[0])
+                        update_val.update({m[1] : min_dist})
+                        word_map.update({m[0] : update_val })
+                    else:
+                        word_map.update({m[0] : {m[1] : min_dist} })
+        return word_map
+
+    def nvn_distances(self, corpus_list_n : dict, corpus_list_v : dict, dist_cutoff=2, distance_func=None):
+        """This function matches the NVN sentence structure, by locating adjacent
+        nouns and verbs, following the same procedure as used to map corpus words 
+        onto the basis. With this, we can construct relationships between the
+        verbs and their subject/object nouns."""
+
+        if distance_func == None:
+            distance_func = self.distance_func #lambda x : [1.0/(i+1) for i in x]
 
         word_map = {}
 
-        # map distance between basis words and other words in token list
-        for idx, word in enumerate(corpus_list):
-            for b_k, b_v in d_map.items():
-                # Basis elements are orthogonal
-                if(b_k == word):
-                    word_map.update({b_k : {b_k : [0]}})
-                    break
-                dist = np.abs(b_v - idx)
-                m = (word, b_k, [i for i in dist if i <= basis_dist_cutoff])
-                if len(m[2]) != 0:
+       # map distance between words
+        for word_v, locations_v in corpus_list_v.items():
+            for word_n, locations_n in corpus_list_n.items():#######!!!!!!!#######
+                from IPython import embed; embed()
+
+                dists = locations_n[1][:, np.newaxis] - locations_v[1]
+                if any([np.abs(x) <= dist_cutoff for x in dists]):
+                    print("Pattern between {} and {}".format(word_n, word_v))
+                continue
+
+                if(0):# if dist between v and noun is negative, order 1, if positive, order 2
+                    word_map.update({word : None})
+
+                # to add left-right ordering here, remove the abs and use sign of distance to indicate where words appear relative to one another. 
+                min_dist = np.min(np.abs(locations[1][:, np.newaxis] - corpus_list[b_val][1]))
+                m = (word, b_val, min_dist <= basis_dist_cutoff)
+
+                if m[2] != False:
                     if(word_map.get(m[0]) != None):
                         update_val = word_map.get(m[0])
-                        update_val.update({m[1] : m[2]})
+                        update_val.update({m[1] : min_dist})
                         word_map.update({m[0] : update_val })
                     else:
-                        word_map.update({m[0] : {m[1] : m[2]} })
-        return word_map
+                        word_map.update({m[0] : {m[1] : min_dist} })
+        return word_map          
 
 ###############################################################################
 
@@ -226,6 +262,8 @@ class DisCoCat:
                 else:
                     state_encoding.update({token : [(local_coeffs[state_idx], local_states[state_idx],)] })
         return state_encoding
+
+###############################################################################
 
     def latex_states(self, bit_map, dat_map, file_name = "state"):
         """

@@ -5,7 +5,7 @@
 ###############################################################################
 if [ "$#" -eq 1 ]; then
     QNLP_ROOT=$1
-else 
+else
     QNLP_ROOT=$PWD
 fi
 NLTK_DATA=${QNLP_ROOT}/third_party/install/nltk_data
@@ -18,33 +18,44 @@ declare -a PIP_PACKAGES
 declare -a CONDA_PACKAGES
 declare -a PYTHON_CMDS
 
-GITHUB_REPOS=(  "catchorg/Catch2::v2.7.0" 
+GITHUB_REPOS=(  "intel/intel-qs"
+                "catchorg/Catch2::v2.7.0"
                 "CLIUtils/CLI11"
                 "pybind/pybind11"
                 "mpi4py/mpi4py"
-             )
-PIP_PACKAGES=()
-CONDA_PACKAGES=("nltk::anaconda" 
-                "jupyter" 
-                "numpy" 
-                "scipy"
-                "tabulate"
-                "mkl-include"
-                "networkx"
-                "matplotlib"
+)
+PIP_PACKAGES=(  "multimethod" #used for multiple dispatch of certain function
+                "pyvis" # used to present interactive graph of token relationships
+                "ortools" # used to solve TSP for basis token ordering
+                "cython" # used during Python module setup (mpi4py)
+                "spacy" # additional NLP lib for tagging
+)
+CONDA_PACKAGES=("nltk::intel"
+                "jupyter::intel"
+                "numpy::intel"
+                "scipy::intel"
+                "tabulate::intel"
+                "mkl-include::intel"
+                "mkl-devel::intel"
+                "mkl-static::intel"
+                "networkx::intel"
+                "matplotlib::intel"
                 "tqdm::conda-forge"
-               )
-CMDS=("python -m nltk.downloader -d ${NLTK_DATA} all")
+                "pandas::intel"
+)
+CMDS=(          "python -m nltk.downloader -d ${NLTK_DATA} all" #Download additional NLTK models
+                "python -m spacy download en_core_web_sm" #Download additional spacy models
+)
 
 ###############################################################################
 # Create all directories required by QNLP project
 # build, third_party, third_party/{downloads, install}
 ###############################################################################
 function setupDirs(){
-    declare -a dirs=(   "${QNLP_ROOT}/build" 
-                        "${QNLP_ROOT}/third_party" 
-                        "${QNLP_ROOT}/third_party/downloads" 
-                        "${QNLP_ROOT}/third_party/install" 
+    declare -a dirs=(   "${QNLP_ROOT}/build"
+                        "${QNLP_ROOT}/third_party"
+                        "${QNLP_ROOT}/third_party/downloads"
+                        "${QNLP_ROOT}/third_party/install"
                         "${QNLP_ROOT}/install"
                         "${NLTK_DATA}"
                     )
@@ -57,7 +68,7 @@ function setupDirs(){
 }
 
 ###############################################################################
-# Set Conda version based on current OS. 
+# Set Conda version based on current OS.
 # Assumes Nix systems only (MacOS not officially supported)
 ###############################################################################
 export SYS=$(uname -s)
@@ -128,7 +139,7 @@ function condaEnvSetup(){
     ${QNLP_ROOT}/third_party/downloads/${CONDA} -b -p ${QNLP_ROOT}/third_party/install/intel-qnlp_conda;
     source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
     conda update -n base conda -y;
-    conda create -n intel-qnlp -y python;
+    conda create -n intel-qnlp -c intel -y python=3.7;
     conda activate intel-qnlp #Activate said environment
 }
 
@@ -147,15 +158,15 @@ function fetchPackages(){
         for s in $(seq 0 $(( ${#GITHUB_REPOS[@]} -1 )) ); do
             echo ${GITHUB_REPOS[${s}]}
             PC=${GITHUB_REPOS[${s}]} #Package::channel
- 
+
             if [[ "${GITHUB_REPOS[${s}]}" =~ "::" ]]; then
-                git clone https://github.com/${PC%::*} 
+                git clone https://github.com/${PC%::*}
                 PCC=${PC#*/}
                 cd ${PCC%::*}
                 git checkout ${PC#*::}
                 cd -
             else
-                git clone https://github.com/${GITHUB_REPOS[${s}]} 
+                git clone https://github.com/${GITHUB_REPOS[${s}]}
             fi
 
         done
@@ -166,7 +177,7 @@ function fetchPackages(){
     if [ "${#CONDA_PACKAGES[@]}" -gt 0 ]; then
         for s in $(seq 0 $(( ${#CONDA_PACKAGES[@]} -1 )) ); do
             echo "Installing ${CONDA_PACKAGES[${s}]}"
-    
+
             if [[ "${CONDA_PACKAGES[${s}]}" =~ "::" ]]; then
                 PC=${CONDA_PACKAGES[${s}]} #Package::channel
                 #Split string and install package from specified channel
@@ -220,13 +231,27 @@ else
     echo "To load the environment run: source ${QNLP_ROOT}/load_env.sh" > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
 fi
 
+# Create MKLROOT dir mirroring actual MKL to avoid discrepencies
+pushd . &> /dev/null
+conda activate intel-qnlp
+echo "Creating MKLROOT-style directory structure in ${CONDA_PREFIX}/lib"
+cd ${CONDA_PREFIX}/lib
+mkdir intel64 && cd intel64
+for i in $(ls .. | grep mkl); do ln -sf $PWD/../$i .; done
+for i in $(ls .. | grep libiomp); do ln -sf $PWD/../$i .; done
+popd
+
 cat > ${QNLP_ROOT}/load_env.sh << EOL
 #!/bin/bash
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
 export PATH="${QNLP_ROOT}/install":"\${PATH}"
 export NLTK_DATA="${NLTK_DATA}"
 export QNLP_ROOT="${QNLP_ROOT}"
-conda activate intel-qnlp 
+if [ -z "\${MKLROOT}" ];
+then
+    export MKLROOT="${CONDA_PREFIX}"
+fi
+conda activate intel-qnlp
 
 EOL
 ###############################################################################

@@ -9,45 +9,74 @@ vsm_verbs.assign_indexing()
 """
 ###############################################################################
 ###############################################################################
+import spacy
+from spacy.tokenizer import Tokenizer
+from spacy.lang.en import English
 
 import QNLP.proc.process_corpus as pc
-import QNLP.encoding.gray as gr
+import QNLP.encoding as enc
+
 from os import path
 import numpy as np
 import networkx as nx
 import itertools
 
+from ortools.constraint_solver import routing_enums_pb2
+from ortools.constraint_solver import pywrapcp
+
 class VSM_pc:
     def __init__(self):
         self.pc = pc
     
-    def tokenize_corpus(self, corpus, proc_mode=0, stop_words=True):
+    def tokenize_corpus(self, corpus, proc_mode=0, stop_words=True, use_spacy=False):
         """
         Rewrite of pc.tokenize_corpus to allow for tracking of basis word 
         positions in list to improve later pairwise distance calculations.
         """
-
-        token_sents = self.pc.nltk.sent_tokenize(corpus) #Split on sentences
+        token_sents = []
         token_words = [] # Individual words
         tags = [] # Words and respective tags
+        tagged_tokens = []
         
-        for s in token_sents:
-            tk = self.pc.nltk.word_tokenize(s)
-            if stop_words == False:
-                tk = self.pc.remove_stopwords(tk, self.pc.sw)
-            token_words.extend(tk)
-            tags.extend(self.pc.nltk.pos_tag(tk))
+        if use_spacy == False:
+            token_sents = self.pc.nltk.sent_tokenize(corpus) #Split on sentences
+            
+            for s in token_sents:
+                tk = self.pc.nltk.word_tokenize(s)
+                if stop_words == False:
+                    tk = self.pc.remove_stopwords(tk, self.pc.sw)
+                token_words.extend(tk)
+                tags.extend(self.pc.nltk.pos_tag(tk))
 
-        if proc_mode != 0:
-            if proc_mode == 's':
-                s = self.pc.nltk.SnowballStemmer('english', ignore_stopwords = not stop_words)
-                token_words = [s.stem(t) for t in token_words]
-            elif proc_mode == 'l':
-                wnl = self.pc.nltk.WordNetLemmatizer()
-                token_words = [wnl.lemmatize(t) for t in token_words]
+            if proc_mode != 0:
+                if proc_mode == 's':
+                    s = self.pc.nltk.SnowballStemmer('english', ignore_stopwords = not stop_words)
+                    token_words = [s.stem(t) for t in token_words]
+                elif proc_mode == 'l':
+                    wnl = self.pc.nltk.WordNetLemmatizer()
+                    token_words = [wnl.lemmatize(t) for t in token_words]
+            
+            tagged_tokens = self.pc.nltk.pos_tag(token_words)
 
-        tagged_tokens = self.pc.nltk.pos_tag(token_words)
+        #spacy_tokenizer = English()
+        else: #using spacy
+            spacy_pos_tagger = spacy.load("en_core_web_sm")
+            for s in spacy_pos_tagger(corpus):
+                if stop_words == False and s.is_stop:
+                    continue
+                else:
+                    text_val = s.text
+                    if proc_mode != 0:
+                        if proc_mode == 's':
+                            raise Exception("Stemming not currently supported by spacy")
+                        elif proc_mode == 'l':
+                            text_val = s.lemma_
 
+                    text_val = text_val.lower()
+                    token_words.append(text_val)
+                    tags.append((text_val, s.pos_))
+            tagged_tokens = tags
+            
         nouns = self._get_token_position(tagged_tokens, self.pc.tg.Noun)
         verbs = self._get_token_position(tagged_tokens, self.pc.tg.Verb)
 
@@ -90,10 +119,10 @@ class VectorSpaceModel:
     relatively close together will be closer in the sorted list, and as a result have a smaller number of bit flips of difference
     which can be used in the Hamming distance calculation later for similarity of meanings.
     """
-    def __init__(self, corpus_path="", mode=0, stop_words=True):
+    def __init__(self, corpus_path="", mode=0, stop_words=True, encoder=enc.gray.GrayEncoder(), use_spacy=False):
         self.pc = VSM_pc()
-        self.tokens = self.load_tokens(corpus_path, mode, stop_words)
-        self.encoder = gr.GrayEncoder()
+        self.tokens = self.load_tokens(corpus_path, mode, stop_words, use_spacy)
+        self.encoder = encoder
         self.distance_dictionary = {}
         self.encoded_tokens = {}
         self.ordered_tokens = {}
@@ -101,12 +130,12 @@ class VectorSpaceModel:
 ###############################################################################
 ###############################################################################
 
-    def load_tokens(self, corpus_path, mode=0, stop_words=True):
+    def load_tokens(self, corpus_path, mode=0, stop_words=True, use_spacy=False):
         " 1. Wraps the calls from process_corpus.py to tokenize. Returns None if path is "
         if path.exists(corpus_path):
-            return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words)
+            return self.pc.tokenize_corpus( pc.load_corpus(corpus_path), mode, stop_words, use_spacy)
         else:
-            return None
+            raise Exception("No corpus found at the given path.")
 
 ###############################################################################
 ###############################################################################
@@ -131,6 +160,7 @@ class VectorSpaceModel:
         basis = {}
         for t in ("nouns", "verbs"):
             basis.update( self.sort_basis_helper(t, num_basis[t]) )
+
         return basis
 
 ###############################################################################
@@ -168,14 +198,14 @@ class VectorSpaceModel:
         self.ordered_tokens.update( { tokens_type : self._get_ordered_tokens(token_graph) } )
         return self.ordered_tokens
 
-    def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16):
+    def sort_basis_tokens_by_dist(self, tokens_type, graph_type = nx.DiGraph, dist_metric = lambda x,y : np.abs(x[:, np.newaxis] - y), num_basis = 16, ham_cycle = True):
         " 3. & 4."
         basis_tk_list = list(self.define_basis(num_basis={"verbs":num_basis, "nouns" : num_basis})[tokens_type].keys())
 
         basis_dist_dict = {}
         # pairwise distance calc
         if len(basis_tk_list) > 1:
-            for c0,k0 in enumerate(basis_tk_list[0:-1]):
+            for c0,k0 in enumerate(basis_tk_list[0:]):
                 for k1 in basis_tk_list[c0:]:
                     if k0 != k1:
                         a = self.tokens[tokens_type][k0][1]
@@ -200,7 +230,7 @@ class VectorSpaceModel:
         sufficiently ordered list for the encoding values.
         """
 
-        self.ordered_tokens.update( {tokens_type : self._get_ordered_tokens(token_graph) } )
+        self.ordered_tokens.update( {tokens_type : self._get_ordered_tokens(token_graph, ham_cycle) } )
         return self.ordered_tokens
 
 ###############################################################################
@@ -236,7 +266,6 @@ class VectorSpaceModel:
 
             else:
                 d_val = np.min(distances) if not isinstance(distances, int) else distances
-
                 token_graph.add_edge( tokens_tuple[0], tokens_tuple[1], weight=d_val )
 
                 if graph_type == nx.DiGraph:
@@ -246,15 +275,69 @@ class VectorSpaceModel:
 
 ###############################################################################
 
-    def _get_ordered_tokens(self, token_graph : nx.DiGraph):
-
+    def _get_ordered_tokens(self, token_graph : nx.DiGraph, ham_cycle = True):
+        """
+        Solves the Hamiltonian cycle problem to define the ordering of the basis tokens.
+        If a cycle is not required, can solve the TSP problem instead (ham_cycle = False).
+        """
         #Must be a directed graph
         assert( isinstance(token_graph, nx.DiGraph) )
         #Must be fully connected
-        
         assert( nx.tournament.is_strongly_connected(token_graph) )
+        if ham_cycle:
+            return nx.tournament.hamiltonian_path(token_graph)
+        else:
+            token_order, dist_total = self._tsp_token_solver(token_graph)
+            return token_order[:] 
+            
+###############################################################################
 
-        return nx.tournament.hamiltonian_path(token_graph)
+    def _tsp_token_solver(self, token_graph : nx.DiGraph):
+        """
+        Using or-tools to solve TSP of token_graph.
+        Adapted from or-tools examples on TSP
+        """
+        dist_dat = {}
+        dist_dat['distance_matrix'] = nx.adjacency_matrix(token_graph).todense().tolist() #Doesn't seem to like np matrices
+        dist_dat['num_vehicles'] = 1 #Single route
+        dist_dat['depot'] = 0 #Starting position at index 0; considering trying alternative options
+
+        mgr =   pywrapcp.RoutingIndexManager(
+                    len(dist_dat['distance_matrix']),
+                    dist_dat['num_vehicles'], dist_dat['depot']
+                )
+        routing = pywrapcp.RoutingModel(mgr)
+
+        def dist_matrix_val(idx_0, idx_1):
+            """Returns value from distance matrix between nodes"""
+            n0 = mgr.IndexToNode(idx_0)
+            n1 = mgr.IndexToNode(idx_1)
+            return dist_dat['distance_matrix'][n0][n1]
+
+        transit_callback_index = routing.RegisterTransitCallback(dist_matrix_val)
+        
+        routing.SetArcCostEvaluatorOfAllVehicles(transit_callback_index)
+
+        # Setting first solution heuristic.
+        search_parameters = pywrapcp.DefaultRoutingSearchParameters()
+        search_parameters.first_solution_strategy = (
+            routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC)
+
+        # Solve the problem.
+        assignment = routing.SolveWithParameters(search_parameters)
+
+        dist_total = assignment.ObjectiveValue()
+
+        index = routing.Start(0)
+        plan_output = ''
+        token_order = []
+        token_list = list(token_graph)
+
+        while not routing.IsEnd(index):
+            token_order.append(token_list[mgr.IndexToNode(index)])
+            previous_index = index
+            index = assignment.Value(routing.NextVar(index))
+        return token_order, dist_total
 
 ###############################################################################
 
@@ -272,22 +355,20 @@ class VectorSpaceModel:
         return (np.sum(sum_total), sum_total)
 
 ###############################################################################
-###############################################################################
 
     def assign_indexing(self, token_type):
-        """ 5. Encode the ordered tokens using a Gray code based on indexed 
+        """ 5. Encode the ordered tokens using a code based on indexed 
         location. Values close together will have fewer bit flips.
         """
         t_dict = {}
 
-        for idx,token in enumerate(self.ordered_tokens[token_type]):
-            t_dict.update({token : self.encoder.binToGray(idx) })
+        for idx,token in enumerate( self.ordered_tokens[token_type]):
+            t_dict.update({token : self.encoder.encode(idx, token_type) })
 
         self.encoded_tokens.update( {token_type : t_dict })
 
         return self.encoded_tokens
 
-###############################################################################
 ###############################################################################
 
     def calc_diff_matrix(self):

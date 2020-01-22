@@ -10,9 +10,9 @@ using namespace QNLP;
 
 int main(int argc, char **argv){
 
-    openqu::mpi::Environment env(argc, argv);
+    qhipster::mpi::Environment env(argc, argv);
 
-    int rank = env.rank();
+    int rank = env.GetRank();
 
     unsigned num_exps, m, n;
     n = 8;                     // Number of qubit registers
@@ -50,7 +50,7 @@ int main(int argc, char **argv){
             sim->applyGateX(input[exp]);
         }
          
-        sim->applyGateNCU(sim->getGateX(),input[0],input[len_input-1], target[0]);
+        sim->applyGateNCU(sim->getGateX(), input, target[0], "X");
 
         for(std::size_t j = 0; j < n; j++){
             output[j] = sim->applyMeasurement(j);

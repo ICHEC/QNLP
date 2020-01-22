@@ -20,19 +20,20 @@ int main(int argc, char **argv){
     //Do not wish to interfere with the mpi environment for Intel QS
     char** empty;
     int empty_int = 0;
-    openqu::mpi::Environment env(empty_int, empty);
+    qhipster::mpi::Environment env(empty_int, empty);
 
 
     // Cannot understand why this exists, and is necessary... 
     // Commented as it prevents anything working
     //if (env.is_usefull_rank() == false) return 0;
-    int rank = env.rank();
+    int rank = env.GetRank();
     //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
     //std::cout << "MPI RANKS= " << rank  << std::endl;
     /*
        Load data from pre-process corpus database
        */
     IntelSimulator sim(18, true);
+    sim.initRegister();
 
     sim.getQubitRegister().TurnOnSpecialize();
     //    sim.getQubitRegister().EnableStatistics();
@@ -104,7 +105,7 @@ int main(int argc, char **argv){
         }
 
         //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
+        sim.encodeBinToSuperpos_unique(reg_mem, reg_anc, bin_patterns, 8);
         //        }
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;

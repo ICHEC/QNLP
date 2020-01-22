@@ -6,6 +6,9 @@ corpus/downloads/
 corpus/install/
 corpus/load_env.sh
 
+#third_party downloads
+third_party/**/
+
 # Jupyter notebook
 .ipynb_checkpoints
 

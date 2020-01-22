@@ -34,6 +34,7 @@ void print_bits(unsigned int val, int len){
 int main(int argc, char **argv){
 
     bool verbose = false;
+    std::size_t len_reg_memory = 4;
 
     if(argc > 1){
         verbose = atoi(argv[1]);
@@ -43,12 +44,14 @@ int main(int argc, char **argv){
     if(argc > 2){
         num_exps = atoi(argv[2]);
     }
- 
+    if(argc > 3){
+        len_reg_memory = atoi(argv[3]);
+    }
 
-    openqu::mpi::Environment env(argc, argv);
-    int rank = env.rank();
 
-    std::size_t len_reg_memory = 4;
+    qhipster::mpi::Environment env(argc, argv);
+    int rank = env.GetRank();
+
     std::size_t len_reg_ancilla = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
@@ -102,17 +105,19 @@ int main(int argc, char **argv){
         }
     }
             
-    cout << "Expected results for an even distribution: " << 1.0/ (double)num_bin_pattern << endl; 
-    cout << "Measure:" << endl;
-    int i = 0;
-    for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
-        cout << vec_to_encode[i] << "\t";
-        cout << it->first << "\t";
-        cout << "|";
-        print_bits(it->first, len_reg_memory);
-        cout << ">\t";
-        cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
-        i++;
+    if(rank == 0){
+        cout << "Expected results for an even distribution: " << 1.0/ (double)num_bin_pattern << endl; 
+        cout << "Measure:" << endl;
+        int i = 0;
+        for(map<std::size_t, std::size_t>::iterator it = count.begin(); it !=count.end(); ++it){
+            cout << vec_to_encode[i] << "\t";
+            cout << it->first << "\t";
+            cout << "|";
+            print_bits(it->first, len_reg_memory);
+            cout << ">\t";
+            cout << it->second << "\t" << ((double) it->second / (double) num_exps) << endl;
+            i++;
+        }
     }
 
 

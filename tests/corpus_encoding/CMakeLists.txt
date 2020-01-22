@@ -7,7 +7,7 @@ project (QNLP)
 #include(bigmpi)
 
 #Require C++11 for Intel-QS_tmp
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QHIPSTER $ENV{QHIPSTER_DIR}) 

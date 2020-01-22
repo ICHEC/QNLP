@@ -4,5 +4,6 @@ import QNLP.proc.load_basis
 import QNLP.proc.process_corpus
 import QNLP.proc.DisCoCat
 import QNLP.proc.VectorSpaceModel
+import QNLP.proc.VerbGraph
 
-__all__ = ["basis_check", "load_basis", "process_corpus", "DisCoCat", "VectorSpaceModel"]
+__all__ = ["basis_check", "load_basis", "process_corpus", "DisCoCat", "VectorSpaceModel", "VerbGraph"]

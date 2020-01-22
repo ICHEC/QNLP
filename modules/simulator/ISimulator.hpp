@@ -1,3 +1,14 @@
+/**
+ * @file ISimulator.hpp
+ * @author Myles Doyle (myles.doyle@ichec.ie)
+ * @brief Define thee abstract interface class for implementing the QNLP-quantum simulator connector.
+ * @version 0.1
+ * @date 2020-01-20
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
 #ifndef QNLP_SIMULATOR_INTERFACE_H
 #define QNLP_SIMULATOR_INTERFACE_H
 
@@ -73,7 +84,7 @@ namespace QNLP{
         virtual void applyGateRotY(std::size_t qubit_idx, double angle_rad) = 0;
 
         /**
-         * @brief Arbitrary rotation around X axis by angle 'angle_rad' in radians
+         * @brief Arbitrary rotation around Z axis by angle 'angle_rad' in radians
          * 
          * @param qubit_idx Index of qubit to apply rotation upon
          * @param angle_rad Angle of rotation in radians
@@ -116,10 +127,28 @@ namespace QNLP{
          */
         virtual void applyGateCH(std::size_t control, std::size_t target) = 0;
 
+        /**
+         * @brief Apply Phase Shift on specified qubit by angle in radians
+         * 
+         * @param angle Angle of phase shift in rads
+         * @param qubit_idx Index of target qubit to perform phase shift upon
+         */
         virtual void applyGatePhaseShift(double angle, std::size_t qubit_idx) = 0;
 
+        /**
+         * @brief Apply Controlled Phase Shift on specified qubit by angle in radians
+         * 
+         * @param angle Angle of phase shift in rads
+         * @param control Qubit index acting as control
+         * @param target Qubit index acting as target
+         */
         virtual void applyGateCPhaseShift(double angle, std::size_t control, std::size_t target) = 0;
 
+        /**
+         * @brief Get the Number of qubits in the simulator
+         * 
+         * @return std::size_t Returns the length of (number of qubits in) the quantum register.
+         */
         virtual std::size_t getNumQubits() = 0;
 
         //virtual void applyGateCU(const std::array<complex<double>,4>& mat2x2, std::size_t control, std::size_t target);

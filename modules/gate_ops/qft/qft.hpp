@@ -14,6 +14,11 @@
 #include <cmath>
 
 namespace QNLP{
+    /**
+     * @brief Class definition for performing quantum forward and inverse Fourier transforms
+     * 
+     * @tparam SimulatorType Class Simulator type 
+     */
     template <class SimulatorType>
     class QFT{
         public:
@@ -33,7 +38,7 @@ namespace QNLP{
 
                 //Control lines:
                 for(int j = i-1; j >= (int) minIdx; j--){
-                    theta = 2.0*M_PI / (std::size_t) (1<<(1+(i-j)));
+                    theta = 2.0*M_PI / (std::size_t) (0b1<<(1+(i-j)));
                     qSim.applyGateCPhaseShift(theta, j,  i);
                 }
             }
@@ -56,7 +61,7 @@ namespace QNLP{
 
                 //Control lines:
                 for(int j = minIdx; j < i; j++){
-                    theta = -2.0*M_PI / (std::size_t) (1<<(1+(i-j)));
+                    theta = -2.0*M_PI / (std::size_t) (0b1<<(1+(i-j)));
                     qSim.applyGateCPhaseShift(theta, j,  i);
                 }
                 qSim.applyGateH( i );

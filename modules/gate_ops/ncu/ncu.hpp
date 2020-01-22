@@ -9,70 +9,109 @@
 #ifndef QNLP_NCU
 #define QNLP_NCU
 
-//#include "Simulator.hpp"
 #include <unordered_map>
 #include <complex>
 #include <cassert>
 #include <utility>
 #include <vector>
+#include <iostream>
+
+#include "GateCache.hpp"
+#include "mat_ops.hpp"
 
 namespace QNLP{
+    /**
+     * @brief Class definition for applying n-qubit controlled unitary operations.
+     * 
+     * @tparam SimulatorType Class Simulator Type
+     */
     template <class SimulatorType>
     class NCU{
         private:
+        std::unordered_set<std::string> default_gates {"X", "Y", "Z", "I", "H"};
+        /**
+         * @brief For the 5+ controlled NCX decomposition routines defined within
+         * https://arxiv.org/pdf/quant-ph/9503016.pdf
+         * 
+         * n:= number of control lines, n>=5
+         * m:= multi-control gate partition 1, m \\in {2,...,n-3}
+         * l:= multi-control gate partition 2, l = n-m-1
+         */
+        struct OptParamsCX {
+            std::size_t n;
+            std::size_t m;
+            std::size_t l;
+            std::size_t num_ops;
+        };
+
+        std::unordered_map<std::size_t, std::size_t> op_call_counts_CX ;
+        std::unordered_map<std::size_t, OptParamsCX> opt_op_call_params_CX ;
+
+        //Goal: replace above hashmaps, as well as sqrtMAtrices etc with the GateCache object, which holds them all.
+        GateCache<SimulatorType> gate_cache;
+
+        protected:
             //Take the 2x2 matrix type from the template SimulatorType
             using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
-            // Maintains a table of pre-calculated matrices to avoid repeated work. Absolute value of the key gives the depth of the sqrt ( U^{1/2^n} ), and the sign indicates if it is the adjoint (negative). Key is the depth of the operation, and value is a pair containing the gate label and numeric matrix
-            std::unordered_map<int, std::pair<std::string, Mat2x2Type> > sqrtMatricesU {};
-            std::unordered_map<int, std::pair<std::string, Mat2x2Type> > sqrtMatricesX {};
+
             static std::size_t num_gate_ops;
 
         public:
-            NCU(){ };
-            NCU(std::string matrixLabel, const Mat2x2Type& U, const std::size_t num_ctrl_gates){
-                initialiseMaps(matrixLabel, U, num_ctrl_gates);
-            };
-
-            ~NCU(){
-                clearMaps();
+            /**
+             * @brief Construct a new NCU object
+             * 
+             */
+            NCU() {
+                //Optimised building block routines for nCX
+                if(op_call_counts_CX.size() == 0){
+                    op_call_counts_CX[3] = 13;
+                    op_call_counts_CX[5] = 60;
+                }
             };
 
             /**
-             * @brief Add the PauliX and the given unitary U to the maps, both indexed with key 0
+             * @brief Construct a new NCU object
+             * 
+             * @param qSim Instance of quantum simulator 
+             */
+            NCU(SimulatorType& qSim) : NCU(){
+                gate_cache = GateCache<SimulatorType>(qSim);
+            }
+
+            /**
+             * @brief Destroy the NCU object
+             * 
+             */
+            ~NCU(){
+                clearMaps();
+                gate_cache.clearCache();
+            };
+
+            /**
+             * @brief Add the PauliX and the given unitary U to the maps
              * 
              * @param U 
              */
-            //template <class Type>
-            void initialiseMaps(std::string U_label, const Mat2x2Type& U, const std::size_t num_ctrl_lines){
-                Mat2x2Type px, phase_test;
-                px(0, 0) = std::complex<double>( 0., 0. );
-                px(0, 1) = std::complex<double>( 1., 0. );
-                px(1, 0) = std::complex<double>( 1., 0. );
-                px(1, 1) = std::complex<double>( 0., 0. );
+            void initialiseMaps( SimulatorType& qSim,  std::size_t num_ctrl_lines){
+                gate_cache.initCache(qSim, num_ctrl_lines);
+            }
 
-                phase_test(0, 0) = std::complex<double>( 1., 0. );
-                phase_test(0, 1) = std::complex<double>( 0., 0. );
-                phase_test(1, 0) = std::complex<double>( 0., 0. );
-                phase_test(1, 1) = std::complex<double>( -1., 0. );
+            /**
+             * @brief Add the given unitary matrix to the maps up to the required depth
+             * 
+             * @param U 
+             */
+            void addToMaps( SimulatorType& qSim, std::string U_label, const Mat2x2Type& U, std::size_t num_ctrl_lines){
+                gate_cache.addToCache(qSim, U_label, U, num_ctrl_lines);
+            }
 
-                sqrtMatricesX[0] = std::make_pair("X", px);
-                sqrtMatricesU[0] = std::make_pair(U_label, U);
-
-                for(std::size_t ncl = 1; ncl < num_ctrl_lines; ncl++){
-                    sqrtMatricesX[ncl] = matrixSqrt(sqrtMatricesX[ncl-1].first, sqrtMatricesX[ncl-1].second);
-                    sqrtMatricesX[-ncl] = std::make_pair(sqrtMatricesX[ncl].first, adjointMatrix(sqrtMatricesX[ncl].second));
-
-                    //If the input matrix U is a Pauli Z, use phase rotation to define gates
-                    if( phase_test == U ){
-                        phase_test(1,1) = exp( std::complex<double>(0,1.) * (M_PI/(0b1<<ncl)));
-                        sqrtMatricesU[ncl] = std::make_pair(U_label, phase_test);
-                        sqrtMatricesU[-ncl] = std::make_pair(U_label, adjointMatrix(phase_test));
-                    }
-                    else{
-                        sqrtMatricesU[ncl] = matrixSqrt(sqrtMatricesU[ncl-1].first, sqrtMatricesU[ncl-1].second);
-                        sqrtMatricesU[-ncl] = std::make_pair(sqrtMatricesU[ncl].first, adjointMatrix(sqrtMatricesU[ncl].second) );
-                    }
-                }
+            /**
+             * @brief Get the Map of cached gates. Keys are strings, and values are vectors of paired (gate, gate adjoint) types where the index give the value of (gate)^(1/2^i)
+             * 
+             * @return GateCache<SimulatorType> type 
+             */
+            GateCache<SimulatorType>& getGateCache(){
+                return gate_cache;
             }
 
             /**
@@ -80,80 +119,12 @@ namespace QNLP{
              * 
              */
             void clearMaps(){
-                sqrtMatricesU.clear();
-                sqrtMatricesX.clear();
+                gate_cache.clearCache();
             }
 
-            /**
-             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Requires the control register qubits to be adjacent. 
-             * 
-             * @tparam Type ComplexDP or ComplexSP 
-             * @param qReg Qubit register
-             * @param qControlStart First index of control qubits. 
-             * @param qControlEnd Last index of control qubits. 
-             * @param qTarget Target qubit for the unitary matrix U
-             * @param U Unitary matrix, U
-             * @param depth Depth of recursion.
-             * @param isPauliX To indicate if the unitary is a PauliX matrix.
-             */
-            void applyNQubitControl(SimulatorType& qSim, 
-                    const unsigned int qControlStart,
-                    const unsigned int qControlEnd,
-                    const unsigned int qTarget,
-                    const std::pair<std::string, Mat2x2Type>& U, 
-                    const unsigned int depth)
-            {
-                //Some safety checks
-                assert (qControlStart <= qControlEnd);
-                assert (qSim.getNumQubits() >= qControlEnd);
-                assert (qSim.getNumQubits() >= qTarget);
-                assert (qControlEnd != qTarget);
-                std::string label = "";
-                int local_depth = depth + 1;
-                if(sqrtMatricesU.size() == 0){
-                    initialiseMaps(U.first, U.second, qControlEnd - qControlStart +1);
-                }
-
-                //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
-                std::size_t cOps = qControlEnd - qControlStart + 1;
-                std::unordered_map<int, std::pair<std::string, Mat2x2Type> > *map_ptr;
-
-                if (cOps >= 2){
-                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
-                    if ( ! (U.first == "X") ){
-                        map_ptr = &sqrtMatricesU;
-                    }
-                    else {
-                        map_ptr = &sqrtMatricesX;
-                    }
-
-                    //Apply single qubit gate ops, and decompose higher order controls further
-                    label = U.first + "[" + std::to_string(local_depth) + "]" ;
-                    qSim.applyGateCU( (*map_ptr)[local_depth].second, qControlEnd, qTarget,  label);
-
-                    applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0 );
-
-                    label = U.first + "[" + std::to_string(-local_depth) + "]";
-                    qSim.applyGateCU( (*map_ptr)[-local_depth].second, qControlEnd, qTarget, label);
-
-                    applyNQubitControl(qSim, qControlStart, qControlEnd-1, qControlEnd, sqrtMatricesX[0], 0 );
-
-                    decltype(auto) sqrt_U(matrixSqrt(U.first, U.second));
-                    applyNQubitControl(qSim, qControlStart, qControlEnd-1, qTarget, sqrt_U, local_depth );
-
-                    //Reset pointer
-                    map_ptr = nullptr;
-                }
-
-                //If the number of control qubits is less than 2, assume we have decomposed sufficiently
-                else{
-                    label = U.first + "[" + std::to_string(depth) + "]";
-                    qSim.applyGateCU(U.second, qControlEnd, qTarget, label); //The first decomposed matrix value is used here
-                }
-            }
 
             /**
-             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Control indices can be in any specified location
+             * @brief Decompose n-qubit controlled op into 1 and 2 qubit gates. Control indices can be in any specified location. Ensure the gate cache has been populated with the appropriate gate type before running. This avoids O(n) checking of the container at each call for the associated gates.
              * 
              * @tparam Type ComplexDP or ComplexSP 
              * @param qReg Qubit register
@@ -161,107 +132,189 @@ namespace QNLP{
              * @param qTarget Target qubit for the unitary matrix U
              * @param U Unitary matrix, U
              * @param depth Depth of recursion.
-             * @param isPauliX To indicate if the unitary is a PauliX matrix.
              */
             void applyNQubitControl(SimulatorType& qSim, 
                     const std::vector<std::size_t> ctrlIndices,
+                    const std::vector<std::size_t> auxIndices,
                     const unsigned int qTarget,
-                    const std::pair<std::string, Mat2x2Type>& U, 
-                    const unsigned int depth)
-            {
+                    const std::string gateLabel,
+                    const Mat2x2Type& U,
+                    const std::size_t depth
+            ){
                 //No safety checks; be aware of what is physically possible (qTarget not in control_indices)
-
-                std::string label = "";
                 int local_depth = depth + 1;
-                if(sqrtMatricesU.size() == 0){
-                    initialiseMaps(U.first, U.second, ctrlIndices.size()+1);
-                }
 
                 //Determine the range over which the qubits exist; consider as a count of the control ops, hence +1 since extremeties included
                 std::size_t cOps = ctrlIndices.size();
-                std::unordered_map<int, std::pair<std::string, Mat2x2Type> > *map_ptr;
 
-                if (cOps >= 2){
+                //This can be generalised to find a more optimal set of splitting parameters. Using default example breakdown given in Barenco et al ('95) for now.
+/*                if( (cOps >= 6) && (auxIndices.size() >= 1) && (gateLabel == "X") && (depth == 0) ){
+                    auto params = find_optimal_params( ctrlIndices.size() );
+
+                    //Need at least 1 aux qubit to perform decomposition
+                    assert( auxIndices.size() > 0);
+                    
+                    //Gate step 1 setup
+                    assert( ctrlIndices.size() >= params.m );
+                    std::vector<std::size_t> subMCtrlIndicesNCX(ctrlIndices.begin(), ctrlIndices.begin() + params.m);
+                    std::vector<std::size_t> subMAuxIndicesNCX(ctrlIndices.begin() + params.m,ctrlIndices.end());
+                    subMAuxIndicesNCX.push_back(qTarget);
+
+                    //Gate step 2 setup
+                    std::vector<std::size_t> subLCtrlIndicesNCX(ctrlIndices.begin() + params.m, ctrlIndices.end());
+                    subLCtrlIndicesNCX.push_back(auxIndices[0]);
+                    std::vector<std::size_t> subLAuxIndicesNCX(ctrlIndices.begin(), ctrlIndices.begin() + params.m);
+
+                    applyNQubitControl(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subMCtrlIndicesNCX, subMAuxIndicesNCX, auxIndices[0], "X", qSim.getGateX(), 0 );
+                    applyNQubitControl(qSim, subLCtrlIndicesNCX, subLAuxIndicesNCX, qTarget, "X", qSim.getGateX(), 0 );
+
+                }
+*/
+                if( (cOps >= 5) && ( auxIndices.size() >= cOps-2 ) && (gateLabel == "X") && (depth == 0) ){ //161 -> 60 2-qubit gate calls
+                    qSim.applyGateCCX( ctrlIndices.back(), *(auxIndices.begin() + ctrlIndices.size() - 3), qTarget);
+
+                    for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
+                    }
+                    qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );
+                    
+                    for (std::size_t i = 2; i <= ctrlIndices.size()-2; i++){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
+                    }
+                    qSim.applyGateCCX( ctrlIndices.back(), *(auxIndices.begin() + ctrlIndices.size() - 3), qTarget);
+
+                    for (std::size_t i = ctrlIndices.size()-2; i >= 2; i--){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin() + (i-2)), *(auxIndices.begin() + (i-1)));
+                    }
+                    qSim.applyGateCCX( *(ctrlIndices.begin()), *(ctrlIndices.begin()+1), *(auxIndices.begin()) );
+                    for (std::size_t i = 2; i <= ctrlIndices.size()-2; i++){
+                        qSim.applyGateCCX( *(ctrlIndices.begin()+i), *(auxIndices.begin()+(i-2)), *(auxIndices.begin()+(i-1)));
+                    }
+                }
+
+                else if(cOps == 3){ //Optimisation for replacing 17 with 13 2-qubit gate calls
+                    //Apply the 13 2-qubit gate calls
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[0], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[1], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[0], ctrlIndices[1]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[1], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[2], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[2], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[1], ctrlIndices[2]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].second, ctrlIndices[2], qTarget, gateLabel );
+                    qSim.applyGateCX( ctrlIndices[0], ctrlIndices[2]);
+
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth+1].first, ctrlIndices[2], qTarget, gateLabel );
+                }
+
+                else if (cOps >= 2 && cOps !=3){
                     std::vector<std::size_t> subCtrlIndices(ctrlIndices.begin(), ctrlIndices.end()-1);
-                    //The input matrix to be decomposed can be either a PauliX, or arbitrary unitary. Separated, as the Pauli decomposition can be built from phase modifications directly.
-                    if ( ! (U.first == "X") ){
-                        map_ptr = &sqrtMatricesU;
-                    }
-                    else {
-                        map_ptr = &sqrtMatricesX;
-                    }
 
-                    //Apply single qubit gate ops, and decompose higher order controls further
-                    label = U.first + "[" + std::to_string(local_depth) + "]" ;
-                    qSim.applyGateCU( (*map_ptr)[local_depth].second, ctrlIndices.back(), qTarget,  label);
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].first, ctrlIndices.back(), qTarget, gateLabel );
 
-                    applyNQubitControl(qSim, subCtrlIndices, ctrlIndices.back(), sqrtMatricesX[0], 0 );
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
 
-                    label = U.first + "[" + std::to_string(-local_depth) + "]";
-                    qSim.applyGateCU( (*map_ptr)[-local_depth].second, ctrlIndices.back(), qTarget, label);
+                    qSim.applyGateCU( gate_cache.gateCacheMap[gateLabel][local_depth].second, ctrlIndices.back(), qTarget, gateLabel );
 
-                    applyNQubitControl(qSim, subCtrlIndices, ctrlIndices.back(), sqrtMatricesX[0], 0 );
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, ctrlIndices.back(), "X", qSim.getGateX(), 0 );
 
-                    decltype(auto) sqrt_U(matrixSqrt(U.first, U.second));
-                    applyNQubitControl(qSim, subCtrlIndices, qTarget, sqrt_U, local_depth );
-
-                    //Reset pointer
-                    map_ptr = nullptr;
+                    applyNQubitControl(qSim, subCtrlIndices, auxIndices, qTarget, gateLabel, gate_cache.gateCacheMap[gateLabel][local_depth+1].first, local_depth );
                 }
 
                 //If the number of control qubits is less than 2, assume we have decomposed sufficiently
                 else{
-                    label = U.first + "[" + std::to_string(depth) + "]";
-                    qSim.applyGateCU(U.second, ctrlIndices[0], qTarget, label); //The first decomposed matrix value is used here
+                    qSim.applyGateCU(gate_cache.gateCacheMap[gateLabel][depth].first, ctrlIndices[0], qTarget, gateLabel); //The first decomposed matrix value is used here
                 }
             }
 
-            /**
-             * @brief Calculates the unitary matrix square root (U == VV, where V is returned)
-             * 
-             * @tparam Type ComplexDP or ComplexSP
-             * @param U Unitary matrix to be rooted
-             * @return openqu::TinyMatrix<Type, 2, 2, 32> V such that VV == U
-             */
-            std::pair<std::string, const Mat2x2Type> matrixSqrt(std::string label, const Mat2x2Type& U){
-                Mat2x2Type V(U);
-                std::complex<double> delta = U(0,0)*U(1,1) - U(0,1)*U(1,0);
-                std::complex<double> tau = U(0,0) + U(1,1);
-                std::complex<double> s = sqrt(delta);
-                std::complex<double> t = sqrt(tau + 2.0*s);
+        /**
+         * @brief Returns the number of 2-qubit operations a non optimised 
+         *          decomposition will make. Cache intermediate results
+         * 
+         * @param num_ctrl_lines The number of control lines in the NCU call
+         * @return std::size_t The number of 2-qubit gate calls
+         */
+        std::size_t get_op_calls(std::size_t num_ctrl_lines){
+            std::size_t num_ops = 0;
+            auto it = op_call_counts_CX.find(num_ctrl_lines);
+            if ( it != op_call_counts_CX.end() ){
+                std::cout << "get_op_calls CTRL=" << num_ctrl_lines << "  OPS=" << it->second << std::endl;
 
-                //must be a way to vectorise these; TinyMatrix have a scale/shift option?
-                V(0,0) += s;
-                V(1,1) += s;
-                std::complex<double> scale_factor(1.,0.);
-                scale_factor/=t;
-                V(0,0) *= scale_factor; //(std::complex<double>(1.,0.)/t);
-                V(0,1) *= scale_factor; //(1/t);
-                V(1,0) *= scale_factor; //(1/t);
-                V(1,1) *= scale_factor; //(1/t);
-
-                return std::make_pair(label, V);
+                return it->second;
             }
-
-            /**
-             * @brief Function to calculate the adjoint of an input matrix
-             * 
-             * @tparam Type ComplexDP or ComplexSP
-             * @param U Unitary matrix to be adjointed
-             * @return openqu::TinyMatrix<Type, 2, 2, 32> U^{\dagger}
-             */
-            Mat2x2Type adjointMatrix(const Mat2x2Type& U){
-                Mat2x2Type Uadjoint(U);
-                std::complex<double> tmp;
-                tmp = Uadjoint(0,1);
-                Uadjoint(0,1) = Uadjoint(1,0);
-                Uadjoint(1,0) = tmp;
-                Uadjoint(0,0) = std::conj(Uadjoint(0,0));
-                Uadjoint(0,1) = std::conj(Uadjoint(0,1));
-                Uadjoint(1,0) = std::conj(Uadjoint(1,0));
-                Uadjoint(1,1) = std::conj(Uadjoint(1,1));
-                return Uadjoint;
+            else if (num_ctrl_lines >= 2){
+                num_ops += (2 + 3*get_op_calls(num_ctrl_lines-1));
             }
+            else{
+                num_ops += 1;
+            }
+            op_call_counts_CX[num_ctrl_lines] = num_ops;
+            std::cout << "get_op_calls CTRL=" << num_ctrl_lines << "  OPS=" << num_ops << std::endl;
+
+            return num_ops;
+        }
+
+        /**
+         * @brief Helper method to get optimised number of 2-gate ops 
+         * for given decomposition params
+         * 
+         * @param l multi-control gate partition 2, l = n-m-1
+         * @param m multi-control gate partition 1, m \\in {2,...,n-3}
+         * @return const std::size_t 
+         */
+        inline std::size_t get_ops_for_params(std::size_t l, std::size_t m){
+            return 2*(get_op_calls(m) + get_op_calls(l));
+        }
+
+        /**
+         * @brief Returns the number of 2-qubit operations an optimised 
+         *          decomposition will make for nCX. Caches intermediate results.
+         * 
+         * @param num_ctrl_lines The number of control lines in the nCX call
+         * @return std::size_t The number of 2-qubit gate calls
+         */
+        OptParamsCX find_optimal_params(std::size_t num_ctrl_lines){
+
+            //If entry exists, return it
+            auto it = opt_op_call_params_CX.find(num_ctrl_lines);
+            if ( it != opt_op_call_params_CX.end() ){
+                std::cout << "FOUND OPTIMAL PARAMS SEARCH FOR CTRL=" << num_ctrl_lines << "  M=" << it->second.m << " L=" << it->second.l << " OPS=" << it->second.num_ops << std::endl;
+
+                return it->second;
+            }
+            
+            //Determine number of comparisons to make.
+            std::size_t num_comp = static_cast<std::size_t>(std::floor((float)(num_ctrl_lines)/2.0)) +1;
+
+            OptParamsCX optimal_params;
+            std::size_t tmp_num_ops;
+            
+            for(std::size_t _m = 2; _m <= num_comp; ++_m){
+                std::size_t _l = (num_ctrl_lines - _m + 1);
+                tmp_num_ops = get_ops_for_params(_l, _m);
+                if (_m == 2){
+                    optimal_params = OptParamsCX{num_ctrl_lines, _m, _l, tmp_num_ops};
+                }
+                else if ( tmp_num_ops < optimal_params.num_ops){
+                    optimal_params = OptParamsCX{num_ctrl_lines, _m, _l, tmp_num_ops};
+                }
+                std::cout << "OPTIMAL PARAMS SEARCH FOR CTRL=" << num_ctrl_lines << "  M=" << _m << " L=" << _l << " OPS=" << tmp_num_ops << std::endl;
+            }
+            opt_op_call_params_CX[num_ctrl_lines] = optimal_params;
+            op_call_counts_CX[num_ctrl_lines] = optimal_params.num_ops;
+            std::cout << "OPTIMAL PARAMS FOR CTRL=" << num_ctrl_lines << "  M=" << optimal_params.m << " L=" << optimal_params.l << " OPS=" << optimal_params.num_ops << std::endl;
+            return optimal_params;
+        }
     };
 
 };

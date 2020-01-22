@@ -9,7 +9,6 @@
 
 using namespace QNLP;
 
-//For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
 template class NCU<IntelSimulator>;

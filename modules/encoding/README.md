@@ -1,0 +1,1 @@
+Encodes binary numbers represented as unsigned integers into a superposition of quantum states. The amplitude of each state will be even. The method used follows the approach outlined in the paper https://arxiv.org/abs/quant-ph/0210176v2 by C. A. Trugenberger.

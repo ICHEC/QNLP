@@ -2,14 +2,17 @@ cmake_minimum_required(VERSION 3.12)
 project(qnlp_python_module)
 
 if(${ENABLE_PYTHON})
-    set(CMAKE_CXX_STANDARD 14)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+        set(CMAKE_CXX_STANDARD 14)
+        set(PYBIND11_CPP_STANDARD -std=c++14)
+    else()
+        set(CMAKE_CXX_STANDARD 17)
+        set(PYBIND11_CPP_STANDARD -std=c++17)
+    endif()
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-    set(PYBIND11_CPP_STANDARD -std=c++14)
-
     SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -faligned-new")
 
     find_package(Python COMPONENTS Interpreter Development)
-    #find_package(pybind11 REQUIRED)
 
     add_library(_PyQNLPSimulator SHARED Simulator_pybind11.cpp)
     target_link_libraries(_PyQNLPSimulator PRIVATE pybind11::module qnlp_simulator)

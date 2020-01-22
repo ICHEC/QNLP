@@ -8,11 +8,12 @@
 
 using namespace QNLP;
 
-//For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
-template class NCU<IntelSimulator>;
-
+/**
+ * @brief Test diffusion for 4 qubits
+ * 
+ */
 TEST_CASE("4 qubit diffusion using module","[diffusion]"){
     std::size_t num_qubits = 4;
     IntelSimulator sim(num_qubits);
@@ -50,7 +51,7 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                    oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                     CAPTURE( reg[i], i );
                     //REQUIRE( reg[i].real() < 0.);
@@ -72,7 +73,10 @@ TEST_CASE("4 qubit diffusion using module","[diffusion]"){
     }
 }
 
-
+/**
+ * @brief Test diffusion for 8 qubits
+ * 
+ */
 TEST_CASE("8 qubit diffusion using module","[diffusion]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);
@@ -111,7 +115,7 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                    oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                     CAPTURE( reg[i], i );
                     //REQUIRE( reg[i].real() < 0.);
@@ -133,7 +137,10 @@ TEST_CASE("8 qubit diffusion using module","[diffusion]"){
     }
 }
 
-
+/**
+ * @brief Test diffusion for 4 qubits using Simulator method
+ * 
+ */
 TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
     std::size_t num_qubits = 4;
     IntelSimulator sim(num_qubits);
@@ -166,7 +173,7 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ() );
+                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                     CAPTURE( reg[i], i );
                     sim.applyDiffusion(ctrl_indices, num_qubits-1);
@@ -186,6 +193,10 @@ TEST_CASE("4 qubit diffusion using Simulator method","[diffusion]"){
     }
 }
 
+/**
+ * @brief Test diffusion for 8 qubits using Simulator method
+ * 
+ */
 TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);
@@ -219,7 +230,7 @@ TEST_CASE("8 qubit diffusion using Simulator method","[diffusion]"){
                 for(int iteration = 1 ; iteration < (M_PI/4)*sqrt( (0b1<<num_qubits) / 1); iteration++){
                     // Mark state: convert matching state pattern to |11...1>
                     // apply nCZ, and undo conversion; negates the matched pattern phase
-                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ() );
+                    sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                     CAPTURE( reg[i], i );
 

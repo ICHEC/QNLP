@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(encode_corpus EncodeCorpus.cpp)
-target_link_libraries(encode_corpus qnlp_db qhipster qnlp_simulator CLI11::CLI11)
+target_link_libraries(encode_corpus qnlp_db intel_qs qnlp_simulator CLI11::CLI11 stdc++fs)
 
 add_executable(encode_corpus_mpi EncodeCorpus_MPI.cpp)
-target_link_libraries(encode_corpus_mpi qnlp_db qhipster qnlp_simulator CLI11::CLI11)
+target_link_libraries(encode_corpus_mpi qnlp_db intel_qs qnlp_simulator CLI11::CLI11 stdc++fs)

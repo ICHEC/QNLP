@@ -10,8 +10,12 @@ using namespace QNLP;
 
 //For simplicity, enabling complex double only
 typedef ComplexDP Type;
-template class Oracle<IntelSimulator>;
+template class QNLP::Oracle<IntelSimulator>;
 
+/**
+ * @brief Test 3 qubit Oracle standalone class 
+ * 
+ */
 TEST_CASE("3 qubit Oracle standalone class","[oracle]"){
     std::size_t num_qubits = 3;
     IntelSimulator sim(num_qubits);
@@ -39,7 +43,7 @@ TEST_CASE("3 qubit Oracle standalone class","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -83,7 +87,7 @@ TEST_CASE("3 qubit Oracle standalone class","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -107,6 +111,10 @@ TEST_CASE("3 qubit Oracle standalone class","[oracle]"){
     }
 }
 
+/**
+ * @brief Test: 8 qubit Oracle standalone class 
+ * 
+ */
 TEST_CASE("8 qubit Oracle standalone class","[oracle]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);
@@ -137,7 +145,7 @@ TEST_CASE("8 qubit Oracle standalone class","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -181,7 +189,7 @@ TEST_CASE("8 qubit Oracle standalone class","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -205,6 +213,10 @@ TEST_CASE("8 qubit Oracle standalone class","[oracle]"){
     }
 }
 
+/**
+ * @brief Test: 3 qubit Oracle simulator method
+ * 
+ */
 TEST_CASE("3 qubit Oracle simulator method","[oracle]"){
     std::size_t num_qubits = 3;
     IntelSimulator sim(num_qubits);
@@ -232,7 +244,7 @@ TEST_CASE("3 qubit Oracle simulator method","[oracle]"){
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
                 //oracle.bitStringNCU(sim, i, ctrl_indices, num_qubits-1, sim.getGateZ());
-                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -276,7 +288,7 @@ TEST_CASE("3 qubit Oracle simulator method","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -300,6 +312,10 @@ TEST_CASE("3 qubit Oracle simulator method","[oracle]"){
     }
 }
 
+/**
+ * @brief Test: 8 qubit Oracle simulator method
+ * 
+ */
 TEST_CASE("8 qubit Oracle simulator method","[oracle]"){
     std::size_t num_qubits = 8;
     IntelSimulator sim(num_qubits);
@@ -329,7 +345,7 @@ TEST_CASE("8 qubit Oracle simulator method","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
@@ -373,7 +389,7 @@ TEST_CASE("8 qubit Oracle simulator method","[oracle]"){
 
                 // Mark state: convert matching state pattern to |11...1>
                 // apply nCZ, and undo conversion; negates the matched pattern phase
-                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ());
+                sim.applyOracleU(i, ctrl_indices, num_qubits-1, sim.getGateZ(), "Z");
 
                 CAPTURE( reg[i], i );
                 REQUIRE( reg[i].real() < 0.);
