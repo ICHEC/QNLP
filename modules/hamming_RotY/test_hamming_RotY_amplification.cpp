@@ -115,7 +115,7 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory);
 
                     // Compute Hamming distance
-                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern);
+                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory);
 
                     // Post-selection
                     sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
