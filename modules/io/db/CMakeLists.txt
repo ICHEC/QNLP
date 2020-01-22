@@ -17,7 +17,6 @@ else()
     message( SEND_ERROR "SQLite3 required for database access. libqnlp_db will not be built" )
 endif ()
 
-#enable_testing()
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_db OBJECT test_db.cpp)
     target_link_libraries(test_db Catch2::Catch2 qnlp_db)

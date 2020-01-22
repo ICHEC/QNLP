@@ -13,7 +13,6 @@ if(${ENABLE_PYTHON})
     SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -faligned-new")
 
     find_package(Python COMPONENTS Interpreter Development)
-    #find_package(pybind11 REQUIRED)
 
     add_library(_PyQNLPSimulator SHARED Simulator_pybind11.cpp)
     target_link_libraries(_PyQNLPSimulator PRIVATE pybind11::module qnlp_simulator)

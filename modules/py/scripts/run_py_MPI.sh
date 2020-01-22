@@ -10,8 +10,7 @@ PATH_TO_EXECUTABLE=.
 EXECUTABLE=simple_MPI.py
 
 NNODES=4
-NTASKSPERNODE=2
-NTHREADS=1
+NTASKSPERNODE=32
 NPROCS=$(( NTASKSPERNODE*NNODES ))
 
 module load qhipster
@@ -21,7 +20,7 @@ export AFF_THREAD=${NTHREADS}
 export KMP_AFFINITY=compact
 
 start_time=`date +%s`
-srun -N ${NNODES} -n ${NPROCS} --ntasks-per-node ${NTASKSPERNODE} -c ${NTHREADS} python ${PATH_TO_EXECUTABLE}/${EXECUTABLE}
+srun --ntasks ${NPROCS} -c 1 --ntasks-per-socket=16 --cpu-bind=cores -m plane=16 python ${PATH_TO_EXECUTABLE}/${EXECUTABLE}
 end_time=`date +%s`
 runtime=$((end_time-start_time))
 

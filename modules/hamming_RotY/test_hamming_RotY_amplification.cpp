@@ -12,12 +12,18 @@
 using namespace QNLP;
 using namespace Catch::Matchers;
 
-//For simplicity, enabling complex double only
 typedef ComplexDP Type;
 
 template class QNLP::HammingDistanceRotY<IntelSimulator>;
 
-// Returns Hamming distance between binary representation of two integers.
+/**
+ * @brief Calulates the Hamming distance between two binary strings stored as integers
+ * 
+ * @param pattern1 First binary pattern
+ * @param pattern2 Second binary pattern
+ * @param len_bin_pattern Length if binary strings 
+ * @return std::size_t Returns Hamming distance between binary representation of two integers.
+ */
 std::size_t calc_hammingDist(std::size_t pattern1, std::size_t pattern2, std::size_t len_bin_pattern){
     std::size_t num_diffs = 0;
 
@@ -27,7 +33,14 @@ std::size_t calc_hammingDist(std::size_t pattern1, std::size_t pattern2, std::si
     return num_diffs;
 }
 
-// Returns Hash map of encoded integers and the real component of their expected amplitudes which is calculated classically.
+/**
+ * @brief Classically calculates the Hamming distance between each binary string in a vector and a test binary string 
+ * 
+ * @param target_vec Vector consisting of binary strings represented in std::size_t format 
+ * @param test  Test vector for calculating Hamming distance between it and all binary strings in target_vec
+ * @param len_bin_pattern Length if binary strings 
+ * @return std::map<std::size_t, double> Returns Hash map of encoded integers and the real component of their expected amplitudes which is calculated classically. 
+ */
 std::map<std::size_t, double> expected_amplitude(std::vector<std::size_t>& target_vec, std::size_t test, std::size_t len_bin_pattern){
     const std::size_t num_bin_pattern = target_vec.size();
     double norm_factor = 0.0;
@@ -52,12 +65,16 @@ std::map<std::size_t, double> expected_amplitude(std::vector<std::size_t>& targe
     return exp_amp;
 }
 
+/**
+ * @brief Test the Hamming distance routine which uses Y rotations to encode the Hamming distance into each states' ampitudes. Each state's amplitude is calculated classically and compared to the quantum simulator computed counterpart.
+ * 
+ */
 TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingroty]"){
     const std::size_t max_qubits = 6;
     double mach_eps = 7./3. - 4./3. -1.;
 
     std::size_t num_qubits;
-    std::size_t len_reg_ancilla;
+    std::size_t len_reg_auxiliary;
     std::size_t num_bin_pattern;
     std::size_t val;
 
@@ -71,7 +88,7 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
 
                     // Experiment set-up
                     num_qubits = 2*len_reg_memory + 2;
-                    len_reg_ancilla = len_reg_memory + 2;
+                    len_reg_auxiliary = len_reg_memory + 2;
                     num_bin_pattern = pow(2,len_reg_memory);
 
                     IntelSimulator sim(num_qubits);
@@ -83,9 +100,9 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     for(std::size_t i = 0; i < len_reg_memory; i++){
                         reg_memory[i] = i;
                     }
-                    std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
-                    for(std::size_t i = 0; i < len_reg_ancilla; i++){
-                        reg_ancilla[i] = i + len_reg_memory;
+                    std::vector<std::size_t> reg_auxiliary(len_reg_auxiliary);
+                    for(std::size_t i = 0; i < len_reg_auxiliary; i++){
+                        reg_auxiliary[i] = i + len_reg_memory;
                     }
 
                     // Init data to encode
@@ -95,13 +112,13 @@ TEST_CASE("Test Hamming distance with Roatation about y axis routine","[hammingr
                     }
 
                     // Encode
-                    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory);
+                    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory);
 
                     // Compute Hamming distance
-                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern);
+                    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory);
 
                     // Post-selection
-                    sim.collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+                    sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
 
                     // Generate expected amplitudes from classical computation
                     std::map<std::size_t, double> exp_amp =  expected_amplitude(vec_to_encode, test_pattern, len_reg_memory);

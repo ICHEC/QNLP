@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(QNLP_HAMMING_INC ${PROJECT_SOURCE_DIR} PARENT_SCOPE)
 
-#find_package(IntelQS REQUIRED)
 add_library(qnlp_hamming_RotY_amplification INTERFACE)
 target_include_directories(qnlp_hamming_RotY_amplification INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 

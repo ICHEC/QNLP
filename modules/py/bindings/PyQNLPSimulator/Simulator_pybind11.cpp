@@ -28,10 +28,6 @@ class IntelSimPy : public IntelSimulator{
     void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
         this->applyOracleU( bit_pattern, ctrl_indices, target, U, label);
     }
-
-    /*void applyOracle_Phase(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target){
-        this->applyOraclePhase(bit_pattern, ctrlIndices, target, this->getGateZ());
-    }*/
 };
 
 template <class SimulatorType>
@@ -90,9 +86,7 @@ void intel_simulator_binding(py::module &m){
         .def("applyDiffusion", &SimulatorType::applyDiffusion)
         .def("encodeToRegister", &SimulatorType::encodeToRegister)
         .def("encodeBinToSuperpos_unique", &SimulatorType::encodeBinToSuperpos_unique)
-        .def("encodeBinToSuperpos", &SimulatorType::encodeBinToSuperpos)
         .def("applyHammingDistanceRotY", &SimulatorType::applyHammingDistanceRotY)
-        .def("applyHammingDistanceAncilla", &SimulatorType::applyHammingDistanceAncilla)
         .def("applyMeasurement", &SimulatorType::applyMeasurement)
         .def("applyMeasurementToRegister", &SimulatorType::applyMeasurementToRegister)
         .def("collapseToBasisZ", &SimulatorType::collapseToBasisZ)
@@ -210,24 +204,6 @@ void intel_simulator_binding(py::module &m){
 
             return arr;
         });
-
-
-
-    /** WIP: NumPy buffer interface fo data access
-      py::class_<openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u>>(m, "Matrix", py::buffer_protocol())
-      .def_buffer([](openqu::TinyMatrix<std::complex<double>, 2u, 2u, 32u> &m) -> py::buffer_info {
-        return py::buffer_info(
-            m.data(),                               // Pointer to buffer
-            sizeof(float),                          // Size of one scalar 
-            py::format_descriptor<float>::format(), // Python struct-style format descriptor 
-            2,                                      // Number of dimensions 
-            { m.rows(), m.cols() },                 // Buffer dimensions 
-            {   sizeof(float) * m.rows(),             // Strides (in bytes) for each index 
-                sizeof(float) 
-            }
-        );
-      });
-     */
 }
 
 PYBIND11_MODULE(_PyQNLPSimulator, m){

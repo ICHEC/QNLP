@@ -20,6 +20,10 @@
 using namespace QNLP;
 #include <bitset>
 
+/**
+ * @brief Test Arithmetic: subtraction
+ * 
+ */
 TEST_CASE("Arithmetic subtraction","[arithmetic]"){
     std::size_t num_qubits = 6;
     IntelSimulator sim(num_qubits);
@@ -61,6 +65,10 @@ TEST_CASE("Arithmetic subtraction","[arithmetic]"){
     }
 }
 
+/**
+ * @brief Test Arithmetic: Summation
+ * 
+ */
 TEST_CASE("Arithmetic summation","[simulator]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;

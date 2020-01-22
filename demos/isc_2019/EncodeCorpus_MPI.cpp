@@ -106,7 +106,7 @@ int main(int argc, char **argv){
         }
 
         //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
-        sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 8);
+        sim.encodeBinToSuperpos_unique(reg_mem, reg_anc, bin_patterns, 8);
 
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
