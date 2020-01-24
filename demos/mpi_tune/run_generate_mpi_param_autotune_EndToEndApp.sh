@@ -2,7 +2,7 @@
 #SBATCH -J tune
 #SBATCH -N 32
 #SBATCH -p ProdQ
-#SBATCH -t 10:00:00
+#SBATCH -t 08:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
@@ -66,7 +66,7 @@ export I_MPI_SHM=skx_avx512
 #################################################
 export I_MPI_TUNING_MODE=auto:application
 export I_MPI_TUNING_BIN_DUMP=tuning_EndToEndApp_nn${NNODES}_np${NPROCS}_${START_TIME}.dat
-export I_MPI_TUNING_AUTO_ITER_NUM=1
+export I_MPI_TUNING_AUTO_ITER_NUM=5
 export I_MPI_TUNING_AUTO_SYNC=1
 #export I_MPI_TUNING_AUTO_POLICY=
 

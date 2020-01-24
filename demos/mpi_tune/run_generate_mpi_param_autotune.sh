@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J tune
-#SBATCH -N 16
+#SBATCH -N 32
 #SBATCH -p ProdQ
 #SBATCH -t 10:00:00
 #SBATCH -A "ichec001"
@@ -14,7 +14,7 @@ START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 ### Note: User may need to modify.
 #################################################
 
-NNODES=16
+NNODES=32
 NTASKSPERNODE=32
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
@@ -34,8 +34,8 @@ EXECUTABLE=exe_demo_hamming_RotY
 
 EXE_VERBOSE=0
 EXE_TEST_PATTERN=0
-EXE_NUM_EXP=1000
-EXE_LEN_PATTERNS=12
+EXE_NUM_EXP=100
+EXE_LEN_PATTERNS=10
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #################################################
@@ -54,7 +54,7 @@ export I_MPI_SHM=skx_avx512
 #################################################
 export I_MPI_TUNING_MODE=auto:application
 export I_MPI_TUNING_BIN_DUMP=tuning_nn${NNODES}_np${NPROCS}_${START_TIME}.dat
-export I_MPI_TUNING_AUTO_ITER_NUM=5
+export I_MPI_TUNING_AUTO_ITER_NUM=1
 export I_MPI_TUNING_AUTO_SYNC=1
 #export I_MPI_TUNING_AUTO_POLICY=
 
