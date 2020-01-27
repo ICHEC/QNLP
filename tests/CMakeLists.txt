@@ -5,23 +5,13 @@ project(qnlp_modules LANGUAGES CXX)
 # Include all nested sources directories
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS
-#                            superposition_encoding;
-#                            hamming_distance;
 #                            corpus_encoding;
-#                            superposition_encoding_optimal_num_qubits;
-#                            nn_hamming_distance;
-#                            superposition_encoding;
-#                            nn_superposition_encoding;
-#                            db_tests;
-#                            installation_tests;
-#                            nn_hamming_distance_Schuld;
-#                            test_arithmetic;
 #                            decomposition_tests;
-#                            measurement;
-#                            nqubit_ControlledU;
-#                            test_qft;
 #                            entanglement_test;
-#                            measure_probs;
+#                            installation_tests;
+#                            nqubit_ControlledU;
+#                            test_arithmetic;
+#                            test_qft;
 #                            yRot
 )
 
