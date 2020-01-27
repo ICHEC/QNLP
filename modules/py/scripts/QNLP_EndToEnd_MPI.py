@@ -299,7 +299,7 @@ num_qubits = len(reg_memory) + len(reg_aux)
 
 use_fusion = True
 sim = p(num_qubits, use_fusion)
-num_exps = 2
+num_exps = 1000
 normalise = True
 
 if rank == 0:

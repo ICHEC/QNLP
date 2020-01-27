@@ -2,7 +2,7 @@
 #SBATCH -J tune
 #SBATCH -N 32
 #SBATCH -p ProdQ
-#SBATCH -t 08:00:00
+#SBATCH -t 24:00:00
 #SBATCH -A "ichec001"
 #no extra settings
 
