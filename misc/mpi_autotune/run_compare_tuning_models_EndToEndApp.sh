@@ -11,7 +11,7 @@ TIMING_FILE=timing_tuning_model_comparison_EndToEndApp.csv
 touch ${TIMING_FILE}
 
 if [[ $# -eq 0 ]]; then
-    echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided"
+    echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided.\nFurther optional arguments of different MPI Autotuning configuration files can be provided."
     exit 1
 fi
 
@@ -40,7 +40,7 @@ PATH_TO_EXECUTABLE=${QNLP_ROOT}/modules/py/scripts
 EXECUTABLE=QNLP_EndToEnd_MPI.py
 
 EXE_TARGET_CORPUS=$1 # Corpus file is expected as first command line argument.
-EXECUTABLE_ARGS="${EXE_TARGET_CORPUS}"
+EXECUTABLE_ARGS="${EXE_TARGET_CORPUS}" # List of applicatiopn arguments.
 
 # Application configuration parameters are set as environment variables
 export NUM_BASIS_NOUN=10 
