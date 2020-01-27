@@ -12,7 +12,7 @@ Scripts for running Intel MPI's Autotuning tool and comparing different versions
 
 ### MPI's Autotuining
 
-If using a version of Intel Parallel Studio XE Cluster Edition, Intel's parallel profiling tools are provided. `perf_analysis_tools` provides SLURM run scripts for each of the performance tools provided in Intel's Parallel Studio XE Cluster Edition. It also provides a run script for exploring different NUMA topologies by means of experimentation and comparison.
+If using a version of Intel Parallel Studio XE Cluster Edition, Intel's parallel profiling tools are provided. `perf_analysis` provides SLURM run scripts for each of the performance tools provided in Intel's Parallel Studio XE Cluster Edition. It also provides a run script for exploring different NUMA topologies by means of experimentation and comparison.
 
 ## Building Intel-QS on MacOS
 
