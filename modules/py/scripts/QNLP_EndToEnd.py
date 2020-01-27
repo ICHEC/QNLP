@@ -181,8 +181,8 @@ decoding_dict = {"ns" : { v:k for k,v in encoding_dict["ns"].items() },
 
 # Register must be large enough to support 2*|nouns| + |verbs|
 len_reg_memory = int(np.log2(len(verb_dist['verbs'])) + 2*np.log2(len(noun_dist['nouns'])))
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
+len_reg_auxiliary = len_reg_memory + 2
+num_qubits = len_reg_memory + len_reg_auxiliary
 print("""{}
 Requires {} qubits to encode data using {} 
 basis elements in each space, allowing a 
@@ -224,8 +224,8 @@ print(vec_to_encode)
 
 #Define register size
 len_reg_memory = verb_bits + 2*noun_bits
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
+len_reg_auxiliary = len_reg_memory + 2
+num_qubits = len_reg_memory + len_reg_auxiliary
 num_bin_pattern = len(vec_to_encode)
 
 #Set up simulator
@@ -240,9 +240,9 @@ reg_memory = [0]*len_reg_memory;
 for i in range(len_reg_memory):
     reg_memory[i] = i
 
-reg_ancilla = [0]*len_reg_ancilla
-for i in range(len_reg_ancilla):
-    reg_ancilla[i] = i + len_reg_memory;
+reg_auxiliary = [0]*len_reg_auxiliary
+for i in range(len_reg_auxiliary):
+    reg_auxiliary[i] = i + len_reg_memory;
 
 
 # Counter for experiment results
@@ -255,7 +255,7 @@ for exp in range(num_exps):
     print("Iteration {} of {}".format(exp, num_exps))
     sim.initRegister()
     # Encode
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     if shot_counter.get(val) == None:
         shot_counter.update({val : 1})

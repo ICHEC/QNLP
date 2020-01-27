@@ -26,8 +26,8 @@ decoding_dict = {"ns" : { 0:"adult", 1:"child", 2:"smith", 3:"surgeon"},
                 }
 
 len_reg_memory = 5
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
+len_reg_auxiliary = len_reg_memory + 2
+num_qubits = len_reg_memory + len_reg_auxiliary
 num_bin_pattern = 8
 
 test_pattern = 0
@@ -46,9 +46,9 @@ reg_memory = [0]*len_reg_memory;
 for i in range(len_reg_memory):
     reg_memory[i] = i
 
-reg_ancilla = [0]*len_reg_ancilla
-for i in range(len_reg_ancilla):
-    reg_ancilla[i] = i + len_reg_memory;
+reg_auxiliary = [0]*len_reg_auxiliary
+for i in range(len_reg_auxiliary):
+    reg_auxiliary[i] = i + len_reg_memory;
 
 
 # data for encoding using the given basis
@@ -110,13 +110,13 @@ for exp in tqdm(range(num_exps)):
     sim.initRegister()
 
     # Encode
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
 
     # Compute Hamming distance between test pattern and encoded patterns
-    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern)
+    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern)
 
     # Measure
-    sim.collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1)
+    sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1)
 
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     if val in count:

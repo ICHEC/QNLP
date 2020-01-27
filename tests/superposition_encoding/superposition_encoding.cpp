@@ -66,15 +66,15 @@ int main(int argc, char **argv){
     // Declare quantum circuit
     QubitCircuit<ComplexDP> circ(total_qubits,"base",0);
 
-    // Define Memory and ancilla registers by setting their indices
+    // Define Memory and auxiliary registers by setting their indices
     // into a corresponding vector
     vector<unsigned> reg_memory(n);
-    vector<unsigned> reg_ancilla(n+2);
+    vector<unsigned> reg_auxiliary(n+2);
     for(int j = 0; j < n; j++){
         reg_memory[j] = j;
     }
     for(int j = 0; j < n+2; j++){
-        reg_ancilla[j] = j + n;
+        reg_auxiliary[j] = j + n;
     }
 
     vector<double> count(m);
@@ -99,7 +99,7 @@ int main(int argc, char **argv){
 
         // Encode input binary patterns into superposition in registers for x.
         //encode_binarystrings<ComplexDP>(pattern, circ, qRegCirc, S, op_nCDecomp,X);
-        circ.EncodeBinInToSuperposition(reg_memory, reg_ancilla, pattern, n);
+        circ.EncodeBinInToSuperposition(reg_memory, reg_auxiliary, pattern, n);
 
         // Collapse qubits to state randomly selectd in class register
         for(int j = 0; j < n; j++){

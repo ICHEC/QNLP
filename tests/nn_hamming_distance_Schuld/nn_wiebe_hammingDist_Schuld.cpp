@@ -57,8 +57,8 @@ class myRegisters{
         //      - x holds superposition of training data
         //      - input holds input binary string
         //      - class_reg holds class binary string for corresponding training data
-        //      - c is an ancillary control register
-        //      - g is garbage register - also named ancilla qubit
+        //      - c is an auxiliaryry control register
+        //      - g is garbage register - also named auxiliary qubit
         vector<unsigned> p;
         vector<unsigned> pClass;
         vector<unsigned> m;
@@ -181,7 +181,7 @@ void print_bits(unsigned int val, int len){
 //              - Require m+2n+2 qubits
 /**
  * @brief Updates the circuit by encoding the binary strings of the training data into a superposition represented
- * in the x register. The c register is used as an ancilla register and is unusable after this encoding has been completed.
+ * in the x register. The c register is used as an auxiliary register and is unusable after this encoding has been completed.
  * 
  * @tparam Type - datatype of the quantum circuit
  * @param pattern - binary strings in integer format to be encoded
@@ -294,8 +294,8 @@ void encode_binarystrings(vector<unsigned int>& pattern, vector<unsigned int>& p
 }
 
 /**
- * @brief Updates the quantum circuit so that the amplitudes of each state in the superposition has a cosine term with ancilla g = |0>
- * and a sine term with ancilla g = |1>. The argument of the trigonometric terms for each state in the superposition contians is 2*pi*d/(2n) 
+ * @brief Updates the quantum circuit so that the amplitudes of each state in the superposition has a cosine term with auxiliary g = |0>
+ * and a sine term with auxiliary g = |1>. The argument of the trigonometric terms for each state in the superposition contians is 2*pi*d/(2n) 
  * where d is the Hamming distance between that state's training bit string and the test bit string.
  * 
  * @tparam Type - datatype of the quantum circuit
@@ -341,7 +341,7 @@ void compute_HammingDistance(vector<unsigned int>& input_pattern, QubitCircuit<T
         circ.Apply1QubitGate(qReg.get_input(j),U[0]);
     }
 
-    // Apply unitary with H=PauliZ to the ancillary register
+    // Apply unitary with H=PauliZ to the auxiliaryry register
     circ.Apply1QubitGate(qReg.get_g(0),U[1]);
 
 
@@ -351,7 +351,7 @@ void compute_HammingDistance(vector<unsigned int>& input_pattern, QubitCircuit<T
     }
 
     //  ???
-    // Apply unitary with H=Identiy to the ancillary junk data registers
+    // Apply unitary with H=Identiy to the auxiliaryry junk data registers
     for(int j = 0; j < m+1; j++){
           circ.Apply1QubitGate(qReg.get_c(j),U[0]);
     }
@@ -361,7 +361,7 @@ void compute_HammingDistance(vector<unsigned int>& input_pattern, QubitCircuit<T
           circ.Apply1QubitGate(qReg.get_classReg(j),U[0]);
     }
 
-    // Step 2.4     - Apply Hadamard to ancilla bit again
+    // Step 2.4     - Apply Hadamard to auxiliary bit again
     circ.ApplyHadamard(qReg.get_g(0));
     // Try doing hadamard but in exponentil term with identity for all others!!
 
@@ -427,9 +427,9 @@ int main(int argc, char **argv){
     unsigned int val;
 
     double p1, p2;
-    bool ancilla;
-    int count_ancilla_is_one;
-    count_ancilla_is_one = 0;
+    bool auxiliary;
+    int count_auxiliary_is_one;
+    count_auxiliary_is_one = 0;
 
 
     double average = 0;
@@ -528,14 +528,14 @@ int main(int argc, char **argv){
         //             - Results are stored in the coefficient of each state of the input pattern
         compute_HammingDistance<ComplexDP>(input_pattern, circ, qReg, U);
 
-        // If ancilla collapses to state |1> we discard this experiment
-        ancilla = (dist(mt) < circ.GetProbability(qReg.get_g(0)));
-        circ.CollapseQubit(qReg.get_g(0),ancilla);
+        // If auxiliary collapses to state |1> we discard this experiment
+        auxiliary = (dist(mt) < circ.GetProbability(qReg.get_g(0)));
+        circ.CollapseQubit(qReg.get_g(0),auxiliary);
         //circ.Normalize();
 
         // Reject sample
-        if(ancilla){
-            count_ancilla_is_one++;
+        if(auxiliary){
+            count_auxiliary_is_one++;
         }
         // Accept sample
         else{
@@ -587,7 +587,7 @@ int main(int argc, char **argv){
     }
 
     if(rank == 0){
-        cout << "NumTimes ancilla was one (ie sine term was measured): \t" << count_ancilla_is_one << endl;
+        cout << "NumTimes auxiliary was one (ie sine term was measured): \t" << count_auxiliary_is_one << endl;
         cout << "------ Training ------" << endl;
         for(int i = 0; i < m; i++){
             print_bits(pattern[i],n);
@@ -600,7 +600,7 @@ int main(int argc, char **argv){
         double prob, prob_sum, prob_cos_term;
         prob_sum = 0.0;
         cout << " \tclass\t\tfreq\tprob" << endl;
-        prob_cos_term = (double)num_exps/(double)(num_exps + count_ancilla_is_one);
+        prob_cos_term = (double)num_exps/(double)(num_exps + count_auxiliary_is_one);
         for(int i = 0; i < num_classes; i++){
 
             prob = count[i]/(double) num_exps;

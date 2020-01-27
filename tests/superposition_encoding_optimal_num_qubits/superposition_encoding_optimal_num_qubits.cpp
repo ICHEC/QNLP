@@ -123,13 +123,13 @@ void generate_operator_P(QubitCircuit<Type>&circ, unsigned bit_pattern, unsigned
  * @param X - The unitary matrix U of the nCU operation (in this case Pauli-X matrix)
  */
 template < class Type >
-void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory, vector<unsigned>& reg_ancilla, vector<unsigned int>& pattern,  vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, int m, int n){
+void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory, vector<unsigned>& reg_auxiliary, vector<unsigned int>& pattern,  vector<openqu::TinyMatrix<Type, 2, 2, 32>>& S, int m, int n){
 //NCU<ComplexDP>& op_nCDecomp, openqu::TinyMatrix<Type, 2, 2, 32>& X){
 
     // Encode
 
     // Prepare state in |0...0>|10> of lengths n,2
-    circ.ApplyPauliX(reg_ancilla[1]);
+    circ.ApplyPauliX(reg_auxiliary[1]);
 
     openqu::TinyMatrix<Type,2,2,32> op_U; 
 
@@ -139,19 +139,19 @@ void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory
             // Generates U^i operator in op_U for this bit
             generate_operator_U(IS_SET(pattern[i],j), op_U);
             // Apply U^i to j with control u2
-            circ.ApplyControlled1QubitGate(reg_ancilla[1], reg_memory[j], op_U);
+            circ.ApplyControlled1QubitGate(reg_auxiliary[1], reg_memory[j], op_U);
         }
 
-        circ.ApplyCPauliX(reg_ancilla[1],reg_ancilla[0]);
+        circ.ApplyCPauliX(reg_auxiliary[1],reg_auxiliary[0]);
 
 
         // Step 1.3 - Apply S^i
         // This flips the second control bit of the new term in the position so
         // that we get old|11> + new|10>
         // Break off into larger and smaller chunks
-        circ.ApplyControlled1QubitGate(reg_ancilla[0], reg_ancilla[1], S[i]);
+        circ.ApplyControlled1QubitGate(reg_auxiliary[0], reg_auxiliary[1], S[i]);
 
-        circ.ApplyPauliX(reg_ancilla[0]);
+        circ.ApplyPauliX(reg_auxiliary[0]);
 
 
         // Reset the memory register of the new term to the state |0...0>
@@ -159,7 +159,7 @@ void encode_binarystrings(QubitCircuit<Type>& circ, vector<unsigned>& reg_memory
             // Generates (U^i)^-1 operator in op_U for this bit
             generate_operator_U_inv(IS_SET(pattern[i],j), op_U);
             // Apply (U^i)^-1 to j with control u2
-            circ.ApplyControlled1QubitGate(reg_ancilla[1], reg_memory[j], op_U);
+            circ.ApplyControlled1QubitGate(reg_auxiliary[1], reg_memory[j], op_U);
         }
     }
 }
@@ -195,15 +195,15 @@ int main(int argc, char **argv){
     // Declare quantum circuit
     QubitCircuit<ComplexDP> circ(total_qubits,"base",0);
 
-    // Define Memory and ancilla registers by setting their indices
+    // Define Memory and auxiliary registers by setting their indices
     // into a corresponding vector
     vector<unsigned> reg_memory(n);
-    vector<unsigned> reg_ancilla(2);
+    vector<unsigned> reg_auxiliary(2);
     for(int j = 0; j < n; j++){
         reg_memory[j] = j;
     }
     for(int j = 0; j < 2; j++){
-        reg_ancilla[j] = j + n;
+        reg_auxiliary[j] = j + n;
     }
 
 
@@ -260,7 +260,7 @@ int main(int argc, char **argv){
 
 
         // Encode input binary patterns into superposition in registers for x.
-        encode_binarystrings<ComplexDP>(circ, reg_memory, reg_ancilla, pattern, S, m, n);
+        encode_binarystrings<ComplexDP>(circ, reg_memory, reg_auxiliary, pattern, S, m, n);
 
         // Collapse qubits to state randomly selectd in class register
         for(int j = 0; j < n; j++){

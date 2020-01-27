@@ -49,8 +49,8 @@ void encode_binarystrings(vector<unsigned int> pattern, QubitCircuit<Type>& circ
 
     // Use vectors to store indices of appropriate registers in circuit 
     //      - x holds superposition of training data
-    //      - c is an ancillary control register
-    //      - g is garbage register - also named ancilla qubit
+    //      - c is an auxiliaryry control register
+    //      - g is garbage register - also named auxiliary qubit
     vector<int> x(n);
     vector<int> dummy(n);
     vector<int> c(m+1);
@@ -193,8 +193,8 @@ int main(int argc, char **argv){
 
     // Use vectors to store indices of appropriate registers in circuit 
     //      - x holds superposition of training data
-    //      - c is an ancillary control register
-    //      - g is garbage register - also named ancilla qubit
+    //      - c is an auxiliaryry control register
+    //      - g is garbage register - also named auxiliary qubit
     vector<int> x(n);
     vector<int> input(n);
     vector<int> c(m+1);
@@ -211,8 +211,8 @@ int main(int argc, char **argv){
     unsigned int val;
 
     double p1, p2;
-    int ancilla, count_ancilla_is_one;
-    count_ancilla_is_one = 0;
+    int auxiliary, count_auxiliary_is_one;
+    count_auxiliary_is_one = 0;
 
     int exp = 0;
     while(exp < num_exps){
@@ -228,13 +228,13 @@ int main(int argc, char **argv){
         //             - Results are stored in the coefficient of each state of the input pattern
         //compute_HammingDistance<ComplexDP>( pattern, input_pattern, circ,  m,  n);
 
-        // If ancilla collapses to state |1> we discard this experiment
+        // If auxiliary collapses to state |1> we discard this experiment
         circ.ApplyMeasurement(g[0], false);
-        ancilla = circ.GetProbability(g[0]);
-        ancilla = 0;
+        auxiliary = circ.GetProbability(g[0]);
+        auxiliary = 0;
         // Reject sample
-        if(ancilla){
-            count_ancilla_is_one++;
+        if(auxiliary){
+            count_auxiliary_is_one++;
         }
         // Accept sample
         else{
@@ -288,7 +288,7 @@ int main(int argc, char **argv){
 
 
 
-    cout << "NumTimes ancilla was one: \t" << count_ancilla_is_one << endl;
+    cout << "NumTimes auxiliary was one: \t" << count_auxiliary_is_one << endl;
 
     double dist;
     double prob, prob_sum;
@@ -385,7 +385,7 @@ void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> 
         circ.Apply1QubitGate(x[j],U[0]);
     }
 
-    // Apply unitary with H=PauliZ to the ancillary register
+    // Apply unitary with H=PauliZ to the auxiliaryry register
     circ.Apply1QubitGate(g[0],U[1]);
 
 
@@ -404,6 +404,6 @@ void compute_HammingDistance(vector<unsigned int> pattern, vector<unsigned int> 
     /*
     */
 
-    // Step 2.4     - Apply Hadamard to ancilla bit again
+    // Step 2.4     - Apply Hadamard to auxiliary bit again
     circ.ApplyHadamard(g[0]);
 }

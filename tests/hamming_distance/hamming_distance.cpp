@@ -207,8 +207,8 @@ void encode_binarystrings(vector<unsigned int>& pattern, QubitCircuit<Type>& cir
 }
 
 /**
- * @brief Updates the quantum circuit so that the amplitudes of each state in the superposition has a cosine term with ancilla g = |0>
- * and a sine term with ancilla g = |1>. The argument of the trigonometric terms for each state in the superposition contians is 2*pi*d/(2n) 
+ * @brief Updates the quantum circuit so that the amplitudes of each state in the superposition has a cosine term with auxiliary g = |0>
+ * and a sine term with auxiliary g = |1>. The argument of the trigonometric terms for each state in the superposition contians is 2*pi*d/(2n) 
  * where d is the Hamming distance between that state's training bit string and the test bit string.
  * 
  * @tparam Type - datatype of the quantum circuit
@@ -252,7 +252,7 @@ void compute_HammingDistance(vector<unsigned int>& test_pattern, QubitCircuit<Ty
         circ.Apply1QubitGate(qRegCirc.get_pReg(j),U[0]);
     }
 
-    // Apply unitary with H=PauliZ to the ancillary register
+    // Apply unitary with H=PauliZ to the auxiliaryry register
     circ.Apply1QubitGate(qRegCirc.get_cReg(0),U[1]);
 
 
@@ -262,7 +262,7 @@ void compute_HammingDistance(vector<unsigned int>& test_pattern, QubitCircuit<Ty
     }
 
     //  ???
-    // Apply unitary with H=Identiy to the ancillary junk data registers
+    // Apply unitary with H=Identiy to the auxiliaryry junk data registers
     circ.Apply1QubitGate(qRegCirc.get_cReg(1),U[0]);
 
 
@@ -276,7 +276,7 @@ void compute_HammingDistance(vector<unsigned int>& test_pattern, QubitCircuit<Ty
 
 
 
-    // Step 2.4     - Apply Hadamard to ancilla bit again
+    // Step 2.4     - Apply Hadamard to auxiliary bit again
     circ.ApplyHadamard(qRegCirc.get_cReg(0));
 }
 
@@ -405,9 +405,9 @@ int main(int argc, char **argv){
     progressBar progress(num_exps);
 
     double dart;
-    bool ancilla_is_set;
+    bool auxiliary_is_set;
 
-    unsigned count_ancilla_is_one = 0;
+    unsigned count_auxiliary_is_one = 0;
 
     for(int exp = 0; exp < num_exps; exp++){
     
@@ -422,9 +422,9 @@ int main(int argc, char **argv){
         //             - Results are stored in the coefficient of each state of the input pattern
         compute_HammingDistance<ComplexDP>(test_pattern, circ, qRegCirc, U);
 
-        // Collapse ancilla register to 0 or 1 randomly
-        ancilla_is_set = (dist(mt) < circ.GetProbability(qRegCirc.get_cReg(0)));
-        circ.CollapseQubit(qRegCirc.get_cReg(0),ancilla_is_set);
+        // Collapse auxiliary register to 0 or 1 randomly
+        auxiliary_is_set = (dist(mt) < circ.GetProbability(qRegCirc.get_cReg(0)));
+        circ.CollapseQubit(qRegCirc.get_cReg(0),auxiliary_is_set);
         circ.Normalize();
 
         // Collapse qubits to state randomly selectd in class register
@@ -443,23 +443,23 @@ int main(int argc, char **argv){
         // Increase the count of the training pattern measured
         for(int i = 0; i < m; i++){
             if(pattern[i] == val){
-                count[ancilla_is_set][i]++;
+                count[auxiliary_is_set][i]++;
             }
         }
 
-        // If ancilla collapses to state |1> we
+        // If auxiliary collapses to state |1> we
         // keep track of the number of times this happens.
-        count_ancilla_is_one += ancilla_is_set;
+        count_auxiliary_is_one += auxiliary_is_set;
 
         progress.iterate();
     }
 
     if(rank == 0){
         double dist;
-        double prob, prob_sum, prob_cos_term, prob_ancilla_isZero;
+        double prob, prob_sum, prob_cos_term, prob_auxiliary_isZero;
 
         prob_sum = 0.0;
-        prob_ancilla_isZero = 1.0 - (double)( count_ancilla_is_one) / (double) num_exps;
+        prob_auxiliary_isZero = 1.0 - (double)( count_auxiliary_is_one) / (double) num_exps;
 
 
 
@@ -467,11 +467,11 @@ int main(int argc, char **argv){
         cout << "Cosine (Ancilla = 0)" << endl;
         for(int i = 0; i < m; i++){
 
-            //prob = count[0][i]/(double) (num_exps - count_ancilla_is_one);
+            //prob = count[0][i]/(double) (num_exps - count_auxiliary_is_one);
             prob = count[0][i]/(double) (num_exps);
             prob_sum += prob;
 
-            dist = 2*n*M_1_PI*acos(m*prob*prob_ancilla_isZero);
+            dist = 2*n*M_1_PI*acos(m*prob*prob_auxiliary_isZero);
 
             cout << i << " \t|";
             print_bits(pattern[i], n);
@@ -480,7 +480,7 @@ int main(int argc, char **argv){
         cout << "Sine (Ancilla = 1)" << endl;
         for(int i = 0; i < m; i++){
 
-            //prob = count[1][i]/(double) count_ancilla_is_one;
+            //prob = count[1][i]/(double) count_auxiliary_is_one;
             prob = count[1][i]/(double)num_exps;
             prob_sum += prob;
 
@@ -491,7 +491,7 @@ int main(int argc, char **argv){
 
 
         cout << "Sum of probs =\t" << prob_sum << endl;
-        cout << "NumTimes ancilla was one (ie sine term was measured): \t" << count_ancilla_is_one << endl << endl;
+        cout << "NumTimes auxiliary was one (ie sine term was measured): \t" << count_auxiliary_is_one << endl << endl;
 
         cout << "Number of patterns: " << m << endl;
         cout << "Pattern length: " << n << endl;

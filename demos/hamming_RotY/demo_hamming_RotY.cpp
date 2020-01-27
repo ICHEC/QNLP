@@ -45,7 +45,7 @@ int main(int argc, char **argv){
 
 
     std::size_t len_reg_memory = 2;
-    std::size_t len_reg_ancilla;
+    std::size_t len_reg_auxiliary;
     std::size_t num_qubits;
     std::size_t num_bin_pattern;
     std::size_t test_pattern = 3;
@@ -60,8 +60,8 @@ int main(int argc, char **argv){
         len_reg_memory = atoi(argv[4]);
     }
 
-    len_reg_ancilla = len_reg_memory + 2;
-    num_qubits = len_reg_memory + len_reg_ancilla;;
+    len_reg_auxiliary = len_reg_memory + 2;
+    num_qubits = len_reg_memory + len_reg_auxiliary;;
     num_bin_pattern = pow(2,len_reg_memory);
 
 
@@ -74,9 +74,9 @@ int main(int argc, char **argv){
     for(std::size_t i = 0; i < len_reg_memory; i++){
         reg_memory[i] = i;
     }
-    std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
-    for(std::size_t i = 0; i < len_reg_ancilla; i++){
-        reg_ancilla[i] = i + len_reg_memory;
+    std::vector<std::size_t> reg_auxiliary(len_reg_auxiliary);
+    for(std::size_t i = 0; i < len_reg_auxiliary; i++){
+        reg_auxiliary[i] = i + len_reg_memory;
     }
 
     // Init data to encode
@@ -102,7 +102,7 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Encode");
         #endif
-        sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+        sim->encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory); 
 
         if(verbose){
             sim->PrintStates("After encoding: ");
@@ -112,14 +112,14 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         #endif
-        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
+        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory);
 
         if(verbose){
             sim->PrintStates("After Hamming Rot_Y: ");
         }
 
         // Measure
-        sim->collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+        sim->collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
         if(verbose){
             sim->PrintStates("After Collapse to Basis z: ");
         }

@@ -52,8 +52,8 @@ int main(int argc, char **argv){
     qhipster::mpi::Environment env(argc, argv);
     int rank = env.GetRank();
 
-    std::size_t len_reg_ancilla = len_reg_memory + 2;
-    std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
+    std::size_t len_reg_auxiliary = len_reg_memory + 2;
+    std::size_t num_qubits = len_reg_memory + len_reg_auxiliary;;
     std::size_t num_bin_pattern = pow(2,len_reg_memory);
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
@@ -63,9 +63,9 @@ int main(int argc, char **argv){
     for(std::size_t i = 0; i < len_reg_memory; i++){
         reg_memory[i] = i;
     }
-    std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
-    for(std::size_t i = 0; i < len_reg_ancilla; i++){
-        reg_ancilla[i] = i + len_reg_memory;
+    std::vector<std::size_t> reg_auxiliary(len_reg_auxiliary);
+    for(std::size_t i = 0; i < len_reg_auxiliary; i++){
+        reg_auxiliary[i] = i + len_reg_memory;
     }
 
     // Init data to encode
@@ -90,7 +90,7 @@ int main(int argc, char **argv){
 
 
         // Encode
-        sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+        sim->encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory); 
 
         // Measure
         val = sim->applyMeasurementToRegister(reg_memory);
