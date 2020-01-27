@@ -9,7 +9,7 @@
 START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 
 if [[ $# -eq 0 ]]; then
-    echo -e "Error: No command line args supplied.\nAn corpus/text file needs to be provided"
+    echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided"
     exit 1
 elif [[ $# -gt 1 ]]; then
     echo -e "Error: Too many command line arguments supplied. $# supplied, but expected 1."
