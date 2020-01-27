@@ -241,6 +241,9 @@ for i in $(ls .. | grep mkl); do ln -sf $PWD/../$i .; done
 for i in $(ls .. | grep libiomp); do ln -sf $PWD/../$i .; done
 popd
 
+#Force pip install of scipy/numpy as conda version has issues with MKL
+pip install --upgrade --force-reinstall scipy
+
 cat > ${QNLP_ROOT}/load_env.sh << EOL
 #!/bin/bash
 source ${QNLP_ROOT}/third_party/install/intel-qnlp_conda/bin/activate ;
