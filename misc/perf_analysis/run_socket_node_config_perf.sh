@@ -74,13 +74,6 @@ export I_MPI_TUNING_BIN=${I_MPI_ROOT}/intel64/etc/tuning_skx_shm-ofi_efa.dat
 ### (also collects timing metrics).
 #################################################
 
-echo " After"
-SRUN_WHICH=$( which srun )
-echo -e "srun version: ${SRUN_WHICH}"
-
-MPIRUN_WHICH=$( which mpirun )
-echo -e "mpirun version: ${MPIRUN_WHICH}"
-
 EXECUTABLE_ARGS="${EXE_VERBOSE} ${EXE_TEST_PATTERN} ${EXE_NUM_EXP} ${EXE_LEN_PATTERNS}"
 
 #export I_MPI_DEBUG=5

@@ -2,6 +2,7 @@
 
 The Intel Parallel Studio Tool suite can be used to conduct performance analysis at different levels of granularity;
 
+- Intel VTune Applicatio Performance Snapshot: Provides summary overview of performance as well as diagnosis of boundedness cause
 - Intel Trace Analyzer & Collector (ITAC): MPI tuning and analysis
 - Intel VTune Amplifier: Performance profiler on a single node
 - Intel Advisor: Vectorization optimization, thread prototyping and flow graph analysis
@@ -101,3 +102,9 @@ advixe-gui
 ```
 
 Open the corresponding results file in the GUI.
+
+# Determine best NUMA Node configuration 
+
+The script `run_socket_node_config_perf.sh` can be run by specifying different NUMA node configurations for how many processes are to be run on each socket as well as their thread affinities. The execution times of an application for each configuration will be outputted.
+
+From experimentation, the best NUMA node configurations was found to be binding each process to a single CPU, and only permitting 16 processes per socket (out of 20 CPUs).
