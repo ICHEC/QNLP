@@ -32,25 +32,6 @@ class IntelSimPy : public IntelSimulator{
 
 template <class SimulatorType>
 void intel_simulator_binding(py::module &m){
-    // Define various trivial types to allow simpler overload resolution:
-    py::module m_tag = m.def_submodule("tag");
-#define MAKE_TAG_TYPE(Name) \
-    struct Name##_tag {}; \
-    py::class_<Name##_tag>(m_tag, #Name "_tag").def(py::init<>()); \
-    m_tag.attr(#Name) = py::cast(Name##_tag{})
-    MAKE_TAG_TYPE(pointer);
-    MAKE_TAG_TYPE(unique_ptr);
-    MAKE_TAG_TYPE(move);
-    MAKE_TAG_TYPE(shared_ptr);
-    MAKE_TAG_TYPE(derived);
-    MAKE_TAG_TYPE(TF4);
-    MAKE_TAG_TYPE(TF5);
-    MAKE_TAG_TYPE(null_ptr);
-    MAKE_TAG_TYPE(base);
-    MAKE_TAG_TYPE(invalid_base);
-    MAKE_TAG_TYPE(alias);
-    MAKE_TAG_TYPE(unaliasable);
-    MAKE_TAG_TYPE(mixed);
 
     py::class_<SimulatorType>(m, "PyQNLPSimulator")
         .def(py::init<const std::size_t &, const bool &>())
