@@ -1,8 +1,6 @@
 # Miscellaneous Tools and Build Instructions
 
-This directory consists of subdirectories which contain useful tools for tuning and analysing the parallel performance of your application. It also has a subdirectory with detailed build instructions for building the QNLP library on MacOS.
-
- your environment for a potentially significant performance improvement when using Intel-QS in a HPC environment. Instructions and scripts for running Intel's parallel profiling tools are provided in `perf_analysis`. Instructions for building the QNLP libarary on MacOS are provided in `MacOS_build_instructions/README.md`.
+This directory consists of subdirectories which contain useful tools for tuning and analysing the parallel performance of your application. It also has a subdirectory with detailed build instructions for the QNLP library on MacOS. Finally, a directory with a SLRUM job script for conducting strong scaling experiments on the end to end application is provided.
 
 ## Performance Optimisations: MPI Autotuining
 
@@ -17,3 +15,9 @@ If using a version of Intel Parallel Studio XE Cluster Edition, Intel's parallel
 ## Building Intel-QS on MacOS
 
 `MacOS_build_instructions` provides detailed instructions for building QNLP and Intel-QS on a MacOS. Although the performance and scaling of applciations on PC/laptop device is very limited, it is a very useful development tool.
+
+## Strong Scaling
+
+A SLURM job script is provided in `strong_scaling_exp` for running strong scaling experiments on the end to end QNLP application. This generates a file containing execution times of the application at different scales. These timing results can be plotted to analyse the application's strong scaling performance. 
+
+The SLURM job script can easily be modified to run other executables or Python scripts.
