@@ -18,6 +18,7 @@
 #include "Simulator.hpp"  
 #include <map>
 #include <iterator>
+#include <string>
 
 using namespace QNLP;
 
@@ -56,7 +57,8 @@ int main(int argc, char **argv){
     else if(argc > 2){
         test_pattern = atoi(argv[2]);
         if(test_pattern < 0){
-            std::cerr << "Error: Test Patter is negative. Must be positive integer." << std::end;
+            std::cout << "Error: Test Patter is negative. Must be positive integer." << std::endl;
+            std::abort();
         }
     }
     else if(argc > 3){
@@ -68,10 +70,6 @@ int main(int argc, char **argv){
     else{
         std::cerr << "Error: " << argc << " arguments supplied, expected 1, 2, 3 or 4 (verbosity [bool], test pattern [unsigned integer], number of shots [unsigned integer], length of binary states to encode [unsigned integer]). " << std::endl;
     }
-
-    len_reg_auxiliary = len_reg_memory + 2;
-    num_qubits = len_reg_memory + len_reg_auxiliary;;
-    num_bin_pattern = pow(2,len_reg_memory);
 
     // Set up length of each quantum register.
     std::size_t len_reg_auxiliary = len_reg_memory + 2;
