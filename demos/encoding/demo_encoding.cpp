@@ -111,7 +111,7 @@ int main(int argc, char **argv){
         count[val] += 1;
 
         // Print measured state in each experimentation
-        if(verbose){
+        if(verbose && rank == 0){
             // Output resulting state for this experiment
             cout << val << "\t";
             cout << "|";
