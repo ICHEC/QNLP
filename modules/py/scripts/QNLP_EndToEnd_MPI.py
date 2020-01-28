@@ -222,15 +222,16 @@ maximum of {} unique patterns.
     v_list = vg.calc_verb_noun_pairings(corpus_list_v, corpus_list_n, VERB_NOUN_DIST_CUTOFF)
 
     sentences = []
+
     for v in v_list:
-        for i in product(v.left_nouns, [v.verb], v.right_nouns):
+        for i in v.lr_nouns.keys(): #product(v.left_nouns, [v.verb], v.right_nouns):
         #ns,s,no = mapping_nouns[i[0]], mapping_verbs[i[1]], mapping_nouns[i[2]]
         #if v.left_nouns != None and v.right_nouns != None:
-            if mapping_nouns[i[0]] != None and mapping_verbs[i[1]] != None and mapping_nouns[i[2]] != None:
+            if mapping_nouns[i[0]] != None and mapping_verbs[v.verb] != None and mapping_nouns[i[1]] != None:
                 sentences.append(
                     [   {i[0] : [encoding_dict['ns'][k] for k in mapping_nouns[i[0]].keys()] },
-                        {i[1] : [encoding_dict['v'][k] for k in mapping_verbs[i[1]].keys()] },
-                        {i[2] : [encoding_dict['no'][k] for k in mapping_nouns[i[2]].keys()] }
+                        {v.verb : [encoding_dict['v'][k] for k in mapping_verbs[v.verb].keys()] },
+                        {i[1] : [encoding_dict['no'][k] for k in mapping_nouns[i[1]].keys()] }
                     ]
                 )
     sentences
