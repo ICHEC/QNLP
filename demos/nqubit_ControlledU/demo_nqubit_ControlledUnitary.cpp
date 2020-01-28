@@ -1,6 +1,12 @@
 /**
+ * @file demo_nqubit_ControlledUnitary.cpp
+ * @author Myles Doyle (myles.doyle@ichec.ie)
  * @brief Apply NCU with input data as control on a target qubit in state 0. The U matrix will be PailiX for simplicity. Outputs the final measured state. Displays proportion of experiments with target qubit set.
- *
+ * @version 0.1
+ * @date 2020-01-28
+ * 
+ * @copyright Copyright (c) 2020
+ * 
  */
 
 #include "IntelSimulator.cpp"  
@@ -10,10 +16,6 @@ using namespace QNLP;
 
 int main(int argc, char **argv){
 
-    qhipster::mpi::Environment env(argc, argv);
-
-    int rank = env.GetRank();
-
     unsigned num_exps, m, n;
     n = 8;                     // Number of qubit registers
     num_exps = 10;
@@ -21,6 +23,13 @@ int main(int argc, char **argv){
     int len_input = n-1;
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(n);
+
+    int rank;
+#if ENABLE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#else
+    rank = 0;
+#endif
 
     // Set registers' indices
     vector<std::size_t> input(len_input);
@@ -60,19 +69,24 @@ int main(int argc, char **argv){
         if(output[n-1]){
             count++;
         }
-        // Output resulting state for this experiment
-        cout << "|";
-        for(int j = 0; j < len_input; j++){
-            cout << output[input[j]];
+
+        if(rank == 0){
+            // Output resulting state for this experiment
+            cout << "|";
+            for(int j = 0; j < len_input; j++){
+                cout << output[input[j]];
+            }
+            cout << ">";
+            cout << "|";
+            cout << output[target[0]];
+            cout << ">" << endl;
         }
-        cout << ">";
-        cout << "|";
-        cout << output[target[0]];
-        cout << ">" << endl;
     }
             
-    cout << "Measure:" << endl;
-    cout << '\t' << count << '\t' << 100.0*(double)count/(double) num_exps << "%" <<  endl;
+    if(rank == 0){
+        cout << "Measure:" << endl;
+        cout << '\t' << count << '\t' << 100.0*(double)count/(double) num_exps << "%" <<  endl;
+    }
 
     return 0;
 }
