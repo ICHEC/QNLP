@@ -1,4 +1,15 @@
 /**
+ * @file hamming_similarity_example.cpp
+ * @author Myles Doyle (myles.doyle@ichec.ie)
+ * @brief Compute the similarity of a test state to each state in a small corpus. This demo shows a simple mapping of a corpus to a basis set, then computes the similarity of a test state to the corpus in terms of the basis set. A superposition of training states are initially encoded, the Hamming distance is computed and Y-rotations executed on an auxiliary qubit to proportionally adjust the amplitudes corresponding to the similarity of each training state to the test state. A single state is then measured. This is repeated to build a distribution. 
+ * @version 0.1
+ * @date 2020-01-28
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
+/**
  * @brief Encode a set of unique binary patterns into a superposition, alter their amplitudes according to their similarity with a test binary patter, and get a distribution of the probabilities of these amplitudes.
  *
  */
@@ -66,9 +77,6 @@ int main(int argc, char **argv){
     }
     std::size_t num_exps = 100;
 
-    qhipster::mpi::Environment env(argc, argv);
-    int rank = env.GetRank();
-
     std::size_t len_reg_memory = 5;
     std::size_t len_reg_auxiliary = len_reg_memory + 2;
     std::size_t num_qubits = len_reg_memory + len_reg_auxiliary;;
@@ -85,6 +93,14 @@ int main(int argc, char **argv){
     }
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
+
+    int rank;
+#if ENABLE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#else
+    rank = 0;
+#endif
+
 
     // Set up registers to store indices
     std::vector<std::size_t> reg_memory(len_reg_memory);
