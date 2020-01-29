@@ -11,8 +11,8 @@ START_TIME=`date '+%Y-%b-%d_%H.%M.%S'`
 if [[ $# -eq 0 ]]; then
     echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided"
     exit 1
-elif [[ $# -gt 1 ]]; then
-    echo -e "Error: Too many command line arguments supplied. $# supplied, but expected 1."
+elif [[ $# -gt 2 ]]; then
+    echo -e "Error: Too many command line arguments supplied. $# supplied, but expected 1 or 2 (input_file.txt [FILE], num_shots [optional, integer] respectively)."
     exit 1
 fi
 
@@ -41,7 +41,13 @@ PATH_TO_EXECUTABLE=${QNLP_ROOT}/modules/py/scripts
 EXECUTABLE=QNLP_EndToEnd_MPI.py
 
 EXE_TARGET_CORPUS=$1 # Corpus file is expected as command line argument.
-EXECUTABLE_ARGS="${EXE_TARGET_CORPUS}"
+if [ ! -f ${EXE_TARGET_CORPUS} ]; then
+    echo "Error: Inputted corpus file '${EXE_TARGET_CORPUS}' not found!"
+    exit 1
+fi
+EXE_NUM_SHOTS=$2
+
+EXECUTABLE_ARGS="${EXE_TARGET_CORPUS} ${EXE_NUM_SHOTS}"
 
 # Application configuration parameters are set as environment variables
 export NUM_BASIS_NOUN=10 
@@ -66,7 +72,7 @@ export I_MPI_SHM=skx_avx512
 #################################################
 export I_MPI_TUNING_MODE=auto:application
 export I_MPI_TUNING_BIN_DUMP=tuning_EndToEndApp_nn${NNODES}_np${NPROCS}_${START_TIME}.dat
-export I_MPI_TUNING_AUTO_ITER_NUM=5
+export I_MPI_TUNING_AUTO_ITER_NUM=3
 export I_MPI_TUNING_AUTO_SYNC=1
 #export I_MPI_TUNING_AUTO_POLICY=
 
