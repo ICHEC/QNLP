@@ -66,6 +66,7 @@ except KeyError as e:
 
 #corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
+    s_encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB)
     assert (len(sys.argv) > 1)
     #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
     corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
@@ -73,7 +74,7 @@ if rank == 0:
         corpus_path=corpus_file,
         mode="l", 
         stop_words=True,
-        encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB),
+        encoder = s_encoder,
         use_spacy=True
     )
 
@@ -269,6 +270,7 @@ maximum of {} unique patterns.
     vec_to_encode = list(set(vec_to_encode))
     vec_to_encode.sort()
 
+
     d ={"sentences" : len(sentences),
         "patterns" : len(vec_to_encode),
         "NUM_BASIS_NOUN" : NUM_BASIS_NOUN,
@@ -278,25 +280,31 @@ maximum of {} unique patterns.
         "VERB_NOUN_DIST_CUTOFF" : VERB_NOUN_DIST_CUTOFF 
     }
     print(d)
+    print("Encoding data:", vec_to_encode)
+
+    # Counter for experiment results; key exists for each potentially unique outcome defined by encoding
+    shot_counter = {}
+
+    for i in vec_to_encode:
+        shot_counter.update({i : 0})
 
 else:
     reg_memory = None
     reg_aux = None
     len_reg_memory = None
     vec_to_encode = None
+    shot_counter = None
 
 reg_memory = comm.bcast(reg_memory, root=0)
 reg_aux = comm.bcast(reg_aux, root=0)
 vec_to_encode = comm.bcast(vec_to_encode, root=0)
-
-# Counter for experiment results
-shot_counter = {}
-for i in vec_to_encode:
-    shot_counter.update({i : 0})
+shot_counter = comm.bcast(shot_counter, root=0)
 
 num_qubits = len(reg_memory) + len(reg_aux)
 
-use_fusion = True
+#Explicitly disable fusion as it can cause incorrect results
+use_fusion = False
+
 sim = p(num_qubits, use_fusion)
 normalise = True
 
@@ -313,18 +321,35 @@ else:
 
 num_exps=comm.bcast(num_exps, root=0)
 
+test_pattern = 1
+num_faults = 0
+
 for exp in range(num_exps):
     sim.initRegister()
 
-    if rank ==0:
+    if rank == 0:
         print("Encoding {} patterns for experiment {} of {}".format(len(vec_to_encode), exp+1, num_exps))
         sys.stdout.flush()
 
     # Encode
     sim.encodeBinToSuperpos_unique(reg_memory, reg_aux, vec_to_encode, len(reg_memory))
 
+    # Compute Hamming distance between test pattern and encoded patterns
+    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_aux, len(reg_memory))
+
+    # Measure
+    sim.collapseToBasisZ(reg_aux[len(reg_aux)-2], 1)
+
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
-    shot_counter[val] += 1
+
+    try:
+        shot_counter[val] += 1
+    except Exception as e:
+        print("Measured pattern {} does not match data for experiment {} of {}. Discarding.".format(val, exp+1, num_exps), file=sys.stderr)
+        sys.stderr.flush()
+        num_faults += 1
+        continue
+
     if rank == 0:
         pbar.update(1)
         print("Measured pattern {} for experiment {} of {}".format(val, exp+1, num_exps))
@@ -335,7 +360,10 @@ if rank == 0:
     pbar.close()
     print("#"*48, "Shot counter values")
     print(shot_counter)
+    print ("Number of faults: {}".format())
+
     key_order = list(shot_counter.keys())
+
     xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict)) for i in key_order]
     xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in key_order ]
 
@@ -366,8 +394,11 @@ if rank == 0:
 
     rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
 
+    test_pattern_str = ",".join(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict))
+    print("Test pattern={}".format(test_pattern_str))
+
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel(r"P({})".format("Pattern"),fontsize=24)
+    ax.set_ylabel(r"P({})".format(test_pattern_str),fontsize=24)
     ax.set_xticks(x)
     ax.tick_params(axis='both', which='major', labelsize=10)
     ax.set_xticklabels(labels, rotation=-35, ha="left",fontsize=10)
@@ -380,6 +411,6 @@ if rank == 0:
     plt.savefig("qnlp_e2e.pdf")
 
     import  pickle
-    f = open("qnlp_e2e.pkl","wb")
+    f = open("qnlp_e2e_{}.pkl".format(test_pattern_str),"wb")
     pickle.dump(shot_counter, f)
     f.close()
