@@ -186,7 +186,7 @@ add_definitions(
      -DCOLLECT_TIME \
      -DSTANDALONE \
      -DVIRTUAL_INTERFACE \
-     -DOPENQU_HAVE_MPI \ 
+     -DOPENQU_HAVE_MPI \
      -DLATEX_OUTPUT"
 )
 
@@ -237,7 +237,6 @@ find_package(MPI)
 
 ################################################################################
 
-add_subdirectory(tests)
 add_subdirectory(demos)
 
 ################################################################################

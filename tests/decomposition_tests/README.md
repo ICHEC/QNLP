@@ -1,1 +1,0 @@
-On Kay, clone the repo, cd into this directory and run `./run_test.sh`

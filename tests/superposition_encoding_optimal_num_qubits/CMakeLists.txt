@@ -1,5 +1,0 @@
-cmake_minimum_required (VERSION 3.10)
-#set (CMAKE_CXX_STANDARD 17)
-
-add_executable(exe_superposition_encoding_optimal_num_qubits superposition_encoding_optimal_num_qubits.cpp)
-target_link_libraries(exe_superposition_encoding_optimal_num_qubits qnlp_ncu qnlp_qubit_extended qhipster )

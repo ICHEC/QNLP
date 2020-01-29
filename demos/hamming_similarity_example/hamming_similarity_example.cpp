@@ -1,4 +1,15 @@
 /**
+ * @file hamming_similarity_example.cpp
+ * @author Myles Doyle (myles.doyle@ichec.ie)
+ * @brief Compute the similarity of a test state to each state in a small corpus. This demo shows a simple mapping of a corpus to a basis set, then computes the similarity of a test state to the corpus in terms of the basis set. A superposition of training states are initially encoded, the Hamming distance is computed and Y-rotations executed on an auxiliary qubit to proportionally adjust the amplitudes corresponding to the similarity of each training state to the test state. A single state is then measured. This is repeated to build a distribution. 
+ * @version 0.1
+ * @date 2020-01-28
+ * 
+ * @copyright Copyright (c) 2020
+ * 
+ */
+
+/**
  * @brief Encode a set of unique binary patterns into a superposition, alter their amplitudes according to their similarity with a test binary patter, and get a distribution of the probabilities of these amplitudes.
  *
  */
@@ -66,12 +77,9 @@ int main(int argc, char **argv){
     }
     std::size_t num_exps = 100;
 
-    qhipster::mpi::Environment env(argc, argv);
-    int rank = env.GetRank();
-
     std::size_t len_reg_memory = 5;
-    std::size_t len_reg_ancilla = len_reg_memory + 2;
-    std::size_t num_qubits = len_reg_memory + len_reg_ancilla;;
+    std::size_t len_reg_auxiliary = len_reg_memory + 2;
+    std::size_t num_qubits = len_reg_memory + len_reg_auxiliary;;
     std::size_t num_bin_pattern = 8;
 
     std::size_t test_pattern = 0;
@@ -86,14 +94,22 @@ int main(int argc, char **argv){
 
     SimulatorGeneral<IntelSimulator> *sim = new IntelSimulator(num_qubits);
 
+    int rank;
+#if ENABLE_MPI
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#else
+    rank = 0;
+#endif
+
+
     // Set up registers to store indices
     std::vector<std::size_t> reg_memory(len_reg_memory);
     for(std::size_t i = 0; i < len_reg_memory; i++){
         reg_memory[i] = i;
     }
-    std::vector<std::size_t> reg_ancilla(len_reg_ancilla);
-    for(std::size_t i = 0; i < len_reg_ancilla; i++){
-        reg_ancilla[i] = i + len_reg_memory;
+    std::vector<std::size_t> reg_auxiliary(len_reg_auxiliary);
+    for(std::size_t i = 0; i < len_reg_auxiliary; i++){
+        reg_auxiliary[i] = i + len_reg_memory;
     }
 
     // Init data to encode
@@ -117,42 +133,42 @@ int main(int argc, char **argv){
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Encode");
         #endif
-        sim->encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory); 
+        sim->encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory); 
 
         if(verbose){
             sim->PrintStates("After encoding: ");
         }
 
         
-        //std::cout << "PRE-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "PRE-HAM PROB[" << reg_auxiliary[len_reg_auxiliary-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_auxiliary[len_reg_auxiliary-2]) << std::endl;
 
 
         // Compute Hamming distance between test pattern and encoded patterns
         #ifdef GATE_LOGGING
         sim->getGateWriter().segmentMarkerOut("Compute Hamming distance");
         #endif
-        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory);
+        sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory);
 
         if(verbose){
             sim->PrintStates("After Hamming Rot_Y: ");
         }
 
-        //std::cout << "POST-HAM PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "POST-HAM PROB[" << reg_auxiliary[len_reg_auxiliary-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_auxiliary[len_reg_auxiliary-2]) << std::endl;
 
 
         // Measure
-        sim->collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1);
+        sim->collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
         if(verbose){
             sim->PrintStates("After Collapse to Basis z: ");
         }
 
-        //std::cout << "POST-Z PROB[" << reg_ancilla[len_reg_ancilla-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_ancilla[len_reg_ancilla-2]) << std::endl;
+        //std::cout << "POST-Z PROB[" << reg_auxiliary[len_reg_auxiliary-2] << "]=1    :" << sim->getQubitRegister().GetProbability(reg_auxiliary[len_reg_auxiliary-2]) << std::endl;
 
         val = sim->applyMeasurementToRegister(reg_memory);
         if(verbose){
             sim->PrintStates("After Measurement: ");
         }
-        //sim->applyGateX(reg_ancilla[len_reg_ancilla-2]);
+        //sim->applyGateX(reg_auxiliary[len_reg_auxiliary-2]);
 
         count[val] += 1;
     }
