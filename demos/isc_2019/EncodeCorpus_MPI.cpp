@@ -59,7 +59,7 @@ int main(int argc, char **argv){
     std::cout << "File size: " << cu.getNameToBin().size() << std::endl;
 
     std::vector<std::size_t> reg_mem {0, 1,  2, /**/ 3,  4, /**/  5,  6,  7};
-    std::vector<std::size_t> reg_anc {8, 9, 10,/**/ 11, 12, /**/ 13, 14, 15, /**/ 16, 17};
+    std::vector<std::size_t> reg_aux {8, 9, 10,/**/ 11, 12, /**/ 13, 14, 15, /**/ 16, 17};
     std::vector<std::size_t> bin_patterns;
 
     std::size_t num_nouns = ntb["noun"].size();
@@ -106,7 +106,7 @@ int main(int argc, char **argv){
         }
 
         //std::cout << "OPENMP THREADS = " << omp_get_num_threads() << "CURRENT THREAD=" << omp_get_thread_num() << std::endl;
-        sim.encodeBinToSuperpos_unique(reg_mem, reg_anc, bin_patterns, 8);
+        sim.encodeBinToSuperpos_unique(reg_mem, reg_aux, bin_patterns, 8);
 
         result = sim.applyMeasurementToRegister(reg_mem);
         std::cout << result << std::endl;
@@ -114,7 +114,7 @@ int main(int argc, char **argv){
         result = 0;
     }
 
-/*sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 6); 
+/*sim.encodeBinToSuperpos(reg_mem, reg_aux, bin_patterns, 6); 
   result = sim.applyMeasurementToRegister(reg_mem);
   std::cout << result << std::endl;
   */
@@ -129,7 +129,7 @@ int main(int argc, char **argv){
 //bin_patterns.push_back(4);
 //bin_patterns.push_back(5);
 //bin_patterns.push_back(3);
-sim.encodeBinToSuperpos(reg_mem, reg_anc, bin_patterns, 2); 
+sim.encodeBinToSuperpos(reg_mem, reg_aux, bin_patterns, 2); 
 result = sim.applyMeasurementToRegister(reg_mem);
 std::cout << result << std::endl;
 }*/

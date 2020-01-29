@@ -12,8 +12,19 @@ namespace QNLP{
         std::unordered_set<std::string> gates;
         
         public:
+        /**
+         * @brief Construct a new Gate Writer object
+         * 
+         */
         GateWriter() : GateWriter("qnlp_gate_calls.csv", "qnlp_matrices.log"){
         }
+
+        /**
+         * @brief Construct a new Gate Writer object
+         * 
+         * @param latexCSVFilename Filename for Latex CSV 
+         * @param matrixFilename Filename for matrix
+         */
         GateWriter( std::string latexCSVFilename, std::string matrixFilename ){           
             //Check if file exists, add header upon creation if not
             std::ifstream file_exists(latexCSVFilename.c_str()) ;
@@ -24,6 +35,11 @@ namespace QNLP{
             if (!(bool) file_exists)
                 latex_csv_out << "gate_label,gate_ctrl,gate_tgt,gate_value" << std::endl;
         }
+
+        /**
+         * @brief Destroy the Gate Writer object
+         * 
+         */
         ~GateWriter(){
             latex_csv_out  << "\n" << std::endl;
             matrix_val_out << "\n" << std::endl;

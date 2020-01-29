@@ -188,9 +188,9 @@ TEST_CASE("Encoding even distribution: Unique Binary Patterns"){
                 for(std::size_t i = 0; i < num_qubits_mem; i++){
                     reg_mem[i] = i;
                 }
-                std::vector<std::size_t> reg_ancilla(num_qubits_mem+2);
+                std::vector<std::size_t> reg_auxiliary(num_qubits_mem+2);
                 for(std::size_t i = 0; i < num_qubits_mem + 2; i++){
-                    reg_ancilla[i] = i + num_qubits_mem;
+                    reg_auxiliary[i] = i + num_qubits_mem;
                 }
 
                 std::size_t num_bin_patterns = 4; 
@@ -211,7 +211,7 @@ TEST_CASE("Encoding even distribution: Unique Binary Patterns"){
                 for(std::size_t exp = 0; exp < num_exp; exp++){
                     
                     sim->initRegister();
-                    sim->encodeBinToSuperpos_unique(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
+                    sim->encodeBinToSuperpos_unique(reg_mem, reg_auxiliary, bin_patterns,num_qubits_mem);
                     result = sim->applyMeasurementToRegister(reg_mem);
 
                     // Check measured result is valid
@@ -253,9 +253,9 @@ TEST_CASE("Hamming distance check"){
                 for(std::size_t i = 0; i < num_qubits_mem; i++){
                     reg_mem[i] = i;
                 }
-                std::vector<std::size_t> reg_ancilla(num_qubits_mem+2);
+                std::vector<std::size_t> reg_auxiliary(num_qubits_mem+2);
                 for(std::size_t i = 0; i < num_qubits_mem + 2; i++){
-                    reg_ancilla[i] = i + num_qubits_mem;
+                    reg_auxiliary[i] = i + num_qubits_mem;
                 }
 
                 std::size_t num_bin_patterns = 4; 
@@ -276,7 +276,7 @@ TEST_CASE("Hamming distance check"){
                 for(std::size_t exp = 0; exp < num_exp; exp++){
                     
                     sim->initRegister();
-                    sim->encodeBinToSuperpos_unique(reg_mem, reg_ancilla, bin_patterns,num_qubits_mem);
+                    sim->encodeBinToSuperpos_unique(reg_mem, reg_auxiliary, bin_patterns,num_qubits_mem);
                     result = sim->applyMeasurementToRegister(reg_mem);
 
                     // Update distributions of the results

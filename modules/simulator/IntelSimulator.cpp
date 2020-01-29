@@ -361,7 +361,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateCU(const TMDP& U, CST control, CST target, std::string label="U"){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( U_label, U.tostr(), control, target );
+        writer.twoQubitGateCall( label, U.tostr(), control, target );
         #endif
     }
 

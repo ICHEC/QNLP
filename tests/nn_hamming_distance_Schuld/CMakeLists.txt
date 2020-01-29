@@ -1,4 +1,0 @@
-cmake_minimum_required (VERSION 3.0)
-
-add_executable(exe_nn_hammingDist_SCHULD nn_wiebe_hammingDist_Schuld.cpp)
-target_link_libraries(exe_nn_hammingDist_SCHULD qnlp_qubit_extended qnlp_ncu qhipster)

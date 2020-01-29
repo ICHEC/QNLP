@@ -61,8 +61,8 @@ if __name__ == "__main__":
     len_ns = int( np.ceil(np.log2( len(encoding_dict["ns"]) )))
 
     len_reg_memory = len_no + len_v + len_ns
-    len_reg_ancilla = len_reg_memory + 2
-    num_qubits = len_reg_memory + len_reg_ancilla
+    len_reg_auxiliary = len_reg_memory + 2
+    num_qubits = len_reg_memory + len_reg_auxiliary
 
     print("""
     {}

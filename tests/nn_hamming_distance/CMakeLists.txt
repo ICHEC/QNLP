@@ -1,4 +1,0 @@
-cmake_minimum_required (VERSION 3.0)
-
-add_executable(exe_nn_hammingDist nn_wiebe_hammingDist.cpp)
-target_link_libraries(exe_nn_hammingDist qnlp_qubit_extended qhipster)

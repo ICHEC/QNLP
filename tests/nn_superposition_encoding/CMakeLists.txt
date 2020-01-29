@@ -1,4 +1,0 @@
-cmake_minimum_required (VERSION 3.10)
-
-add_executable(exe_nn_superposition_encoding nn_superposition_encoding.cpp)
-target_link_libraries(exe_nn_superposition_encoding qnlp_qubit_extended qnlp_ncu qhipster )

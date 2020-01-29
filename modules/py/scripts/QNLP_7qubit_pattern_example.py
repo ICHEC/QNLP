@@ -22,8 +22,8 @@ decoding_dict = { ktype:{vval:kval for kval,vval in vtype.items()} for ktype,vty
 
 # Set the size of the required quantum register
 len_reg_memory = 7
-len_reg_ancilla = len_reg_memory + 2
-num_qubits = len_reg_memory + len_reg_ancilla
+len_reg_auxiliary = len_reg_memory + 2
+num_qubits = len_reg_memory + len_reg_auxiliary
 num_bin_pattern = 34
 
 # Create simulator object
@@ -37,9 +37,9 @@ reg_memory = [0]*len_reg_memory;
 for i in range(len_reg_memory):
     reg_memory[i] = i
 
-reg_ancilla = [0]*len_reg_ancilla
-for i in range(len_reg_ancilla):
-    reg_ancilla[i] = i + len_reg_memory;
+reg_auxiliary = [0]*len_reg_auxiliary
+for i in range(len_reg_auxiliary):
+    reg_auxiliary[i] = i + len_reg_memory;
 
 # data for encoding using the given basis
 "John rests upstairs, Mary walks (in the) cellar, James sits (in the) attic"
@@ -93,7 +93,7 @@ for exper in range(num_exps):
     sim.initRegister()
 
     # Encode
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
     
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     count_even[val] += 1;
@@ -114,13 +114,13 @@ for exper in range(num_exps):#, desc='Sim. experiment progress'):
     sim.initRegister()
 
     # Encode
-    sim.encodeBinToSuperpos_unique(reg_memory, reg_ancilla, vec_to_encode, len_reg_memory)
+    sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
 
     # Compute Hamming distance between test pattern and encoded patterns
-    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_ancilla, len_reg_memory, num_bin_pattern)
+    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern)
 
     # Measure
-    sim.collapseToBasisZ(reg_ancilla[len_reg_ancilla-2], 1)
+    sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1)
     
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
     count[val] += 1
