@@ -19,6 +19,7 @@
 #include "qureg/qureg.hpp"
 #include "util/tinymatrix.hpp"
 #include <cstdlib>
+#include <iostream>
 
 #ifdef ENABLE_MPI
     #include "mpi.h"
@@ -40,7 +41,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @brief Construct a new Intel Simulator object. The constructor also sets up and initialises the MPI environemnt if MPI is enabled in the build process.
      * 
      * @param numQubits Number of qubits in quantum register
-     * @param useFusion Implement gate fusion (defualt is False)
+     * @param useFusion Implement gate fusion (default is False)
      */
     IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
@@ -99,8 +100,10 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         std::uniform_real_distribution<double> dist_(0.0,1.0);
         mt = mt_;
         dist = dist_;
-        if(useFusion == true)
+        if(useFusion == true){
             qubitRegister.TurnOnFusion();
+            std::cerr << "Warning: enabling fusion may cause inconsistent results." << std::endl;
+        }
     }
 
     /**
@@ -361,7 +364,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateCU(const TMDP& U, CST control, CST target, std::string label="U"){
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
         #ifdef GATE_LOGGING
-        writer.twoQubitGateCall( U_label, U.tostr(), control, target );
+        writer.twoQubitGateCall( label, U.tostr(), control, target );
         #endif
     }
 
@@ -519,7 +522,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @brief (Re)Initialise the underlying register of the encapsulated simulator to well-defined state (|0....0>)
      * 
      */
-    inline void initRegister(){
+    void initRegister(){
         this->qubitRegister.Initialize("base",0);
         this->initCaches();
     }
@@ -552,7 +555,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #else
             rand = dist(mt);
         #endif
-
         collapseQubit(target,(bit_val = (rand < getStateProbability(target))));
         if(normalize){
             applyAmplitudeNorm();
