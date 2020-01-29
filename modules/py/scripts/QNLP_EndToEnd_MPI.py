@@ -236,6 +236,7 @@ maximum of {} unique patterns.
                     ]
                 )
     sentences
+    print("Sentences matching noun-verb-noun structure captured as:", sentences)
 
     # Set up registers to store indices
     # Keeping aux register and control registers in these positions
