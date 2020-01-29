@@ -75,12 +75,6 @@ class VerbGraph:
                 if len(dr) >0:
                     v.addR(word_n, dr)
                     
-                #if len(v.left_nouns) > max_terms and len(v.right_nouns) > max_terms:
-                #    break
-                    
-
-                ###TBC
-            #break
             lr_dist = 0
             for kl,vl in v.left_nouns.items(): 
                 for kr,vr in v.right_nouns.items():
