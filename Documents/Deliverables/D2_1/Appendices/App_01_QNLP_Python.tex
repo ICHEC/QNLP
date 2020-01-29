@@ -100,8 +100,8 @@ requirements
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{c+c1}{\PYZsh{} Set the size of the required quantum register}
 \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{=} \PY{l+m+mi}{5}
-\PY{n}{len\PYZus{}reg\PYZus{}ancilla} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{l+m+mi}{2}
-\PY{n}{num\PYZus{}qubits} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}ancilla}
+\PY{n}{len\PYZus{}reg\PYZus{}auxiliary} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{l+m+mi}{2}
+\PY{n}{num\PYZus{}qubits} \PY{o}{=} \PY{n}{len\PYZus{}reg\PYZus{}memory} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}auxiliary}
 \PY{n}{num\PYZus{}bin\PYZus{}pattern} \PY{o}{=} \PY{l+m+mi}{8}
 \end{Verbatim}
 \end{tcolorbox}
@@ -125,9 +125,9 @@ requirements
 \PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}\PY{p}{:}
     \PY{n}{reg\PYZus{}memory}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{i}
 
-\PY{n}{reg\PYZus{}ancilla} \PY{o}{=} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}
-\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}\PY{p}{)}\PY{p}{:}
-    \PY{n}{reg\PYZus{}ancilla}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{i} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{;}
+\PY{n}{reg\PYZus{}auxiliary} \PY{o}{=} \PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{o}{*}\PY{n}{len\PYZus{}reg\PYZus{}auxiliary}
+\PY{k}{for} \PY{n}{i} \PY{o+ow}{in} \PY{n+nb}{range}\PY{p}{(}\PY{n}{len\PYZus{}reg\PYZus{}auxiliary}\PY{p}{)}\PY{p}{:}
+    \PY{n}{reg\PYZus{}auxiliary}\PY{p}{[}\PY{n}{i}\PY{p}{]} \PY{o}{=} \PY{n}{i} \PY{o}{+} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{;}
 \end{Verbatim}
 \end{tcolorbox}
 
@@ -213,7 +213,7 @@ requirements
     \PY{n}{sim}\PY{o}{.}\PY{n}{initRegister}\PY{p}{(}\PY{p}{)}
 
     \PY{c+c1}{\PYZsh{} Encode}
-    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}auxiliary}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
     
     \PY{n}{val} \PY{o}{=} \PY{n}{sim}\PY{o}{.}\PY{n}{applyMeasurementToRegister}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{normalise}\PY{p}{)}
     \PY{n}{count\PYZus{}even}\PY{p}{[}\PY{n}{val}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}
@@ -242,13 +242,13 @@ requirements
     \PY{n}{sim}\PY{o}{.}\PY{n}{initRegister}\PY{p}{(}\PY{p}{)}
 
     \PY{c+c1}{\PYZsh{} Encode}
-    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{encodeBinToSuperpos\PYZus{}unique}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}auxiliary}\PY{p}{,} \PY{n}{vec\PYZus{}to\PYZus{}encode}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{)}
 
     \PY{c+c1}{\PYZsh{} Compute Hamming distance between test pattern and encoded patterns}
-    \PY{n}{sim}\PY{o}{.}\PY{n}{applyHammingDistanceRotY}\PY{p}{(}\PY{n}{test\PYZus{}pattern}\PY{p}{,} \PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}ancilla}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{,} \PY{n}{num\PYZus{}bin\PYZus{}pattern}\PY{p}{)}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{applyHammingDistanceRotY}\PY{p}{(}\PY{n}{test\PYZus{}pattern}\PY{p}{,} \PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{reg\PYZus{}auxiliary}\PY{p}{,} \PY{n}{len\PYZus{}reg\PYZus{}memory}\PY{p}{,} \PY{n}{num\PYZus{}bin\PYZus{}pattern}\PY{p}{)}
 
     \PY{c+c1}{\PYZsh{} Measure}
-    \PY{n}{sim}\PY{o}{.}\PY{n}{collapseToBasisZ}\PY{p}{(}\PY{n}{reg\PYZus{}ancilla}\PY{p}{[}\PY{n}{len\PYZus{}reg\PYZus{}ancilla}\PY{o}{\PYZhy{}}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
+    \PY{n}{sim}\PY{o}{.}\PY{n}{collapseToBasisZ}\PY{p}{(}\PY{n}{reg\PYZus{}auxiliary}\PY{p}{[}\PY{n}{len\PYZus{}reg\PYZus{}auxiliary}\PY{o}{\PYZhy{}}\PY{l+m+mi}{2}\PY{p}{]}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{)}
     
     \PY{n}{val} \PY{o}{=} \PY{n}{sim}\PY{o}{.}\PY{n}{applyMeasurementToRegister}\PY{p}{(}\PY{n}{reg\PYZus{}memory}\PY{p}{,} \PY{n}{normalise}\PY{p}{)}
     \PY{n}{count}\PY{p}{[}\PY{n}{val}\PY{p}{]} \PY{o}{+}\PY{o}{=} \PY{l+m+mi}{1}\PY{p}{;}

@@ -32,12 +32,12 @@ The DH algorithm defines a method to determine a minimum value in a quantum stat
 Given the implementation of methods as discussed in Section~\ref{par:qram_alt_approach}, this would be a viable extension to the model, and may potentially offer an advantage in terms of implementability.
 
 \section{Controlled $R_y$ rotation for measurement-based state determination}\label{app:ry_phase}
-In addition to the use of a Hamming distance approach, as proposed in Section~\ref{sub:hamming_dist}, we may use the Hamming distance to control the angle of rotation from $|0\rangle\rightarrow\vert 1\rangle$ for an additional ancillary qubit, $\vert a \rangle$. Assuming we have use of a controlled rotation gate around the $y$-axis of the Bloch sphere, hence labelled $\textsc{CR}_y(\theta,c,t)$, where $\theta$ is the angle of rotation, $c$ is the control qubit, and $t$ is the target, we may operate as follows:
+In addition to the use of a Hamming distance approach, as proposed in Section~\ref{sub:hamming_dist}, we may use the Hamming distance to control the angle of rotation from $|0\rangle\rightarrow\vert 1\rangle$ for an additional auxiliary qubit, $\vert a \rangle$. Assuming we have use of a controlled rotation gate around the $y$-axis of the Bloch sphere, hence labelled $\textsc{CR}_y(\theta,c,t)$, where $\theta$ is the angle of rotation, $c$ is the control qubit, and $t$ is the target, we may operate as follows:
 \begin{itemize}
     \item Encode the Hamming distance as described earlier, into a register $\vert H\rangle = \vert 0\rangle\otimes\dots\vert i-1\rangle$ of size $i$ qubits.
     \item Apply Pauli-$x$ to all qubits in $\vert H \rangle$ to flip the resulting Hamming distance.
     \item Iterate over each qubit in $\vert H\rangle$, applying $\textsc{CR}_y(\pi/i, \vert i \rangle, \vert a\rangle)$.
-    \item Perform projective measurement on the the ancillary qubit with $\vert 1\rangle\langle 1 \vert$.
+    \item Perform projective measurement on the the auxiliary qubit with $\vert 1\rangle\langle 1 \vert$.
 \end{itemize}
 Following these steps the system, after a measurement, will most likely be that with the lowest Hamming distance, and hence be the closest to the given test data. By repeating this with multiple shots, a statistical distribution can be obtained over the closest matching states.
 While this approach has the downside of multiple shots being required to obtain the result, it offers an experimentally realizable approach, assuming a low-overhead up-front state creation.

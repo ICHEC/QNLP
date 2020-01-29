@@ -114,14 +114,14 @@ $S^i$ is applied using the controlled unitary operator with $S^i$ being the corr
 \subsection{Hamming Distance for Sentence Similarity}\label{sub:hamming_dist}
 Two approaches to calculate the Hamming distance are proposed. One, being Trugenberger's, the other a variation of Trugenberger's Hamming distance subroutine developed by Schuld et al.~\cite{Trugenberger_2001, Schuld_Sinayskiy_Petruccione_2014}. For a known test word represented as a binary state, we can calculate the Hamming distance between this word's representation and every other basis word in the superposition. The approach pulls the Hamming distance into the eigenvalue of the eigenstate corresponding to each individual term in the superposition. Thus, the Hamming distance can be stored in the amplitude of its corresponding state. This enables us to quantify the similarity in meaning between the test word and the set of basis words, resulting in the test word's meaning.
 
-The algorithm is detailed in Dirac notation as defined by Trugenberger \cite{Trugenberger_2001} as follows. Given the superposition of encoded binary patterns $\vert m \rangle$ as defined in Eq.~\eqref{eqn:superposition_state} which will be denoted as register $m$, we define two extra registers $d$ of length $n$ and $c$ of length $1$. Thus a total of $2n + 1$ qubits are required for this stage of the calculation. Note, that the ancilla register of the previous encoding strategy can be reused here, reducing the overhead of the number of qubits used. We define our initial state to be the tensor product of these three registers, where $c$ is in the state $\vert 0 \rangle$ and the register $d$ is the binary test pattern $x = x_1,\dots,x_n$. Thus,
+The algorithm is detailed in Dirac notation as defined by Trugenberger \cite{Trugenberger_2001} as follows. Given the superposition of encoded binary patterns $\vert m \rangle$ as defined in Eq.~\eqref{eqn:superposition_state} which will be denoted as register $m$, we define two extra registers $d$ of length $n$ and $c$ of length $1$. Thus a total of $2n + 1$ qubits are required for this stage of the calculation. Note, that the auxiliary register of the previous encoding strategy can be reused here, reducing the overhead of the number of qubits used. We define our initial state to be the tensor product of these three registers, where $c$ is in the state $\vert 0 \rangle$ and the register $d$ is the binary test pattern $x = x_1,\dots,x_n$. Thus,
 
 \begin{align*}
     \vert \psi_0 \rangle &= \frac{1}{\sqrt{N}}\sum\limits_{i=1}^{N} \vert x \rangle \vert p^i \rangle \vert 0 \rangle \\
     &= \frac{1}{\sqrt{N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 0 \rangle
 \end{align*}
 
-The next step is to apply a Hadamard operation to the ancillary qubit;
+The next step is to apply a Hadamard operation to the auxiliary qubit;
 \begin{align*}
     \vert \psi_1 \rangle = \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 0 \rangle + \frac{1}{\sqrt{2N}}\sum\limits_{i=1}^{N} \vert x_1\dots x_n\rangle\vert p_{1}^{i}\dots p_{n}^{i}\rangle \vert 1 \rangle
 \end{align*}
@@ -173,7 +173,7 @@ Finally, applying a Hadamard to the control register $c$, the new state reduces 
 
 Due to the nature of measurement of a quantum system it is not possible to obtain the amplitude of each state directly. Instead, we can obtain the probability of each quantum state (training pattern) occurring $\mathcal{P}\left( p^i\right)$. This probability is influenced by the Hamming distance in such a way that higher probabilities correspond to a higher Hamming distance, indicating that the test pattern is close to that particular training pattern.
 
-To conduct this measurement, we must first collapse the ancillary cubit in register $c$. If it collapses to $\vert0\rangle$ with a high probability, then the test pattern is very different from all of the training patterns. Otherwise, if it collapses to $\vert 0 \rangle$ with a high probability, then the test pattern is close to the training patterns. More formally,
+To conduct this measurement, we must first collapse the auxiliary cubit in register $c$. If it collapses to $\vert0\rangle$ with a high probability, then the test pattern is very different from all of the training patterns. Otherwise, if it collapses to $\vert 0 \rangle$ with a high probability, then the test pattern is close to the training patterns. More formally,
 
 \begin{align*}
     \mathcal{P}\left(\vert c \rangle = \vert 0 \rangle \right) &= \frac{1}{N} \sum\limits_{i = 1}^{N} \cos^2 \left[\frac{\pi}{2n} d_\mathcal{H}\left(\Vec{x},\vec{p^i}\right)\right], \\
