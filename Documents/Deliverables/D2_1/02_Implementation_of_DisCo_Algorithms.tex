@@ -13,7 +13,7 @@ For notational simplicity, we define the following mappings:
     \textrm{nXOR}_{a_{1},\dots a_{n} ,b} &: \vert a_1 \rangle \dots\vert a_{n} \rangle \vert b \rangle &\rightarrow & & \vert& a_1 \rangle \dots \vert a_{n} \rangle \vert b \oplus (a_{1} \wedge \dots \wedge a_{n}) \rangle  .
 \end{align}
 
-The goal of the algorithm is to encode a set of binary vector into a superposition of states. For a set of $N$ binary patterns $p^i = \{p_1^i, \dots, p_n^i \} $ of length $n$ for $i=1,\dots,N$, we require three registers of qubits; a memory register $\vert m \rangle$ of length $n$, a temporary register $\vert p \rangle$ of length $n$, and an ancilla register $\vert u \rangle$ of length $2$ initialised as $\vert 01 \rangle$. $\vert m \rangle$ and $\vert p \rangle$ are initialised to the state of all $0$'s. Thus the initial state is
+The goal of the algorithm is to encode a set of binary vector into a superposition of states. For a set of $N$ binary patterns $p^i = \{p_1^i, \dots, p_n^i \} $ of length $n$ for $i=1,\dots,N$, we require three registers of qubits; a memory register $\vert m \rangle$ of length $n$, a temporary register $\vert p \rangle$ of length $n$, and an auxiliary register $\vert u \rangle$ of length $2$ initialised as $\vert 01 \rangle$. $\vert m \rangle$ and $\vert p \rangle$ are initialised to the state of all $0$'s. Thus the initial state is
 
 \begin{align}
     \vert \psi_0 \rangle &= \vert p \rangle \vert u \rangle \vert m \rangle \\
@@ -41,7 +41,7 @@ Next, the \textrm{XOR} gate followed by a \textrm{NOT} gate are applied to all q
   \vert \psi_3 \rangle & =  \prod\limits_{j=1}^{n} \textrm{NOT}_{m_j} \textrm{XOR}_{p_j^i m_j}  \vert \psi_2 \rangle  .
 \end{align}
 
-Now that the state being encoded has been selected, an \textrm{nXOR} operation is applied to the first qubit in the ancilla register using the qubits in $\vert m \rangle$ as the $n$ control qubits;
+Now that the state being encoded has been selected, an \textrm{nXOR} operation is applied to the first qubit in the auxiliary register using the qubits in $\vert m \rangle$ as the $n$ control qubits;
 
 \begin{align}
 \label{eq:encode_psi4}
@@ -50,7 +50,7 @@ Now that the state being encoded has been selected, an \textrm{nXOR} operation i
 
 \noindent The target qubit whose initial value is $0$ will be set to $1$ if $\vert m \rangle$ consists of only $1$'s. This is the case when the pattern in $\vert m \rangle$ is identical to the pattern being encoded (ie. the pattern stored in $\vert p \rangle$).
 
-In order to generate a new state in the superposition, it is required to effectively `carve-off' some of the amplitude of an existing state so the new state has a non-zero amplitude. To do this, we apply the unitary matrix $S^i$ to the second ancilla qubit $u_2$ using the first ancilla qubit $u_1$ as a control;
+In order to generate a new state in the superposition, it is required to effectively `carve-off' some of the amplitude of an existing state so the new state has a non-zero amplitude. To do this, we apply the unitary matrix $S^i$ to the second auxiliary qubit $u_2$ using the first auxiliary qubit $u_1$ as a control;
 
 \begin{align}
 \vert \psi_5 \rangle  =  \textrm{CS}_{u_1 u_2}^{p+1-i}  \vert \psi_4 \rangle,
@@ -96,9 +96,9 @@ A promising method for adjusting the amplitude of a state according to its binar
 \subsubsection{Hamming Distance - Controlled rotation operator about $\hat{y}$ (\textrm{$R_y$}) }
 \label{sec:hamming_distance_cry_rotation}
 
-The alternative implemented method was proposed and outlined in Appendix C of Deliverable 1.1. This method involves calculating the binary difference between the target state's qubits and a test vector's, storing the difference as 1 if they are the same in the state's memory register, else 0 (ie. Hamming distance). A $y$-rotation about an angle $\theta = \frac{\pi}{n}$ is then conducted for each bit set in the memory register (using a controlled $y$ rotation) on a single ancillary qubit $\vert u \rangle$ initialised as $\vert 0 \rangle$. The storing of the Hamming distance in the memory register $\vert m \rangle$ is then `un-computed'. The rotation adjusts the amplitude of the corresponding state, bringing it closer to $\vert 1 \rangle$ for each rotation conducted.
+The alternative implemented method was proposed and outlined in Appendix C of Deliverable 1.1. This method involves calculating the binary difference between the target state's qubits and a test vector's, storing the difference as 1 if they are the same in the state's memory register, else 0 (ie. Hamming distance). A $y$-rotation about an angle $\theta = \frac{\pi}{n}$ is then conducted for each bit set in the memory register (using a controlled $y$ rotation) on a single auxiliary qubit $\vert u \rangle$ initialised as $\vert 0 \rangle$. The storing of the Hamming distance in the memory register $\vert m \rangle$ is then `un-computed'. The rotation adjusts the amplitude of the corresponding state, bringing it closer to $\vert 1 \rangle$ for each rotation conducted.
 
-The algorithm deviates slightly from the above and is implemented as follows. The algorithm assumes that we already have $N$ states of length $n$ encoded into the memory register $\vert m \rangle$ of a superposition of states. The algorithm requires $2n+1$ qubits; $n$ qubits to store the test pattern in a register $\vert p \rangle$, a one qubit ancilla register $\vert u \rangle$ which the rotations will act on, and $n$ qubits for the memory register $\vert m \rangle$ which are already initialised with the training patterns. Registers $\vert p \rangle$ and $\vert u \rangle$ are initialised as all $0$'s. Hence, our initial state is
+The algorithm deviates slightly from the above and is implemented as follows. The algorithm assumes that we already have $N$ states of length $n$ encoded into the memory register $\vert m \rangle$ of a superposition of states. The algorithm requires $2n+1$ qubits; $n$ qubits to store the test pattern in a register $\vert p \rangle$, a one qubit auxiliary register $\vert u \rangle$ which the rotations will act on, and $n$ qubits for the memory register $\vert m \rangle$ which are already initialised with the training patterns. Registers $\vert p \rangle$ and $\vert u \rangle$ are initialised as all $0$'s. Hence, our initial state is
 
 \begin{align}
     \vert \psi_0 \rangle &= \frac{1}{\sqrt{N}}\sum\limits_{i=1}^{N} \vert p \rangle \vert u \rangle \vert m \rangle \\
@@ -164,7 +164,7 @@ The result of this algorithm is a superposition of states with the training patt
 \label{sec:post_selection}
 As detailed in Section \ref{sec:hamming_distance_cry_rotation}, a superposition of states can be prepared and the amplitudes for each state adjusted to reflect its binary pattern's `closeness' to a specified test pattern.
 
-In order to conduct measurements on this superposition to get meaningful results, the ancilla qubit in register $\vert u \rangle$ about which the rotations were conducted, needs to be collapsed to the state $\vert 1 \rangle$. This conditioning of a measurement on another qubit (in this case $\vert u \rangle$) is referred to as `post-selection'. 
+In order to conduct measurements on this superposition to get meaningful results, the auxiliary qubit in register $\vert u \rangle$ about which the rotations were conducted, needs to be collapsed to the state $\vert 1 \rangle$. This conditioning of a measurement on another qubit (in this case $\vert u \rangle$) is referred to as `post-selection'. 
 
 The reason that post-selection is necessary, is that upon applying a rotation to register $\vert u \rangle = \vert 0 \rangle$, this register becomes a superposition of the state $\vert u \rangle = \alpha\vert 0 \rangle + \beta \vert 1 \rangle$, where $\left| \alpha \right|^2 + \left|\beta\right|^2 = 1$. This entangles the encoded data with the state $\vert u \rangle$, with degree depending upon the Hamming distance (ie. the number of rotations taken). Thus, to obtain meaningful information about the Hamming distance after measurement of the state, the qubit in register $\vert 0 \rangle$ must be collapsed so that we are left with either $\alpha \vert 0\rangle$ or $\beta \vert 1\rangle$. Since the closeness of the qubit to $\vert 1\rangle$ is the desired information, it is clear that $\vert u \rangle$ must be collapsed to $\vert 1\rangle$, as smaller Hamming distance values (larger binary patterns) will rotate the state further towards $\vert 1\rangle$. By projecting $\vert u \rangle$ onto $\vert 1 \rangle$ we obtain states with amplitudes directly influenced by their Hamming distance.
 
