@@ -9,11 +9,6 @@
  * 
  */
 
-/**
- * @brief Encode a set of unique binary patterns into a superposition, alter their amplitudes according to their similarity with a test binary patter, and get a distribution of the probabilities of these amplitudes.
- *
- */
-
 #include "IntelSimulator.cpp"  
 #include "Simulator.hpp"  
 #include <map>
