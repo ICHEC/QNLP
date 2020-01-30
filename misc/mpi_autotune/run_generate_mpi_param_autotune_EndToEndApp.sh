@@ -45,7 +45,12 @@ if [ ! -f ${EXE_TARGET_CORPUS} ]; then
     echo "Error: Inputted corpus file '${EXE_TARGET_CORPUS}' not found!"
     exit 1
 fi
-EXE_NUM_SHOTS=$2
+
+if [[ $# -eq 2 ]]; then
+    EXE_NUM_SHOTS=$2
+else
+    EXE_NUM_SHOTS=10000
+fi
 
 EXECUTABLE_ARGS="${EXE_TARGET_CORPUS} ${EXE_NUM_SHOTS}"
 

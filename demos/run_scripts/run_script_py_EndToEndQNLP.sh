@@ -11,9 +11,13 @@ TIMING_FILE=time_run_EndToEndApp.csv
 touch ${TIMING_FILE}
 
 if [[ $# -eq 0 ]]; then
-    echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided.\nFurther optional arguments of different MPI Autotuning configuration files can be provided."
+    echo -e "Error: No command line args supplied.\nA corpus/text file needs to be provided"
+    exit 1
+elif [[ $# -gt 2 ]]; then
+    echo -e "Error: Too many command line arguments supplied. $# supplied, but expected 1 or 2 (input_file.txt [FILE], num_shots [optional, integer] respectively)."
     exit 1
 fi
+
 
 #################################################
 ### MPI job configuration.
@@ -42,8 +46,19 @@ PLANE_FILL_WIDTH=16
 PATH_TO_EXECUTABLE=${QNLP_ROOT}/modules/py/scripts
 EXECUTABLE=QNLP_EndToEnd_MPI.py
 
-EXE_TARGET_CORPUS=$1 # Corpus file is expected as first command line argument.
-EXECUTABLE_ARGS="${EXE_TARGET_CORPUS}" # List of applicatiopn arguments.
+EXE_TARGET_CORPUS=$1 # Corpus file is expected as command line argument.
+if [ ! -f ${EXE_TARGET_CORPUS} ]; then
+    echo "Error: Inputted corpus file '${EXE_TARGET_CORPUS}' not found!"
+    exit 1
+fi
+
+if [[ $# -eq 2 ]]; then
+    EXE_NUM_SHOTS=$2
+else
+    EXE_NUM_SHOTS=10000
+fi
+
+EXECUTABLE_ARGS="${EXE_TARGET_CORPUS} ${EXE_NUM_SHOTS}"
 
 # Application configuration parameters are set as environment variables
 export NUM_BASIS_NOUN=10 

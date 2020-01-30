@@ -44,8 +44,8 @@ Note that the variables `EXE_VERBOSE`, `EXE_TEST_PATTERN`, `$EXE_NUM_EXP` and `E
 
 ## End-toend application SLURM batch script job submission
 
-The run script `run_script_py_EndToEndQNLP.sh` launches the end-to-end application `intel-qnlp/modules/py/scripts/QNLP_EndToEnd_MPI.py`. It takes a mandatory argument in the form of a target corpus to be analysed. To run the application, execute
+The run script `run_script_py_EndToEndQNLP.sh` launches the end-to-end application `intel-qnlp/modules/py/scripts/QNLP_EndToEnd_MPI.py`. It takes a mandatory argument in the form of a target corpus to be analysed. An optional argument of the number of experiments (shots) can also be supplied as the second argument (optional [default 10000]). To run the application, execute
 
 '''{bash}
-sbatch run_script_py_EndToEndQNLP.py <PATH-TO-CORPUS-FILE>/<CORPUS-FILE.TXT>
+sbatch run_script_py_EndToEndQNLP.py <PATH-TO-CORPUS-FILE>/<CORPUS-FILE.TXT> <NUM-SHOTS>
 ```
