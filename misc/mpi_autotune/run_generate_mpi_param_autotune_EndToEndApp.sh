@@ -45,16 +45,21 @@ if [ ! -f ${EXE_TARGET_CORPUS} ]; then
     echo "Error: Inputted corpus file '${EXE_TARGET_CORPUS}' not found!"
     exit 1
 fi
-EXE_NUM_SHOTS=$2
+
+if [[ $# -eq 2 ]]; then
+    EXE_NUM_SHOTS=$2
+else
+    EXE_NUM_SHOTS=10000
+fi
 
 EXECUTABLE_ARGS="${EXE_TARGET_CORPUS} ${EXE_NUM_SHOTS}"
 
 # Application configuration parameters are set as environment variables
 export NUM_BASIS_NOUN=10 
 export NUM_BASIS_VERB=4
-export BASIS_NOUN_DIST_CUTOFF=2
-export BASIS_VERB_DIST_CUTOFF=2
-export VERB_NOUN_DIST_CUTOFF=1 
+export BASIS_NOUN_DIST_CUTOFF=5
+export BASIS_VERB_DIST_CUTOFF=5
+export VERB_NOUN_DIST_CUTOFF=3
 
 #################################################
 ### Load relevant module files.
@@ -72,7 +77,7 @@ export I_MPI_SHM=skx_avx512
 #################################################
 export I_MPI_TUNING_MODE=auto:application
 export I_MPI_TUNING_BIN_DUMP=tuning_EndToEndApp_nn${NNODES}_np${NPROCS}_iters${EXE_NUM_SHOTS}_${START_TIME}.dat
-export I_MPI_TUNING_AUTO_ITER_NUM=3
+export I_MPI_TUNING_AUTO_ITER_NUM=1
 export I_MPI_TUNING_AUTO_SYNC=1
 #export I_MPI_TUNING_AUTO_POLICY=
 
