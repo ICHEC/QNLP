@@ -261,9 +261,9 @@ maximum of {} unique patterns.
     for idx in range(len(sentences)):
         superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
         # Generate all combinations of the bit-patterns for superpos states
-        for i in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):
+        for patt in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):
             num = 0
-            for val in zip(i,bit_shifts):
+            for val in zip(patt, bit_shifts):
                 num += (val[0] << val[1])
             vec_to_encode.extend([num])
 
