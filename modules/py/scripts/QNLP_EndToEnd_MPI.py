@@ -322,8 +322,14 @@ else:
 
 num_exps=comm.bcast(num_exps, root=0)
 
-test_pattern = 1
+test_pattern = 0
 num_faults = 0
+
+if rank == 0:
+    test_string = (encoding_dict['ns']['hatter'], encoding_dict['v']['say'], encoding_dict['no']['queen'])
+    for val in zip(test_string, bit_shifts):
+        test_pattern += (val[0] << val[1])
+    print("Test data: {};   pattern: {}".format(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict), test_pattern))
 
 for exp in range(num_exps):
     sim.initRegister()
@@ -361,7 +367,7 @@ if rank == 0:
     pbar.close()
     print("#"*48, "Shot counter values")
     print(shot_counter)
-    print ("Number of faults: {}".format())
+    print ("Number of faults: {}".format(num_faults))
 
     key_order = list(shot_counter.keys())
 

@@ -40,6 +40,7 @@ def get_type_masks(encoding_dict, type_offsets=None):
     
     return bitmask_ns, bitmask_v, bitmask_no
 
+
 def bin_to_sentence(bin_val, encoding_dict, decoding_dict, type_offsets=None):
     """
     Map the integer binary value to the result from the encoded basis mappings.
@@ -51,11 +52,12 @@ def bin_to_sentence(bin_val, encoding_dict, decoding_dict, type_offsets=None):
     
     bitmask_ns, bitmask_v, bitmask_no = get_type_masks(encoding_dict, type_offsets=(l_ns, l_v, l_no) )
 
-    ns_val = (bin_val & bitmask_ns) >> (l_v[1] + l_no[1])
-    v_val  = (bin_val & bitmask_v) >> l_no[1]
-    no_val = (bin_val & bitmask_no)
+    no_val = (bin_val & bitmask_ns) >> (l_v[1] + l_ns[1])
+    v_val  = (bin_val & bitmask_v) >> l_ns[1]
+    ns_val = (bin_val & bitmask_no)
     
     return decoding_dict["ns"][ns_val], decoding_dict["v"][v_val], decoding_dict["no"][no_val]
+
 
 def gen_state_string(l):
     """Given a list of strings, generate the latex '\\vert {} \\rangle' representation of this in superposition."""
