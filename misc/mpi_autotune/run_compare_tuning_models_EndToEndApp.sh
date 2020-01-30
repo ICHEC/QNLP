@@ -45,9 +45,9 @@ EXECUTABLE_ARGS="${EXE_TARGET_CORPUS}" # List of applicatiopn arguments.
 # Application configuration parameters are set as environment variables
 export NUM_BASIS_NOUN=10 
 export NUM_BASIS_VERB=4
-export BASIS_NOUN_DIST_CUTOFF=2
-export BASIS_VERB_DIST_CUTOFF=2
-export VERB_NOUN_DIST_CUTOFF=1 
+export BASIS_NOUN_DIST_CUTOFF=5
+export BASIS_VERB_DIST_CUTOFF=5
+export VERB_NOUN_DIST_CUTOFF=3
 
 #################################################
 ### Load relevant module files.
