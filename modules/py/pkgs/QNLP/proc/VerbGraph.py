@@ -75,12 +75,12 @@ class VerbGraph:
                 if len(dr) >0:
                     v.addR(word_n, dr)
                     
-                #if len(v.left_nouns) > max_terms and len(v.right_nouns) > max_terms:
-                #    break
-                    
-                continue
-            if len(v.left_nouns) >1 and len(v.right_nouns) >1:
+            lr_dist = 0
+            for kl,vl in v.left_nouns.items(): 
+                for kr,vr in v.right_nouns.items():
+                    lr_dist = vr[0][1] - vl[0][1]
+                    if lr_dist < 2*dist_cutoff and lr_dist > 0: #>0 assumes correct left-right ordering
+                        v.lr_nouns.update({(kl,kr) : lr_dist})
+            if len(v.left_nouns) >1 and len(v.right_nouns) >1 and len(v.lr_nouns) >1:
                 v_list.append(v)
-                ###TBC
-            #break
         return v_list

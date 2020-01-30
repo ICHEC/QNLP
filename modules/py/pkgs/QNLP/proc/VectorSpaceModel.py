@@ -61,6 +61,7 @@ class VSM_pc:
         #spacy_tokenizer = English()
         else: #using spacy
             spacy_pos_tagger = spacy.load("en_core_web_sm")
+            #spacy_pos_tagger = 2000000 #Uses approx 1GB memory for each 100k tokens; assumes large memory pool
             for s in spacy_pos_tagger(corpus):
                 if stop_words == False and s.is_stop:
                     continue
