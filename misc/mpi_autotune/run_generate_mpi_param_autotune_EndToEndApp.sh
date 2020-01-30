@@ -72,7 +72,7 @@ export I_MPI_SHM=skx_avx512
 #################################################
 export I_MPI_TUNING_MODE=auto:application
 export I_MPI_TUNING_BIN_DUMP=tuning_EndToEndApp_nn${NNODES}_np${NPROCS}_iters${EXE_NUM_SHOTS}_${START_TIME}.dat
-export I_MPI_TUNING_AUTO_ITER_NUM=3
+export I_MPI_TUNING_AUTO_ITER_NUM=1
 export I_MPI_TUNING_AUTO_SYNC=1
 #export I_MPI_TUNING_AUTO_POLICY=
 
