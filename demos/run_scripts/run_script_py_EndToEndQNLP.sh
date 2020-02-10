@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J runpy
-#SBATCH -N 32
+#SBATCH -N 2
 #SBATCH -p ProdQ
 #SBATCH -t 24:00:00
 #SBATCH -A "ichec001"
@@ -25,7 +25,7 @@ fi
 ### Note: User may need to modify.
 #################################################
 
-NNODES=32
+NNODES=2
 NTASKSPERNODE=32
 NTHREADS=1
 NPROCS=$(( NTASKSPERNODE*NNODES ))
@@ -65,7 +65,7 @@ export NUM_BASIS_NOUN=10
 export NUM_BASIS_VERB=4
 export BASIS_NOUN_DIST_CUTOFF=5
 export BASIS_VERB_DIST_CUTOFF=5
-export VERB_NOUN_DIST_CUTOFF=3
+export VERB_NOUN_DIST_CUTOFF=4
 
 #################################################
 ### Load relevant module files (gcc 8.2.0 and
