@@ -104,6 +104,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
             qubitRegister.TurnOnFusion();
             std::cerr << "Warning: enabling fusion may cause inconsistent results." << std::endl;
         }
+        gate_count_1qubit = 0;
+        gate_count_2qubit = 0;
     }
 
     /**
@@ -120,8 +122,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubitIndex Index of qubit to apply gate upon
      * @param label Label for the gate U
      */
-    inline void applyGateU(const TMDP& U, CST qubitIndex, std::string label="U"){      
+    inline void applyGateU(const TMDP& U, CST qubitIndex, std::string label="U"){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.Apply1QubitGate(qubitIndex, U);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(label, U.tostr(), qubitIndex);
         #endif
@@ -133,7 +140,15 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubitIndex 
      */
     inline void applyGateI(std::size_t qubitIndex){
+        #ifndef RESOURCE_ESTIMATE
         applyGateU(getGateI(), qubitIndex, "I");
+        #endif
+
+        gate_count_1qubit++;
+
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("I", getGateI().tostr(), qubitIndex);
+        #endif
     }
 
     /**
@@ -146,8 +161,17 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         //Phase gate is identity with 1,1 index modulated by angle
         TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
-        //qubitRegister.Apply1QubitGate(qubit_idx, U);
+
+        #ifndef RESOURCE_ESTIMATE
         applyGateU(U, qubit_idx, "Phase:=" + std::to_string(angle));
+        #endif
+
+        gate_count_1qubit++;
+
+        #ifdef GATE_LOGGING
+        writer.oneQubitGateCall("PShift(theta=" + std::to_string(angle) + ")", U.tostr(), qubitIndex);
+        #endif
+
     }
 
     // 2 qubit
@@ -213,8 +237,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * 
      * @param qubitIndex 
      */
-    inline void applyGateX(CST qubitIndex){ 
+    inline void applyGateX(CST qubitIndex){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyPauliX(qubitIndex);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("X", getGateX().tostr(), qubitIndex);
         #endif
@@ -226,7 +255,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubitIndex 
      */
     inline void applyGateY(CST qubitIndex){ 
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyPauliY(qubitIndex);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("Y", getGateY().tostr(), qubitIndex);
         #endif
@@ -238,7 +272,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubitIndex 
      */
     inline void applyGateZ(CST qubitIndex){ 
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyPauliZ(qubitIndex);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("Z", getGateZ().tostr(), qubitIndex);
         #endif
@@ -250,7 +289,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubitIndex 
      */
     inline void applyGateH(CST qubitIndex){ 
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyHadamard(qubitIndex);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall("H", getGateH().tostr(), qubitIndex);
         #endif
@@ -262,7 +306,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param qubit_idx 
      */
    inline void applyGateSqrtX(CST qubitIndex){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyPauliSqrtX(qubitIndex);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
             "\\sqrt[2]{X}", 
@@ -279,6 +328,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param angle Rotation angle
      */
     inline void applyGateRotX(CST qubitIndex, double angle) {
+        #ifndef RESOURCE_ESTIMATE
+        qubitRegister.ApplyRotationX(qubitIndex, angle);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
             "R_X(\\theta=" + std::to_string(angle) + ")", 
@@ -286,7 +341,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
             qubitIndex
         );
         #endif
-        qubitRegister.ApplyRotationX(qubitIndex, angle);
     };
 
     /**
@@ -296,7 +350,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param angle Rotation angle
      */
     inline void applyGateRotY(CST qubitIndex, double angle) {
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyRotationY(qubitIndex, angle);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
             "R_Y(\\theta=" + std::to_string(angle) + ")", 
@@ -313,7 +372,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param angle Rotation angle
      */
     inline void applyGateRotZ(CST qubitIndex, double angle) {
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyRotationZ(qubitIndex, angle);
+        #endif
+
+        gate_count_1qubit++;
+
         #ifdef GATE_LOGGING
         writer.oneQubitGateCall(
             "R_Z(\\theta=" + std::to_string(angle) + ")", 
@@ -362,7 +426,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param label Optional parameter to label the gate U
      */
     inline void applyGateCU(const TMDP& U, CST control, CST target, std::string label="U"){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( label, U.tostr(), control, target );
         #endif
@@ -375,7 +444,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target Qubit index acting as target
      */
     inline void applyGateCX(CST control, CST target){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCPauliX(control, target);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "X", getGateX().tostr(), control, target );
         #endif
@@ -388,7 +462,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target Qubit index acting as target
      */
     inline void applyGateCY(CST control, CST target){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCPauliY(control, target);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "Y", getGateY().tostr(), control, target );
         #endif
@@ -401,7 +480,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target Qubit index acting as target
      */
     inline void applyGateCZ(CST control, CST target){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCPauliZ(control, target);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "Z", getGateZ().tostr(), control, target );
         #endif
@@ -414,7 +498,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target Qubit index acting as target
      */
     inline void applyGateCH(CST control, CST target){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCHadamard(control, target);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "H", getGateH().tostr(), control, target );
         #endif
@@ -430,7 +519,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline void applyGateCPhaseShift(double angle, unsigned int control, unsigned int target){
         TMDP U(gates[3]);
         U(1, 1) = ComplexDP(cos(angle), sin(angle));
+
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyControlled1QubitGate(control, target, U);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CPhase", U.tostr(), control, target );
         #endif
@@ -444,7 +539,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param theta Rotation angle
      */
     inline void applyGateCRotX(CST control, CST target, const double theta){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCRotationX(control, target, theta);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_X", getGateI().tostr(), control, target );
         #endif
@@ -458,7 +558,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param theta Rotation angle
      */
     inline void applyGateCRotY(CST control, CST target, double theta){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCRotationY(control, target, theta);
+        #endif
+
+        gate_count_2qubit++;
+
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_Y", getGateI().tostr(), control, target );
         #endif
@@ -472,7 +577,12 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param theta Rotation angle
      */
     inline void applyGateCRotZ(CST control, CST target, const double theta){
+        #ifndef RESOURCE_ESTIMATE
         qubitRegister.ApplyCRotationZ(control, target, theta);
+        #endif
+        
+        gate_count_2qubit++;
+        
         #ifdef GATE_LOGGING
         writer.twoQubitGateCall( "CR_Z", getGateI().tostr(), control, target );
         #endif
@@ -525,6 +635,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     void initRegister(){
         this->qubitRegister.Initialize("base",0);
         this->initCaches();
+        gate_count_1qubit = 0;
+        gate_count_2qubit = 0;
     }
 
     /**
@@ -594,6 +706,19 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     } 
     #endif
 
+    /**
+     * @brief Print 1 and 2 qubit gate call counts.
+     * 
+     */
+    std::pair<std::size_t, std::size_t> getGateCounts(){
+        std::cout << "######### Gate counts #########" << std::endl;
+        std::cout << "1 qubit = " << gate_count_1qubit << std::endl;
+        std::cout << "2 qubit = " << gate_count_2qubit << std::endl;
+        std::cout << "total = " << gate_count_1qubit + gate_count_2qubit << std::endl;
+        std::cout << "###############################" << std::endl;
+        return std::make_pair(gate_count_1qubit, gate_count_2qubit);
+    }
+
     private:
     std::size_t numQubits = 0;
     QRDP qubitRegister;
@@ -602,9 +727,13 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         int rank;
     #endif
 
+    std::size_t gate_count_1qubit;
+    std::size_t gate_count_2qubit;
+
     std::random_device rd; 
     std::mt19937 mt;
     std::uniform_real_distribution<double> dist;
+
 
     // Measurement methods
     /**
@@ -626,7 +755,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     inline double getStateProbability(CST target){
         return qubitRegister.GetProbability(target);
     }
+
 };
+
 
 // Generate templated classes/methods
 //template class Oracle<IntelSimulator>;

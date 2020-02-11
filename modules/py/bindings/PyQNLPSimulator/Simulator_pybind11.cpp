@@ -78,6 +78,7 @@ void intel_simulator_binding(py::module &m){
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
+        .def("getGateCounts", &SimulatorType::getGateCounts)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase);
 /*
         .def("adjointMatrix", &SimulatorType::adjointMatrix)

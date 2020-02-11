@@ -348,7 +348,7 @@ for exp in range(num_exps):
     sim.collapseToBasisZ(reg_aux[len(reg_aux)-2], 1)
 
     val = sim.applyMeasurementToRegister(reg_memory, normalise)
-
+    print(sim.getGateCounts())
     try:
         shot_counter[val] += 1
     except Exception as e:
