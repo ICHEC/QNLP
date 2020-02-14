@@ -43,6 +43,10 @@
 #include "ISimulator.hpp"
 #endif
 
+#ifdef ENABLE_MPI
+#include "mpi.h"
+#endif
+
 namespace QNLP{
 
     /*
@@ -71,6 +75,18 @@ namespace QNLP{
      * 
      */
     SimulatorGeneral(){ 
+
+    #ifdef ENABLE_MPI
+        int mpi_is_init;
+        MPI_Initialized(&mpi_is_init);
+        if (! mpi_is_init){
+            int argc_tmp = 0;
+            char** argv_tmp = new char*[argc_tmp];
+            MPI_Init(&argc_tmp, &argv_tmp);
+            delete argv;
+        }
+    #endif
+
         sim_ncu =  NCU<DerivedType>(static_cast<DerivedType&>(*this));
     }; 
     
