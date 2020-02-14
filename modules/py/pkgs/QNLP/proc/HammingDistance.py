@@ -2,6 +2,10 @@ from PyQNLPSimulator import DCMatrix as dcm
 import numpy as np
 
 class HammingDistance:
+    """
+    This class is used to encode the Hamming distance between two 
+    qubit registers into the phase of the first register.
+    """
     def __init__(self, num_bits, simulator):
         self.num_bits = num_bits
         self.sim = simulator
@@ -49,4 +53,11 @@ class HammingDistance:
         self._step4(reg_mem, reg_aux)
         self.sim.applyGateH(reg_aux[-2])
         self._step5(reg_aux)
-    
+
+    def hamming_aux_overwrite(self, reg_mem, reg_aux):
+        for i in range(len(reg_mem)):
+            self.sim.applyGateX(reg_aux[i])
+            self.sim.applyGateCCX(reg_mem[i], reg_aux[i], reg_aux[-1])
+            self.sim.applyGateX(reg_aux[i])
+            self.sim.applyGateCSwap(reg_mem[i], reg_aux[i], reg_aux[-1]);
+

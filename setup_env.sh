@@ -224,13 +224,6 @@ condaEnvSetup > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&
 fetchPackages > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
 condaUpdateAll > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2) &&
 
-if [ $? -ne 0 ]; then
-    echo "Installation failed. Please check logs for further information." > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
-else
-    echo "Installation succeeded. If you encounter any problems please report them to here, or the respective package authors." > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
-    echo "To load the environment run: source ${QNLP_ROOT}/load_env.sh" > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
-fi
-
 # Create MKLROOT dir mirroring actual MKL to avoid discrepencies
 pushd . &> /dev/null
 conda activate intel-qnlp
@@ -243,6 +236,13 @@ popd
 
 #Force pip install of scipy/numpy as conda version has issues with MKL
 pip install --upgrade --force-reinstall scipy
+
+if [ $? -ne 0 ]; then
+    echo "Installation failed. Please check logs for further information." > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
+else
+    echo "Installation succeeded. If you encounter any problems please report them to here, or the respective package authors." > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
+    echo "To load the environment run: source ${QNLP_ROOT}/load_env.sh" > >(tee -a ${LOG_NAME}_out.log) 2> >(tee -a ${LOG_NAME}_err.log >&2)
+fi
 
 cat > ${QNLP_ROOT}/load_env.sh << EOL
 #!/bin/bash

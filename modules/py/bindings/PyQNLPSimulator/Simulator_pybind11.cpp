@@ -78,7 +78,9 @@ void intel_simulator_binding(py::module &m){
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
-        .def("applyOraclePhase", &SimulatorType::applyOraclePhase);
+        .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
+        .def("groupQubitsLSB", &SimulatorType::groupQubitsLSB)
+        .def("applyHammingDistanceOverwrite", &SimulatorType::applyHammingDistanceOverwrite);
 /*
         .def("adjointMatrix", &SimulatorType::adjointMatrix)
         .def("matrixSqrt", &SimulatorType::matrixSqrt)

@@ -118,9 +118,9 @@ namespace QNLP{
                 // Require length of auxiliary register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_auxiliary);
 
-                // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+                // Prepare state in |0...>|0...0>|01> of lengths n,n,2
                 #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|10> of lengths n,n,2");
+                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|01> of lengths n,n,2");
                 #endif
                 qSim.applyGateX(reg_auxiliary[len_reg_auxiliary-1]);
                 std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + len_bin_pattern);
@@ -140,7 +140,7 @@ namespace QNLP{
                     }
 
                     // Psi1
-                    // Copy pattern to auxiliary register of newly created state (inow becoming the `active` state).
+                    // Copy pattern to auxiliary register of newly created state (now becoming the `active` state).
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_1 \\rangle");
                     #endif

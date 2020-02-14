@@ -6,7 +6,7 @@ project(qnlp_modules LANGUAGES CXX)
 ###############################################################################
 set(QNLP_MODULES_SUBDIRS    gate_ops;
                             encoding;
-                            hamming_RotY;
+                            hamming;
                             py;
                             simulator;
                             utils;

@@ -29,7 +29,8 @@
 #include "qft.hpp"
 #include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
-#include "hamming_RotY_amplification.hpp"
+#include "hamming.hpp"
+#include "bit_group.hpp"
 
 #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
 //pybind11 fails to compile with icpc using cpp17 support, so fallback to 14 if necessary
@@ -559,11 +560,32 @@ namespace QNLP{
             // Encode test pattern to auxiliary register
             encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
 
-            HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
+            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistanceRotY(static_cast<DerivedType&>(*this), reg_mem, reg_auxiliary, len_bin_pattern);
 
             // Un-encode test pattern from auxiliary register
             encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
+        }
+
+
+            /**
+         * @brief Computes the relative Hamming distance between the test pattern and the pattern stored in each state of the superposition, overwriting the aux register pattern with the resulting bit differences.
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_auxiliary Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         */
+        void applyHammingDistanceOverwrite(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vector<std::size_t> reg_auxiliary,  
+                std::size_t len_bin_pattern){
+
+            assert(reg_mem.size() < reg_auxiliary.size()-1);
+
+            // Encode test pattern to auxiliary register
+            encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
+
+            HammingDistance<DerivedType>::computeHammingDistanceOverwriteAux(static_cast<DerivedType&>(*this), reg_mem, reg_auxiliary);
         }
 
         /**
@@ -591,6 +613,19 @@ namespace QNLP{
                 val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
             } 
             return val;
+        }
+
+        /**
+         * @brief Group all set qubits to LSB in register (ie |010100> -> |000011>)
+         * 
+         * @param reg_mem The indices of the qubits to perform operation upon
+         * @param reg_auxiliary The auxiliary control qubit register set to |......10> at the beginning, and guaranteed to be set the same at end.
+         */
+        void groupQubitsLSB(const std::vector<std::size_t> reg_mem, const std::vector<std::size_t> reg_auxiliary){
+            assert( reg_auxiliary.size() >= 2);
+            BitGroup<DerivedType> bg;
+            std::vector<std::size_t> sub_reg { *(reg_auxiliary.end()-2), *(reg_auxiliary.end()-1) } ;
+            bg.bit_swap_pair(static_cast<DerivedType&>(*this), reg_mem, sub_reg );
         }
 
         /**
