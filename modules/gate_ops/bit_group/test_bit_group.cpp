@@ -35,7 +35,7 @@ TEST_CASE("Test bit grouping","[bitgroup]"){
     IntelSimulator sim(num_qubits);
     BitGroup<decltype(sim)> bg;
     auto& r = sim.getQubitRegister();
-    
+    /*
     SECTION("Group to right |010100>|10> -> |000011>|10>"){
         sim.initRegister();
         sim.applyGateX(reg[1]);
@@ -45,14 +45,14 @@ TEST_CASE("Test bit grouping","[bitgroup]"){
         bg.bit_swap_s2e(sim, reg, aux);
 
         sim.PrintStates("Post");
-    }
+    }*/
     SECTION("Group to right |010000>|10> + |011000>|10> -> |000001>|10> + |000011>|10>"){
         sim.initRegister();
         sim.applyGateX(reg[1]);
         sim.applyGateH(reg[2]);
 
         sim.applyGateX(aux[0]);
-        bg.bit_swap_pair(sim, reg, aux);
+        bg.bit_group(sim, reg, aux, true);
 
         sim.PrintStates("PostSuper");
     }

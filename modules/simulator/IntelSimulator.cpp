@@ -535,9 +535,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * 
      * @return bool Value that qubit is randomly collapsed to
      * @param target The index of the qubit being collapsed
-     * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+     * @param normalize Optional argument specifying whether amplitudes should be normalized (true) or not (false). Default value is true.
      */
-    inline bool applyMeasurement(CST target, bool normalize=true){
+    bool applyMeasurement(CST target, bool normalize=true){
         double rand;
         bool bit_val;
 
@@ -550,7 +550,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #else
             rand = dist(mt);
         #endif
-        collapseQubit(target,(bit_val = (rand < getStateProbability(target))));
+        collapseQubit(target, (bit_val = ( rand < getStateProbability(target) ) ) );
         if(normalize){
             applyAmplitudeNorm();
         }
@@ -563,7 +563,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target The index of the qubit being collapsed
      * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
      */
-    inline void collapseToBasisZ(CST target, bool collapseValue){
+    void collapseToBasisZ(CST target, bool collapseValue){
         collapseQubit(target, collapseValue);
         applyAmplitudeNorm();
     }

@@ -1,4 +1,5 @@
 #include "pybind11/pybind11.h"
+#include "pybind11/iostream.h"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
 #include "pybind11/complex.h"
@@ -72,14 +73,14 @@ void intel_simulator_binding(py::module &m){
         .def("applyMeasurementToRegister", &SimulatorType::applyMeasurementToRegister)
         .def("collapseToBasisZ", &SimulatorType::collapseToBasisZ)
         .def("initRegister", &SimulatorType::initRegister)
-        .def("printStates", &SimulatorType::PrintStates)
+        .def("printStates", &SimulatorType::PrintStates, py::call_guard<py::scoped_ostream_redirect,py::scoped_estream_redirect>())
         .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_5CX_Opt)
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
-        .def("groupQubitsLSB", &SimulatorType::groupQubitsLSB)
+        .def("groupQubits", &SimulatorType::groupQubits)
         .def("applyHammingDistanceOverwrite", &SimulatorType::applyHammingDistanceOverwrite);
 /*
         .def("adjointMatrix", &SimulatorType::adjointMatrix)

@@ -75,7 +75,7 @@ namespace QNLP{
      * 
      */
     SimulatorGeneral(){ 
-
+    //If we are building MPI support, ensure that it is init'd here before subclasses.
     #ifdef ENABLE_MPI
         int mpi_is_init;
         MPI_Initialized(&mpi_is_init);
@@ -632,16 +632,19 @@ namespace QNLP{
         }
 
         /**
-         * @brief Group all set qubits to LSB in register (ie |010100> -> |000011>)
+         * @brief Group all set qubits to MSB in register (ie |010100> -> |000011>)
          * 
          * @param reg_mem The indices of the qubits to perform operation upon
          * @param reg_auxiliary The auxiliary control qubit register set to |......10> at the beginning, and guaranteed to be set the same at end.
+         * @param lsb Shifts to LSB position in register if true; MSB otherwise.
          */
-        void groupQubitsLSB(const std::vector<std::size_t> reg_mem, const std::vector<std::size_t> reg_auxiliary){
+        void groupQubits(const std::vector<std::size_t> reg_auxiliary, bool lsb=true){
             assert( reg_auxiliary.size() >= 2);
-            BitGroup<DerivedType> bg;
-            std::vector<std::size_t> sub_reg { *(reg_auxiliary.end()-2), *(reg_auxiliary.end()-1) } ;
-            bg.bit_swap_pair(static_cast<DerivedType&>(*this), reg_mem, sub_reg );
+
+            const std::vector<std::size_t> reg_ctrl ( reg_auxiliary.end()-2, reg_auxiliary.end() );
+            const std::vector<std::size_t> sub_reg (reg_auxiliary.begin(), reg_auxiliary.end()-2 ) ;
+
+            BitGroup<DerivedType>::bit_group(static_cast<DerivedType&>(*this), sub_reg, reg_ctrl, lsb);
         }
 
         /**
