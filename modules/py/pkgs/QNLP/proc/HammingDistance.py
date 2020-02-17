@@ -118,7 +118,7 @@ class HammingDistanceGroupRotate(HammingDistanceOverwriteAux):
     def __init__(self, num_bits, simulator):
         super().__init__(num_bits, simulator)
         self.gops = GateOps(simulator)
-        self.val_range = np.arange(-1.0, 1+1/self.num_bits, 2/num_bits)
+        self.val_range = np.arange(-1.0, 1, 2/num_bits)
 
     def calc(self, reg_mem, reg_aux, pattern):
         self._encodePattern(reg_mem, reg_aux, pattern)
@@ -127,7 +127,7 @@ class HammingDistanceGroupRotate(HammingDistanceOverwriteAux):
         omap = self._oracle_angle_map()
         for k,v in omap.items():
             self.sim.addUToCache(v, "RY_{}".format(k))
-            self.sim.applyOracleU(k, self._oracle_angle_map()[k], reg_aux[0:-2], reg_aux[-1], "RY_{}".format(k))
+            self.sim.applyOracleU(k, self._oracle_angle_map()[k], reg_aux[0:-2], reg_aux[-2], "RY_{}".format(k))
 
     def _angle_matrices(self):
         vals = []
@@ -139,7 +139,7 @@ class HammingDistanceGroupRotate(HammingDistanceOverwriteAux):
     def _oracle_angle_map(self):
         val_map = {}
         mats = self._angle_matrices()
-        for i in range(0, self.num_bits+1):
+        for i in range(0, self.num_bits):
             val_map.update({ 2**i - 1 : mats[i]})
         return val_map
     
