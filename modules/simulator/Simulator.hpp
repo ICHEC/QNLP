@@ -488,15 +488,30 @@ namespace QNLP{
         /**
          * @brief Apply oracle to match given binary index with non adjacent controls
          * 
+         * @param bit_pattern Oracle state pattern (bitstring: 0-> |0>, 1-> |1>)
          * @param U 2x2 unitary matrix to apply
-         * @param minIdx Lowest index of the control lines expected for oracle
-         * @param maxIdx Highest index of the control lines expected for oracle
+         * @param ctrlIndices Control indices for operation
          * @param target Target qubit index to apply U on
+         * @param gateLabel Label used to access required cached matrix for NCU
          */
         template<class Mat2x2Type>
         void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
-            Oracle<DerivedType> oracle;
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
+            Oracle<DerivedType>::bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
+        }
+
+        /**
+         * @brief Apply oracle to match given binary index with non adjacent controls
+         * 
+         * @param bit_pattern Oracle state pattern (bitstring: 0-> |0>, 1-> |1>)
+         * @param U 2x2 unitary matrix to apply
+         * @param ctrlIndices Control indices for operation
+         * @param auxIndices Auxiliary indices for operation
+         * @param target Target qubit index to apply U on
+         * @param gateLabel Label used to access required cached matrix for NCU
+         */
+        template<class Mat2x2Type>
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
+            Oracle<DerivedType>::bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, auxIndices, target, U, gateLabel);
         }
 
         /**
