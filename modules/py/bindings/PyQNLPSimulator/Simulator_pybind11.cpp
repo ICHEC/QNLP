@@ -29,6 +29,9 @@ class IntelSimPy : public IntelSimulator{
     void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
         this->applyOracleU( bit_pattern, ctrl_indices, target, U, label);
     }
+    void addUToCache_U(const DCM& U, std::string label){
+        this->addUToCache(label, U);
+    }
 };
 
 template <class SimulatorType>
@@ -76,6 +79,7 @@ void intel_simulator_binding(py::module &m){
         .def("printStates", &SimulatorType::PrintStates, py::call_guard<py::scoped_ostream_redirect,py::scoped_estream_redirect>())
         .def("applyGateNCU", &SimulatorType::applyGateNCU_nonlinear)
         .def("applyGateNCU", &SimulatorType::applyGateNCU_5CX_Opt)
+        .def("addUToCache", &SimulatorType::addUToCache_U)
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
