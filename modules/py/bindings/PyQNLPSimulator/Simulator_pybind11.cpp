@@ -29,6 +29,9 @@ class IntelSimPy : public IntelSimulator{
     void applyOracle_U(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::size_t target, std::string label){
         this->applyOracleU( bit_pattern, ctrl_indices, target, U, label);
     }
+    void applyOracle_Opt(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::vector<std::size_t>& aux_indices, std::size_t target, std::string label){
+        this->applyOracleU( bit_pattern, ctrl_indices, aux_indices, target, U, label);
+    }
     void addUToCache_U(const DCM& U, std::string label){
         this->addUToCache(label, U);
     }
@@ -83,6 +86,7 @@ void intel_simulator_binding(py::module &m){
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
+        .def("applyOracleU", &SimulatorType::applyOracle_Opt)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
         .def("groupQubits", &SimulatorType::groupQubits)
         .def("applyHammingDistanceOverwrite", &SimulatorType::applyHammingDistanceOverwrite);
