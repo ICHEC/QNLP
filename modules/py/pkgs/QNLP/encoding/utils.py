@@ -11,7 +11,7 @@ def pow2bits(bin_val):
     if bin_val > 1:
         result = 2**(bits)
     else:
-        result = 1
+        result = 2
         bits = 1
     return result, bits
 """
@@ -49,12 +49,12 @@ def bin_to_sentence(bin_val, encoding_dict, decoding_dict, type_offsets=None):
         l_ns, l_v, l_no = get_type_offsets(encoding_dict)
     else:
         l_ns, l_v, l_no = type_offsets
-    
-    bitmask_ns, bitmask_v, bitmask_no = get_type_masks(encoding_dict, type_offsets=(l_ns, l_v, l_no) )
 
-    no_val = (bin_val & bitmask_ns) >> (l_v[1] + l_ns[1])
-    v_val  = (bin_val & bitmask_v) >> l_ns[1]
-    ns_val = (bin_val & bitmask_no)
+    bitmask_ns, bitmask_v, bitmask_no = get_type_masks(encoding_dict, type_offsets=(l_ns, l_v, l_no) )
+    
+    no_val = (bin_val & bitmask_no)
+    v_val  = (bin_val & bitmask_v) >> l_no[1]
+    ns_val = (bin_val & bitmask_ns) >> (l_v[1] + l_no[1])
     
     return decoding_dict["ns"][ns_val], decoding_dict["v"][v_val], decoding_dict["no"][no_val]
 
