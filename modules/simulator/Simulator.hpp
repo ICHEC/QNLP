@@ -83,7 +83,7 @@ namespace QNLP{
             int argc_tmp = 0;
             char** argv_tmp = new char*[argc_tmp];
             MPI_Init(&argc_tmp, &argv_tmp);
-            delete argv;
+            delete argv_tmp;
         }
     #endif
 
