@@ -34,10 +34,10 @@ def get_type_masks(encoding_dict, type_offsets=None):
     else:
         l_ns, l_v, l_no = type_offsets
 
-    bitmask_ns = (l_ns[0]-1) << (l_v[1] + l_no[1])
+    bitmask_ns = (l_ns[0]-1) 
     bitmask_v = (l_v[0]-1) << l_no[1]
-    bitmask_no = (l_no[0]-1) 
-    
+    bitmask_no = (l_no[0]-1) << (l_v[1] + l_ns[1])
+
     return bitmask_ns, bitmask_v, bitmask_no
 
 
@@ -52,12 +52,11 @@ def bin_to_sentence(bin_val, encoding_dict, decoding_dict, type_offsets=None):
 
     bitmask_ns, bitmask_v, bitmask_no = get_type_masks(encoding_dict, type_offsets=(l_ns, l_v, l_no) )
     
-    no_val = (bin_val & bitmask_no)
+    ns_val = (bin_val & bitmask_ns) 
     v_val  = (bin_val & bitmask_v) >> l_no[1]
-    ns_val = (bin_val & bitmask_ns) >> (l_v[1] + l_no[1])
-    
-    return decoding_dict["ns"][ns_val], decoding_dict["v"][v_val], decoding_dict["no"][no_val]
+    no_val = (bin_val & bitmask_no) >> (l_v[1] + l_ns[1])
 
+    return decoding_dict["ns"][ns_val], decoding_dict["v"][v_val], decoding_dict["no"][no_val]
 
 def gen_state_string(l):
     """Given a list of strings, generate the latex '\\vert {} \\rangle' representation of this in superposition."""
