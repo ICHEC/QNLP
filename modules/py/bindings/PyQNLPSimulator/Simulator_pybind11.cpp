@@ -87,7 +87,7 @@ void intel_simulator_binding(py::module &m){
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
         .def("getGateCounts", &SimulatorType::getGateCounts)
-        .def("applyOraclePhase", &SimulatorType::applyOraclePhase);
+        .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
         .def("groupQubits", &SimulatorType::groupQubits)
         .def("applyHammingDistanceOverwrite", &SimulatorType::applyHammingDistanceOverwrite);
 /*
