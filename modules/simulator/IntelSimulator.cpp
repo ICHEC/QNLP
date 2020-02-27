@@ -72,20 +72,15 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         //Ensure the cache maps are populated before use.
         this->initCaches();
 
-        #ifdef ENABLE_MPI
+        #ifdef ENABLE_MPI //If for some strange reason the MPI environement is not enable through the Base CRTP class, enable using Intel-QS
             int mpi_is_init;
             MPI_Initialized(&mpi_is_init);
             if (! mpi_is_init){ // Attempt init using Intel-QS MPI env
-                int argc = 0;
-                char** argv = new char*[argc];
+                int argc_tmp = 0;
+                char** argv_tmp = new char*[argc_tmp];
 
-                qhipster::mpi::Environment env(argc, argv); //we do not expect to pass any params here
-            }
-            MPI_Initialized(&mpi_is_init);
-            if (! mpi_is_init){ // If Intel-QS MPI env fails, use default init
-                int argc = 0;
-                char** argv = new char*[argc];
-                MPI_Init(&argc, &argv);
+                qhipster::mpi::Environment env(argc_tmp, argv_tmp); //we do not expect to pass any params here
+                delete argv_tmp;
             }
             MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         #endif
@@ -652,9 +647,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * 
      * @return bool Value that qubit is randomly collapsed to
      * @param target The index of the qubit being collapsed
-     * @param normalize Optional argument specifying whether amplitudes shoud be normalized (true) or not (false). Default value is true.
+     * @param normalize Optional argument specifying whether amplitudes should be normalized (true) or not (false). Default value is true.
      */
-    inline bool applyMeasurement(CST target, bool normalize=true){
+    bool applyMeasurement(CST target, bool normalize=true){
         double rand;
         bool bit_val;
 
@@ -667,7 +662,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         #else
             rand = dist(mt);
         #endif
-        collapseQubit(target,(bit_val = (rand < getStateProbability(target))));
+        collapseQubit(target, (bit_val = ( rand < getStateProbability(target) ) ) );
         if(normalize){
             applyAmplitudeNorm();
         }
@@ -680,7 +675,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
      * @param target The index of the qubit being collapsed
      * @param collapseValue The value that the register will be collapsed to (either 0 ro 1).
      */
-    inline void collapseToBasisZ(CST target, bool collapseValue){
+    void collapseToBasisZ(CST target, bool collapseValue){
         collapseQubit(target, collapseValue);
         applyAmplitudeNorm();
     }

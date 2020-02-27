@@ -30,7 +30,7 @@ digraph "GG" {
     "SimulatorGeneral" -> "EncodeBinIntoSuperpos" // qnlp_simulator -> qnlp_binencode
     "SimulatorGeneral" -> "Diffusion" // qnlp_simulator -> qnlp_diffusion
     "SimulatorGeneral" -> "GateWriter" // qnlp_simulator -> qnlp_gatewriter
-    "SimulatorGeneral" -> "HammingDistanceRotY" // qnlp_simulator -> qnlp_hamming_RotY_amplification
+    "SimulatorGeneral" -> "HammingDistanceRotY" // qnlp_simulator -> qnlp_hamming
     "SimulatorGeneral" -> "NCU" // qnlp_simulator -> qnlp_ncu
     "SimulatorGeneral" -> "Oracle" // qnlp_simulator -> qnlp_oracle
     "SimulatorGeneral" -> "QFT" // qnlp_simulator -> qnlp_qft

@@ -1,4 +1,6 @@
 # Building Intel-QS on MacOS
+## NOTE: DOES NOT WORK ON MACOS CATALINA!
+
 While Intel-QS is not officially supported on MacOS, it can be beneficial to have
 an offline (i.e. no-cluster) build environment. The following steps allowed for
 the build of the library `qHiPSTER.a` on MacOS Mojave (10.14.x).

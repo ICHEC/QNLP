@@ -29,7 +29,8 @@
 #include "qft.hpp"
 #include "arithmetic.hpp"
 #include "bin_into_superpos.hpp"
-#include "hamming_RotY_amplification.hpp"
+#include "hamming.hpp"
+#include "bit_group.hpp"
 
 #if defined(__INTEL_COMPILER) || defined(__INTEL_LLVM_COMPILER)
 //pybind11 fails to compile with icpc using cpp17 support, so fallback to 14 if necessary
@@ -40,6 +41,10 @@
 
 #ifdef VIRTUAL_INTERFACE
 #include "ISimulator.hpp"
+#endif
+
+#ifdef ENABLE_MPI
+#include "mpi.h"
 #endif
 
 namespace QNLP{
@@ -70,6 +75,18 @@ namespace QNLP{
      * 
      */
     SimulatorGeneral(){ 
+    //If we are building MPI support, ensure that it is init'd here before subclasses.
+    #ifdef ENABLE_MPI
+        int mpi_is_init;
+        MPI_Initialized(&mpi_is_init);
+        if (! mpi_is_init){
+            int argc_tmp = 0;
+            char** argv_tmp = new char*[argc_tmp];
+            MPI_Init(&argc_tmp, &argv_tmp);
+            delete argv_tmp;
+        }
+    #endif
+
         sim_ncu =  NCU<DerivedType>(static_cast<DerivedType&>(*this));
     }; 
     
@@ -471,15 +488,30 @@ namespace QNLP{
         /**
          * @brief Apply oracle to match given binary index with non adjacent controls
          * 
+         * @param bit_pattern Oracle state pattern (bitstring: 0-> |0>, 1-> |1>)
          * @param U 2x2 unitary matrix to apply
-         * @param minIdx Lowest index of the control lines expected for oracle
-         * @param maxIdx Highest index of the control lines expected for oracle
+         * @param ctrlIndices Control indices for operation
          * @param target Target qubit index to apply U on
+         * @param gateLabel Label used to access required cached matrix for NCU
          */
         template<class Mat2x2Type>
         void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
-            Oracle<DerivedType> oracle;
-            oracle.bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
+            Oracle<DerivedType>::bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, target, U, gateLabel);
+        }
+
+        /**
+         * @brief Apply oracle to match given binary index with non adjacent controls
+         * 
+         * @param bit_pattern Oracle state pattern (bitstring: 0-> |0>, 1-> |1>)
+         * @param U 2x2 unitary matrix to apply
+         * @param ctrlIndices Control indices for operation
+         * @param auxIndices Auxiliary indices for operation
+         * @param target Target qubit index to apply U on
+         * @param gateLabel Label used to access required cached matrix for NCU
+         */
+        template<class Mat2x2Type>
+        void applyOracleU(std::size_t bit_pattern, const std::vector<std::size_t>& ctrlIndices, const std::vector<std::size_t>& auxIndices, std::size_t target, const Mat2x2Type& U , std::string gateLabel){
+            Oracle<DerivedType>::bitStringNCU(static_cast<DerivedType&>(*this), bit_pattern, ctrlIndices, auxIndices, target, U, gateLabel);
         }
 
         /**
@@ -559,11 +591,32 @@ namespace QNLP{
             // Encode test pattern to auxiliary register
             encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
 
-            HammingDistanceRotY<DerivedType> hamming_operator(len_bin_pattern);
+            HammingDistance<DerivedType> hamming_operator(len_bin_pattern);
             hamming_operator.computeHammingDistanceRotY(static_cast<DerivedType&>(*this), reg_mem, reg_auxiliary, len_bin_pattern);
 
             // Un-encode test pattern from auxiliary register
             encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
+        }
+
+
+            /**
+         * @brief Computes the relative Hamming distance between the test pattern and the pattern stored in each state of the superposition, overwriting the aux register pattern with the resulting bit differences.
+         *
+         * @param test_pattern The binary pattern used as the the basis for the Hamming Distance.
+         * @param reg_mem Vector containing the indices of the register qubits that contain the training patterns.
+         * @param reg_auxiliary Vector containing the indices of the register qubits which the first len_bin_pattern qubits will store the test_pattern.
+         */
+        void applyHammingDistanceOverwrite(std::size_t test_pattern, 
+                const std::vector<std::size_t> reg_mem, 
+                const std::vector<std::size_t> reg_auxiliary,  
+                std::size_t len_bin_pattern){
+
+            assert(reg_mem.size() < reg_auxiliary.size()-1);
+
+            // Encode test pattern to auxiliary register
+            encodeToRegister(test_pattern, reg_auxiliary, len_bin_pattern);
+
+            HammingDistance<DerivedType>::computeHammingDistanceOverwriteAux(static_cast<DerivedType&>(*this), reg_mem, reg_auxiliary);
         }
 
         /**
@@ -591,6 +644,22 @@ namespace QNLP{
                 val |= (static_cast<DerivedType*>(this)->applyMeasurement(target_qubits[j], normalize) << j);
             } 
             return val;
+        }
+
+        /**
+         * @brief Group all set qubits to MSB in register (ie |010100> -> |000011>)
+         * 
+         * @param reg_mem The indices of the qubits to perform operation upon
+         * @param reg_auxiliary The auxiliary control qubit register set to |......10> at the beginning, and guaranteed to be set the same at end.
+         * @param lsb Shifts to LSB position in register if true; MSB otherwise.
+         */
+        void groupQubits(const std::vector<std::size_t> reg_auxiliary, bool lsb=true){
+            assert( reg_auxiliary.size() >= 2);
+
+            const std::vector<std::size_t> reg_ctrl ( reg_auxiliary.end()-2, reg_auxiliary.end() );
+            const std::vector<std::size_t> sub_reg (reg_auxiliary.begin(), reg_auxiliary.end()-2 ) ;
+
+            BitGroup<DerivedType>::bit_group(static_cast<DerivedType&>(*this), sub_reg, reg_ctrl, lsb);
         }
 
         /**

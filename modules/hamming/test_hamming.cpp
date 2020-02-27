@@ -1,6 +1,6 @@
 //#define CATCH_CONFIG_RUNNER
 
-#include "hamming_RotY_amplification.hpp"
+#include "hamming.hpp"
 #include "Simulator.hpp"
 #include "IntelSimulator.cpp"
 #include "catch2/catch.hpp"
@@ -14,7 +14,7 @@ using namespace Catch::Matchers;
 
 typedef ComplexDP Type;
 
-template class QNLP::HammingDistanceRotY<IntelSimulator>;
+template class QNLP::HammingDistance<IntelSimulator>;
 
 /**
  * @brief Calulates the Hamming distance between two binary strings stored as integers

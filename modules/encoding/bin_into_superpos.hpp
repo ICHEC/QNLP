@@ -117,10 +117,9 @@ namespace QNLP{
 
                 // Require length of auxiliary register to have n+2 qubits
                 assert(reg_memory.size() + 1 < len_reg_auxiliary);
-
-                // Prepare state in |0...>|0...0>|10> of lengths n,n,2
+                // Prepare state in |0...>|0...0>|01> of lengths n,n,2
                 #ifdef GATE_LOGGING
-                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|10> of lengths n,n,2");
+                qSim.getGateWriter().segmentMarkerOut("Prepare state in |0...>|0...0>|01> of lengths n,n,2");
                 #endif
                 qSim.applyGateX(reg_auxiliary[len_reg_auxiliary-1]);
                 std::vector<std::size_t> sub_reg(reg_memory.begin(), reg_memory.begin () + len_bin_pattern);
@@ -140,7 +139,7 @@ namespace QNLP{
                     }
 
                     // Psi1
-                    // Copy pattern to auxiliary register of newly created state (inow becoming the `active` state).
+                    // Copy pattern to auxiliary register of newly created state (now becoming the `active` state).
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_1 \\rangle");
                     #endif
@@ -169,12 +168,13 @@ namespace QNLP{
                     // Psi4
                     // Apply S^i
                     // This flips the second control bit of the new term in the position so
-                    // that we get old|11> + new|10> thus breaking it off into larger and smaller chunks.
+                    // that we get old|11> + new|01> thus breaking it off into larger and smaller chunks.
                     // The new state is now defined as the next 'newly created state'.
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("| \\Psi_4 \\rangle");
                     #endif
                     qSim.applyGateCU((*S)[i], reg_auxiliary[len_reg_auxiliary-2], reg_auxiliary[len_reg_auxiliary-1]);
+
 
                     // Psi5
                     // Uncompute NCU
@@ -202,7 +202,7 @@ namespace QNLP{
                        qSim.applyGateCCX(reg_auxiliary[j], reg_auxiliary[len_reg_auxiliary-1], reg_memory[j]);
                     }
 
-                    // Reset the register of the new term to the state |0...0>|0...0>|10>.
+                    // Reset the register of the new term to the state |m>|0...0>|01>.
                     #ifdef GATE_LOGGING
                     qSim.getGateWriter().segmentMarkerOut("Reset p to | 00\\ldots 0 \\rangle");
                     #endif

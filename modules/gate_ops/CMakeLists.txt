@@ -9,6 +9,7 @@ set(QNLP_MODULES_SUBDIRS    arithmetic;
                             ncu;
                             qft;
                             oracle;
+                            bit_group;
 )
 foreach(MOD ${QNLP_MODULES_SUBDIRS})
     add_subdirectory(${MOD})

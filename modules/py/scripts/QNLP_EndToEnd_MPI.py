@@ -29,6 +29,7 @@ import numpy as np
 from QNLP import DisCoCat
 from QNLP.encoding import simple
 from QNLP.proc.VerbGraph import VerbGraph as vg
+from QNLP.proc.HammingDistance import HammingDistance
 import networkx as nx
 from tqdm import tqdm
 import sys
@@ -70,6 +71,9 @@ if rank == 0:
     assert (len(sys.argv) > 1)
     #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
     corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
+    if not os.path.isfile(corpus_file):
+        print ("Error: Inputted file does not exist")
+        sys.exit()
     vsm = q.VectorSpaceModel.VectorSpaceModel(
         corpus_path=corpus_file,
         mode="l", 
@@ -81,7 +85,6 @@ if rank == 0:
 # From here we can specify the number of basis elements by occurrence in the 
 # corpus. This will take the `num_basis_elems` most frequently occurring tokens
 # in both verb and noun spaces respectively.
-    num_basis_elems = 8
     basis     = vsm.define_basis({'verbs' : NUM_BASIS_VERB, 'nouns' : NUM_BASIS_NOUN})
 
 # Next, we aim to sort the mapping of the basis tokens to a binary 
@@ -206,8 +209,8 @@ maximum of {} unique patterns.
 
     ns = []
 
-    verb_bits = int(np.log2(len(verb_dist['verbs'])))
-    noun_bits = int(np.log2(len(noun_dist['nouns'])))
+#    verb_bits = int(np.log2(len(verb_dist['verbs'])))
+#    noun_bits = int(np.log2(len(noun_dist['nouns'])))
 
     bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
     bit_shifts.reverse()
@@ -261,7 +264,7 @@ maximum of {} unique patterns.
     for idx in range(len(sentences)):
         superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
         # Generate all combinations of the bit-patterns for superpos states
-        for patt in list(product(superpos_patterns[2], superpos_patterns[1], superpos_patterns[0])):
+        for patt in list(product(superpos_patterns[0], superpos_patterns[1], superpos_patterns[2])):
             num = 0
             for val in zip(patt, bit_shifts):
                 num += (val[0] << val[1])
@@ -270,7 +273,6 @@ maximum of {} unique patterns.
 #Need to remove duplicates        
     vec_to_encode = list(set(vec_to_encode))
     vec_to_encode.sort()
-
 
     d ={"sentences" : len(sentences),
         "patterns" : len(vec_to_encode),
@@ -288,6 +290,8 @@ maximum of {} unique patterns.
 
     for i in vec_to_encode:
         shot_counter.update({i : 0})
+
+#    from IPython import embed; embed()
 
 else:
     reg_memory = None
@@ -307,6 +311,8 @@ num_qubits = len(reg_memory) + len(reg_aux)
 use_fusion = False
 
 sim = p(num_qubits, use_fusion)
+import QNLP
+hd = QNLP.proc.HammingDistance.HammingDistanceGroupRotate(len(reg_memory),sim)
 normalise = True
 
 if rank == 0:
@@ -322,14 +328,20 @@ else:
 
 num_exps=comm.bcast(num_exps, root=0)
 
-test_pattern = 0
 num_faults = 0
 
 if rank == 0:
+    test_pattern = 0
     test_string = (encoding_dict['ns']['hatter'], encoding_dict['v']['say'], encoding_dict['no']['queen'])
+    #test_string = (encoding_dict['ns']['hatter'], encoding_dict['v']['say'], encoding_dict['no']['queen'])
     for val in zip(test_string, bit_shifts):
         test_pattern += (val[0] << val[1])
     print("Test data: {};   pattern: {}".format(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict), test_pattern))
+else:
+    test_pattern = None
+
+test_pattern=comm.bcast(test_pattern, root=0)
+comm.Barrier()
 
 for exp in range(num_exps):
     sim.initRegister()
@@ -340,6 +352,9 @@ for exp in range(num_exps):
 
     # Encode
     sim.encodeBinToSuperpos_unique(reg_memory, reg_aux, vec_to_encode, len(reg_memory))
+
+    #hd.calc(reg_memory, reg_aux, test_pattern)
+    #sim.collapseToBasisZ(reg_aux[-2], 1)
 
     # Compute Hamming distance between test pattern and encoded patterns
     sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_aux, len(reg_memory))
@@ -391,7 +406,13 @@ if rank == 0:
         [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
     ))
 
+    hist_list_hamCl = list(zip(
+        [i[0]+r" "+ str(q.utils.HammingInt(test_pattern, int(i[1],2))) for i in zip(xlab_str,xlab_bin)],
+        [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
+    ))
+
     labels = [x[0] for x in hist_list]
+    labelsHCL = [x[0] for x in hist_list_hamCl]
     post_vals = [y[1] for y in hist_list]
 
     x = np.arange(len(labels))  # the label locations
@@ -417,7 +438,35 @@ if rank == 0:
     fig.set_size_inches(20, 12, forward=True)
     plt.savefig("qnlp_e2e.pdf")
 
+
+    ##########
+
+    fig, ax = plt.subplots()
+
+    rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
+
+    test_pattern_str = ",".join(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict))
+    print("Test pattern={}".format(test_pattern_str))
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(r"P({})".format(test_pattern_str),fontsize=24)
+    ax.set_xticks(x)
+    ax.tick_params(axis='both', which='major', labelsize=10)
+    ax.set_xticklabels(labelsHCL, rotation=-35, ha="left",fontsize=10)
+    ax.legend(fontsize=16)
+
+    plt.axhline(y=1.0/len(shot_counter), color='crimson', linestyle="--")
+    plt.text(len(shot_counter)-0.1, 1.0/(len(shot_counter)), '1/sqrt(n)', horizontalalignment='left', verticalalignment='center', fontsize=16)
+    plt.tight_layout()
+    fig.set_size_inches(20, 12, forward=True)
+    plt.savefig("qnlp_e2e_ham.pdf")
+
+    ##########
+
     import  pickle
+
+    import pickle
+    data = [key_order, xlab_str, xlab_bin, pattern_dict, pattern_count, shot_counter]
     f = open("qnlp_e2e_{}.pkl".format(test_pattern_str),"wb")
-    pickle.dump(shot_counter, f)
+    pickle.dump(data, f)
     f.close()

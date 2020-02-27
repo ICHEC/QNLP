@@ -51,7 +51,7 @@ namespace QNLP{
          * @param U Unitary matrix to apply 
          * @param gateLabel Label to assign operation for U 
          */
-        void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U, std::string gateLabel){
+        static void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::size_t target, const Mat2x2Type& U, std::string gateLabel){
             std::size_t bitmask = 0b1;
             std::vector<std::size_t> reverse_pattern;
             for(std::size_t i = 0; i < ctrl_indices.size() + 1; ++i){
@@ -77,6 +77,44 @@ namespace QNLP{
             }
         }
 
+
+        /**
+         * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix. Optimised variant using auxiliary qubits to reduce circuit depth.
+         * 
+         * @param s Instance of quantum simulator
+         * @param bitstring Binary pattern represented by a std::size_t bitstring
+         * @param ctrl_indices Indices of the control qubits in the register
+         * @param aux_indices Indices of the auxiliary qubits in the register to reduce depth. State will be returned to pre-method call values.
+         * @param target Qubit acting as target
+         * @param U Unitary matrix to apply 
+         * @param gateLabel Label to assign operation for U 
+         */
+        static void bitStringNCU(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>& ctrl_indices, const std::vector<std::size_t>& aux_indices, const std::size_t target, const Mat2x2Type& U, std::string gateLabel){
+            std::size_t bitmask = 0b1;
+            std::vector<std::size_t> reverse_pattern;
+            for(std::size_t i = 0; i < ctrl_indices.size() + 1; ++i){
+                //If the bitstring contains a 1 at desired index, will be true;
+                //We wish to apply X to any state that is false, then undo
+                if( ! (bitstring & (bitmask<<i) ) ){
+                    reverse_pattern.push_back(i);
+                    if( i < ctrl_indices.size())
+                        s.applyGateX(ctrl_indices[i]);
+                    else
+                        s.applyGateX(target);
+                }
+            }
+            s.applyGateNCU(U, ctrl_indices, aux_indices, target, gateLabel);
+            //Undo PauliX ops
+            for(auto& revIdx : reverse_pattern){
+                if( revIdx < ctrl_indices.size()){
+                    s.applyGateX(ctrl_indices[revIdx]);
+                }
+                else{
+                    s.applyGateX(target);
+                }
+            }
+        }
+
         /**
          * @brief Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropriate PauliX gates to the control lines to call the NCU with the given matrix
          * 
@@ -85,7 +123,7 @@ namespace QNLP{
          * @param ctrlIndices Indices of the control qubits in the register
          * @param target Qubit acting as target
          */
-        void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>&ctrlIndices, std::size_t target ){
+        static void bitStringPhaseOracle(SimulatorType& s, std::size_t bitstring, const std::vector<std::size_t>&ctrlIndices, std::size_t target ){
             std::size_t num_qubits = s.getNumQubits();
             assert ( (1<<num_qubits) < bitstring );
             bitStringNCU(s, bitstring, ctrlIndices, target, s.getGateZ(), "Z");

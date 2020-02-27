@@ -1,5 +1,5 @@
 /**
- * @file hamming_RotY_amplification.hpp
+ * @file hamming.hpp
  * @author Myles Doyle (myles.doyle@ichec.ie)
  * @brief Functions to compute the Hamming distance between a test pattern and the states in memory using y rotations for each similar qubit.
  * @version 0.1
@@ -23,7 +23,7 @@ namespace QNLP{
      * @tparam SimulatorType Class simulator type 
      */
     template <class SimulatorType>
-    class HammingDistanceRotY{
+    class HammingDistance{
         private:
             //Take the 2x2 matrix type from the template SimulatorType
             using Mat2x2Type = decltype(std::declval<SimulatorType>().getGateX());
@@ -35,14 +35,14 @@ namespace QNLP{
              * @brief Construct a new Hamming Distance Rot Y object (disabled)
              * 
              */
-            HammingDistanceRotY() = delete;
+            HammingDistance() = delete;
 
             /**
              * @brief Construct a new Hamming Distance Rot Y object
              * 
              * @param len_bin_pattern_ Length of binary string which the Hamming distance is to be computed upon 
              */
-            HammingDistanceRotY(const std::size_t len_bin_pattern_){
+            HammingDistance(const std::size_t len_bin_pattern_){
                 len_bin_pattern = len_bin_pattern_;
             };
 
@@ -50,7 +50,7 @@ namespace QNLP{
              * @brief Destroy the Hamming Distance Rot Y object
              * 
              */
-            ~HammingDistanceRotY(){
+            ~HammingDistance(){
             };
 
             /**
@@ -61,7 +61,7 @@ namespace QNLP{
              * @param reg_auxiliary A vector containing the indices of the qubits of the auxiliary register. 
              * @param len_bin_pattern length of binary pattern ie length of memory register.
              */
-            void computeHammingDistanceRotY(SimulatorType& qSim, 
+            static void computeHammingDistanceRotY(SimulatorType& qSim, 
                     const std::vector<std::size_t>& reg_memory,
                     const std::vector<std::size_t>& reg_auxiliary, 
                     std::size_t len_bin_pattern){
@@ -91,6 +91,30 @@ namespace QNLP{
                     qSim.applyGateX(reg_auxiliary[i]);
                 }
             }
+
+            /**
+             * @brief Computes Hamming Distance; Overwrites the pattern in reg_auxiliary to track bit differences from reg_memory.
+             *
+             * @param qSim Quantum simulator instance.
+             * @param reg_memory A vector containing the indices of the qubits of the memory register. 
+             * @param reg_auxiliary A vector containing the indices of the qubits of the auxiliary register. 
+             */
+            static void computeHammingDistanceOverwriteAux(SimulatorType& qSim, 
+                    const std::vector<std::size_t>& reg_memory,
+                    const std::vector<std::size_t>& reg_auxiliary){
+                
+                // Require length of auxiliary register to have n+2 qubits
+                assert(reg_memory.size() + 1 < reg_auxiliary.size());
+
+                for(std::size_t i = 0; i < reg_memory.size(); i++){
+                    qSim.applyGateX(reg_auxiliary[i]);
+                    qSim.applyGateCCX(reg_memory[i], reg_auxiliary[i], *(reg_auxiliary.end()-2) );
+                    qSim.applyGateX(reg_auxiliary[i]);
+                    qSim.applyGateCSwap(reg_memory[i], reg_auxiliary[i], *(reg_auxiliary.end()-2) );
+                }
+            }
+
+
     };
 
 };
