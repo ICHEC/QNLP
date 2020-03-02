@@ -86,6 +86,7 @@ void intel_simulator_binding(py::module &m){
         .def("subReg", &SimulatorType::subReg)
         .def("sumReg", &SimulatorType::sumReg)
         .def("applyOracleU", &SimulatorType::applyOracle_U)
+        .def("applyOracleU", &SimulatorType::applyOracle_Opt)
         .def("getGateCounts", &SimulatorType::getGateCounts)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
         .def("groupQubits", &SimulatorType::groupQubits)
