@@ -381,7 +381,10 @@ if rank == 0:
     print(shot_counter)
     print ("Number of faults: {}".format(num_faults))
 
-    key_order = list(shot_counter.keys())
+    #Sort the keys by largest first
+    shot_counter_s = [ (k,v) for k, v in sorted(shot_counter.items(), key=lambda item: item[1], reverse=True)]
+
+    key_order = [i[0] for i in shot_counter_s] #list(shot_counter.keys())
 
     xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict)) for i in key_order]
     xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in key_order ]
@@ -398,19 +401,25 @@ if rank == 0:
     mpl.use('Agg')
     import matplotlib.pyplot as plt
 
-    hist_list = list(zip(
-        [i[0]+r" |"+i[1]+r">" for i in zip(xlab_str,xlab_bin)],
-        [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
-    ))
+    #hist_list = list(zip(
+    #    [i[0]+r" |"+i[1]+r">" for i in zip(xlab_str,xlab_bin)],
+    #    [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
+    #))
 
+
+    #labels = [x[0] for x in hist_list]
+    #post_vals = [y[1] for y in hist_list]
+
+
+    labels = xlab_str #[i[0] for i in shot_counter_s]
+    post_vals = [i[1] for i in shot_counter_s]
+
+    pv_sum = np.sum(list(shot_counter.values()))
     hist_list_hamCl = list(zip(
         [i[0]+r" "+ str(q.utils.HammingInt(test_pattern, int(i[1],2))) for i in zip(xlab_str,xlab_bin)],
-        [i/np.sum(list(shot_counter.values())) for i in list(shot_counter.values())]
+        [i/pv_sum for i in post_vals]
     ))
-
-    labels = [x[0] for x in hist_list]
-    labelsHCL = [x[0] for x in hist_list_hamCl]
-    post_vals = [y[1] for y in hist_list]
+    labelsHCL = [x[0] for x in hist_list_hamCl]#labels#[x[0] for x in hist_list_hamCl]
 
     x = np.arange(len(labels))  # the label locations
     width = 0.65  # the width of the bars
