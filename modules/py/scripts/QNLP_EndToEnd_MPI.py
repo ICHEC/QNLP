@@ -475,7 +475,7 @@ if rank == 0:
     import  pickle
 
     import pickle
-    data = [key_order, xlab_str, xlab_bin, pattern_dict, pattern_count, shot_counter]
+    data = [key_order, xlab_str, xlab_bin, pattern_dict, pattern_count, shot_counter, encoding_dict, decoding_dict]
     f = open("qnlp_e2e_{}.pkl".format(test_pattern_str),"wb")
     pickle.dump(data, f)
     f.close()
