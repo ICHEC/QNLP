@@ -73,6 +73,7 @@ if rank == 0:
     corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
     if not os.path.isfile(corpus_file):
         print ("Error: Inputted file does not exist")
+        MPI.Finalize()
         sys.exit()
     vsm = q.VectorSpaceModel.VectorSpaceModel(
         corpus_path=corpus_file,
