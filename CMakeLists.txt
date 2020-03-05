@@ -171,6 +171,16 @@ endif()
 
 option(ENABLE_PYTHON "Enable build of Python bindings" OFF)
 
+option(ENABLE_RESOURCE_EST "Enable estimate of gate call counts (no computation performed)" OFF)
+if(${ENABLE_RESOURCE_EST})
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} \
+        -DRESOURCE_ESTIMATE=1 \
+        "
+    )
+endif()
+
+
 ################################################################################
 
 # Add OS specific definitions
@@ -196,7 +206,7 @@ if (MPI_FOUND)
     add_definitions(
         "-DMPI_FOUND"
     )
-    option(ENABLE_MPI "Enable gate call logging" OFF)
+    option(ENABLE_MPI "Enable MPI support" OFF)
     if(${ENABLE_MPI})
         set(CMAKE_CXX_FLAGS
             "${CMAKE_CXX_FLAGS} \
