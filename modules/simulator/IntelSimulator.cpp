@@ -47,8 +47,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
-                                    gates(5), uid(++suid){
-
+                                    gates(5), uid( reinterpret_cast<std::size_t>(this) ){
 
         //Define Pauli X
         gates[0](0,0) = ComplexDP(0.,0.);       gates[0](0,1) = ComplexDP(1.,0.);
@@ -732,7 +731,6 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
 
     private:
     //inline static std::size_t suid = 0; //works in C++17.
-    static std::size_t suid; //works in C++17.
     const std::size_t uid;
 
     std::size_t numQubits = 0;
@@ -771,14 +769,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return qubitRegister.GetProbability(target);
     }
 
+};
 
 };
-std::size_t IntelSimulator::suid = 0;
 
-// Generate templated classes/methods
-//template class Oracle<IntelSimulator>;
-//template void SimulatorGeneral<IntelSimulator>::applyGateNCU<IntelSimulator::TMDP>(const IntelSimulator::TMDP& U, std::size_t minIdx, std::size_t maxIdx, std::size_t target, std::string label);
-
-//template void SimulatorGeneral<IntelSimulator>::applyGateNCU<IntelSimulator::TMDP>(const IntelSimulator::TMDP& U, const std::vector<std::size_t>& ctrlIndices, std::size_t target, std::string label);
-
-};
