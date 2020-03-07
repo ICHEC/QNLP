@@ -20,6 +20,7 @@
 #include "util/tinymatrix.hpp"
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 
 #ifdef ENABLE_MPI
     #include "mpi.h"
@@ -46,7 +47,8 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
     IntelSimulator(int numQubits, bool useFusion=false) : SimulatorGeneral<IntelSimulator>(), 
                                     numQubits(numQubits), 
                                     qubitRegister(QubitRegister<ComplexDP> (numQubits, "base", 0)),
-                                    gates(5){
+                                    gates(5), uid(++suid){
+
 
         //Define Pauli X
         gates[0](0,0) = ComplexDP(0.,0.);       gates[0](0,1) = ComplexDP(1.,0.);
@@ -714,7 +716,25 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return std::make_pair(gate_count_1qubit, gate_count_2qubit);
     }
 
+    /**
+     * @brief Compute overlap between different simulators. 
+     * Number of qubits must be the same
+     *
+     */
+    inline complex<double> overlap( IntelSimulator &sim){
+        if(sim.uid != this->uid){
+            return qubitRegister.ComputeOverlap(sim.qubitRegister);
+        }
+        else{
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+    }
+
     private:
+    //inline static std::size_t suid = 0; //works in C++17.
+    static std::size_t suid; //works in C++17.
+    const std::size_t uid;
+
     std::size_t numQubits = 0;
     QRDP qubitRegister;
     std::vector<TMDP> gates;
@@ -751,8 +771,9 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         return qubitRegister.GetProbability(target);
     }
 
-};
 
+};
+std::size_t IntelSimulator::suid = 0;
 
 // Generate templated classes/methods
 //template class Oracle<IntelSimulator>;

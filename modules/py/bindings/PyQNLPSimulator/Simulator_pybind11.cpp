@@ -32,8 +32,13 @@ class IntelSimPy : public IntelSimulator{
     void applyOracle_Opt(std::size_t bit_pattern, const DCM& U, std::vector<std::size_t>& ctrl_indices, std::vector<std::size_t>& aux_indices, std::size_t target, std::string label){
         this->applyOracleU( bit_pattern, ctrl_indices, aux_indices, target, U, label);
     }
+
     void addUToCache_U(const DCM& U, std::string label){
         this->addUToCache(label, U);
+    }
+
+    complex<double> computeOverlap(IntelSimPy& sim){
+        return this->overlap(sim);
     }
 };
 
@@ -90,6 +95,7 @@ void intel_simulator_binding(py::module &m){
         .def("getGateCounts", &SimulatorType::getGateCounts)
         .def("applyOraclePhase", &SimulatorType::applyOraclePhase)
         .def("groupQubits", &SimulatorType::groupQubits)
+        .def("overlap", &SimulatorType::computeOverlap)
         .def("applyHammingDistanceOverwrite", &SimulatorType::applyHammingDistanceOverwrite);
 /*
         .def("adjointMatrix", &SimulatorType::adjointMatrix)
