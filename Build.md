@@ -1,143 +1,133 @@
-# Build Steps for `intel-qnlp` on *NIX systems
+# Building QNLP
 
-### Load GCC, Intel Compiler and Cmake3 Environments
-Load modules for GCC version 8.2.0, Intel-2019-u5 and Cmake3.
+Before building, the repository must be cloned to it's final location. We depend on conda internally for the Python environment and associated libraries, so the directory will not be moveable following the setup procedure.
 
+
+```bash
+git clone https://github.com/ichec/qnlp
+cd qnlp
 ```
-module load gcc/8.2.0 intel/2019u5 cmake3
+
+# Easy-mode: Docker (all platforms)
+
+If you have Docker available on your system, the QNLP suite can be built atop a Ubuntu image using gcc. While we do not expect this to give the best performance, it can be useful as a means to test the functionality and play around.
+
+```bash
+docker build .
 ```
 
-Note: this step assumes that Environment Modules is used on the system and that GCC version 8.2.0, Intel-2019-u5 and Cmake3 is installed. The module names on your system may vary.
+That's it! To get access to the environment, use:
 
-### Build environment configuration
-Run the `setup_env.sh` script which pulls down and installs third party software required; Catch2, CLI11,Intel-Quantum Simulator (QS), mpi4py and pybind11. Notably, this includes the Intel-QS which executes the quantum gate calls under the hood of the `intel-qnlp` library.
+```bash
+# In host
+docker run -p 8888:8888 -it <image_name> bash # Ports on host XXXX:XXXX on image
 
+# In image
+. /qnlp/load_env.sh
+jupyter notebook password
+jupyter notebook --ip 0.0.0.0 --no-browser --allow-root # server runs as root in image, but not host
 ```
-cd <PATH-TO-intel-qnlp>/intel-qnlp
+
+Access the notebook server on `localhost:8888' as per usual. Note, if you have a jupyter notebook server running at 8888 the above will fail. Change the ports to an unused set and try again.
+
+### Note:
+As we do not support Windows directly, this is the preferred method to run on Windows platforms. If you are running WSL (Windows Subsystem for Linux) we expect that the Linux installation should work, but make no promises.
+
+# Intermediate-mode: Linux
+This is the preferred mode for installation, as we can better optimise the binaries through use of the Intel Compiler suite. If unavailable, we can also use gcc and/or clang. As a prerequisite for installation, we must have available the following toolkits and packages:
+
+- Compiler toolkit with C++14 support, though C++17 preferentially (tested with icpc >= 2019u3, g++ >= 7.0, clang++ >= 9.0)
+- MPI library and compiler wrappers (mpiicpc, mpicxx). We have tested successfully with Intel MPI, MPICH, and OpenMPI.
+- CMake 3.15+ available [here](https://cmake.org/download/).
+- Internet access on installation device. As some HPC nodes have no external access, it is recommended to install on login nodes to overcome this. 
+
+### Note: the next step might take a while to execute.
+
+Before we can build the suite, we must acquire some dependencies. The file `setup_env.sh` performs this purpose, acquiring all the necessary packages (including Intel-QS), setting up the conda Python environment, and the runtime environment variables. All external dependencies will be installed in `intel-qnlp/third_party/` and `intel-qnlp/third_party/install/`. Upon installation, a `load_env.sh` file is created, which when sourced sets all associated paths and variables to build and run QNLP scripts and binaries.
+
+
+As there can be many different cases of needs and uses for the QNLP library, we have added many features that can be built in by enabling CMake build flags. The set of available parameters are
+
+- `-DENABLE_TESTS=1`: Builds the suite of unit and integration tests for the library using [catch2](https://github.com/catchorg/Catch2).
+- `-DENABLE_LOGGING=1`: Builds support for gate call logging. I/O slows down computation, but the output can be used in conjunction with the Python `circuit_printer.py` script to output a latex-compilable circuit (uses `quantikz` package).
+- `-DENABLE_PYTHON=1`: Enable build of the QNLP Python bindings using `pybind11`. These will be installed into the associated conda environment `intel-qnlp`, and available upon sourcing `load_env.sh`.
+- `-DENABLE_MPI=1`: Enable the MPI build. While MPI compiler wrappers are *always* required to build the library, by setting this to `0` we can use an OpenMP variant of the backend library, with the threads controlled by `OMP_NUM_THREADS=<set number of threads here>`. MPI should be enabled for distributed usage, or on systems with large processor counts. For smaller systems (laptops and desktops), OpenMP is preferred.
+- `-DIqsMPI=1`: This should be enabled if `-DENABLE_MPI=1`, and disabled otherwise. It sets the mode of operation of the underlying Intel-QS simulator. Currently this option expects that you are using the Intel MPI Compiler (`mpiicpc`).
+- `-DIqsMKL=1`: If using the Intel Compiler, this enables MKL support for operations.
+- `-DENABLE_NATIVE=1`: This allows the underlying compiler to generate instructions targeting the architecture of the system being compiled on. For the best performance this should be enabled. Systems supporting AVX2, and AVX512 can see significant performance benefits.
+- `-DENABLE_RESOURCE_EST=1`: This turns off all computation calls in the simulator, and tracks the gate calls only. This is useful to obtain a resource estimation for the depth of circuits.
+- `-DENABLE_INTEL_LLVM=1`: If using a new variant of the Intel Compiler (2019u5+) we can enable the newly supported LLVM compiler backend by setting this variable.
+
+To run the compilation process on a standard laptop/desktop we recommend the following steps:
+
+```bash
 ./setup_env.sh
+source ./load_env.sh
+cd build 
+cmake .. \
+-DCMAKE_C_COMPILER=mpicc \
+-DCMAKE_CXX_COMPILER=mpicxx \
+-DENABLE_TESTS=1 \
+-DENABLE_LOGGING=0 \
+-DENABLE_PYTHON=1 \
+-DENABLE_MPI=0 \
+-DIqsMPI=OFF \
+-DIqsMKL=OFF \
+-DENABLE_NATIVE=on \
+-DENABLE_RESOURCE_EST=0 \
+-DENABLE_INTEL_LLVM=0
+make -j4
 ```
 
-These dependencies will be installed in `intel-qnlp/third_party/` and `intel-qnlp/third_party/install/`.
+For compilation on a HPC system, with access to Intel MPI and the Intel Compiler (`mpiicpc`), we recommend:
 
-Note: this step might take a while to execute.
-
-### Set environment configuration
-The `load_env.sh` script was generated by running `setup_env.sh`. It sets the environment variables for all of the dependencies installed in the previous step.
-
-Set the environment variables by running `
-
-```
-source load_env.sh
-```
-
-### Cmake build steps
-Run Cmake to create the Maklefile using the defined environment.
-```
-cd build
-CXX=mpiicpc CC=mpiicc cmake .. -DCMAKE_C_COMPILER=mpiicc -DCMAKE_CXX_COMPILER=mpiicpc -DENABLE_MPI=1 -DENABLE_NATIVE=ON -DIqsMPI=ON -DIqsMKL=ON
-```
-
-This has been done using the recommended compilers from Intel. 
-
-Include the appropriate flag(s) at the end of the above CMake command to build with the following functionality enabled:
-- Unit testing requires the `-DENABLE_TESTS=1` flag
-- Gate logging requires the `-DENABLE_LOGGING=1` flag
-- Python bindings enabled (recommended) requires the `-DENABLE_PYTHON=1` flag
-
-(ie. to enable all funtionality for a distributed compute system, run 
-```
-cd build
-CXX=mpiicpc CC=mpiicc cmake .. -DCMAKE_C_COMPILER=mpiicc -DCMAKE_CXX_COMPILER=mpiicpc -DENABLE_MPI=1 -DENABLE_NATIVE=ON -DIqsMPI=ON -DIqsMKL=ON -DENABLE_TESTS=1 -DENABLE_LOGGING=1 -DENABLE_PYTHON=1
-```
-)
-### Build from Makefile
-Build the software and third party libraries;
-
-```
-make
+```bash
+./setup_env.sh
+source ./load_env.sh
+cd build 
+cmake .. \
+-DCMAKE_C_COMPILER=mpiicc \
+-DCMAKE_CXX_COMPILER=mpiicpc \
+-DENABLE_TESTS=1 \
+-DENABLE_LOGGING=0 \
+-DENABLE_PYTHON=1 \
+-DENABLE_MPI=1 \
+-DENABLE_NATIVE=ON \
+-DIqsMPI=ON \
+-DIqsMKL=ON \
+-DENABLE_INTEL_LLVM=0 \
+-DENABLE_RESOURCE_EST=0
+make -j16
 ```
 
-# Build steps for applications using `intel-qnlp` on *NIX systems
+# Hard-mode: MacOS
+Given the recent move in MacOS (10.15.x) to remove certain header file directories, not all dependencies will compile. As such, it is recommended to install a compiler suite and MPI library using an alternative package management solution (we recommend MacPorts, but we assume brew should also work). One may attempt to build the compilers from source, but this has become incredibly arduous. Assuming an installed MacPorts environment, we had success using the following:
 
-After the above Build steps have been completed, and assuming a new instance of a session in your terminal (environment variables are reset), the following steps should be taken to build an application using `intel-qnlp`.
-
-### Set-up of the appropriate environment variables
-Load modules for GCC version 8.2.0, Intel-2019-u5 and Cmake3.
-
-Note: this step assumes that Environment Modules is used on the system and that GCC version 8.2.0, Intel-2019-u5 and Cmake3 is installed. The module names on your system may vary.
-
-```
-module load gcc/8.2.0 intel/2019u5 cmake3
+```bash
+sudo port install openmpi-devel-gcc9
+sudo port install openmpi-devel-gcc9-fortran
+sudo port select --set mpi openmpi-devel-gcc9-fortran
 ```
 
-Run the script to set-up the envoronment for `intel-qnlp` and third-party software:
+With the environment correctly setup, the Linux laptop/desktop solution should work fine from this point.
 
-```
-cd <PATH-TO-intel-qnlp>/intel-qnlp
-source <PATH-TO-intel-qnlp>/intel-qnlp/load_env.sh
-```
+---
 
-### Running applications using `intel-qnlp`
-Applications can be created using either the Python or C++ interfaces. For Pythn, scripts or Jupyter notebooks can be used. How to run an application using each of these methods is outlined below.
+# Testing installation
 
-#### C++ Applciations
-A number of sample applications written in C++ are provided in the subdirectories contained in `intel-qnlp/demos`. Each of these subdirectories has a Slurm run scripts which can be used to launch that application by executing
+To assess whether the built libraries and binaries are correctly working, we can run some sample tests.
 
-```
-cd ${QNLP_ROOT}/intel-qnlp/demos
-sbatch <RUN-SCRIPT.sh>
+```bash
+source ./load_env.sh
+OMP_NUM_THREADS=1 ./build/modules/test/tests "[diffusion]"
+OMP_NUM_THREADS=1 ./build/modules/test/tests "[ncu]"
 ```
 
-The job configuration and the problem specification can be defined by adjusting these run scripts.
+The above commands should verify the C++ modules work correctly. To verify if the Python modules are working correctly, we can attempt to import the newly built packages into the Python environment, and create a simulator object with 
 
-#### Python Applications
-Python applications can be run in two ways;
-
-- A batch job submission
-- An interactive job
-
-##### Batch Submission
-Note: it is assumed that Slurm is being used as the scheduler of jobs on the system. If this is not the case, make appropriate adjustments to the scripts.
-
-A number of sample applications written in Python (using Python bindings to C++) are provided in the directory `intel-qnlp/modules/py/scripts`. Each of these Python scripts can be run by launching the Slurm run script `run_py_MPI.sh` provided. 
-
-In order to do this the specific Python application script, application parameters, and job configuration parameters must be specified in the `run_py_MPI.sh` Slurm script.
-
-Then the Slurm script should be submitted to the scheduler by running
-```
-cd ${QNLP_ROOT}/intel-qnlp/modules/py/scripts
-sbatch run_py_MPI.sh
-``` 
-
-##### Interactive Job
-An interactive job can be used to run any of the versions of the application; C++, Python batch submission, or Python interactive. However, it becomes very useful when combined with using Jupyter notebooks.
-
-Sample workflows which use Jupyter notebooks are provided in `intel-qnlp/modules/py/nb`. Allocate an interactive job on your cluster. For Slurm this can be done by executing
-
-```
-srun -p <JOB-QUEUE> -N <NUM-NODES> -A <ACCOUNT-ID> -t <TIME-DAYS:HOURS:MINS:SECS> --pty bash
+```bash
+source ./load_env.sh
+python -c "import QNLP as q; import PyQNLPSimulator as p; num_qubits = 8; sim = p(num_qubits, False); p.PrintStates(\"Test\", []);"
 ```
 
-If you have an interactive GUI interface for your cluster (using VNC for example), you can run your Jupyter notebooks interactively. Alternatively, the interactive jobs run very well on a local machine, although the scaling of the problem size is then limited.
-
-
-
-
-
-# Build steps for `intel-qnlp` on MacOS Mojave WIP
-
-
-
-Note: to build on Mac OS-Mojave, the following command should be run to create the Makefile provided the softaware including Intel-QS was built appropriately for the target environment.
-```
-cd build
-PATH=/opt/gcc/gcc91/bin:$PATH CC=mpicc CXX=mpicxx cmake ..
-```
-
-
-
-### Note: Running on Mac OS
-To run an executable that uses the `intel-qnlp` library, the command must be prepended with the `DYLD_LIBRARY_PATH` path as follows.
-```
-DYLD_LIBRARY_PATH=/opt/gcc/gcc91/lib:${CONDA_PREFIX}/lib:${DYLD_LIBRARY_PATH} <PATH-TO-EXECUTABLE>/<EXECUTABLE>
-```
+The above command will load the necessary modules into the Python environment, create a simulator of 8 qubits, and print out the state coefficients. If all succeeds, the environment has been correctly set. Additionally, we can use start the `jupyter notebook` environment and run a sample notebook, located at `<QNLP_ROOT>/modules/py/nb` to further investigate.
