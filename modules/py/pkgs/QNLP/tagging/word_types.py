@@ -1,6 +1,6 @@
 ###############################################################################
-__author__ = "Lee J. O'Riordan (ICHEC)"
-__copyright__ = 'Copyright 2019, Q-NLP'
+__author__ = "ICHEC"
+__copyright__ = 'Copyright 2020, QNLP'
 __credits__ = ['{credit_list}']
 __license__ = '{license}'
 __version__ = '{mayor}.{minor}.{rel}'

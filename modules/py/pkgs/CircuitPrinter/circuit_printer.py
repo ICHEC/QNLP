@@ -1,10 +1,9 @@
-"""
-The CircuitPrinter class creates a quantum circuit .tex file for viewing the circuit output.
-Assumes the availability of the quantikz LaTeX package when compiling. Preferably use lualatex
-to ensure sufficient memory access.
-"""
-
 class CircuitPrinter:
+    """
+    The CircuitPrinter class creates a quantum circuit .tex file for viewing the circuit output.
+    Assumes the availability of the quantikz LaTeX package when compiling. Preferably use lualatex
+    to ensure sufficient memory access.
+    """
     def __init__(self, num_qubits):
         self.num_qubits = num_qubits
         self.ccts = []

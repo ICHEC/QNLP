@@ -1,11 +1,10 @@
 import ctypes
 from .encoder_base import EncoderBase
 
-"""
-Adapated from example on https://en.wikipedia.org/wiki/Gray_code
-"""
 class GrayEncoder(EncoderBase):
-
+    """
+    Adapated from example on https://en.wikipedia.org/wiki/Gray_code
+    """
     def encode(self, bin_val : ctypes.c_uint):
         return bin_val ^ ( bin_val >> 1)
     

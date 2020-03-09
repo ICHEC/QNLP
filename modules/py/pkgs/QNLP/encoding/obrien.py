@@ -1,6 +1,5 @@
 from .encoder_base import EncoderBase
-"""
-"""
+
 class OBrienEncoder(EncoderBase):
     """
     O'Brien encoding scheme. Adapated from example on http://www.ahok.de/en/hoklas-code.html

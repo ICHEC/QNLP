@@ -1,27 +1,32 @@
-`tagging.py` offers a simplified module for checking tagged data types. It condenses many of the types offered by NLTK into a simpler type-set.
+# Python functionality
 
-For a simple test case, run:
-```bash
-python ./tag_file.py <corpus.txt> <s/l>
-```
-where `l` lemmatizes the tokens, and `s` stems the tokens. If no `s/l` option argument given, text is tokenised and tagged without processing. 
+This directory contains all of the Python functionality for the QNLP project.
 
+- bindings: contains the pybind11 binding code and packaging for the wrapped C++ functionality.
+- nb: contains Jupyter notebooks demonstrating the functionality of the QNLP work.
+- pkgs: Python-only pacmages for the QNLP routines.
+- scripts: Runnable Python scripts using the QNLP Python environment
 
-# Constructing basis, and mapping words to that basis
-As an example of defining a basis set of words, we opt for Ogden's "Basic English", about 850 words which can (according to the author)
-be used to construct all other word meanings. Using NLTK and WordNet, we can create unique binary strings for this basis set, and map
-a given corpus to use these basis terms to contruct their meaning space.
+## QNLP package
 
-If a given term in the corpus has more than one matching term in the basis, then the resulting corpus term will require a superposition of these states to fully describe it.
+The QNLP Python package contains many classes, methods, and modules
+to assist with the pre-processing of corpus data, as we all subsequent
+analysis.
 
-We can process a given corpus against a given basis as follows:
-```bash
-python ./process_corpus.py ../corpus/Ogden856.dat ../corpus/jack_and_jill.txt l
-```
-where `Ogden856.dat` is the basis, and `jack_and_jill.txt` is the corpus. The above command populates a database with the tagged terms from both.
-```bash
-python ./basis_check.py f
-```
-subsequently loads the data from the database, runs a comparison between both data sets, and outputs the indices of the basis (mapped to binary for quantum bit-string representation) that matches the terms best.
+The structure of the package is as follows:
 
-A given flag can be set at runtime `t/f` which specifies to perform a deep search if the required matching term is not found. This can be rather slow for large datasets, so setting to false is recommended by default.
+- encoding: module that encapsulates the chosen encoding schema for the QNLP state representations
+- io: \[deprecated\] functionality to read data exported using the C++ SQLite functions.
+- proc: functionality to tokenise, tag, and analyse corpus data in both pre and post-processing.
+- tagging: \[deprecated\] simple functionality for representing type information
+
+## CircuitPrinter
+
+This package and runnable script takes the output files from a QNLP build with `-DENABLE_LOGGING=1` set. 
+Assuming a LaTeX installation, the generated output will compile to a `quantikz`-enabled circuit diagram.
+
+## PyQNLPSimulator
+
+This package holds all C++-backed methods, and Numpy conversions. We use this package to create quantum simulators,
+and all available methods allow interaction with the subsequent state.
+

@@ -1,9 +1,8 @@
 from .encoder_base import EncoderBase
-"""
-"""
+
 class SimpleEncoder(EncoderBase):
     """
-    This encoder is the simplest (and currently the only implemented) encoding scheme to ensure 
+    This cyclic encoder is the simplest (and currently the only used) encoding scheme to ensure 
     equal Hamming distances between items separated by n indices. Not very efficient in use of qubits,
     but simple enough to implement.
     """
