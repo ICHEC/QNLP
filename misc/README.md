@@ -12,9 +12,9 @@ Scripts for running Intel MPI's Autotuning tool and comparing different versions
 
 If using a version of Intel Parallel Studio XE Cluster Edition, Intel's parallel profiling tools are provided. `perf_analysis` provides SLURM run scripts for each of the performance tools provided in Intel's Parallel Studio XE Cluster Edition. It also provides a run script for exploring different NUMA node topologies by means of experimentation and comparison.
 
-## Building Intel-QS on MacOS
+## [DEPRECATED] Building Intel-QS on MacOS 10.14.x
 
-`MacOS_build_instructions` provides detailed instructions for building QNLP and Intel-QS on a MacOS. Although the performance and scaling of applciations on PC/laptop device is very limited, it is a very useful development tool.
+`MacOS_build_instructions` provides detailed instructions for building QNLP and Intel-QS on a MacOS. Although the performance and scaling of applications on PC/laptop device is very limited, it is a very useful development tool.
 
 ## Strong Scaling
 
