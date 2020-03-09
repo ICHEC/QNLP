@@ -11,7 +11,7 @@ TIMING_FILE=time_run_EndToEndApp.csv
 touch ${TIMING_FILE}
 
 #################################################
-### MPI job configuration.
+### MPI job configuration for Kay supercomputer
 ###
 ### Note: User may need to modify.
 #################################################

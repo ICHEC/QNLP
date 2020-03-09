@@ -1,3 +1,8 @@
+"""
+Used to process the QNLP SQLite DB output.
+Script remains but methods are largely unused.
+"""
+
 import QNLP.proc.process_corpus
 import os
 

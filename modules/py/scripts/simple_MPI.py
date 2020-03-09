@@ -7,8 +7,6 @@ from PyQNLPSimulator import PyQNLPSimulator as p
 import QNLP as q
 import numpy as np
 
-#print("I am rank " , rank)
-
 num_qubits = 24
 
 # Create simulator object
@@ -16,10 +14,7 @@ num_qubits = 24
 use_fusion = False
 
 sim = p(num_qubits, use_fusion)
-
-#print("Rank {} is used={}".format(sim.rank, sim.is_used))
-
-#sim.initRegister()
+sim.initRegister()
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
@@ -29,15 +24,16 @@ sim.applyGateX(0)
 sim.applyGateH(2)
 sim.applyGateH(4)
 sim.applyGateX(7)
+sim.applyGateX(22)
 
 val = sim.applyMeasurementToRegister(range(num_qubits), True)
 print("RANK={} VAL={}".format(rank,val))
 
 comm.Barrier()
 
-
 """
-if sim.rank == 0:
+# Note, performing operations on rank=0 only will causes failures. The following example will fail.
+if rank == 0:
     sim.initRegister()
     val = sim.applyMeasurementToRegister(range(num_qubits), True)
     print(val)

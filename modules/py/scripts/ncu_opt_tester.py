@@ -1,3 +1,13 @@
+"""
+Shows the performance difference in optimised versus non optimised NCU operations.
+
+mpirun -n 8 python ./ncu_opt_tester.py <num ctrl lines> <operating mode: {0,1}>
+
+mpirun -n 8 python ./ncu_opt_tester.py 11 0 # Should be realtively fast
+mpirun -n 8 python ./ncu_opt_tester.py 11 1 # Should take a while
+
+"""
+
 from PyQNLPSimulator import PyQNLPSimulator as p
 import sys
 from mpi4py import MPI
@@ -22,16 +32,13 @@ for i in regD:
     sim.applyGateX(i)
 
 res0 = sim.applyMeasurementToRegister([target], True)
-#if rank == 0:
-#    sim.printStates("",[])
 
-if sys.argv[2] == "1":
-    sim.applyGateNCU1(sim.getGateX(), regD, target ,"X")
-else:
-    sim.applyGateNCU2(sim.getGateX(), regD, regA, target ,"X")
+if sys.argv[2] == "1": #unoptimised
+    sim.applyGateNCU(sim.getGateX(), regD, target ,"X")
+else: #optimised
+    sim.applyGateNCU(sim.getGateX(), regD, regA, target ,"X")
 
 res1 = sim.applyMeasurementToRegister([target], True)
 
 if rank == 0:
-    print(list(regD) + [target], list(regA), res0, res1)
-#    sim.printStates("",[])
+    print(list(regD) + [target], list(regA), "Before NCU={}".format(res0), "After NCU={}".format(res1))

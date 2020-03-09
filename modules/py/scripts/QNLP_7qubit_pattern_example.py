@@ -2,7 +2,7 @@
 # coding: utf-8
 
 from matplotlib import rc
-rc('text', usetex=True)
+#rc('text', usetex=True)
 import matplotlib.pyplot as plt
 
 # Import the C++ backed simulator package and the preprocessing Python package
@@ -117,7 +117,7 @@ for exper in range(num_exps):#, desc='Sim. experiment progress'):
     sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
 
     # Compute Hamming distance between test pattern and encoded patterns
-    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern)
+    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory)
 
     # Measure
     sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1)
@@ -133,11 +133,11 @@ xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in list(
 
 # Sort histograms by P
 hist_list_even = list(zip(
-    [i[0]+r" $\vert$"+i[1]+r"$\rangle$" for i in zip(xlab_str,xlab_bin)],
+    [i[0]+" |"+i[1]+">" for i in zip(xlab_str,xlab_bin)],
     [i/np.sum(list(count_even.values())) for i in list(count_even.values())]
 ))
 hist_list = list(zip(
-    [i[0]+r" $\vert$"+i[1]+r"$\rangle$" for i in zip(xlab_str,xlab_bin)],
+    [i[0]+" |"+i[1]+">" for i in zip(xlab_str,xlab_bin)],
     [i/np.sum(list(count.values())) for i in list(count.values())]
 ))
 
@@ -154,13 +154,13 @@ rects1 = ax.bar(x - width/2, even_vals, width, label='Even superposition measure
 rects2 = ax.bar(x + width/2, post_vals, width, label='Post-selection measurement')
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel(r"$P\textrm{{{}}}$".format(str(pattern_string).replace("'","")),fontsize=16)
+ax.set_ylabel("P({})".format(str(pattern_string).replace("'","")),fontsize=16)
 ax.set_xticks(x)
 ax.set_xticklabels(labels, rotation=-30, ha="left")
 ax.legend()
 
 plt.axhline(y=1/(num_exps/np.mean(list(count.values()))), color='crimson', linestyle="--")
-plt.text(len(count)-0.1, 1.0/(len(count)), '$1/\sqrt{n}$', horizontalalignment='left', verticalalignment='center')
+plt.text(len(count)-0.1, 1.0/(len(count)), '1/sqrt(n)', horizontalalignment='left', verticalalignment='center')
 
 plt.tight_layout()
 

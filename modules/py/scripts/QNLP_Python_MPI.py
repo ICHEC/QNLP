@@ -62,7 +62,8 @@ sentences = [
     {"walk" :    [encoding_dict["v"]["stand"],  encoding_dict["v"]["move"]]},
     {"outside" :[encoding_dict["no"]["outside"]] }],
 ]
-print(sentences)
+if rank == 0:
+    print(sentences)
 
 # Create shift patterns for the encoding step
 bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
@@ -113,7 +114,7 @@ for exp in tqdm(range(num_exps)):
     sim.encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory)
 
     # Compute Hamming distance between test pattern and encoded patterns
-    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory, num_bin_pattern)
+    sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory)
 
     # Measure
     sim.collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1)
@@ -125,6 +126,7 @@ for exp in tqdm(range(num_exps)):
         count[val] = 1
 
 
-print("Experiments completed.")
-print(count)
+if rank == 0 :
+    print("Experiments completed.")
+    print(count)
 
