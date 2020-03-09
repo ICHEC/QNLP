@@ -4,7 +4,7 @@ The QNLP suite of tools and libraries uses the (catch2)[https://github.com/catch
 
 For every module in `<QNLP_ROOT>/modules` an appropriate set of unit & integration tests should also be specified in a file named `test_<module-name>.cpp`.
 The test target should be added to the module's `CMakeLists.txt` with a `$CMAKE_TESTING_ENABLED` variable guard. Each module tests are built as a library,
-and the `<QNLP_ROOT>/modules/CMakeLists.txt` is updated to link againt the `tests` target.
+and the `<QNLP_ROOT>/modules/CMakeLists.txt` is updated to link against the `tests` target.
 
 This ensures that all tests are included in the resulting `tests` binary file, and are selectable at run-time.
 
