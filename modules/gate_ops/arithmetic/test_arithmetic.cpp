@@ -69,7 +69,7 @@ TEST_CASE("Arithmetic subtraction","[arithmetic]"){
  * @brief Test Arithmetic: Summation
  * 
  */
-TEST_CASE("Arithmetic summation","[simulator]"){
+TEST_CASE("Arithmetic summation","[arithmetic]"){
     std::size_t min_idx=0, max_idx=3;
     std::size_t num_qubits = max_idx - min_idx +1;
     IntelSimulator sim(num_qubits);
