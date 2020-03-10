@@ -1,0 +1,4 @@
+<map id="QNLP::HammingDistance::computeHammingDistanceOverwriteAux" name="QNLP::HammingDistance::computeHammingDistanceOverwriteAux">
+<area shape="rect" id="node1" title="Computes Hamming Distance; Overwrites the pattern in reg_auxiliary to track bit differences from reg_..." alt="" coords="276,13,545,54"/>
+<area shape="rect" id="node2" href="$a00923.html#a62363e702fcea7868324c69a076d60ea" title="Computes the relative Hamming distance between the test pattern and the pattern stored in each state ..." alt="" coords="5,5,228,61"/>
+</map>

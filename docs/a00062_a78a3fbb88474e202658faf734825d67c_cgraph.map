@@ -1,0 +1,7 @@
+<map id="TEST_CASE" name="TEST_CASE">
+<area shape="rect" id="node1" title="Testing default constructor and subsequent functions on DBHelper class." alt="" coords="5,57,105,84"/>
+<area shape="rect" id="node2" href="$a00811.html#acd7fadbcddf0a0bf6e623d930758feba" title="Closes the database if the DB pointer is open." alt="" coords="405,57,585,84"/>
+<area shape="rect" id="node3" href="$a00811.html#ae9b34927854d22fe4b74cc6911298783" title="Returns a pointer to the DB object." alt="" coords="161,32,350,58"/>
+<area shape="rect" id="node4" href="$a00811.html#a1b5de928d5074170d45c226326184e35" title="Get the name of the opened database." alt="" coords="153,82,357,109"/>
+<area shape="rect" id="node5" href="$a00811.html#ab3f297c49f44e7506f741d6da7ba1642" title="Opens the requested database, and gives the return code of the operation. If the DB pointer has alrea..." alt="" coords="166,133,345,160"/>
+</map>

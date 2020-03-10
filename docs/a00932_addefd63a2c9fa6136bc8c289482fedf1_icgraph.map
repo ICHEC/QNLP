@@ -1,0 +1,3 @@
+<map id="QNLP::SimulatorGeneral::applyIQFT" name="QNLP::SimulatorGeneral::applyIQFT">
+<area shape="rect" id="node1" title="Apply the inverse Quantum Fourier transform (IQFT) to the given register index range." alt="" coords="5,29,175,71"/>
+</map>

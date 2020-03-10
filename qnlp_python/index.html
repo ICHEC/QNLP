@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>QNLP example - QNLP</title>
+<meta name="description" content="Quantum Natural Language Processing">
+<meta name="generator" content="Hugo 0.66.0" />
+<link href="/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="/qnlp_python/">
+<link rel="stylesheet" href="/css/theme.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="/js/bundle.js"></script><style>
+:root {}
+</style>
+<meta property="og:title" content="QNLP example" />
+<meta property="og:description" content="Quantum Natural Language Processing" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="/qnlp_python/" />
+<meta property="og:image" content="/images/og-image.png"/>
+<meta property="og:updated_time" content="2020-03-01T10:48:38+00:00" /><meta property="og:site_name" content="Hugo Techdoc Theme" />
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="/images/og-image.png"/>
+
+<meta name="twitter:title" content="QNLP example"/>
+<meta name="twitter:description" content="Quantum Natural Language Processing"/>
+<meta itemprop="name" content="QNLP example">
+<meta itemprop="description" content="Quantum Natural Language Processing"><script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script></head>
+<body><div class="container"><header>
+<h1>QNLP</h1>
+<a href="https://github.com/ichec/qnlp" class="github"><i class="fab fa-github"></i></a>
+<p class="description">Quantum Natural Language Processing</p>
+
+</header>
+<div class="global-menu">
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/docs">QNLP API</a></li>
+<li><a href="/about/">About QNLP</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1>QNLP example</h1><h2 id="the-following-example-is-available-as-a-jupyter-notebook-titled-qnlp_pythonipynb-in-the-source-repository">The following example is available as a Jupyter notebook titled <code>QNLP_Python.ipynb</code> in the source repository.</h2>
+<p>This notebook runs an example encoding of <strong>&ldquo;John rests inside, Mary walks outside&rdquo;</strong>. We initially define mappings for each of these tokens to a pre-defined set of basis tokens. These tokens are next represented as binary integers, and encoded using the QNLP runtime.</p>
+<p>A test pattern is then constructed using <strong>&ldquo;adults stand inside&rdquo;</strong>, and the encoded patterns are queried and sampled to determine the closest encoded data, as learned from the given sentences.</p>
+<p>The basis tokens are defined as:</p>
+<p>$$
+\begin{array}{c|c|c}
+\mathbf{Dataset} &amp; \mathbf{Word} &amp; \mathbf{Bin.~Index} \newline
+\newline
+{n_s} &amp; \mathrm{adult} &amp; 00 \newline
+{n_s} &amp; \mathrm{child} &amp; 01 \newline
+{n_s} &amp; \mathrm{smith} &amp; 10 \newline
+{n_s} &amp; \mathrm{surgeon} &amp; 11 \newline
+\newline
+{v} &amp; \mathrm{stand} &amp; 00 \newline
+{v} &amp; \mathrm{move} &amp; 01 \newline
+{v} &amp; \mathrm{sit} &amp; 10 \newline
+{v} &amp; \mathrm{sleep} &amp; 11 \newline
+\newline
+{n_o} &amp; \mathrm{inside} &amp; 0 \newline
+{n_o} &amp; \mathrm{outside} &amp; 1 \newline
+\end{array}
+$$</p>
+<p>We define the mapping of <em>&ldquo;John rests inside, Mary walks outside&rdquo;</em> to this basis as:</p>
+<p>$$
+\begin{array}{c|c|c}
+\mathbf{Dataset} &amp; \mathbf{Word} &amp; \mathbf{State} \newline
+\newline
+{n_s} &amp; \mathrm{John} &amp; (\vert 00 \rangle + \vert 10 \rangle)/\sqrt{2} \newline
+{n_s} &amp; \mathrm{Mary} &amp; (\vert 01 \rangle + \vert 11 \rangle)/\sqrt{2} \newline
+{v} &amp; \mathrm{walk} &amp; (\vert 00 \rangle + \vert 01 \rangle)/\sqrt{2} \newline
+{v} &amp; \mathrm{rest} &amp; (\vert 10 \rangle + \vert 11 \rangle)/\sqrt{2} \newline
+{n_o} &amp; \mathrm{inside} &amp; \vert 0 \rangle  \newline
+{n_o} &amp; \mathrm{outside} &amp; \vert 1 \rangle  \newline
+\end{array}
+$$</p>
+<p>Lastly, our test pattern is mapped onto the basis as <strong>&ldquo;adults stand inside&rdquo;</strong> $\rightarrow |00000\rangle$. The remainder of the notebook will encode the data using the given basis, encode the test pattern, and query the resulting register state using the Hamming distance to determine closeness.</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">os</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&#34;OMP_NUM_THREADS&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&#34;4&#34;</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">rc</span>
+<span class="n">rc</span><span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">usetex</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+</code></pre></div><p>Import the C++ backed simulator package and the preprocessing Python package</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">PyQNLPSimulator</span> <span class="kn">import</span> <span class="n">PyQNLPSimulator</span> <span class="k">as</span> <span class="n">p</span>
+<span class="kn">import</span> <span class="nn">QNLP</span> <span class="kn">as</span> <span class="nn">q</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+</code></pre></div><p>Predefine necessary data for encoding and calculate resources requirements</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Define basis tokens encoding and decoding dicts</span>
+<span class="n">encoding_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;ns&#34;</span> <span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;adult&#34;</span><span class="p">:</span><span class="mb">0b00</span><span class="p">,</span> <span class="s2">&#34;child&#34;</span><span class="p">:</span><span class="mb">0b11</span><span class="p">,</span> <span class="s2">&#34;smith&#34;</span><span class="p">:</span><span class="mb">0b10</span><span class="p">,</span> <span class="s2">&#34;surgeon&#34;</span><span class="p">:</span><span class="mb">0b01</span> <span class="p">},</span>
+                 <span class="s2">&#34;v&#34;</span>  <span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;stand&#34;</span><span class="p">:</span><span class="mb">0b00</span><span class="p">,</span> <span class="s2">&#34;move&#34;</span><span class="p">:</span><span class="mb">0b01</span><span class="p">,</span> <span class="s2">&#34;sit&#34;</span><span class="p">:</span><span class="mb">0b11</span><span class="p">,</span> <span class="s2">&#34;sleep&#34;</span><span class="p">:</span><span class="mb">0b10</span> <span class="p">},</span>
+                 <span class="s2">&#34;no&#34;</span> <span class="p">:</span> <span class="p">{</span> <span class="s2">&#34;inside&#34;</span><span class="p">:</span><span class="mb">0b0</span><span class="p">,</span><span class="s2">&#34;outside&#34;</span><span class="p">:</span><span class="mb">0b1</span> <span class="p">}</span>
+                <span class="p">}</span>
+
+<span class="n">decoding_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&#34;ns&#34;</span> <span class="p">:</span> <span class="p">{</span> <span class="mb">0b00</span><span class="p">:</span><span class="s2">&#34;adult&#34;</span><span class="p">,</span> <span class="mb">0b11</span><span class="p">:</span><span class="s2">&#34;child&#34;</span><span class="p">,</span> <span class="mb">0b10</span><span class="p">:</span><span class="s2">&#34;smith&#34;</span><span class="p">,</span> <span class="mb">0b01</span><span class="p">:</span><span class="s2">&#34;surgeon&#34;</span><span class="p">},</span>
+                 <span class="s2">&#34;v&#34;</span>  <span class="p">:</span> <span class="p">{</span> <span class="mb">0b00</span><span class="p">:</span><span class="s2">&#34;stand&#34;</span><span class="p">,</span> <span class="mb">0b01</span><span class="p">:</span><span class="s2">&#34;move&#34;</span><span class="p">,</span> <span class="mb">0b11</span><span class="p">:</span><span class="s2">&#34;sit&#34;</span><span class="p">,</span> <span class="mb">0b10</span><span class="p">:</span><span class="s2">&#34;sleep&#34;</span><span class="p">},</span>
+                 <span class="s2">&#34;no&#34;</span> <span class="p">:</span> <span class="p">{</span> <span class="mb">0b0</span><span class="p">:</span><span class="s2">&#34;inside&#34;</span><span class="p">,</span> <span class="mb">0b1</span><span class="p">:</span><span class="s2">&#34;outside&#34;</span><span class="p">}</span>
+                <span class="p">}</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">len_reg_memory</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">len_reg_auxiliary</span> <span class="o">=</span> <span class="n">len_reg_memory</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="n">num_qubits</span> <span class="o">=</span> <span class="n">len_reg_memory</span> <span class="o">+</span> <span class="n">len_reg_auxiliary</span>
+<span class="n">num_bin_pattern</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="n">test_pattern</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div><p>Create simulator object</p>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">use_fusion</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">sim</span> <span class="o">=</span> <span class="n">p</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">use_fusion</span><span class="p">)</span>
+<span class="n">num_exps</span> <span class="o">=</span> <span class="mi">5000</span>
+<span class="n">normalise</span> <span class="o">=</span> <span class="bp">True</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Set up registers to store indices</span>
+<span class="n">reg_memory</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">len_reg_memory</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_reg_memory</span><span class="p">):</span>
+    <span class="n">reg_memory</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">len_reg_auxiliary</span>
+
+<span class="n">reg_auxiliary</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">len_reg_auxiliary</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">len_reg_auxiliary</span><span class="o">-</span><span class="mi">2</span><span class="p">):</span>
+    <span class="n">reg_auxiliary</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="n">reg_auxiliary</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">reg_auxiliary</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># data for encoding using the given basis</span>
+<span class="s2">&#34;John rests outside, Mary walks inside&#34;</span>
+<span class="n">sentences</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[{</span><span class="s2">&#34;john&#34;</span> <span class="p">:</span>   <span class="p">[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;ns&#34;</span><span class="p">][</span><span class="s2">&#34;adult&#34;</span><span class="p">],</span> <span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;ns&#34;</span><span class="p">][</span><span class="s2">&#34;smith&#34;</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">&#34;rest&#34;</span> <span class="p">:</span>    <span class="p">[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;v&#34;</span><span class="p">][</span><span class="s2">&#34;sit&#34;</span><span class="p">],</span> <span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;v&#34;</span><span class="p">][</span><span class="s2">&#34;sleep&#34;</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">&#34;inside&#34;</span> <span class="p">:</span>  <span class="p">[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;no&#34;</span><span class="p">][</span><span class="s2">&#34;inside&#34;</span><span class="p">]]</span> <span class="p">}],</span>
+
+    <span class="p">[{</span><span class="s2">&#34;mary&#34;</span> <span class="p">:</span>   <span class="p">[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;ns&#34;</span><span class="p">][</span><span class="s2">&#34;child&#34;</span><span class="p">],</span> <span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;ns&#34;</span><span class="p">][</span><span class="s2">&#34;surgeon&#34;</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">&#34;walk&#34;</span> <span class="p">:</span>    <span class="p">[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;v&#34;</span><span class="p">][</span><span class="s2">&#34;stand&#34;</span><span class="p">],</span>  <span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;v&#34;</span><span class="p">][</span><span class="s2">&#34;move&#34;</span><span class="p">]]},</span>
+    <span class="p">{</span><span class="s2">&#34;outside&#34;</span> <span class="p">:[</span><span class="n">encoding_dict</span><span class="p">[</span><span class="s2">&#34;no&#34;</span><span class="p">][</span><span class="s2">&#34;outside&#34;</span><span class="p">]]</span> <span class="p">}],</span>
+<span class="p">]</span>
+<span class="n">sentences</span>
+</code></pre></div><pre><code>[[{'john': [0, 2]}, {'rest': [3, 2]}, {'inside': [0]}],
+ [{'mary': [3, 1]}, {'walk': [0, 1]}, {'outside': [1]}]]
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Create shift patterns for the encoding step</span>
+<span class="n">bit_shifts</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">q</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_type_offsets</span><span class="p">(</span><span class="n">encoding_dict</span><span class="p">)]</span>
+<span class="n">bit_shifts</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+<span class="n">bit_shifts</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">bit_shifts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">bit_shifts</span><span class="p">)</span>
+
+<span class="c1"># Parse the sentences and generate the required bit-patterns</span>
+<span class="n">superpos_patterns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+
+<span class="c1">#Create list for the patterns to be encoded</span>
+<span class="n">vec_to_encode</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Generate bit-patterns from sentences and store in vec_to_encode</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sentences</span><span class="p">)):</span>
+    <span class="n">superpos_patterns</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="n">idx</span><span class="p">][</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+    <span class="c1"># Generate all combinations of the bit-patterns for superpos states</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">product</span><span class="p">(</span><span class="n">superpos_patterns</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">superpos_patterns</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">superpos_patterns</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">bit_shifts</span><span class="p">):</span>
+            <span class="n">num</span> <span class="o">+=</span> <span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">val</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">vec_to_encode</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">num</span><span class="p">])</span>
+        
+<span class="n">vec_to_encode</span>
+</code></pre></div><pre><code>[6, 22, 4, 20, 25, 9, 27, 11]
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Init result counter</span>
+<span class="n">count_even</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">vec_to_encode</span><span class="p">:</span>
+    <span class="n">count_even</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span> <span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="o">%%</span><span class="n">time</span>
+<span class="c1"># Test of equally encoded bit patterns</span>
+<span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exps</span><span class="p">)):</span>
+
+    <span class="n">sim</span><span class="o">.</span><span class="n">initRegister</span><span class="p">()</span>
+
+    <span class="c1"># Encode</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">encodeBinToSuperpos_unique</span><span class="p">(</span><span class="n">reg_memory</span><span class="p">,</span> <span class="n">reg_auxiliary</span><span class="p">,</span> <span class="n">vec_to_encode</span><span class="p">,</span> <span class="n">len_reg_memory</span><span class="p">)</span>
+    
+    <span class="n">val</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">applyMeasurementToRegister</span><span class="p">(</span><span class="n">reg_memory</span><span class="p">,</span> <span class="n">normalise</span><span class="p">)</span>
+    <span class="n">count_even</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+
+</code></pre></div><pre><code>100%|██████████| 5000/5000 [00:36&lt;00:00, 136.10it/s]
+
+CPU times: user 2min 25s, sys: 696 ms, total: 2min 26s
+Wall time: 36.7 s
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Test value to compare</span>
+<span class="n">test_pattern</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1"># 00000 -&gt;  adult, stand, inside</span>
+<span class="c1">#test_pattern = 7; # 00111 -&gt;  adult, sleep, outside</span>
+
+<span class="c1"># Init result counter</span>
+<span class="n">count</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">vec_to_encode</span><span class="p">:</span>
+    <span class="n">count</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">i</span> <span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1"># Repeated shots of experiment</span>
+<span class="k">for</span> <span class="n">exp</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">num_exps</span><span class="p">)):</span>
+
+    <span class="n">sim</span><span class="o">.</span><span class="n">initRegister</span><span class="p">()</span>
+
+    <span class="c1"># Encode</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">encodeBinToSuperpos_unique</span><span class="p">(</span><span class="n">reg_memory</span><span class="p">,</span> <span class="n">reg_auxiliary</span><span class="p">,</span> <span class="n">vec_to_encode</span><span class="p">,</span> <span class="n">len_reg_memory</span><span class="p">)</span>
+
+    <span class="c1"># Compute Hamming distance between test pattern and encoded patterns</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">applyHammingDistanceRotY</span><span class="p">(</span><span class="n">test_pattern</span><span class="p">,</span> <span class="n">reg_memory</span><span class="p">,</span> <span class="n">reg_auxiliary</span><span class="p">,</span> <span class="n">len_reg_memory</span><span class="p">)</span>
+
+    <span class="c1"># Measure</span>
+    <span class="n">sim</span><span class="o">.</span><span class="n">collapseToBasisZ</span><span class="p">(</span><span class="n">reg_auxiliary</span><span class="p">[</span><span class="n">len_reg_auxiliary</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="n">val</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">applyMeasurementToRegister</span><span class="p">(</span><span class="n">reg_memory</span><span class="p">,</span> <span class="n">normalise</span><span class="p">)</span>
+    <span class="n">count</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+
+</code></pre></div><pre><code>100%|██████████| 5000/5000 [00:40&lt;00:00, 124.57it/s]
+</code></pre>
+<div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">xlab_str</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;,&#34;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">bin_to_sentence</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">encoding_dict</span><span class="p">,</span> <span class="n">decoding_dict</span><span class="p">))</span>  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">count</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+<span class="n">xlab_bin</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;{0:0{num_bits}b}&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">num_bits</span><span class="o">=</span><span class="n">len_reg_memory</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">count</span><span class="o">.</span><span class="n">keys</span><span class="p">())]</span>
+<span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s2">&#34;</span><span class="se">\n</span><span class="s2">&#34;</span><span class="o">+</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xlab_str</span><span class="p">,</span><span class="n">xlab_bin</span><span class="p">)]</span>
+
+<span class="c1"># Sort histograms by P</span>
+<span class="n">hist_list_even</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="sa">r</span><span class="s2">&#34; $\vert$&#34;</span><span class="o">+</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="sa">r</span><span class="s2">&#34;$\rangle$&#34;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xlab_str</span><span class="p">,</span><span class="n">xlab_bin</span><span class="p">)],</span>
+    <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">count_even</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">count_even</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+<span class="p">))</span>
+<span class="n">hist_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="sa">r</span><span class="s2">&#34; $\vert$&#34;</span><span class="o">+</span><span class="n">i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="sa">r</span><span class="s2">&#34;$\rangle$&#34;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xlab_str</span><span class="p">,</span><span class="n">xlab_bin</span><span class="p">)],</span>
+    <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">count</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">count</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+<span class="p">))</span>
+<span class="c1">#hist_list = sorted(hist_list, key=lambda pr: pr[1], reverse=True)</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">hist_list_even</span><span class="p">]</span>
+<span class="n">even_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">hist_list_even</span><span class="p">]</span>
+<span class="n">post_vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">hist_list</span><span class="p">]</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>  <span class="c1"># the label locations</span>
+<span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>  <span class="c1"># the width of the bars</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+<span class="n">rects1</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">even_vals</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Even superposition measurement&#39;</span><span class="p">)</span>
+<span class="n">rects2</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">post_vals</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Post-selection measurement&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add some text for labels, title and custom x-axis tick labels, etc.</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&#34;$P(\textrm{{{}}})$&#34;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&#34;adult, sleep, outside&#34;</span><span class="p">),</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=-</span><span class="mi">30</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&#34;left&#34;</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">1.0</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;crimson&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&#34;--&#34;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)</span><span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">count</span><span class="p">)),</span> <span class="s1">&#39;$1/\sqrt{n}$&#39;</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">forward</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</code></pre></div><p><img src="/img/QNLP_Python.png" alt="png"></p>
+<p>As we can see, the closest discovered pattern using the given basis is &ldquo;adult, sit, inside&rdquo;.</p>
+<div class="edit-meta">
+Last updated on 1 Mar 2020
+
+
+<br>
+Published on 1 Mar 2020
+<br><a href="qnlp_python/_index.md/edit/master/content/qnlp_python/_index.md" class="edit-page"><i class="fas fa-pen-square"></i> Edit on GitHub</a></div><nav class="pagination"><a class="nav nav-prev" href="/examples/large_scale/" title=""><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - </a>
+<a class="nav nav-next" href="/examples/" title="Example library usage">Next - Example library usage <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://themes.gohugo.io/hugo-theme-techdoc/">TechDoc</a>. Designed by <a href="https://github.com/thingsym/hugo-theme-techdoc">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+<nav class="slide-menu">
+<ul>
+<li class=""><a href="/">Home</a></li>
+
+<li class=" has-sub-menu"><a href="/examples/">Example library usage<span class="mark closed">+</span></a>
+  
+<ul class="sub-menu">
+
+<li class=""><a href="/examples/float_encode/">Encoding data into state coefficients</a>
+  
+</li>
+
+<li class=""><a href="/examples/pre_proc_params/">Example of parameter optimisation</a>
+  
+</li>
+
+<li class=""><a href="/examples/gate_ops/">GateOps usage example</a>
+  
+</li>
+
+<li class=""><a href="/examples/vqe/">VQE usage example</a>
+  
+</li>
+
+<li class=""><a href="/examples/large_scale/"></a>
+  
+</li>
+</ul>
+  
+</li>
+
+<li class="parent active"><a href="/qnlp_python/">QNLP example</a>
+  
+</li>
+</ul>
+</nav>
+
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+</div>
+</body>
+</html>

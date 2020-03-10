@@ -1,0 +1,6 @@
+<map id="QNLP::CorpusUtils::loadData" name="QNLP::CorpusUtils::loadData">
+<area shape="rect" id="node1" title="Loads from the database for a given data type (noun, verb, etc)" alt="" coords="5,35,148,76"/>
+<area shape="rect" id="node2" href="$a00807.html#a9aeb7f57fc0b194d9667096f2a6dc202" title="Return reference to database object." alt="" coords="214,5,357,47"/>
+<area shape="rect" id="node3" href="$a00811.html#ab3f297c49f44e7506f741d6da7ba1642" title="Opens the requested database, and gives the return code of the operation. If the DB pointer has alrea..." alt="" coords="196,71,375,98"/>
+<area shape="rect" id="node4" href="$a00811.html#acd7fadbcddf0a0bf6e623d930758feba" title="Closes the database if the DB pointer is open." alt="" coords="423,71,603,98"/>
+</map>

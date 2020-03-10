@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGateX" name="QNLP::IntelSimulator::applyGateX">
+<area shape="rect" id="node1" title="Apply the Pauli X gate to the given qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00915.html#a7c706fbd851f173bdd16256612a9aff3" title="Get the Pauli&#45;X gate." alt="" coords="200,5,347,47"/>
+</map>

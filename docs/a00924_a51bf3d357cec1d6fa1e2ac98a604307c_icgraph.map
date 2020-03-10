@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::getStateProbability" name="QNLP::IntelSimulator::getStateProbability">
+<area shape="rect" id="node1" title="Get the probability of the specified qubit being in the state |1&gt;" alt="" coords="200,5,347,47"/>
+<area shape="rect" id="node2" href="$a00924.html#a1f4431219d1382604100f5a121b0cacd" title="Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and ..." alt="" coords="5,5,152,47"/>
+</map>

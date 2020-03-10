@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Distributed QNLP example - QNLP</title>
+<meta name="description" content="Quantum Natural Language Processing">
+<meta name="generator" content="Hugo 0.66.0" />
+<link href="/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="/examples/large_scale/">
+<link rel="stylesheet" href="/css/theme.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="/js/bundle.js"></script><style>
+:root {}
+</style>
+<meta property="og:title" content="Distributed QNLP example" />
+<meta property="og:description" content="Quantum Natural Language Processing" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="/examples/large_scale/" />
+<meta property="og:image" content="/images/og-image.png"/>
+<meta property="og:updated_time" content="2020-03-01T10:48:38+00:00" /><meta property="og:site_name" content="Hugo Techdoc Theme" />
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="/images/og-image.png"/>
+
+<meta name="twitter:title" content="Distributed QNLP example"/>
+<meta name="twitter:description" content="Quantum Natural Language Processing"/>
+<meta itemprop="name" content="Distributed QNLP example">
+<meta itemprop="description" content="Quantum Natural Language Processing"><script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script></head>
+<body><div class="container"><header>
+<h1>QNLP</h1>
+<a href="https://github.com/ichec/qnlp" class="github"><i class="fab fa-github"></i></a>
+<p class="description">Quantum Natural Language Processing</p>
+
+</header>
+<div class="global-menu">
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/docs">QNLP API</a></li>
+<li><a href="/about/">About QNLP</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1>Distributed QNLP example</h1><h2 id="the-following-example-is-available-as-a-runnable-python-script-qnlp_endtoend_mpipy-in-the-source-repository">The following example is available as a runnable Python script <code>QNLP_EndToEnd_MPI.py</code> in the source repository.</h2>
+<p>In this example we provide a sample usage to analyse large text documents, extract noun-verb-noun sentences, where available, and encode into states. More details will be presented on usage in a later publication.</p>
+<p>Assuming the installation instructions have been followed for the distributed backend (see <a href="install/">here</a>), then we can proceed with running the QNLP methods at scale. For this, we can use the <code>QNLP_EndToEnd_MPI.py</code> script. This file has a workflow to load and analyse a given corpus of text, tokenise, tag and determine the optimal encoding elements to represent meaning for a given set of control parameters.</p>
+<h2 id="example-usage">Example usage</h2>
+<p>Assuming we have access to a HPC system with the Slurm system, we can define a submission script, <code>job.sh</code> as</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span><span class="c1">#SBATCH -J &lt;job_name&gt;</span>
+<span class="c1">#SBATCH -N &lt;number_of_node&gt;</span>
+<span class="c1">#SBATCH -p &lt;submission_queue&gt;</span>
+<span class="c1">#SBATCH -t &lt;run_time&gt;</span>
+<span class="c1">#SBATCH -A &lt;charge_account&gt;</span>
+<span class="c1">#SBATCH --mail-user=&lt;email_address&gt;</span>
+<span class="c1">#SBATCH --mail-type=ALL</span>
+
+<span class="c1">#Change to the QNLP directory, load the Intel Compiler suite and CMake3.12+, and ensure GCC 7+ compatibility</span>
+<span class="nb">cd</span> qnlp/build 
+module load intel/2019u5 gcc cmake3
+
+<span class="c1">#Source the appropriate runtime variables and paths</span>
+<span class="nb">source</span> ../load_env.sh
+
+<span class="c1"># The following env. variables control the runtime of the scripts, and subsequently define the size of the simulation.</span>
+<span class="nv">NUM_BASIS_NOUN</span><span class="o">=</span><span class="m">8</span> <span class="se">\
+</span><span class="se"></span><span class="nv">NUM_BASIS_VERB</span><span class="o">=</span><span class="m">2</span> <span class="se">\
+</span><span class="se"></span><span class="nv">BASIS_NOUN_DIST_CUTOFF</span><span class="o">=</span><span class="m">4</span> <span class="se">\
+</span><span class="se"></span><span class="nv">BASIS_VERB_DIST_CUTOFF</span><span class="o">=</span><span class="m">4</span> <span class="se">\
+</span><span class="se"></span><span class="nv">VERB_NOUN_DIST_CUTOFF</span><span class="o">=</span><span class="m">4</span> <span class="se">\
+</span><span class="se"></span>srun -n &lt;number_of_procs&gt; --ntasks-per-socket<span class="o">=</span>&lt;largest_power_2_cores&gt; -c <span class="m">1</span> --cpu-bind<span class="o">=</span>cores -m <span class="nv">plane</span><span class="o">=</span>&lt;largest_power_2_cores&gt; python ../modules/py/scripts/QNLP_EndToEnd_MPI.py &lt;corpus&gt; &lt;num_experiments&gt;
+cp slurm-<span class="s2">&#34;</span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&#34;</span>.out log_<span class="s2">&#34;</span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&#34;</span>.out
+tar cvzf <span class="s2">&#34;</span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&#34;</span>.tar.gz ./qnlp* log_<span class="s2">&#34;</span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&#34;</span>.out
+</code></pre></div><p>Note that all variables with <code>&lt;&gt;</code> structure must be user-defined. The runtime control parameters can also be changed, but be aware that setting them without prior knowledge may require significant computational resources. It is often best to run a resource estimation build first (<code>-DENABLE_RESOURCE_EST=1</code>) to understand the qubit and gate-count requirements for a given set of parameters.</p>
+<p>A sample run of the above scripts for a given set of parameters and corpus choice yielded the following encoding and results output:</p>
+<p><img src="/img/qnlp_75_50k.png" alt="Simulation example" title=""></p>
+<p>It is best to examine the <code>QNLP_EndToEnd_MPI.py</code> for more details, as it is well documented to explain the workflow.</p>
+<div class="edit-meta">
+Last updated on 1 Mar 2020
+
+
+<br>
+Published on 1 Mar 2020
+<br><a href="examples/large_scale/_index.md/edit/master/content/examples/large_scale/_index.md" class="edit-page"><i class="fas fa-pen-square"></i> Edit on GitHub</a></div><nav class="pagination"><a class="nav nav-prev" href="/examples/" title="Example library usage"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - Example library usage</a>
+<a class="nav nav-next" href="/examples/float_encode/" title="Encoding data into state coefficients">Next - Encoding data into state coefficients <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://themes.gohugo.io/hugo-theme-techdoc/">TechDoc</a>. Designed by <a href="https://github.com/thingsym/hugo-theme-techdoc">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+<nav class="slide-menu">
+<ul>
+<li class=""><a href="/">Home</a></li>
+
+<li class="parent has-sub-menu"><a href="/examples/">Example library usage<span class="mark opened">-</span></a>
+  
+<ul class="sub-menu">
+
+<li class="parent active"><a href="/examples/large_scale/">Distributed QNLP example</a>
+  
+</li>
+
+<li class=""><a href="/examples/float_encode/">Encoding data into state coefficients</a>
+  
+</li>
+
+<li class=""><a href="/examples/pre_proc_params/">Example of parameter analysis</a>
+  
+</li>
+
+<li class=""><a href="/examples/gate_ops/">GateOps usage example</a>
+  
+</li>
+
+<li class=""><a href="/examples/qnlp_python/">QNLP example</a>
+  
+</li>
+
+<li class=""><a href="/examples/vqe/">VQE usage example</a>
+  
+</li>
+</ul>
+  
+</li>
+
+<li class=""><a href="/install/">Installation instructions</a>
+  
+</li>
+</ul>
+</nav>
+
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+</div>
+</body>
+</html>

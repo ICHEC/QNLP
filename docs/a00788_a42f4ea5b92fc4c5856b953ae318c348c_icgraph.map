@@ -1,0 +1,5 @@
+<map id="QNLP::BitGroup::bit_group" name="QNLP::BitGroup::bit_group">
+<area shape="rect" id="node1" title="Swaps all qubits in register indices given by qreg_idx to their right&#45;most positions...." alt="" coords="260,35,400,76"/>
+<area shape="rect" id="node2" href="$a00932.html#adead1b90156ed331ab4146c27f8ec37f" title="Group all set qubits to MSB in register (ie |010100&gt; &#45;&gt; |000011&gt;)" alt="" coords="5,5,212,47"/>
+<area shape="rect" id="node3" href="$a00017.html#a0f52e989bedb338d4cd0f101d3040b84" title="Test BitGroup." alt="" coords="59,71,159,98"/>
+</map>

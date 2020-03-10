@@ -1,0 +1,20 @@
+<map id="/Users/mlxd/Desktop/tmp/intel&#45;qnlp&#45;api/modules/utils/mat_ops.hpp" name="/Users/mlxd/Desktop/tmp/intel&#45;qnlp&#45;api/modules/utils/mat_ops.hpp">
+<area shape="rect" id="node1" title="Templated methods to manipulate small matrices." alt="" coords="317,5,501,61"/>
+<area shape="rect" id="node2" href="$a00026.html" title="Functions for applying n&#45;qubit controlled U (unitary) gates." alt="" coords="329,213,489,284"/>
+<area shape="rect" id="node18" href="$a00182.html" title=" " alt="" coords="379,109,579,165"/>
+<area shape="rect" id="node3" href="$a00029.html" title=" " alt="" coords="5,547,165,618"/>
+<area shape="rect" id="node4" href="$a00173.html" title=" " alt="" coords="1090,332,1310,388"/>
+<area shape="rect" id="node5" href="$a00005.html" title=" " alt="" coords="190,547,354,618"/>
+<area shape="rect" id="node6" href="$a00011.html" title="Tests for quantum arithmetic using the (QFT) implementation." alt="" coords="378,547,574,618"/>
+<area shape="rect" id="node7" href="$a00017.html" title=" " alt="" coords="598,547,775,618"/>
+<area shape="rect" id="node8" href="$a00023.html" title=" " alt="" coords="799,547,987,618"/>
+<area shape="rect" id="node9" href="$a00035.html" title=" " alt="" coords="1011,547,1186,618"/>
+<area shape="rect" id="node10" href="$a00041.html" title="Tests for the quantum Fourier transform (QFT) implementation." alt="" coords="1422,547,1575,618"/>
+<area shape="rect" id="node11" href="$a00047.html" title=" " alt="" coords="1600,547,1760,618"/>
+<area shape="rect" id="node12" href="$a00068.html" title=" " alt="" coords="1785,547,1943,618"/>
+<area shape="rect" id="node13" href="$a00074.html" title=" " alt="" coords="1967,540,2161,625"/>
+<area shape="rect" id="node14" href="$a00164.html" title=" " alt="" coords="1170,436,1414,492"/>
+<area shape="rect" id="node15" href="$a00170.html" title="Implementation of Factory methods for generating the chosen subclassed Simulator object." alt="" coords="2185,547,2343,618"/>
+<area shape="rect" id="node16" href="$a00176.html" title="Tests for the simulator interface." alt="" coords="2367,547,2526,618"/>
+<area shape="rect" id="node17" href="$a00179.html" title=" " alt="" coords="1210,555,1398,611"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGatePhaseShift" name="QNLP::IntelSimulator::applyGatePhaseShift">
+<area shape="rect" id="node1" title="Apply phase shift to given Qubit; [[1 0] [0 exp(i*angle)]]." alt="" coords="5,5,160,47"/>
+<area shape="rect" id="node2" href="$a00915.html#a8f903350d87f40517431ab2c6af58d19" title="Apply arbitrary user&#45;defined unitary gate to qubit at qubit_idx." alt="" coords="208,5,355,47"/>
+</map>

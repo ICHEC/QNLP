@@ -1,0 +1,6 @@
+<map id="QNLP::GateWriter::gateOut" name="QNLP::GateWriter::gateOut">
+<area shape="rect" id="node1" title="Writes the given matrix to matrix_val_out. Assumes matrix type is printable." alt="" coords="632,13,817,39"/>
+<area shape="rect" id="node2" href="$a00824.html#ade2a26f7e5714f58f53f49decd08c3a3" title="Writes the controlled gate to disk." alt="" coords="393,5,584,47"/>
+<area shape="rect" id="node3" href="$a00824.html#a80643264ed1b38761f854cd30bb19f38" title="Writes the single qubit gate to disk. &#45;1 used to denote lack of control line." alt="" coords="153,5,345,47"/>
+<area shape="rect" id="node4" href="$a00068.html#a6c1010aa628266c5e481dd98c102e3f6" title="Test n&#45;controlled unitary module with Pauli&#45;X |11..10&gt;" alt="" coords="5,13,105,39"/>
+</map>

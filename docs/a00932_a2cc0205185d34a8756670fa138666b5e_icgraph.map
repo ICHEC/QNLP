@@ -1,0 +1,5 @@
+<map id="QNLP::SimulatorGeneral::encodeToRegister" name="QNLP::SimulatorGeneral::encodeToRegister">
+<area shape="rect" id="node1" title="Encodes a defined binary pattern into a defined target register (initially in state |00...." alt="" coords="276,53,445,94"/>
+<area shape="rect" id="node2" href="$a00932.html#a62363e702fcea7868324c69a076d60ea" title="Computes the relative Hamming distance between the test pattern and the pattern stored in each state ..." alt="" coords="5,5,228,61"/>
+<area shape="rect" id="node3" href="$a00932.html#a879f5f6c2a27305df3b5f0a8ab7552a9" title="Computes the relative Hamming distance between the test pattern and the pattern stored in each state ..." alt="" coords="5,85,228,141"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="QNLP::IntelSimulator::applyMeasurement" name="QNLP::IntelSimulator::applyMeasurement">
+<area shape="rect" id="node1" title="Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and ..." alt="" coords="5,71,152,112"/>
+<area shape="rect" id="node2" href="$a00915.html#ad994a3061e6e9901f81a1a872852baf5" title="Apply normalization to the amplitudes of each state. This is required after a qubit in a state is col..." alt="" coords="200,5,353,47"/>
+<area shape="rect" id="node3" href="$a00915.html#a1e3a2ffb531f7f8fbbe032619e9be1f3" title="Collapses specified qubit in register to the collapseValue without applying normalization." alt="" coords="203,71,350,112"/>
+<area shape="rect" id="node4" href="$a00915.html#a51bf3d357cec1d6fa1e2ac98a604307c" title="Get the probability of the specified qubit being in the state |1&gt;" alt="" coords="203,136,350,177"/>
+</map>

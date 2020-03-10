@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Installation instructions - QNLP</title>
+<meta name="description" content="Quantum Natural Language Processing">
+<meta name="generator" content="Hugo 0.66.0" />
+<link href="/index.xml" rel="alternate" type="application/rss+xml">
+<link rel="canonical" href="/install/">
+<link rel="stylesheet" href="/css/theme.min.css">
+<script src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+<link rel="stylesheet" href="/css/chroma.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery.easing@1.4.1/jquery.easing.min.js"></script>
+<script src="/js/bundle.js"></script><style>
+:root {}
+</style>
+<meta property="og:title" content="Installation instructions" />
+<meta property="og:description" content="Quantum Natural Language Processing" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="/install/" />
+<meta property="og:image" content="/images/og-image.png"/>
+<meta property="og:updated_time" content="2020-03-01T10:48:38+00:00" /><meta property="og:site_name" content="Hugo Techdoc Theme" />
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="/images/og-image.png"/>
+
+<meta name="twitter:title" content="Installation instructions"/>
+<meta name="twitter:description" content="Quantum Natural Language Processing"/>
+<meta itemprop="name" content="Installation instructions">
+<meta itemprop="description" content="Quantum Natural Language Processing"><script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script></head>
+<body><div class="container"><header>
+<h1>QNLP</h1>
+<a href="https://github.com/ichec/qnlp" class="github"><i class="fab fa-github"></i></a>
+<p class="description">Quantum Natural Language Processing</p>
+
+</header>
+<div class="global-menu">
+<nav>
+<ul>
+<li><a href="/">Home</a></li>
+<li><a href="/docs">QNLP API</a></li>
+<li><a href="/about/">About QNLP</a></li></ul>
+</nav>
+</div>
+<div class="content-container">
+<main><h1>Installation instructions</h1><p>Firstly, the repository must be cloned to it&rsquo;s final location. We depend on conda internally for the Python environment and associated packages, so the directory will not be moveable.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">git clone https://github.com/ichec/qnlp
+<span class="nb">cd</span> qnlp
+</code></pre></div><h1 id="easy-mode-docker-all-platforms">Easy-mode: Docker (all platforms)</h1>
+<p>If you have Docker available on your system, the QNLP suite can be built atop a Ubuntu image using gcc. While we do not expect this to give the best performance, it can be useful as a means to test the functionality and play around.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">docker build .
+</code></pre></div><p>That&rsquo;s it! To get access to the environment, use:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># In host</span>
+docker run -p 8888:8888 -it &lt;image_name&gt; bash <span class="c1">#on host</span>
+
+<span class="c1"># In container</span>
+. /qnlp/load_env.sh
+jupyter notebook password
+jupyter notebook --ip 0.0.0.0 --no-browser --allow-root <span class="c1"># server runs as root in image, but not host</span>
+</code></pre></div><p>Access the notebook server on `localhost:8888&rsquo; as per usual. Note, if you have a jupyter notebook server running at 8888 the above will fail. Change the ports to an unused set and try again.</p>
+<h3 id="note">Note:</h3>
+<p>As we do not support Windows directly, this is the preferred method to run on Windows platforms. If you are running WSL (Windows Subsystem for Linux) we expect that the Linux installation should work, but make no promises.</p>
+<h1 id="intermediate-mode-linux">Intermediate-mode: Linux</h1>
+<p>This is the preferred mode for installation, as we can better optimise the binaries through use of the Intel Compiler suite. If unavailable, we can also use gcc and/or clang. As a prerequisite for installation, we must have available the following toolkits and packages:</p>
+<ul>
+<li>Compiler toolkit with C++14 support, though C++17 preferentially (tested with icpc &gt;= 2019u3, g++ &gt;= 7.0, clang++ &gt;= 9.0)</li>
+<li>MPI library and compiler wrappers (mpiicpc, mpicxx). We have tested successfully with Intel MPI, MPICH, and OpenMPI.</li>
+<li>CMake 3.15+ available <a href="https://cmake.org/download/">here</a>.</li>
+<li>Internet access on installation device. As some HPC nodes have no external access, it is recommended to install on login nodes to overcome this.</li>
+</ul>
+<p>Before we can build the suite, we must acquire some dependencies. The file <code>setup_env.sh</code> performs this purpose, acquiring all the necessary packages, setting up the conda Python environment, and the runtime environment variables. Upon installation, a <code>load_env.sh</code> file is created, which when sourced sets all associated paths and variables.</p>
+<p>As there can be many different cases of needs and uses for the QNLP library, we have added many features that can be built in by enabling CMake build flags. The set of available parameters are</p>
+<ul>
+<li><code>-DENABLE_TESTS=1</code>: Builds the suite of unit and integration tests for the library using <a href="https://github.com/catchorg/Catch2">catch2</a>.</li>
+<li><code>-DENABLE_LOGGING=1</code>: Builds support for gate call logging. I/O slows down computation, but the output can be used in conjunction with the Python <code>circuit_printer.py</code> script to output a latex-compilable circuit (uses <code>quantikz</code> package).</li>
+<li><code>-DENABLE_PYTHON=1</code>: Enable build of the QNLP Python bindings using <code>pybind11</code>. These will be installed into the associated conda environment <code>intel-qnlp</code>, and available upon sourcing <code>load_env.sh</code>.</li>
+<li><code>-DENABLE_MPI=1</code>: Enable the MPI build. While MPI compiler wrappers are <em>always</em> required to build the library, by setting this to <code>0</code> we can use an OpenMP variant of the backend library, with the threads controlled by <code>OMP_NUM_THREADS=&lt;set number of threads here&gt;</code>. MPI should be enabled for distributed usage, or on systems with large processor counts. For smaller systems (laptops and desktops), OpenMP is preferred.</li>
+<li><code>-DIqsMPI=1</code>: This should be enabled if <code>-DENABLE_MPI=1</code>, and disabled otherwise. It sets the mode of operation of the underlying Intel-QS simulator. Currently this option expects that you are using the Intel MPI Compiler (<code>mpiicpc</code>).</li>
+<li><code>-DIqsMKL=1</code>: If using the Intel Compiler, this enables MKL support for operations.</li>
+<li><code>-DENABLE_NATIVE=1</code>: This allows the underlying compiler to generate instructions targeting the architecture of the system being compiled on. For the best performance this should be enabled. Systems supporting AVX2, and AVX512 can see significant performance benefits.</li>
+<li><code>-DENABLE_RESOURCE_EST=1</code>: This turns off all computation calls in the simulator, and tracks the gate calls only. This is useful to obtain a resource estimation for the depth of circuits.</li>
+<li><code>-DENABLE_INTEL_LLVM=1</code>: If using a new variant of the Intel Compiler (2019u5+) we can enable the newly supported LLVM compiler backend by setting this variable.</li>
+</ul>
+<p>To run the compilation process on a standard laptop/desktop we recommend the following steps:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">./setup_env.sh
+<span class="nb">source</span> ./load_env.sh
+<span class="nb">cd</span> build 
+cmake .. <span class="se">\
+</span><span class="se"></span>-DCMAKE_C_COMPILER<span class="o">=</span>mpicc <span class="se">\
+</span><span class="se"></span>-DCMAKE_CXX_COMPILER<span class="o">=</span>mpicxx <span class="se">\
+</span><span class="se"></span>-DENABLE_TESTS<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_LOGGING<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_PYTHON<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_MPI<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span><span class="se"></span>-DIqsMPI<span class="o">=</span>OFF <span class="se">\
+</span><span class="se"></span>-DIqsMKL<span class="o">=</span>OFF <span class="se">\
+</span><span class="se"></span>-DENABLE_NATIVE<span class="o">=</span>on <span class="se">\
+</span><span class="se"></span>-DENABLE_RESOURCE_EST<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_INTEL_LLVM<span class="o">=</span><span class="m">0</span>
+</code></pre></div><p>For compilation on a HPC system, with access to Intel MPI and the Intel Compiler (<code>mpiicpc</code>), we recommend:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">./setup_env.sh
+<span class="nb">source</span> ./load_env.sh
+<span class="nb">cd</span> build 
+cmake .. <span class="se">\
+</span><span class="se"></span>-DCMAKE_C_COMPILER<span class="o">=</span>mpiicc <span class="se">\
+</span><span class="se"></span>-DCMAKE_CXX_COMPILER<span class="o">=</span>mpiicpc <span class="se">\
+</span><span class="se"></span>-DENABLE_TESTS<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_LOGGING<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_PYTHON<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_MPI<span class="o">=</span><span class="m">1</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_NATIVE<span class="o">=</span>ON <span class="se">\
+</span><span class="se"></span>-DIqsMPI<span class="o">=</span>ON <span class="se">\
+</span><span class="se"></span>-DIqsMKL<span class="o">=</span>ON <span class="se">\
+</span><span class="se"></span>-DENABLE_INTEL_LLVM<span class="o">=</span><span class="m">0</span> <span class="se">\
+</span><span class="se"></span>-DENABLE_RESOURCE_EST<span class="o">=</span><span class="m">0</span>
+</code></pre></div><h1 id="hard-mode-macos">Hard-mode: MacOS</h1>
+<p>Given the recent move in MacOS (10.15.x) to remove certain header file directories, not all dependencies will compile. As such, it is recommended to install a compiler suite and MPI library using an alternative package management solution (we recommend MacPorts, but we assume brew should also work). One may attempt to build the compilers from source, but this has become incredibly arduous. Assuming an installed MacPorts environment, we had success using the following:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">sudo port install openmpi-devel-gcc9
+sudo port install openmpi-devel-gcc9-fortran
+sudo port <span class="k">select</span> --set mpi openmpi-devel-gcc9-fortran
+</code></pre></div><p>With the environment correctly setup, the Linux laptop/desktop solution should work fine from this point.</p>
+<hr>
+<h1 id="testing-installation">Testing installation</h1>
+<p>To assess whether the built libraries and binaries are correctly working, we can run some sample tests.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ./load_env.sh
+<span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span> ./build/modules/test/tests <span class="s2">&#34;[diffusion]&#34;</span>
+<span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span> ./build/modules/test/tests <span class="s2">&#34;[ncu]&#34;</span>
+</code></pre></div><p>The above commands should verify the C++ modules work correctly. To verify if the Python modules are working correctly, we can attempt to import the newly built packages into the Python environment, and create a simulator object with</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ./load_env.sh
+python -c <span class="s2">&#34;import QNLP as q; import PyQNLPSimulator as p; num_qubits = 8; sim = p(num_qubits, False); p.PrintStates(\&#34;Test\&#34;, []);&#34;</span>
+</code></pre></div><p>The above command will load the necessary modules into the Python environment, create a simulator of 8 qubits, and print out the state coefficients. If all succeeds, the environment has been correctly set. Additionally, we can use start the <code>jupyter notebook</code> environment and run a sample notebook, located at <code>&lt;QNLP_ROOT&gt;/modules/py/nb</code> to further investigate.</p>
+<div class="edit-meta">
+Last updated on 1 Mar 2020
+
+
+<br>
+Published on 1 Mar 2020
+<br><a href="install/_index.md/edit/master/content/install/_index.md" class="edit-page"><i class="fas fa-pen-square"></i> Edit on GitHub</a></div><nav class="pagination"><a class="nav nav-prev" href="/examples/vqe/" title="VQE usage example"><i class="fas fa-arrow-left" aria-hidden="true"></i> Prev - VQE usage example</a>
+<a class="nav nav-next" href="/examples/" title="Example library usage">Next - Example library usage <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+</nav><footer><p class="powered">Powered by <a href="https://gohugo.io">Hugo</a>. Theme by <a href="https://themes.gohugo.io/hugo-theme-techdoc/">TechDoc</a>. Designed by <a href="https://github.com/thingsym/hugo-theme-techdoc">Thingsym</a>.</p>
+</footer>
+</main><div class="sidebar">
+
+<nav class="slide-menu">
+<ul>
+<li class=""><a href="/">Home</a></li>
+
+<li class=" has-sub-menu"><a href="/examples/">Example library usage<span class="mark closed">+</span></a>
+  
+<ul class="sub-menu">
+
+<li class=""><a href="/examples/large_scale/">Distributed QNLP example</a>
+  
+</li>
+
+<li class=""><a href="/examples/float_encode/">Encoding data into state coefficients</a>
+  
+</li>
+
+<li class=""><a href="/examples/pre_proc_params/">Example of parameter analysis</a>
+  
+</li>
+
+<li class=""><a href="/examples/gate_ops/">GateOps usage example</a>
+  
+</li>
+
+<li class=""><a href="/examples/qnlp_python/">QNLP example</a>
+  
+</li>
+
+<li class=""><a href="/examples/vqe/">VQE usage example</a>
+  
+</li>
+</ul>
+  
+</li>
+
+<li class="parent active"><a href="/install/">Installation instructions</a>
+  
+</li>
+</ul>
+</nav>
+
+
+
+<div class="sidebar-footer"></div>
+</div>
+</div><a href="#" id="backtothetop-fixed" class="backtothetop"
+ data-backtothetop-duration="600"
+ data-backtothetop-easing="easeOutQuart"
+ data-backtothetop-fixed-fadeIn="1000"
+ data-backtothetop-fixed-fadeOut="1000"
+ data-backtothetop-fixed-bottom="10"
+ data-backtothetop-fixed-right="20">
+<span class="fa-layers fa-fw">
+<i class="fas fa-circle"></i>
+<i class="fas fa-arrow-circle-up"></i>
+</span></a>
+</div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<map id="QNLP::CorpusUtils::getDBHelper" name="QNLP::CorpusUtils::getDBHelper">
+<area shape="rect" id="node1" title="Return reference to database object." alt="" coords="387,35,529,76"/>
+<area shape="rect" id="node2" href="$a00816.html#a08f5a10ceb491e48a23441e911fd1bef" title="Loads from the database for a given data type (noun, verb, etc)" alt="" coords="196,5,339,47"/>
+<area shape="rect" id="node4" href="$a00062.html#a0e2ecf667d79c9a9fad211d5f01e8cad" title="Testing default constructor and subsequent functions on CorpusUtils class." alt="" coords="27,71,127,98"/>
+<area shape="rect" id="node3" href="$a00816.html#aad441e05011bb48b44463ab052e23dee" title="Print the data with given type." alt="" coords="5,5,148,47"/>
+</map>

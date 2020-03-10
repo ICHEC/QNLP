@@ -1,0 +1,4 @@
+<map id="QNLP::DBHelper::openDB" name="QNLP::DBHelper::openDB">
+<area shape="rect" id="node1" title="Opens the requested database, and gives the return code of the operation. If the DB pointer has alrea..." alt="" coords="5,5,184,32"/>
+<area shape="rect" id="node2" href="$a00811.html#acd7fadbcddf0a0bf6e623d930758feba" title="Closes the database if the DB pointer is open." alt="" coords="232,5,412,32"/>
+</map>

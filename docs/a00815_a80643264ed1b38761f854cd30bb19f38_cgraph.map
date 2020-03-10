@@ -1,0 +1,5 @@
+<map id="QNLP::GateWriter::oneQubitGateCall" name="QNLP::GateWriter::oneQubitGateCall">
+<area shape="rect" id="node1" title="Writes the single qubit gate to disk. &#45;1 used to denote lack of control line." alt="" coords="5,5,197,47"/>
+<area shape="rect" id="node2" href="$a00815.html#ade2a26f7e5714f58f53f49decd08c3a3" title="Writes the controlled gate to disk." alt="" coords="245,5,436,47"/>
+<area shape="rect" id="node3" href="$a00815.html#ad5e23c7aebc116526577d01c487f1ece" title="Writes the given matrix to matrix_val_out. Assumes matrix type is printable." alt="" coords="484,13,669,39"/>
+</map>

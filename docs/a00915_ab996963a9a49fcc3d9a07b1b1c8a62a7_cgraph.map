@@ -1,0 +1,5 @@
+<map id="QNLP::IntelSimulator::applyGateCCX" name="QNLP::IntelSimulator::applyGateCCX">
+<area shape="rect" id="node1" title="Controlled controlled NOT (CCNOT, CCX) gate." alt="" coords="5,39,152,80"/>
+<area shape="rect" id="node2" href="$a00923.html#a913db3f649fd704afcf75f4f8e9789de" title="Apply n&#45;control unitary gate to the given qubit target." alt="" coords="200,5,424,47"/>
+<area shape="rect" id="node3" href="$a00915.html#a7c706fbd851f173bdd16256612a9aff3" title="Get the Pauli&#45;X gate." alt="" coords="239,71,385,112"/>
+</map>

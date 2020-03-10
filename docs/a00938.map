@@ -1,0 +1,3 @@
+<map id="QNLP::GateMetaDataHasher" name="QNLP::GateMetaDataHasher">
+<area shape="rect" id="node1" title="Hashing function for GateMetaData objects, to allow storage in unordered_map. Taken from default docs..." alt="" coords="5,5,201,83"/>
+</map>

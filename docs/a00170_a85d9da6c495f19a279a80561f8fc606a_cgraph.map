@@ -1,0 +1,5 @@
+<map id="TEST_CASE" name="TEST_CASE">
+<area shape="rect" id="node1" title="Tests creating a simulator (in this case, the Intel&#45;QS), for a variety of different qubit counts,..." alt="" coords="5,46,105,73"/>
+<area shape="rect" id="node2" href="$a00915.html#a6f85ad3d770635f47de48628c7d30335" title="Get the number of Qubits." alt="" coords="153,5,300,47"/>
+<area shape="rect" id="node3" href="$a00915.html#ad8f8e0e08d4154218c80c863b2a53748" title="Get the Qubit Register object." alt="" coords="153,71,300,112"/>
+</map>

@@ -1,0 +1,3 @@
+<map id="QNLP::SimulatorGeneral::applyQFT" name="QNLP::SimulatorGeneral::applyQFT">
+<area shape="rect" id="node1" title="Apply the forward Quantum Fourier transform (QFT) to the given register index range." alt="" coords="5,29,175,71"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="QNLP::Diffusion::applyOpDiffusion" name="QNLP::Diffusion::applyOpDiffusion">
+<area shape="rect" id="node1" title="Application of the Grover diffusion operator to already marked register. Follows the Q = &#45;A S_0 A str..." alt="" coords="271,35,445,76"/>
+<area shape="rect" id="node2" href="$a00932.html#a4cfa1a862e7bb752f703f0c4234959f1" title="Apply diffusion operator on marked state." alt="" coords="5,5,223,47"/>
+<area shape="rect" id="node3" href="$a00023.html#ae682e24553f8f30ff78f23c26e8a3234" title="Test diffusion for 4 qubits." alt="" coords="64,71,164,98"/>
+</map>

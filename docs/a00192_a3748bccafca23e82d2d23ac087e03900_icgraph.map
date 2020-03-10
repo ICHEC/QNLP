@@ -1,0 +1,7 @@
+<map id="QNLP::adjointMatrix" name="QNLP::adjointMatrix">
+<area shape="rect" id="node1" title="Function to calculate the adjoint of an input matrix." alt="" coords="515,56,656,83"/>
+<area shape="rect" id="node2" href="$a00944.html#a73d3cc86f14e6a3ea47aa303be3b7dcd" title="Adds new gate to the cache up to a given sqrt depth." alt="" coords="5,5,223,32"/>
+<area shape="rect" id="node3" href="$a00944.html#a95442ce889592b1c3002b4a1ccfbc91e" title="Initialise the gate cache with PauliX,Y,Z and H up to a given sqrt depth." alt="" coords="271,56,467,83"/>
+<area shape="rect" id="node5" href="$a00074.html#a32c9d346555750707faf31070a636fde" title=" " alt="" coords="289,107,448,133"/>
+<area shape="rect" id="node4" href="$a00944.html#a6b8cd384df6f5025339a1d8f9f306803" title=" " alt="" coords="10,56,218,83"/>
+</map>

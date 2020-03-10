@@ -1,0 +1,5 @@
+<map id="QNLP::EncodeBinIntoSuperpos::encodeBinInToSuperpos_unique" name="QNLP::EncodeBinIntoSuperpos::encodeBinInToSuperpos_unique">
+<area shape="rect" id="node1" title="Encodes each element of inputted vector as a binary string in a superpostiion of states...." alt="" coords="251,46,475,87"/>
+<area shape="rect" id="node2" href="$a00923.html#a203ad2c406b64490353acab47987b21b" title="Encode inputted binary strings to the memory register specified as a superposition of states...." alt="" coords="5,5,203,61"/>
+<area shape="rect" id="node3" href="$a00005.html#a5f0af8ae736d813faee6b7867d24d5a0" title="Test binary encoding basic implementation." alt="" coords="54,85,154,112"/>
+</map>

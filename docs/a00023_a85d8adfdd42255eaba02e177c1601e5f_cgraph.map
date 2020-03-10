@@ -1,0 +1,5 @@
+<map id="TEST_CASE" name="TEST_CASE">
+<area shape="rect" id="node1" title="Test diffusion for 8 qubits." alt="" coords="5,42,105,69"/>
+<area shape="rect" id="node2" href="$a00783.html#a40c8d0cf661ca7c851709b746b7316ae" title="Application of the Grover diffusion operator to already marked register. Follows the Q = &#45;A S_0 A str..." alt="" coords="161,5,336,47"/>
+<area shape="rect" id="node3" href="$a00795.html#ac75ed4a67e90d65a5290df33fa25ab89" title="Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropri..." alt="" coords="153,71,344,98"/>
+</map>

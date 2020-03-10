@@ -1,0 +1,4 @@
+<map id="QNLP::NCU::get_ops_for_params" name="QNLP::NCU::get_ops_for_params">
+<area shape="rect" id="node1" title="Helper method to get optimised number of 2&#45;gate ops for given decomposition params." alt="" coords="5,5,155,47"/>
+<area shape="rect" id="node2" href="$a00787.html#a2f8a86e0603ce137658f27a2f9b30b72" title="Returns the number of 2&#45;qubit operations a non optimised decomposition will make. Cache intermediate ..." alt="" coords="203,13,380,39"/>
+</map>

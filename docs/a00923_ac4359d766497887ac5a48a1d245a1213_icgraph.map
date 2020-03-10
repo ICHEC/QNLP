@@ -1,0 +1,4 @@
+<map id="QNLP::SimulatorGeneral::applyGateX" name="QNLP::SimulatorGeneral::applyGateX">
+<area shape="rect" id="node1" title="Apply the Pauli X gate to the given qubit." alt="" coords="247,13,416,54"/>
+<area shape="rect" id="node2" href="$a00923.html#a2cc0205185d34a8756670fa138666b5e" title="Encodes a defined binary pattern into a defined target register (initially in state |00...." alt="" coords="5,5,199,61"/>
+</map>

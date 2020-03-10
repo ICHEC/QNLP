@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGateSwap" name="QNLP::IntelSimulator::applyGateSwap">
+<area shape="rect" id="node1" title="Swap the qubits at the given indices." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00915.html#a887bd799dbd0b5ce4bb556d6e6a87c2e" title="Get the Identity." alt="" coords="200,5,347,47"/>
+</map>

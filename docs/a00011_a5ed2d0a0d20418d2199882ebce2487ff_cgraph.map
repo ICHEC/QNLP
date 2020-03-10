@@ -1,0 +1,4 @@
+<map id="TEST_CASE" name="TEST_CASE">
+<area shape="rect" id="node1" title="Test Arithmetic: Summation." alt="" coords="5,5,105,32"/>
+<area shape="rect" id="node2" href="$a00784.html#a29e3185170daede8ab843318ff70d62e" title="Implements |r1&gt;|r2&gt; &#45;&gt; |r1&gt;|r1+r2&gt;. Required bits to represent |r1+r2&gt; should be available prior to c..." alt="" coords="153,5,337,32"/>
+</map>

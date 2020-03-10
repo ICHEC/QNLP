@@ -1,0 +1,5 @@
+<map id="QNLP::IntelSimulator::collapseToBasisZ" name="QNLP::IntelSimulator::collapseToBasisZ">
+<area shape="rect" id="node1" title="Apply measurement to a target qubit with respect to the Z&#45;basis, collapsing to a specified value (0 o..." alt="" coords="5,39,152,80"/>
+<area shape="rect" id="node2" href="$a00924.html#ad994a3061e6e9901f81a1a872852baf5" title="Apply normalization to the amplitudes of each state. This is required after a qubit in a state is col..." alt="" coords="200,5,353,47"/>
+<area shape="rect" id="node3" href="$a00924.html#a1e3a2ffb531f7f8fbbe032619e9be1f3" title="Collapses specified qubit in register to the collapseValue without applying normalization." alt="" coords="203,71,350,112"/>
+</map>

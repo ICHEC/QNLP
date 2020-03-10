@@ -1,0 +1,5 @@
+<map id="QNLP::CorpusUtils::loadData" name="QNLP::CorpusUtils::loadData">
+<area shape="rect" id="node1" title="Loads from the database for a given data type (noun, verb, etc)" alt="" coords="196,35,339,76"/>
+<area shape="rect" id="node2" href="$a00816.html#aad441e05011bb48b44463ab052e23dee" title="Print the data with given type." alt="" coords="5,5,148,47"/>
+<area shape="rect" id="node3" href="$a00062.html#a0e2ecf667d79c9a9fad211d5f01e8cad" title="Testing default constructor and subsequent functions on CorpusUtils class." alt="" coords="27,71,127,98"/>
+</map>

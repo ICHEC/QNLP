@@ -1,0 +1,27 @@
+var searchData=
+[
+  ['n',['n',['../a00791.html#a10b79b69948fd791246bb7a605dd8dff',1,'QNLP::NCU::OptParamsCX']]],
+  ['n1',['n1',['../a00209.html#aa0fd3b06b9439845bb6308e40adab297',1,'QNLP::tagging::test_tagging']]],
+  ['n2',['n2',['../a00209.html#a31dcf3b0c4e37624e1c8c9cd6e4776cd',1,'QNLP::tagging::test_tagging']]],
+  ['name',['name',['../a00187.html#a2e5f59f560334c423c34feed10d8302d',1,'PyQNLPSimulator.name()'],['../a00188.html#ab3a7a0638d76a01367c5bc3cc699447f',1,'setup.name()'],['../a00189.html#ad230d0147fb4bc8e61e075633f557ff3',1,'CircuitPrinter.name()'],['../a00186.html#a02a0e8115a4194a830e5cbc1031533ab',1,'QNLP.name()'],['../a00191.html#a903537f7d00ca6f3c0eb36bfa797e533',1,'QNLP.encoding.name()'],['../a00197.html#a4876b4d008c4c63e28156732b395cac1',1,'QNLP.io.name()'],['../a00199.html#a3c0df151958874ab87c77067cbad1b5a',1,'QNLP.proc.name()'],['../a00207.html#a35ac3db17747cca845d3e8383d96a76b',1,'QNLP.tagging.name()']]],
+  ['name_5fto_5fbin',['name_to_bin',['../a00807.html#ab309b912a4ad0dd8bb185d15fbbbaaf0',1,'QNLP::CorpusUtils']]],
+  ['normalise',['normalise',['../a00214.html#a9d53415a76ca38c870040257faff1944',1,'QNLP_EndToEnd_MPI.normalise()'],['../a00215.html#a8473da92757e159d924ade0088279ec0',1,'QNLP_Overlap.normalise()'],['../a00216.html#a7f67f08e593ce591f4f387c2a2b65b1d',1,'QNLP_Python_MPI.normalise()']]],
+  ['noun_5fdist',['noun_dist',['../a00214.html#aac0268f258b277843c0e69a46a6dbf35',1,'QNLP_EndToEnd_MPI.noun_dist()'],['../a00215.html#a7bca0bf5eec3b351beedd3c557bd70fd',1,'QNLP_Overlap.noun_dist()']]],
+  ['nouns',['nouns',['../a00208.html#a42bfe6d19cd8c27f1ee96e982398ec71',1,'QNLP::tagging::tag_file']]],
+  ['ns',['ns',['../a00214.html#a4df2c00ce6e7a615301e585bde4b5ee1',1,'QNLP_EndToEnd_MPI']]],
+  ['num',['num',['../a00214.html#a888db0fff31a74b6cbb4adce00fbb217',1,'QNLP_EndToEnd_MPI.num()'],['../a00215.html#ad46953802b616f6b2cb7944b88e0ddfa',1,'QNLP_Overlap.num()'],['../a00216.html#aaa85738b6a74e71b5b1d447526cad8b1',1,'QNLP_Python_MPI.num()']]],
+  ['num_5fbasis_5fnoun',['NUM_BASIS_NOUN',['../a00214.html#a57d791d2403f8cf99519a9367c87ec1a',1,'QNLP_EndToEnd_MPI.NUM_BASIS_NOUN()'],['../a00215.html#a059c959a22a944060a86cc97ec6f575c',1,'QNLP_Overlap.NUM_BASIS_NOUN()']]],
+  ['num_5fbasis_5fverb',['NUM_BASIS_VERB',['../a00214.html#a57d9e919730365f73df5ee6e972e3cbf',1,'QNLP_EndToEnd_MPI.NUM_BASIS_VERB()'],['../a00215.html#a0607a72d2a3b6adfbfc6809527aee774',1,'QNLP_Overlap.NUM_BASIS_VERB()']]],
+  ['num_5fbin_5fpattern',['num_bin_pattern',['../a00216.html#aca9980a407ffa95156df8e719cad9671',1,'QNLP_Python_MPI']]],
+  ['num_5fbits',['num_bits',['../a00863.html#a788db3173b76c99f54ffc7a5a5f3865b',1,'QNLP::proc::HammingDistance::HammingDistance']]],
+  ['num_5fctrl',['num_ctrl',['../a00213.html#a3d372e43ed764b859c4abf5c30f1eaca',1,'ncu_opt_tester']]],
+  ['num_5fexps',['num_exps',['../a00214.html#a2a96b15e95e240274f7b71508f0f8f24',1,'QNLP_EndToEnd_MPI.num_exps()'],['../a00215.html#a06816342e6752328d31e75a6fa02fe63',1,'QNLP_Overlap.num_exps()'],['../a00216.html#aaa6f8b7f0b97c1b28458f8fb9cc036f8',1,'QNLP_Python_MPI.num_exps()']]],
+  ['num_5ffaults',['num_faults',['../a00214.html#aac49c0e845c4ce6c00fb001bcf1dd19d',1,'QNLP_EndToEnd_MPI.num_faults()'],['../a00215.html#a87107a4cf8576fdccabdd1e624ab6c18',1,'QNLP_Overlap.num_faults()']]],
+  ['num_5fgate_5fops',['num_gate_ops',['../a00787.html#a1f01335e87242dd9064ae46ea71eb003',1,'QNLP::NCU']]],
+  ['num_5fnouns',['num_nouns',['../a00847.html#a746112b0d8ae598fcaf38efcdb4ba107',1,'QNLP::encoding::simple::SimpleEncoder']]],
+  ['num_5fops',['num_ops',['../a00791.html#a847840a2a2b0aa04eba08d27d919bb2e',1,'QNLP::NCU::OptParamsCX']]],
+  ['num_5fqubits',['num_qubits',['../a00831.html#afeed353ab324f4b99ac7179f6a05063f',1,'CircuitPrinter.circuit_printer.CircuitPrinter.num_qubits()'],['../a00213.html#ad54bd3edd6e2c0a52332aa802f24b406',1,'ncu_opt_tester.num_qubits()'],['../a00214.html#a2a22514b33ad2d3446663a98fff82050',1,'QNLP_EndToEnd_MPI.num_qubits()'],['../a00215.html#aa788128e200f2c0662a1a11d99126894',1,'QNLP_Overlap.num_qubits()'],['../a00216.html#a28de728735e28bab1bd00184494ddfce',1,'QNLP_Python_MPI.num_qubits()'],['../a00217.html#ab2fe0ce54784c7e93f904c4d935f3e4c',1,'simple_MPI.num_qubits()']]],
+  ['num_5fverbs',['num_verbs',['../a00847.html#aeda602fbb9588a99eb528cff608e7f9f',1,'QNLP::encoding::simple::SimpleEncoder']]],
+  ['numqubits',['numQubits',['../a00915.html#a76bc3e5b319aa1bda8b10ad422664b35',1,'QNLP::IntelSimulator']]],
+  ['nvn_5fspace_5fsize',['nvn_space_size',['../a00208.html#a329a01cbab330ef79df2e3a14cb96f1c',1,'QNLP::tagging::tag_file']]]
+];

@@ -1,0 +1,5 @@
+<map id="QNLP::Oracle::bitStringPhaseOracle" name="QNLP::Oracle::bitStringPhaseOracle">
+<area shape="rect" id="node1" title="Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropri..." alt="" coords="296,35,495,76"/>
+<area shape="rect" id="node2" href="$a00923.html#a99156d389719269b2324aa362d4047e4" title="Apply oracle to match given binary index with linearly adjacent controls." alt="" coords="5,5,248,47"/>
+<area shape="rect" id="node3" href="$a00035.html#afa3c603d63f2fb06263c8b147d803a45" title="Test 3 qubit Oracle standalone class." alt="" coords="77,71,177,98"/>
+</map>

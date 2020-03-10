@@ -1,0 +1,5 @@
+<map id="QNLP::IntelSimulator::applyAmplitudeNorm" name="QNLP::IntelSimulator::applyAmplitudeNorm">
+<area shape="rect" id="node1" title="Apply normalization to the amplitudes of each state. This is required after a qubit in a state is col..." alt="" coords="200,39,353,80"/>
+<area shape="rect" id="node2" href="$a00924.html#a1f4431219d1382604100f5a121b0cacd" title="Apply measurement to a target qubit, randomly collapsing the qubit proportional to the amplitude and ..." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node3" href="$a00924.html#a9bf211252e52181d0fb6a40845a5cd10" title="Apply measurement to a target qubit with respect to the Z&#45;basis, collapsing to a specified value (0 o..." alt="" coords="5,71,152,112"/>
+</map>

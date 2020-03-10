@@ -1,0 +1,8 @@
+<map id="QNLP::Oracle::bitStringNCU" name="QNLP::Oracle::bitStringNCU">
+<area shape="rect" id="node1" title="Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropri..." alt="" coords="559,78,749,105"/>
+<area shape="rect" id="node2" href="$a00932.html#af63bd0c42ec6867678ada3d48866cd49" title="Apply oracle to match given binary index with non adjacent controls." alt="" coords="296,5,511,47"/>
+<area shape="rect" id="node3" href="$a00804.html#a2cc495625d533fa8f099a136330203f8" title="Takes bitstring as the binary pattern and indices as the qubits to operate upon. Applies the appropri..." alt="" coords="304,71,503,112"/>
+<area shape="rect" id="node6" href="$a00023.html#ae682e24553f8f30ff78f23c26e8a3234" title="Test diffusion for 4 qubits." alt="" coords="353,137,453,163"/>
+<area shape="rect" id="node4" href="$a00035.html#afa3c603d63f2fb06263c8b147d803a45" title="Test 3 qubit Oracle standalone class." alt="" coords="77,49,177,75"/>
+<area shape="rect" id="node5" href="$a00932.html#a99156d389719269b2324aa362d4047e4" title="Apply oracle to match given binary index with linearly adjacent controls." alt="" coords="5,100,248,141"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="QNLP::CorpusUtils::getNameToBin" name="QNLP::CorpusUtils::getNameToBin">
+<area shape="rect" id="node1" title="Get the NTB object. This is a map of maps, wherein the first key represents the grammatical type to l..." alt="" coords="153,5,296,47"/>
+<area shape="rect" id="node2" href="$a00062.html#a0e2ecf667d79c9a9fad211d5f01e8cad" title="Testing default constructor and subsequent functions on CorpusUtils class." alt="" coords="5,13,105,39"/>
+</map>

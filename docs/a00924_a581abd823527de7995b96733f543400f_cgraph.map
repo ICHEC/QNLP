@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::initRegister" name="QNLP::IntelSimulator::initRegister">
+<area shape="rect" id="node1" title="(Re)Initialise the underlying register of the encapsulated simulator to well&#45;defined state (|0...." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00932.html#a363ca18f6710cc1f4bcdb0f4f27aa197" title="Initialise caches used in NCU operation." alt="" coords="200,5,396,47"/>
+</map>

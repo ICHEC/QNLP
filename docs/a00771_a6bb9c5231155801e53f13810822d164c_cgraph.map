@@ -1,0 +1,4 @@
+<map id="QNLP::EncodeBinIntoSuperpos::EncodeBinIntoSuperpos" name="QNLP::EncodeBinIntoSuperpos::EncodeBinIntoSuperpos">
+<area shape="rect" id="node1" title="Construct a new object instance to encode a binary string into a superposition." alt="" coords="5,5,215,47"/>
+<area shape="rect" id="node2" href="$a00771.html#a593ca644327029f9b4759686aa89d861" title="Initialiser of the encoder (define the required PauliX and the unitary matrix S)" alt="" coords="263,5,472,47"/>
+</map>

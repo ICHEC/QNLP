@@ -1,0 +1,5 @@
+<map id="QNLP::IntelSimulator::applyGateSqrtX" name="QNLP::IntelSimulator::applyGateSqrtX">
+<area shape="rect" id="node1" title="Apply the Sqrt{Pauli X} gate to the given qubit." alt="" coords="5,39,152,80"/>
+<area shape="rect" id="node2" href="$a00924.html#a7c706fbd851f173bdd16256612a9aff3" title="Get the Pauli&#45;X gate." alt="" coords="224,5,371,47"/>
+<area shape="rect" id="node3" href="$a00932.html#acdbbba66d5941954ed70b9edc0e5174d" title="Calculates the unitary matrix square root (U == VV, where V is returned)" alt="" coords="200,71,395,112"/>
+</map>

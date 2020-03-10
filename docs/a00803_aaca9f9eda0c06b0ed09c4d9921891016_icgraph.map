@@ -1,0 +1,4 @@
+<map id="QNLP::HammingDistance::computeHammingDistanceRotY" name="QNLP::HammingDistance::computeHammingDistanceRotY">
+<area shape="rect" id="node1" title="Computes Hamming Distance; adjusts each state&#39;s amplitude proportional to the Hamming distance betwee..." alt="" coords="276,13,495,54"/>
+<area shape="rect" id="node2" href="$a00923.html#a879f5f6c2a27305df3b5f0a8ab7552a9" title="Computes the relative Hamming distance between the test pattern and the pattern stored in each state ..." alt="" coords="5,5,228,61"/>
+</map>

@@ -1,0 +1,3 @@
+<map id="QNLP::Singleton" name="QNLP::Singleton">
+<area shape="rect" id="node1" title="Follows the Meyers singleton pattern, allowing thread&#45;safe access to singleton object." alt="" coords="5,5,127,171"/>
+</map>

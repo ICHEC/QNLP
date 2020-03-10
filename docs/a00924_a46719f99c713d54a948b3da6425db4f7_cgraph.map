@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGateCZ" name="QNLP::IntelSimulator::applyGateCZ">
+<area shape="rect" id="node1" title="Apply Controlled Pauli&#45;Z on target qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00924.html#a129cbf4d467a90ee41b23378059060a5" title="Get the Pauli&#45;Z gate." alt="" coords="200,5,347,47"/>
+</map>

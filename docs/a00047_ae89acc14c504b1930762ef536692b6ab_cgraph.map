@@ -1,0 +1,5 @@
+<map id="TEST_CASE" name="TEST_CASE">
+<area shape="rect" id="node1" title="Test the Hamming distance routine which uses Y rotations to encode the Hamming distance into each sta..." alt="" coords="5,5,105,32"/>
+<area shape="rect" id="node2" href="$a00047.html#a4be4f5c2c5e599480bcf6a7512fee991" title="Classically calculates the Hamming distance between each binary string in a vector and a test binary ..." alt="" coords="153,5,295,32"/>
+<area shape="rect" id="node3" href="$a00047.html#a3b716dfdec258cd27d294babbcc7f4c8" title="Calulates the Hamming distance between two binary strings stored as integers." alt="" coords="343,5,473,32"/>
+</map>

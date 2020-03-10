@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['calc',['calc',['../a00863.html#a83400e2458ff66397404fefaf4932916',1,'QNLP.proc.HammingDistance.HammingDistance.calc()'],['../a00867.html#af09e4ba0e1017b75fe3a0544b920a874',1,'QNLP.proc.HammingDistance.HammingDistanceExpITheta.calc()'],['../a00871.html#a47bea8cc6f74389cbca1c6162f017a0e',1,'QNLP.proc.HammingDistance.HammingDistanceOverwriteAux.calc()'],['../a00875.html#abfa6ef50d3ca08a5d1afdc03dff77af2',1,'QNLP.proc.HammingDistance.HammingDistanceGroupRotate.calc()']]],
+  ['calc_5fdiff_5fmatrix',['calc_diff_matrix',['../a00883.html#a3d85197fa7b4034a62a2331db41a4b19',1,'QNLP::proc::VectorSpaceModel::VectorSpaceModel']]],
+  ['calc_5fhammingdist',['calc_hammingDist',['../a00047.html#a3b716dfdec258cd27d294babbcc7f4c8',1,'test_hamming.cpp']]],
+  ['calc_5fverb_5fnoun_5fpairings',['calc_verb_noun_pairings',['../a00887.html#af5b56d571690a2250372287be0c78581',1,'QNLP::proc::VerbGraph::VerbGraph']]],
+  ['clearcache',['clearCache',['../a00935.html#a68f8956bf69b2c4df61d30adc5c0fa3a',1,'QNLP::GateCache']]],
+  ['cleardata',['clearData',['../a00807.html#aabdc33bfe8dfb43c4c0a05b2e891f68e',1,'QNLP::CorpusUtils']]],
+  ['clearmaps',['clearMaps',['../a00787.html#a18bd36e85b79be7bd482f26cda350d85',1,'QNLP::NCU']]],
+  ['close_5fdb',['close_db',['../a00851.html#ace04bfcd7baa49a42d9d5e3b511b3690',1,'QNLP::io::qnlp_db::qnlp_db']]],
+  ['closedb',['closeDB',['../a00811.html#acd7fadbcddf0a0bf6e623d930758feba',1,'QNLP::DBHelper']]],
+  ['collapsequbit',['collapseQubit',['../a00915.html#a1e3a2ffb531f7f8fbbe032619e9be1f3',1,'QNLP::IntelSimulator']]],
+  ['collapsetobasisz',['collapseToBasisZ',['../a00915.html#a9bf211252e52181d0fb6a40845a5cd10',1,'QNLP::IntelSimulator::collapseToBasisZ()'],['../a00923.html#a6eb9d8d81ad94adddc1b30e03300e741',1,'QNLP::SimulatorGeneral::collapseToBasisZ()']]],
+  ['computehammingdistanceoverwriteaux',['computeHammingDistanceOverwriteAux',['../a00803.html#a5e9e3661eaaeb0b049cc18e879221b91',1,'QNLP::HammingDistance']]],
+  ['computehammingdistanceroty',['computeHammingDistanceRotY',['../a00803.html#aaca9f9eda0c06b0ed09c4d9921891016',1,'QNLP::HammingDistance']]],
+  ['computeoverlap',['computeOverlap',['../a00827.html#ace44a34037e0b00fe4e494e225e9e947',1,'IntelSimPy']]],
+  ['connect_5fdb',['connect_db',['../a00851.html#afdbcd80879d62afc8a0648d77b2a024c',1,'QNLP::io::qnlp_db::qnlp_db']]],
+  ['corpusutils',['CorpusUtils',['../a00807.html#aff475b16bbdbbd4d37f6bd5de35e011d',1,'QNLP::CorpusUtils::CorpusUtils()'],['../a00807.html#ae6fb3dd451d2866b9ae9705e56bfc8ab',1,'QNLP::CorpusUtils::CorpusUtils(const std::string filename)']]],
+  ['create_5ftable',['create_table',['../a00851.html#ab934fb88819f71af4091591536edf94f',1,'QNLP::io::qnlp_db::qnlp_db']]],
+  ['create_5ftable_5fdiscocat',['create_table_discocat',['../a00855.html#aad278c383ab0306cab73674f156ac549',1,'QNLP::proc::DisCoCat::qdb_mixin']]],
+  ['createlgraph',['createLGraph',['../a00887.html#a21a7559830473cac84caed48f85a0fa0',1,'QNLP::proc::VerbGraph::VerbGraph']]],
+  ['creatergraph',['createRGraph',['../a00887.html#a45d663fdf3e91edd64923fd7da58548c',1,'QNLP::proc::VerbGraph::VerbGraph']]],
+  ['createu',['createU',['../a00819.html#aed0978e4778764b8edbc82af8f6807f7',1,'PyQNLPSimulator::GateOps']]],
+  ['ctrl_5fline_5fcolumn',['ctrl_line_column',['../a00831.html#a6687a15eea04145518a00692a341209c',1,'CircuitPrinter::circuit_printer::CircuitPrinter']]]
+];

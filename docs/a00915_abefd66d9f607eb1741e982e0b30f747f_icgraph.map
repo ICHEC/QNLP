@@ -1,0 +1,5 @@
+<map id="QNLP::IntelSimulator::getGateH" name="QNLP::IntelSimulator::getGateH">
+<area shape="rect" id="node1" title="Get the Hadamard gate." alt="" coords="200,39,347,80"/>
+<area shape="rect" id="node2" href="$a00915.html#a6bcf77000411cf461ab73ebf0854cded" title="Apply Controlled Hadamard on target qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node3" href="$a00915.html#a4a4f93789161c8f6db5e90af27a17926" title="Apply the Hadamard gate to the given qubit." alt="" coords="5,71,152,112"/>
+</map>

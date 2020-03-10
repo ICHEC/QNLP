@@ -1,0 +1,35 @@
+# Sample gitignore for common filetypes encountered in project
+
+#Do not include the generated environment file
+./load_env.sh
+./build/*
+
+#third_party downloads
+third_party/**/
+
+# Jupyter notebook
+.ipynb_checkpoints
+
+# Built objects
+__pycache__
+*.py[cod]
+*.so
+a.out*
+
+# OS and Editor
+.DS_Store
+../.vscode/
+
+# PDF and metadata
+*.pdf
+*.fdf
+
+# DB
+*.db
+*.sqlite
+
+# TeX generated code
+*.aux
+*.nav
+*.snm
+*.toc

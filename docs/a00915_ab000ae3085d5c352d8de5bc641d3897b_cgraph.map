@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGateCRotZ" name="QNLP::IntelSimulator::applyGateCRotZ">
+<area shape="rect" id="node1" title="Apply the given Controlled Rotation about Z&#45;axis to the given qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00915.html#a887bd799dbd0b5ce4bb556d6e6a87c2e" title="Get the Identity." alt="" coords="200,5,347,47"/>
+</map>

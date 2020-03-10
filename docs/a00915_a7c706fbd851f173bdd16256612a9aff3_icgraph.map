@@ -1,0 +1,8 @@
+<map id="QNLP::IntelSimulator::getGateX" name="QNLP::IntelSimulator::getGateX">
+<area shape="rect" id="node1" title="Get the Pauli&#45;X gate." alt="" coords="395,104,541,145"/>
+<area shape="rect" id="node2" href="$a00915.html#ab996963a9a49fcc3d9a07b1b1c8a62a7" title="Controlled controlled NOT (CCNOT, CCX) gate." alt="" coords="200,5,347,47"/>
+<area shape="rect" id="node3" href="$a00915.html#acdf09215d1b39443b770bca3275a340d" title="Apply Controlled Pauli&#45;X (CNOT) on target qubit." alt="" coords="200,71,347,112"/>
+<area shape="rect" id="node5" href="$a00915.html#a5c78cca0cfdd70e56fd5c228906c59d4" title="Apply the Sqrt{Pauli X} gate to the given qubit." alt="" coords="200,136,347,177"/>
+<area shape="rect" id="node6" href="$a00915.html#a3dbe650a7d4634a6c68c464dbc71cb43" title="Apply the Pauli X gate to the given qubit." alt="" coords="200,201,347,243"/>
+<area shape="rect" id="node4" href="$a00915.html#aa695c0a90d6d780a0f9962e3ac0d2b8f" title=" " alt="" coords="5,71,152,112"/>
+</map>

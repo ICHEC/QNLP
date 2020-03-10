@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::applyGateY" name="QNLP::IntelSimulator::applyGateY">
+<area shape="rect" id="node1" title="Apply the Pauli Y gate to the given qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node2" href="$a00924.html#ac99bc35f19ea72ba763b1e45d3911303" title="Get the Pauli&#45;Y gate." alt="" coords="200,5,347,47"/>
+</map>

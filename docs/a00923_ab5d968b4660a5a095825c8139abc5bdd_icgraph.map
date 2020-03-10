@@ -1,0 +1,4 @@
+<map id="QNLP::SimulatorGeneral::applyGateSwap" name="QNLP::SimulatorGeneral::applyGateSwap">
+<area shape="rect" id="node1" title="Swap the qubits at the given indices." alt="" coords="271,5,440,47"/>
+<area shape="rect" id="node2" href="$a00923.html#ae50f41419d061cef652876033aa7844c" title="Invert the register about the given indides: 0,1,2...n&#45;1,n &#45;&gt; n,n&#45;1,...,1,0." alt="" coords="5,5,223,47"/>
+</map>

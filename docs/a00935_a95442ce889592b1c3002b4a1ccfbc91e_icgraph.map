@@ -1,0 +1,5 @@
+<map id="QNLP::GateCache::initCache" name="QNLP::GateCache::initCache">
+<area shape="rect" id="node1" title="Initialise the gate cache with PauliX,Y,Z and H up to a given sqrt depth." alt="" coords="271,31,467,57"/>
+<area shape="rect" id="node2" href="$a00935.html#a73d3cc86f14e6a3ea47aa303be3b7dcd" title="Adds new gate to the cache up to a given sqrt depth." alt="" coords="5,5,223,32"/>
+<area shape="rect" id="node3" href="$a00935.html#a6b8cd384df6f5025339a1d8f9f306803" title=" " alt="" coords="10,56,218,83"/>
+</map>

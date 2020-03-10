@@ -1,0 +1,4 @@
+<map id="QNLP::IntelSimulator::getNumQubits" name="QNLP::IntelSimulator::getNumQubits">
+<area shape="rect" id="node1" title="Get the number of Qubits." alt="" coords="153,5,300,47"/>
+<area shape="rect" id="node2" href="$a00176.html#a85d9da6c495f19a279a80561f8fc606a" title="Tests creating a simulator (in this case, the Intel&#45;QS), for a variety of different qubit counts,..." alt="" coords="5,13,105,39"/>
+</map>

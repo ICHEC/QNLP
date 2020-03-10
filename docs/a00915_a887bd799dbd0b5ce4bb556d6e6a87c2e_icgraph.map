@@ -1,0 +1,11 @@
+<map id="QNLP::IntelSimulator::getGateI" name="QNLP::IntelSimulator::getGateI">
+<area shape="rect" id="node1" title="Get the Identity." alt="" coords="200,235,347,276"/>
+<area shape="rect" id="node2" href="$a00915.html#ac9eae7e6b74e12796655a5f142ccd32b" title="Apply the given Controlled Rotation about X&#45;axis to the given qubit." alt="" coords="5,5,152,47"/>
+<area shape="rect" id="node3" href="$a00915.html#a24f5444aac8c1c79c491f086e6871fb5" title="Apply the given Controlled Rotation about Y&#45;axis to the given qubit." alt="" coords="5,71,152,112"/>
+<area shape="rect" id="node4" href="$a00915.html#ab000ae3085d5c352d8de5bc641d3897b" title="Apply the given Controlled Rotation about Z&#45;axis to the given qubit." alt="" coords="5,136,152,177"/>
+<area shape="rect" id="node5" href="$a00915.html#a28932132916eef9cfbcc9c0bc992b40a" title="Apply the Identity gate to the given qubit." alt="" coords="5,201,152,243"/>
+<area shape="rect" id="node6" href="$a00915.html#a5410fae00e77298bb6a85cabd3eba4f0" title="Apply the given Rotation about X&#45;axis to the given qubit." alt="" coords="5,267,152,308"/>
+<area shape="rect" id="node7" href="$a00915.html#a36b27d528184068d64b92f7f8434b1dc" title="Apply the given Rotation about Y&#45;axis to the given qubit." alt="" coords="5,332,152,373"/>
+<area shape="rect" id="node8" href="$a00915.html#ab77ddab0c25debb25f5b894ff14c6c2e" title="Apply the given Rotation about Z&#45;axis to the given qubit." alt="" coords="5,397,152,439"/>
+<area shape="rect" id="node9" href="$a00915.html#a0dfad24a46b55360a0cd8c329d2bbe8f" title="Swap the qubits at the given indices." alt="" coords="5,463,152,504"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="QNLP::BitGroup::bit_group" name="QNLP::BitGroup::bit_group">
+<area shape="rect" id="node1" title="Swaps all qubits in register indices given by qreg_idx to their right&#45;most positions...." alt="" coords="5,5,145,47"/>
+<area shape="rect" id="node2" href="$a00788.html#a5e696fab46b0f0485928f754910e6b1b" title="Swaps all qubits in register indices given by qreg_idx to their right&#45;most positions...." alt="" coords="193,5,333,47"/>
+<area shape="rect" id="node3" href="$a00788.html#a7439be4cca7a329c94ab4f4a20f80bd2" title="Swap the qubits if qreg_idx0 is set and qreg_idx1 is not. Uses Auxiliary qubits qaux_idx which are se..." alt="" coords="381,13,544,39"/>
+</map>
