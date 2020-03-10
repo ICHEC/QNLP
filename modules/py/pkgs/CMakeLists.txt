@@ -19,7 +19,7 @@ if(${ENABLE_PYTHON})
     add_custom_command(TARGET PipInstallerPkgs
         # Run after all other rules within the target have been executed
         POST_BUILD
-        COMMAND pip install .
+        COMMAND python -m pip install .
         COMMENT "Installing Python packages into QNLP environment"
         VERBATIM
     )
