@@ -67,3 +67,51 @@ def HammingInt(i1 : int, i2 : int):
     """Simple integer based hamming distance for bits"""
     return bin(i1 ^ i2).count("1")
 
+def num_qubits(enc_dict : dict):
+    """
+    Assuming simple.py encoding and give qubits as num_tokens/2 per meaning space
+    """
+    
+    num_ns = len(enc_dict['ns'])//2
+    num_v = len(enc_dict['v'])//2
+    num_no = len(enc_dict['no'])//2
+    return num_ns, num_v, num_no
+
+def encode_binary_pattern(pattern : (str,str,str), enc_dict : dict):
+    """
+    Pass in the pattern given by the basis token values as (ns,v,no)
+    The pattern will be constructed into the appropriate binary string
+    and output for encoding.
+    """
+    num_ns, num_v, num_no = num_qubits(enc_dict)
+    result = enc_dict["ns"][pattern[0]] | \
+                enc_dict["v"][pattern[1]] << num_ns | \
+                enc_dict["no"][pattern[2]] << (num_ns + num_v)
+
+    return result
+
+def encode_binary_pattern_direct(pattern : [int,int,int], enc_dict : dict):
+    """
+    Pass in the pattern given by the basis token values as (ns,v,no)
+    The pattern will be constructed into the appropriate binary string
+    and output for encoding.
+    """
+    num_ns, num_v, num_no = num_qubits(enc_dict)
+    result = pattern[0] | pattern[1] << num_ns | pattern[2] << (num_ns + num_v)
+
+    return result
+
+
+def decode_binary_pattern(pattern : int, dec_dict : dict):
+    """
+    Pass in the pattern given as the encoded integer.
+    The pattern will be deconstructed into the appropriate token tuple
+    and output for plotting/printing. Inverse of encode_binary_pattern.
+    """
+    num_ns, num_v, num_no = num_qubits(dec_dict)
+
+    t_ns =   pattern & (2**num_ns -1)
+    t_v  = ( pattern >> num_ns ) & (2**num_v -1)
+    t_no = ( pattern >> (num_ns + num_v) ) & (2**num_no -1)
+    
+    return (dec_dict["ns"][t_ns], dec_dict["v"][t_v], dec_dict["no"][t_no])
