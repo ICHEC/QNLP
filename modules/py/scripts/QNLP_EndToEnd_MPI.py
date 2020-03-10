@@ -60,17 +60,17 @@ except KeyError as e:
 
 # Next, we load the corpus file using the vector-space model, defined in the 
 # `VectorSpaceModel` class, specifying the mode of tagging, and whether to 
-# filter out stop-words. For this notebook I have used the Project Gutenberg 
-# [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple 
-# replacements to avoid incorrect tagging of elements (mostly standardising 
-# apostrophes to \' and quotations to \"). 
+# filter out stop-words. For this notebook I have tested with the Project 
+# Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, 
+# with simple replacements to avoid incorrect tagging of elements (mostly 
+# standardising apostrophes to \' and quotations to \"). 
 
-#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
     s_encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB)
     assert (len(sys.argv) > 1)
-    #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
-    corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
+    
+    corpus_file=sys.argv[1]
+
     if not os.path.isfile(corpus_file):
         print ("Error: Inputted file does not exist")
         MPI.Finalize()
@@ -263,9 +263,7 @@ maximum of {} unique patterns.
 # Generate bit-patterns from sentences and store in vec_to_encode
 
     for idx,sentence in enumerate(sentences):
-        print(sentence)
         superpos_patterns = list( product( list(sentence[0].values())[0], list(sentence[1].values())[0], list(sentence[2].values())[0] ) )
-        print(superpos_patterns)
         # Generate all combinations of the bit-patterns for superpos states
         for patt in superpos_patterns: 
             num = q.utils.encode_binary_pattern_direct(patt, encoding_dict)
@@ -310,6 +308,10 @@ num_qubits = len(reg_memory) + len(reg_aux)
 
 #Explicitly disable fusion as it can cause incorrect results
 use_fusion = False
+
+if os.environ.get('RESOURCE_EST') is not None:
+    print("Overriding default qubit count")
+    num_qubits = 1
 
 sim = p(num_qubits, use_fusion)
 normalise = True
