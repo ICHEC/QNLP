@@ -1,33 +1,35 @@
 # QNLP - Quantum Natural Language Processing
 
-#### Start date: 14-Jan-2019, End date: 13-Mar-2020
+In this software suite we have developed a workflow to implement a hybridised classical-quantum model for representing language and representing sentence meanings in quantum states.
 
-[Intel](www.intel.com) and [ICHEC](www.ichec.ie) identified the opportunity to leverage the [Intel Quantum Simulator](https://github.com/intel/Intel-QS) (that can simulate up to ~42 qubits [4,5] to port and implement a quantum version of an existing compositional semantics NLP algorithm to analyse the meaning sentences in a corpus. This project aims to
-1.	Leverage and evaluate the computing power that quantum devices can offer to computation intensive NLP algorithms such as in the distributional compositional semantics model.
-2.	Develop the ecosystem of proof-of-concept applications ported to the emerging quantum computing domain, particularly using a highly relevant application domain such as NLP.
-3.	Pioneer a collaborative innovation environment in Ireland between industry and research organisations to develop expertise to program quantum computers.
+## The model
 
-## Background
+This work is based upon and inspired by the **DisCo** (also known as **DisCoCat**) formalism of Coecke *et al.* [1,2,3], wherein both compositional and distributional sentence structure and information is used to represent meaning. Following the work on Zeng and Coecke [3], we aimed to implement a modified approach to implement this model for quantum processors. Further details will follow shortly in the upcoming paper.
 
-### Natural Language Processing
-Natural language processing (NLP) is often used to perform tasks like machine translation, sentiment analysis, relationship extraction, word sense disambiguation and automatic summary generation. Most traditional NLP algorithms for these problems are defined to operate over strings of words, and are commonly referred to as the “bag of words” approach. The challenge, and thus limitation, of this approach is that the algorithms analyse sentences in a corpus based on meanings of the component words and lack information from the grammatical rules and nuances of the language. Consequently, the qualities of results of these traditional algorithms are often unsatisfactory when the complexity of the problem increases. On the other hand, an alternate approach called “compositional semantics” incorporates the grammatical structure of sentences in a language into the analysis algorithms. Compositional semantics algorithms include the information flows between words in a sentence to determine the meaning of the whole sentence. One such model is “distributional compositional semantics” (DisCo), which is based on tensor product composition to give a grammatically informed algorithm that computes the meaning of sentences and phrases. This algorithm has been noted to offer significant improvements to the quality of results, particularly for more complex sentences. However, the main challenge in its implementation is the need for large classical computational resources.
+## Requirements
 
-### Quantum Computing
-Quantum computers have the ability to solve complex problems that are beyond the capabilities of classical computers and will enforce the next genuine disruption to technical computing. The impacts of Quantum Computing will be significantly greater than those brought by many-core architectures and accelerators such as GPUs. While many enterprises (including Intel, IBM, Google, etc.) have been developing physical quantum computing devices, another line of developing quantum computing platforms is through the creation of simulators that are deployed on classical HPC (High Performance Computing) systems. It is widely acknowledged that quantum devices and simulators of size ~50 qubits allow for implementation of proof-of-concept algorithms and have computation power that exceeds many of currently available Peta-scale supercomputers. With the availability of such quantum computing platforms, it is essential that we develop the software ecosystem and programming expertise to target the quantum platforms.
+To build and run this software suite it is recommended to have the Intel compilers and Intel MPI libraries. We make use of the Intel Quantum Simulaton (Intel-QS, qHiPSTER) [4,5] as the underlying simulator for our methods. If not available, the build can use GCC/Clang, provided the toolchain supports C++14 at a minimum (C++17 prefered). In addition, an MPI library is required. We have successfully used both MPICH and OpenMPI with non-Intel compiler builds. 
 
-### QNLP
-In this software suite we have developed a workflow to implement hybridised classical-quantum models for representing language and calculating sentence meanings. 
+This suite is primarily developed for Linux HPC systems, though it may also run on laptops/desktops. MacOS can be used, but some additional work is necessary. 
 
-## References
+## Documentation and examples
 
-[1]. William Zeng and Bob Coecke, “[Quantum Algorithms for Compositional Natural Language Processing](https://arxiv.org/pdf/1608.01406.pdf)”, Proceedings of SLPCS, 2016.
+All documentation for this project is available at https://ichec.github.io/qnlp
 
-[2]. Stephen Clark, Bob Coecke and Mehrnoosh Sadrzadeh, “[A Compositional Distributional Model of Meaning](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.363.8703&rep=rep1&type=pdf)”, Proceedings of 2nd Quantum Interaction Symposium, 2008.
+- [Installation](https://ichec.github.io/qnlp/install) and [build](Build.md)
+- [API](https://ichec.github.io/qnlp/docs)
+- [Examples](https://ichec.github.io/qnlp/examples)
 
-[3]. Bob Coecke, Mehrnoosh Sadrzadeh and Stephen Clark, “[Mathematical Foundations of a Compositional Distributional Model of Meaning](http://arxiv.org/pdf/1003.4394v1.pdf)”, Special issue of Linguistic Analysis, 2010.
+Example runnable scripts are available in the `modules/py/scripts` directory. C++ demos and tests are available under `demos` and `modules/tests` respectively. Jupyter notebooks are available at `modules/py/nb`.
 
-[4]. [qHiPSTER: The Quantum High Performance Software Testing Environment](https://arxiv.org/abs/1601.07195).
+## Acknowledgements
 
-[5]. [Intel Quantum Simulator: A cloud-ready high-performance simulator of quantum circuits](https://arxiv.org/abs/2001.10554).
+This project would not have succeeded without the support of Fabio Baruffa and Jim Kenneally of Intel, and we thank them and Intel for their support. We also acknowledge the support of Enterprise Ireland for funding of this project. Additionally, we would like to thank Bob Coecke and Ross Duncan for useful conversations throughout the project. Lastly, we wish to acknowledge the support of ICHEC's systems and national service team for their assistance with running our simulations on Kay.
 
+---
 
+- [1]: Stephen Clark, Bob Coecke and Mehrnoosh Sadrzadeh, *A Compositional Distributional Model of Meaning*, Proceedings of the Second Quantum Interaction Symposium, 2008.
+- [2]: Bob Coecke, Mehrnoosh Sadrzadeh and Stephen Clark, *Mathematical Foundations of a Compositional Distributional Model of Meaning*, Special issue of Linguistic Analysis, 2010. [arXiv:1003.4394](https://arxiv.org/abs/1003.4394)
+- [3]: William Zeng and Bob Coecke, *Quantum Algorithms for Compositional Natural Language Processing*, Proceedings of SLPCS, 2016. [arXiv:1608.01406](https://arxiv.org/pdf/1608.01406.pdf)
+- [4]: Mikhail Smelyanskiy, Nicolas P. D. Sawaya, Alán Aspuru-Guzik. *qHiPSTER: The Quantum High Performance Software Testing Environment*, [arXiv:1601.07195](https://arxiv.org/abs/1601.07195)
+- [5]: Gian Giacomo Guerreschi, Justin Hogaboam, Fabio Baruffa, Nicolas P. D. Sawaya, *Intel Quantum Simulator: A cloud-ready high-performance simulator of quantum circuits*. [arXiv:2001.10554](https://arxiv.org/abs/2001.10554)
