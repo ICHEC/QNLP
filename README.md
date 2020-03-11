@@ -14,11 +14,11 @@ This suite is primarily developed for Linux HPC systems, though it may also run 
 
 ## Documentation and examples
 
-All documentation for this project is available at https://ichec.github.io/qnlp
+All documentation for this project is available at https://ichec.github.io/QNLP
 
-- [Installation](https://ichec.github.io/qnlp/install) and [build](Build.md)
-- [API](https://ichec.github.io/qnlp/docs)
-- [Examples](https://ichec.github.io/qnlp/examples)
+- [Installation](https://ichec.github.io/QNLP/install) and [build](Build.md)
+- [API](https://ichec.github.io/QNLP/docs)
+- [Examples](https://ichec.github.io/QNLP/examples)
 
 Example runnable scripts are available in the `modules/py/scripts` directory. C++ demos and tests are available under `demos` and `modules/tests` respectively. Jupyter notebooks are available at `modules/py/nb`.
 
