@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Example of parameter analysis on QNLP</title>
-    <link>http://ichec.github.io/qnlp/examples/pre_proc_params/</link>
+    <link>http://ichec.github.io/QNLP/examples/pre_proc_params/</link>
     <description>Recent content in Example of parameter analysis on QNLP</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 01 Mar 2020 10:48:38 +0000</lastBuildDate>
     
-	<atom:link href="http://ichec.github.io/qnlp/examples/pre_proc_params/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://ichec.github.io/QNLP/examples/pre_proc_params/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
