@@ -20,11 +20,8 @@
 <meta property="og:description" content="Quantum Natural Language Processing" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://ichec.github.io/QNLP/examples/float_encode/" />
-<meta property="og:image" content="https://ichec.github.io/QNLP/images/og-image.png"/>
-<meta property="og:updated_time" content="2020-03-01T10:48:38+00:00" /><meta property="og:site_name" content="Hugo Techdoc Theme" />
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://ichec.github.io/QNLP/images/og-image.png"/>
-
+<meta property="og:updated_time" content="2020-03-01T10:48:38+00:00" /><meta property="og:site_name" content="QNLP" />
+<meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="Encoding data into state coefficients"/>
 <meta name="twitter:description" content="Quantum Natural Language Processing"/>
 <meta itemprop="name" content="Encoding data into state coefficients">
@@ -58,7 +55,7 @@
 </script></head>
 <body><div class="container"><header>
 <h1>QNLP</h1>
-<a href="https://github.com/ichec/qnlp" class="github"><i class="fab fa-github"></i></a>
+<a href="https://github.com/ichec/QNLP" class="github"><i class="fab fa-github"></i></a>
 <p class="description">Quantum Natural Language Processing</p>
 
 </header>
@@ -306,7 +303,7 @@ Applying matrix to state |0&gt; = [1,0]^T
 <span class="k">for</span> <span class="n">c_jj</span><span class="p">,</span> <span class="n">v_jj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq_states</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">counts_arr</span><span class="p">[</span><span class="n">c_jj</span><span class="p">][:]</span><span class="o">/</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">v_jj</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-</code></pre></div><p><img src="/img/small_encode.png" alt="png"></p>
+</code></pre></div><p><img src="/QNLP/img/small_encode.png" alt="png"></p>
 <p>For a 2 qubit (4 float) data set, as the vector is rotated through a variety of angles relative to the reference, we can see occupation of the $|00\rangle$ state (which is $100%$ at $\Delta\theta=0$), lessens, and states $|01\rangle$ and $|10\rangle$ have non-negligible counts (not shown as requires measurement of the register). As the vector is rotated to $\pi/2$, the occupation of the $|01\rangle$ and $|10\rangle$ drops off, and the $|11\rangle$ state approaches $50%$, along with $|00\rangle$. This implies that the states are now maximally entangled, in state $\left(|00\rangle + |11\rangle\right)/\sqrt{2}$, with further rotations causing an oscillation through these probabilities back to the original states.</p>
 <p>As such, when the vector is the same, $P(|00\rangle) = 100%$ $P(\textrm{all others}) = 0%$, and when they are orthogonal $P(|00\rangle) =50%$ and $P(|11\rangle)=50%$.</p>
 <p>Measuring the auxiliary bit as implied by PRL 114, 110504 (2015) however does not allow us to extract any information, as measurements of the full state is required.  Applying an additional H gate to the circuit does change this, but leaves us with a large plateau in the region approaching vector orthogonality for larger qubit registers.</p>
@@ -379,12 +376,12 @@ $$.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">([</span><span class="n">i</span><span class="o">*</span><span class="mi">16</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]],</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">,</span> <span class="s1">&#39;pi/2&#39;</span><span class="p">,</span> <span class="s1">&#39;pi&#39;</span><span class="p">,</span> <span class="s1">&#39;3pi/2&#39;</span><span class="p">,</span> <span class="s1">&#39;2pi&#39;</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">uniq_states</span><span class="p">)),</span> <span class="n">uniq_states</span><span class="p">)</span>
 <span class="n">cbar</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">)</span>
-</code></pre></div><p><img src="/img/small_encode_pcolor.png" alt="png"></p>
+</code></pre></div><p><img src="/QNLP/img/small_encode_pcolor.png" alt="png"></p>
 <div class="highlight"><pre class="chroma"><code class="language-python" data-lang="python"><span class="c1">#Equivalent data in lineplot, which hides overlap of crossed states</span>
 <span class="k">for</span> <span class="n">c_jj</span><span class="p">,</span> <span class="n">v_jj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">uniq_states</span><span class="p">):</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">counts</span><span class="p">[</span><span class="n">c_jj</span><span class="p">][:]</span><span class="o">/</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">uniq_states</span><span class="p">)</span>
-</code></pre></div><p><img src="/img/multiline_encode.png" alt="png"></p>
+</code></pre></div><p><img src="/QNLP/img/multiline_encode.png" alt="png"></p>
 <p>As can be seen, the central region platueaus for increased qubit register size.</p>
 <div class="edit-meta">
 Last updated on 1 Mar 2020

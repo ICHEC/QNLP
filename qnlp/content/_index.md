@@ -3,10 +3,9 @@ date: 2020-02-14T00:00:00Z
 lastmod: 2020-02-14T00:00:00Z
 publishdate: 2020-02-14T00:00:00Z
 
-title: Home title
-description: Text about this post
-images:
-- /images/tn.png
+title: QNLP
+description: Home page
+
 ---
 
 # QNLP

@@ -299,7 +299,7 @@ fig.set_size_inches(20, 12, forward=True)
 ```
 
 
-![png](/img/QNLP_Python.png)
+![png](/QNLP/img/QNLP_Python.png)
 
 
 As we can see, the closest discovered pattern using the given basis is "adult, sit, inside". 

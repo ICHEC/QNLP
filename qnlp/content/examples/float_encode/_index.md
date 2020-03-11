@@ -356,7 +356,7 @@ plt.legend()
 
 
 
-![png](/img/small_encode.png)
+![png](/QNLP/img/small_encode.png)
 
 
 For a 2 qubit (4 float) data set, as the vector is rotated through a variety of angles relative to the reference, we can see occupation of the $|00\rangle$ state (which is $100\%$ at $\Delta\theta=0$), lessens, and states $|01\rangle$ and $|10\rangle$ have non-negligible counts (not shown as requires measurement of the register). As the vector is rotated to $\pi/2$, the occupation of the $|01\rangle$ and $|10\rangle$ drops off, and the $|11\rangle$ state approaches $50\%$, along with $|00\rangle$. This implies that the states are now maximally entangled, in state $\left(|00\rangle + |11\rangle\right)/\sqrt{2}$, with further rotations causing an oscillation through these probabilities back to the original states.
@@ -449,7 +449,7 @@ cbar = ax.figure.colorbar(im)
 ```
 
 
-![png](/img/small_encode_pcolor.png)
+![png](/QNLP/img/small_encode_pcolor.png)
 
 
 
@@ -461,7 +461,7 @@ for c_jj, v_jj in enumerate(uniq_states):
 ```
 
 
-![png](/img/multiline_encode.png)
+![png](/QNLP/img/multiline_encode.png)
 
 
 As can be seen, the central region platueaus for increased qubit register size.
