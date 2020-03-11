@@ -65,12 +65,10 @@ except KeyError as e:
 # replacements to avoid incorrect tagging of elements (mostly standardising 
 # apostrophes to \' and quotations to \"). 
 
-#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
     s_encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB)
     assert (len(sys.argv) > 1)
-    #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
-    corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
+    corpus_file=sys.argv[1] 
     if not os.path.isfile(corpus_file):
         print ("Error: Inputted file does not exist")
         sys.exit()
@@ -207,18 +205,6 @@ maximum of {} unique patterns.
 # Using encoded bitstrings for bases, look-up mapping terms for composite nouns
 # and verbs, create bitstrings and generate quantum states.
 
-    ns = []
-
-#    verb_bits = int(np.log2(len(verb_dist['verbs'])))
-#    noun_bits = int(np.log2(len(noun_dist['nouns'])))
-
-    bit_shifts = [i[1] for i in q.utils.get_type_offsets(encoding_dict)]
-    bit_shifts.reverse()
-
-    bit_shifts.insert(0,0)
-    bit_shifts = np.cumsum(bit_shifts)
-    bit_shifts
-
     corpus_list_n = vsm.tokens['nouns']
     corpus_list_v = vsm.tokens['verbs']
     dist_cutoff = BASIS_VERB_DIST_CUTOFF
@@ -261,13 +247,11 @@ maximum of {} unique patterns.
 
 # Generate bit-patterns from sentences and store in vec_to_encode
 
-    for idx in range(len(sentences)):
-        superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
+    for idx,sentence in enumerate(sentences):
+        superpos_patterns = list( product( list(sentence[0].values())[0], list(sentence[1].values())[0], list(sentence[2].values())[0] ) )
         # Generate all combinations of the bit-patterns for superpos states
-        for patt in list(product(superpos_patterns[0], superpos_patterns[1], superpos_patterns[2])):
-            num = 0
-            for val in zip(patt, bit_shifts):
-                num += (val[0] << val[1])
+        for patt in superpos_patterns: 
+            num = q.utils.encode_binary_pattern_direct(patt, encoding_dict)
             vec_to_encode.extend([num])
 
 #Need to remove duplicates        
@@ -307,7 +291,6 @@ reg_aux = comm.bcast(reg_aux, root=0)
 vec_to_encode = comm.bcast(vec_to_encode, root=0)
 shot_counter = comm.bcast(shot_counter, root=0)
 encoding_dict = comm.bcast(encoding_dict, root=0)
-bit_shifts = comm.bcast(bit_shifts, root=0)
 
 num_qubits = len(reg_memory) + len(reg_aux)
 
@@ -335,23 +318,24 @@ num_exps=comm.bcast(num_exps, root=0)
 
 num_faults = 0
 
-#if rank == 0:
+# Use all potential string patterns as test
 test_strings = list(product(encoding_dict["ns"].values(), encoding_dict["v"].values(), encoding_dict["no"].values()))
 
-for i_ts1 in range(len(test_strings)-1):
-    test_pattern1=0
-    test_string1 = test_strings[i_ts1]
-    for val in zip(test_string1, bit_shifts):
-        test_pattern1 += (val[0] << val[1])
-    for i_ts2 in range(i_ts1+1, len(test_strings)):
-        test_pattern2=0
-        test_string2 = test_strings[i_ts2]
-        for val in zip(test_string2, bit_shifts):
-            test_pattern2 += (val[0] << val[1])
 
-        if test_pattern1 in vec_to_encode or test_pattern2 in vec_to_encode:
+for i_ts1,ts1 in enumerate(test_strings[:-1]):
+    test_pattern1 = q.utils.encode_binary_pattern_direct(ts1, encoding_dict)
+    if test_pattern1 in vec_to_encode:
+        if rank == 0:
+            print("Pattern {} already exists. Skipping".format(test_pattern1))
+            sys.stdout.flush()
+        continue
+
+    for i_ts2,ts2 in enumerate(test_strings[i_ts1+1:]):
+        test_pattern2 = q.utils.encode_binary_pattern_direct(ts2, encoding_dict)
+
+        if test_pattern2 in vec_to_encode:
             if rank == 0:
-                print("Pattern already exists. Skipping encoding of {} and {}".format(test_pattern1, test_pattern2))
+                print("Pattern {} already exists. Skipping encoding of {} and {}".format(test_pattern2, test_pattern1, test_pattern2))
                 sys.stdout.flush()
             continue
 

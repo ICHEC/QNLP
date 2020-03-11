@@ -8,7 +8,7 @@ This work is based upon and inspired by the **DisCo** (also known as **DisCoCat*
 
 ## Requirements
 
-To build and run this software suite it is recommended to have the Intel compilers and Intel MPI libraries. We make use of the Intel Quantum Simulaton (Intel-QS, qHiPSTER) [4,5] as the underlying simulator for our methods. If not available, the build can use GCC/Clang, provided the toolchain supports C++14 at a minimum (C++17 prefered). In addition, an MPI library is required. We have successfully used both MPICH and OpenMPI with non-Intel compiler builds. 
+To build and run this software suite it is recommended to have the Intel compilers and Intel MPI libraries. We make use of the Intel Quantum Simulator (Intel-QS, qHiPSTER) [4,5] as the underlying simulator for our methods. If not available, the build can use GCC/Clang, provided the toolchain supports C++14 at a minimum (C++17 prefered). In addition, an MPI library is required. We have successfully used both MPICH and OpenMPI with non-Intel compiler builds. 
 
 This suite is primarily developed for Linux HPC systems, though it may also run on laptops/desktops. MacOS can be used, but some additional work is necessary. 
 
@@ -21,10 +21,6 @@ All documentation for this project is available at https://ichec.github.io/qnlp
 - [Examples](https://ichec.github.io/qnlp/examples)
 
 Example runnable scripts are available in the `modules/py/scripts` directory. C++ demos and tests are available under `demos` and `modules/tests` respectively. Jupyter notebooks are available at `modules/py/nb`.
-
-## Acknowledgements
-
-This project would not have succeeded without the support of Fabio Baruffa and Jim Kenneally of Intel, and we thank them and Intel for their support. We also acknowledge the support of Enterprise Ireland for funding of this project. Additionally, we would like to thank Bob Coecke and Ross Duncan for useful conversations throughout the project. Lastly, we wish to acknowledge the support of ICHEC's systems and national service team for their assistance with running our simulations on Kay.
 
 ---
 

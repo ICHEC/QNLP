@@ -60,17 +60,17 @@ except KeyError as e:
 
 # Next, we load the corpus file using the vector-space model, defined in the 
 # `VectorSpaceModel` class, specifying the mode of tagging, and whether to 
-# filter out stop-words. For this notebook I have used the Project Gutenberg 
-# [https://www.gutenberg.org/] edition of `Alice in Wonderland`, with simple 
-# replacements to avoid incorrect tagging of elements (mostly standardising 
-# apostrophes to \' and quotations to \"). 
+# filter out stop-words. For this notebook I have tested with the Project 
+# Gutenberg [https://www.gutenberg.org/] edition of `Alice in Wonderland`, 
+# with simple replacements to avoid incorrect tagging of elements (mostly 
+# standardising apostrophes to \' and quotations to \"). 
 
-#corpus_file = "/Users/mlxd/Desktop/qs_dev/intel-qnlp/corpus/11-0.txt"
 if rank == 0:
     s_encoder = simple.SimpleEncoder(num_nouns=NUM_BASIS_NOUN, num_verbs=NUM_BASIS_VERB)
     assert (len(sys.argv) > 1)
-    #corpus_file = "/ichec/work/ichec001/loriordan_scratch/intel-qnlp-python/11-0.txt"
-    corpus_file=sys.argv[1] #"/ichec/home/staff/loriordan/woo.txt" #"/ichec/work/ichec001/loriordan_scratch/intel-qnlp-iqs2/joyce.txt"
+    
+    corpus_file=sys.argv[1]
+
     if not os.path.isfile(corpus_file):
         print ("Error: Inputted file does not exist")
         MPI.Finalize()
@@ -262,13 +262,11 @@ maximum of {} unique patterns.
 
 # Generate bit-patterns from sentences and store in vec_to_encode
 
-    for idx in range(len(sentences)):
-        superpos_patterns = [list(sentences[idx][i].values())[0] for i in range(3)]
+    for idx,sentence in enumerate(sentences):
+        superpos_patterns = list( product( list(sentence[0].values())[0], list(sentence[1].values())[0], list(sentence[2].values())[0] ) )
         # Generate all combinations of the bit-patterns for superpos states
-        for patt in list(product(superpos_patterns[0], superpos_patterns[1], superpos_patterns[2])):
-            num = 0
-            for val in zip(patt, bit_shifts):
-                num += (val[0] << val[1])
+        for patt in superpos_patterns: 
+            num = q.utils.encode_binary_pattern_direct(patt, encoding_dict)
             vec_to_encode.extend([num])
 
 #Need to remove duplicates        
@@ -311,9 +309,11 @@ num_qubits = len(reg_memory) + len(reg_aux)
 #Explicitly disable fusion as it can cause incorrect results
 use_fusion = False
 
+if os.environ.get('RESOURCE_EST') is not None:
+    print("Overriding default qubit count")
+    num_qubits = 1
+
 sim = p(num_qubits, use_fusion)
-import QNLP
-hd = QNLP.proc.HammingDistance.HammingDistanceGroupRotate(len(reg_memory),sim)
 normalise = True
 
 if rank == 0:
@@ -333,11 +333,10 @@ num_faults = 0
 
 if rank == 0:
     test_pattern = 0
-    test_string = (encoding_dict['ns']['hatter'], encoding_dict['v']['say'], encoding_dict['no']['queen'])
-    #test_string = (encoding_dict['ns']['hatter'], encoding_dict['v']['say'], encoding_dict['no']['queen'])
-    for val in zip(test_string, bit_shifts):
-        test_pattern += (val[0] << val[1])
-    print("Test data: {};   pattern: {}".format(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict), test_pattern))
+    test_string = ('hatter', 'say', 'queen')
+    test_pattern = q.utils.encode_binary_pattern(test_string, encoding_dict)
+
+    print("Test string: {}      pattern: {}".format(test_string, test_pattern))
 else:
     test_pattern = None
 
@@ -353,9 +352,6 @@ for exp in range(num_exps):
 
     # Encode
     sim.encodeBinToSuperpos_unique(reg_memory, reg_aux, vec_to_encode, len(reg_memory))
-
-    #hd.calc(reg_memory, reg_aux, test_pattern)
-    #sim.collapseToBasisZ(reg_aux[-2], 1)
 
     # Compute Hamming distance between test pattern and encoded patterns
     sim.applyHammingDistanceRotY(test_pattern, reg_memory, reg_aux, len(reg_memory))
@@ -390,7 +386,7 @@ if rank == 0:
 
     key_order = [i[0] for i in shot_counter_s] #list(shot_counter.keys())
 
-    xlab_str = [",".join(q.utils.bin_to_sentence(i, encoding_dict, decoding_dict)) for i in key_order]
+    xlab_str = [q.utils.decode_binary_pattern(i, decoding_dict) for i in key_order]
     xlab_bin = ["{0:0{num_bits}b}".format(i, num_bits=len_reg_memory) for i in key_order ]
 
     pattern_dict = {k:v for k,v in zip(xlab_str, xlab_bin)}
@@ -420,7 +416,7 @@ if rank == 0:
 
     pv_sum = np.sum(list(shot_counter.values()))
     hist_list_hamCl = list(zip(
-        [i[0]+r" "+ str(q.utils.HammingInt(test_pattern, int(i[1],2))) for i in zip(xlab_str,xlab_bin)],
+        [",".join(i[0]) + r" "+ str(q.utils.HammingInt(test_pattern, int(i[1],2))) for i in zip(xlab_str,xlab_bin)],
         [i/pv_sum for i in post_vals]
     ))
     labelsHCL = [x[0] for x in hist_list_hamCl]#labels#[x[0] for x in hist_list_hamCl]
@@ -432,7 +428,7 @@ if rank == 0:
 
     rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
 
-    test_pattern_str = ",".join(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict))
+    test_pattern_str = q.utils.decode_binary_pattern(test_pattern, decoding_dict)
     print("Test pattern={}".format(test_pattern_str))
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
@@ -448,15 +444,11 @@ if rank == 0:
     fig.set_size_inches(20, 12, forward=True)
     plt.savefig("qnlp_e2e.pdf")
 
-
     ##########
 
     fig, ax = plt.subplots()
 
     rects2 = ax.bar(x + width/2, post_vals, width, label='Measurement')
-
-    test_pattern_str = ",".join(q.utils.bin_to_sentence(test_pattern, encoding_dict, decoding_dict))
-    print("Test pattern={}".format(test_pattern_str))
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel(r"P({})".format(test_pattern_str),fontsize=24)
@@ -476,7 +468,7 @@ if rank == 0:
     import  pickle
 
     import pickle
-    data = [key_order, xlab_str, xlab_bin, pattern_dict, pattern_count, shot_counter, encoding_dict, decoding_dict]
+    data = { "key_order" : key_order, "xlab_str" : xlab_str, "xlab_bin" : xlab_bin, "pattern_dict":pattern_dict, "pattern_count":pattern_count, "shot_counter" : shot_counter, "encoding_dict":encoding_dict, "decoding_dict" : decoding_dict}
     f = open("qnlp_e2e_{}.pkl".format(test_pattern_str),"wb")
     pickle.dump(data, f)
     f.close()
