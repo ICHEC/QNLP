@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Home title on QNLP</title>
-    <link>/</link>
+    <link>http://ichec.github.io/qnlp/</link>
     <description>Recent content in Home title on QNLP</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 14 Feb 2020 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://ichec.github.io/qnlp/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>About QNLP</title>
-      <link>/about/</link>
+      <link>http://ichec.github.io/qnlp/about/</link>
       <pubDate>Sun, 01 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>/about/</guid>
+      <guid>http://ichec.github.io/qnlp/about/</guid>
       <description>This project and work was carried out as a collaboration between ICHEC and the Intel from January 2019 to March 2020.</description>
     </item>
     

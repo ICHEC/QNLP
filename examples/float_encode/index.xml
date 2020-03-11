@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Encoding data into state coefficients on QNLP</title>
-    <link>/examples/float_encode/</link>
+    <link>http://ichec.github.io/qnlp/examples/float_encode/</link>
     <description>Recent content in Encoding data into state coefficients on QNLP</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 01 Mar 2020 10:48:38 +0000</lastBuildDate>
     
-	<atom:link href="/examples/float_encode/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://ichec.github.io/qnlp/examples/float_encode/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>

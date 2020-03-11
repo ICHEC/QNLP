@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Installation instructions on QNLP</title>
-    <link>/install/</link>
+    <link>http://ichec.github.io/qnlp/install/</link>
     <description>Recent content in Installation instructions on QNLP</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 01 Mar 2020 10:48:38 +0000</lastBuildDate>
     
-	<atom:link href="/install/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://ichec.github.io/qnlp/install/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>

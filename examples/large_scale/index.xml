@@ -2,13 +2,13 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Distributed QNLP example on QNLP</title>
-    <link>/examples/large_scale/</link>
+    <link>http://ichec.github.io/qnlp/examples/large_scale/</link>
     <description>Recent content in Distributed QNLP example on QNLP</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 01 Mar 2020 10:48:38 +0000</lastBuildDate>
     
-	<atom:link href="/examples/large_scale/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="http://ichec.github.io/qnlp/examples/large_scale/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
