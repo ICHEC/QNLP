@@ -8,7 +8,7 @@ This work is based upon and inspired by the **DisCo** (also known as **DisCoCat*
 
 ## Requirements
 
-To build and run this software suite it is recommended to have the Intel compilers and Intel MPI libraries. We make use of the Intel Quantum Simulaton (Intel-QS, qHiPSTER) [4,5] as the underlying simulator for our methods. If not available, the build can use GCC/Clang, provided the toolchain supports C++14 at a minimum (C++17 prefered). In addition, an MPI library is required. We have successfully used both MPICH and OpenMPI with non-Intel compiler builds. 
+To build and run this software suite it is recommended to have the Intel compilers and Intel MPI libraries. We make use of the Intel Quantum Simulator (Intel-QS, qHiPSTER) [4,5] as the underlying simulator for our methods. If not available, the build can use GCC/Clang, provided the toolchain supports C++14 at a minimum (C++17 prefered). In addition, an MPI library is required. We have successfully used both MPICH and OpenMPI with non-Intel compiler builds. 
 
 This suite is primarily developed for Linux HPC systems, though it may also run on laptops/desktops. MacOS can be used, but some additional work is necessary. 
 
