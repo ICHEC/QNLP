@@ -1,5 +1,5 @@
 #baseURL = "http//localhost:8000" #"http://ichec.github.io/qnlp"
-baseURL = "http://ichec.github.io/QNLP/"
+baseURL = "https://ichec.github.io/QNLP/"
 languageCode = "en-us"
 title = "QNLP"
 theme = "hugo-theme-techdoc"
