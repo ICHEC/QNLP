@@ -118,7 +118,7 @@ int main(int argc, char **argv){
         sim->encodeBinToSuperpos_unique(reg_memory, reg_auxiliary, vec_to_encode, len_reg_memory); 
 
         // Print superposition of states in each experimentation
-        if(verbose && rank == 0){
+        if(verbose){
             sim->PrintStates("After encoding: ");
         }
 
@@ -129,7 +129,7 @@ int main(int argc, char **argv){
         sim->applyHammingDistanceRotY(test_pattern, reg_memory, reg_auxiliary, len_reg_memory);
 
         // Print superposition of states after the amplitude adjustment
-        if(verbose && rank == 0){
+        if(verbose){
             sim->PrintStates("After Hamming Rot_Y: ");
         }
 
@@ -137,7 +137,7 @@ int main(int argc, char **argv){
         sim->collapseToBasisZ(reg_auxiliary[len_reg_auxiliary-2], 1);
 
         // Print superposition after collapse to the Z-basis on the qubit which rotations were computed.
-        if(verbose && rank == 0){
+        if(verbose){
             sim->PrintStates("After Collapse to Basis z: ");
         }
 
@@ -145,7 +145,7 @@ int main(int argc, char **argv){
         val = sim->applyMeasurementToRegister(reg_memory);
 
         // Print final measured state.
-        if(verbose && rank == 0){
+        if(verbose){
             sim->PrintStates("After Measurement: ");
         }
 
