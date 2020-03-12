@@ -49,18 +49,18 @@ int main(int argc, char **argv){
     if(argc > 1){
         verbose = atoi(argv[1]);
     }
-    else if(argc > 2){
+    if(argc > 2){
         test_pattern = atoi(argv[2]);
         if(test_pattern < 0){
             std::cout << "Error: Test Patter is negative. Must be positive integer." << std::endl;
             std::abort();
         }
     }
-    else if(argc > 3){
-        num_exps = atoi(argv[2]);
+    if(argc > 3){
+        num_exps = atoi(argv[3]);
     }
-    else if(argc > 4){
-        len_reg_memory = atoi(argv[3]);
+    if(argc > 4){
+        len_reg_memory = atoi(argv[4]);
     }
     else{
         std::cerr << "Error: " << argc << " arguments supplied, expected 1, 2, 3 or 4 (verbosity [bool], test pattern [unsigned integer], number of shots [unsigned integer], length of binary states to encode [unsigned integer]). " << std::endl;
