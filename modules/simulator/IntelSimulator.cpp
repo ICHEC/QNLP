@@ -165,7 +165,7 @@ class IntelSimulator : public SimulatorGeneral<IntelSimulator> {
         gate_count_1qubit++;
 
         #ifdef GATE_LOGGING
-        writer.oneQubitGateCall("PShift(theta=" + std::to_string(angle) + ")", U.tostr(), qubitIndex);
+        writer.oneQubitGateCall("PShift(theta=" + std::to_string(angle) + ")", U.tostr(), qubit_idx);
         #endif
 
     }
