@@ -152,7 +152,7 @@ sudo port <span class="k">select</span> --set mpi openmpi-devel-gcc9-fortran
 <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">1</span> ./build/modules/test/tests <span class="s2">&#34;[ncu]&#34;</span>
 </code></pre></div><p>The above commands should verify the C++ modules work correctly. To verify if the Python modules are working correctly, we can attempt to import the newly built packages into the Python environment, and create a simulator object with</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">source</span> ./load_env.sh
-python -c <span class="s2">&#34;import QNLP as q; import PyQNLPSimulator as p; num_qubits = 8; sim = p(num_qubits, False); p.PrintStates(\&#34;Test\&#34;, []);&#34;</span>
+python -c <span class="s2">&#34;from PyQNLPSimulator import PyQNLPSimulator as p; import QNLP as q; num_qubits = 8; sim = p(num_qubits, False); sim.initRegister(); sim.printStates(\&#34;Test\&#34;, []);&#34;</span>
 </code></pre></div><p>The above command will load the necessary modules into the Python environment, create a simulator of 8 qubits, and print out the state coefficients. If all succeeds, the environment has been correctly set. Additionally, we can use start the <code>jupyter notebook</code> environment and run a sample notebook, located at <code>&lt;QNLP_ROOT&gt;/modules/py/nb</code> to further investigate.</p>
 <div class="edit-meta">
 Last updated on 1 Mar 2020
