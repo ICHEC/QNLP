@@ -127,7 +127,7 @@ The above commands should verify the C++ modules work correctly. To verify if th
 
 ```bash
 source ./load_env.sh
-python -c "import QNLP as q; import PyQNLPSimulator as p; num_qubits = 8; sim = p(num_qubits, False); p.PrintStates(\"Test\", []);"
+python -c "from PyQNLPSimulator import PyQNLPSimulator as p; import QNLP as q; num_qubits = 8; sim = p(num_qubits, False); sim.initRegister(); sim.printStates(\"Test\", []);"
 ```
 
 The above command will load the necessary modules into the Python environment, create a simulator of 8 qubits, and print out the state coefficients. If all succeeds, the environment has been correctly set. Additionally, we can use start the `jupyter notebook` environment and run a sample notebook, located at `<QNLP_ROOT>/modules/py/nb` to further investigate.
