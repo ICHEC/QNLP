@@ -16,8 +16,8 @@
 
 #include "Simulator.hpp"
 #include "GateWriter.hpp"
-#include "qureg/qureg.hpp"
-#include "util/tinymatrix.hpp"
+#include "include/qureg.hpp"
+#include "include/tinymatrix.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <limits>

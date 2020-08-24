@@ -6,4 +6,4 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(hamming_similarity_example hamming_similarity_example.cpp)
-target_link_libraries(hamming_similarity_example qnlp_simulator intel_qs)
+target_link_libraries(hamming_similarity_example qnlp_simulator iqs)

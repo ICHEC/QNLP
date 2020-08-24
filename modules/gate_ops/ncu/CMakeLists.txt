@@ -11,6 +11,6 @@ target_link_libraries(qnlp_ncu INTERFACE qnlp_utils)
 
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_ncu OBJECT test_ncu.cpp)
-    target_link_libraries(test_ncu Catch2::Catch2 qnlp_simulator intel_qs)
+    target_link_libraries(test_ncu Catch2::Catch2 qnlp_simulator iqs)
     target_include_directories(test_ncu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
 endif()

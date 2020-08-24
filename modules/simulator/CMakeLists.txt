@@ -10,10 +10,10 @@ set(QNLP_SIMULATOR_FILES IntelSimulator.cpp Simulator.hpp CACHE INTERNAL "" FORC
 
 add_library(qnlp_simulator STATIC ${QNLP_SIMULATOR_FILES})
 
-target_include_directories(qnlp_simulator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
-target_link_libraries(qnlp_simulator intel_qs qnlp_bitgroup qnlp_ncu qnlp_oracle qnlp_diffusion qnlp_qft qnlp_arithmetic qnlp_gatewriter qnlp_qft qnlp_binencode qnlp_hamming qnlp_utils)
+target_include_directories(qnlp_simulator PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} iqs )
+target_link_libraries(qnlp_simulator iqs qnlp_bitgroup qnlp_ncu qnlp_oracle qnlp_diffusion qnlp_qft qnlp_arithmetic qnlp_gatewriter qnlp_qft qnlp_binencode qnlp_hamming qnlp_utils)
 
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_simulator OBJECT test_simulator.cpp ${QNLP_SIMULATOR_FILES})
-    target_link_libraries(test_simulator Catch2::Catch2 qnlp_simulator intel_qs qnlp_ncu qnlp_diffusion qnlp_oracle qnlp_qft qnlp_binencode qnlp_hamming qnlp_utils)
+    target_link_libraries(test_simulator Catch2::Catch2 qnlp_simulator iqs qnlp_ncu qnlp_diffusion qnlp_oracle qnlp_qft qnlp_binencode qnlp_hamming qnlp_utils)
 endif()

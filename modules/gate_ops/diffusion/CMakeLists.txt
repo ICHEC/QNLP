@@ -10,6 +10,6 @@ target_include_directories(qnlp_diffusion INTERFACE $<BUILD_INTERFACE:${CMAKE_CU
 
 if(${CMAKE_TESTING_ENABLED})
     add_library(test_diffusion OBJECT test_diffusion.cpp)
-    target_link_libraries(test_diffusion Catch2::Catch2 qnlp_simulator intel_qs qnlp_diffusion)
+    target_link_libraries(test_diffusion Catch2::Catch2 qnlp_simulator iqs qnlp_diffusion)
     target_include_directories(test_diffusion PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
 endif()
