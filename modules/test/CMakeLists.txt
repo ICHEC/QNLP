@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(${CMAKE_TESTING_ENABLED})
     add_executable(tests test_main.cpp)
 
-    target_link_libraries(tests Catch2::Catch2 test_bitgroup test_db test_simulator test_ncu test_qft test_arithmetic test_oracle test_diffusion test_binencode test_hamming intel_qs)
+    target_link_libraries(tests Catch2::Catch2 test_bitgroup test_db test_simulator test_ncu test_qft test_arithmetic test_oracle test_diffusion test_binencode test_hamming iqs)
     target_include_directories(tests PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${QHIPSTER_INC})
 
     include(CTest)
