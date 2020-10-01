@@ -40,5 +40,6 @@ script:
         -DENABLE_RESOURCE_EST=0 \
         -DENABLE_INTEL_LLVM=0
   - make
+  - cd .. 
   - source ./load_env.sh
   - ./build/modules/test/tests
