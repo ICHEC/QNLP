@@ -10,7 +10,7 @@ branches:
 
 # Build essentials
 before install: 
-  - sudo apt-get install -y gcc g++ build-essential make mpich openssh-client openssh-server git
+  - sudo apt-get install -y gcc g++ build-essential make mpich libmpich-dev openssh-client openssh-server git
   - sudo apt-get install -y curl wget dvipng texlive-base texlive texlive-latex-extra cm-super cmake
 
 # Ensure apt-get update is run before use
