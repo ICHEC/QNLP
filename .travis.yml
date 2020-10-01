@@ -1,0 +1,45 @@
+language: cpp
+arch: amd64
+os: linux
+dist: focal # Ubuntu 20.04
+
+# Only run on master
+branches:
+  only:
+    - master
+
+# Build essentials
+before install: 
+  - sudo apt-get install -y gcc g++ build-essential make mpich libmpich-dev openssh-client openssh-server git
+  - sudo apt-get install -y curl wget dvipng texlive-base texlive texlive-latex-extra cm-super cmake
+
+# Ensure apt-get update is run before use
+addons:
+  apt:
+    update: true
+
+# Any clones will be shallow
+git:
+  depth: false
+
+script: 
+  - bash ./setup_env.sh
+  - source ./load_env.sh
+  - cd build 
+  - |
+    cmake .. \
+        -DCMAKE_C_COMPILER=mpicc \
+        -DCMAKE_CXX_COMPILER=mpicxx \
+        -DENABLE_TESTS=1 \
+        -DENABLE_LOGGING=0 \
+        -DENABLE_PYTHON=1 \
+        -DENABLE_MPI=0 \
+        -DIqsMPI=OFF \
+        -DIqsMKL=OFF \
+        -DENABLE_NATIVE=on \
+        -DENABLE_RESOURCE_EST=0 \
+        -DENABLE_INTEL_LLVM=0
+  - make
+  - cd .. 
+  - source ./load_env.sh
+  - ./build/modules/test/tests "[diffusion],[ncu],[oracle],[encode],[encode_amp],[hammingroty],[bitgroup]"
