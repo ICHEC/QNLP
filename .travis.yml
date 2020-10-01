@@ -1,6 +1,12 @@
+language: cpp
 arch: amd64
 os: linux
 dist: focal # Ubuntu 20.04
+
+# Only run on master
+branches:
+  only:
+    - master
 
 # Build essentials
 before install: 
@@ -18,10 +24,10 @@ git:
 
 script: 
   - bash ./setup_env.sh
-
-after_success:
   - source ./load_env.sh
-  - cd build && cmake .. \
+  - cd build 
+  - |
+    cmake .. \
         -DCMAKE_C_COMPILER=mpicc \
         -DCMAKE_CXX_COMPILER=mpicxx \
         -DENABLE_TESTS=1 \
@@ -35,6 +41,4 @@ after_success:
         -DENABLE_INTEL_LLVM=0
   - make
   - source ./load_env.sh
-  - OMP_NUM_THREADS=1 ./build/modules/test/tests "[ncu]"
-  - python -c "from PyQNLPSimulator import PyQNLPSimulator as p; import QNLP as q; num_qubits = 8; sim = p(num_qubits, False); sim.initRegister(); sim.printStates(\"Test\", []);"
-
+  - ./build/modules/test/tests
