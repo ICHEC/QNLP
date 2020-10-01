@@ -1,4 +1,5 @@
 # QNLP - Quantum Natural Language Processing
+<img src="https://travis-ci.com/ICHEC/QNLP.svg?branch=master">
 
 In this software suite we have developed a workflow to implement a hybridised classical-quantum model for representing language and representing sentence meanings in quantum states [1].
 
